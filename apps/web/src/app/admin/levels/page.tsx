@@ -1,15 +1,24 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import {
-  BOARD_MAX,
   CHAPTER_LABEL,
   CHAPTER_ORDER,
+  createInitialState,
   LEVELS,
   validateLevel,
   type ChapterId,
   type LevelConfig,
 } from '@wolf-sheep/game-core'
+import { BoardSvg } from '@/components/BoardSvg'
+import { themeForChapter } from '@/components/admin/adminBoardTheme'
+
+const AI_COLOR: Record<string, string> = {
+  easy: 'bg-emerald-100 text-emerald-800',
+  normal: 'bg-amber-100 text-amber-900',
+  hard: 'bg-rose-100 text-rose-900',
+}
 
 export default function AdminLevelsPage() {
   const [selectedId, setSelectedId] = useState(LEVELS[0]?.id ?? '')
@@ -17,9 +26,12 @@ export default function AdminLevelsPage() {
   const errors = level ? validateLevel(level) : []
 
   return (
-    <main className="mx-auto max-w-5xl">
+    <main className="mx-auto max-w-6xl">
       <h1 className="font-serif text-2xl text-[#2c3328]">关卡台</h1>
-      <div className="mt-4 grid gap-6 lg:grid-cols-2">
+      <p className="mt-1 text-sm text-[#5c6b52]">
+        关卡质量与 SEO 文案验收：开局可读、校验合法、双语 blurb 成品感。
+      </p>
+      <div className="mt-4 grid gap-6 lg:grid-cols-[280px_1fr]">
         <div className="flex flex-col gap-4">
           {CHAPTER_ORDER.map((ch) => (
             <ChapterBlock
@@ -31,21 +43,32 @@ export default function AdminLevelsPage() {
           ))}
         </div>
         {level && (
-          <div>
-            <h2 className="font-medium text-[#2c3328]">{level.name}</h2>
-            <p className="mt-1 text-sm text-[#5c6b52]">
-              AI {level.ai} · 岩石 {level.rocks.length}
-            </p>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="font-medium text-[#2c3328]">{level.nameZh}</h2>
+                <p className="mt-1 font-mono text-xs text-[#7a8574]">{level.id}</p>
+              </div>
+              <Link
+                href={`/admin/ai?level=${encodeURIComponent(level.id)}&diff=${level.ai}`}
+                className="rounded-lg bg-[#3d4a3a] px-3 py-2 text-sm text-[#f4f1ea] hover:opacity-90"
+              >
+                在 AI 台打开此关
+              </Link>
+            </div>
             {errors.length > 0 ? (
-              <ul className="mt-2 text-sm text-red-700">
+              <ul className="text-sm text-red-700">
                 {errors.map((e) => (
                   <li key={e}>{e}</li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-sm text-green-700">配置校验通过</p>
+              <p className="text-sm text-green-700">配置校验通过</p>
             )}
-            <LevelPreview level={level} />
+            <LevelOpeningPreview level={level} />
+            <MetaPanel level={level} />
+            <BlurbPanel level={level} />
+            <RewardPanel level={level} />
           </div>
         )}
       </div>
@@ -83,9 +106,13 @@ function ChapterBlock({
                     : 'border-[#5c6b52]/20 bg-[#f7f5ef]'
                 }`}
               >
-                {l.name}
-                <span className={`ml-2 text-xs ${bad ? 'text-red-700' : 'text-green-700'}`}>
-                  {bad ? '违规' : 'OK'}
+                <span className="font-medium">{l.nameZh}</span>
+                <span className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                  <span className={`rounded px-1.5 py-0.5 ${AI_COLOR[l.ai] ?? ''}`}>{l.ai}</span>
+                  <span className="text-[#5c6b52]">岩 {l.rocks.length}</span>
+                  <span className={bad ? 'text-red-700' : 'text-green-700'}>
+                    {bad ? '违规' : 'OK'}
+                  </span>
                 </span>
               </button>
             </li>
@@ -96,43 +123,133 @@ function ChapterBlock({
   )
 }
 
-function LevelPreview({ level }: { level: LevelConfig }) {
-  const rockSet = new Set(level.rocks.map((p) => `${p.r},${p.c}`))
-  const cell = 28
-  const pad = 16
-  const size = pad * 2 + cell * (BOARD_MAX - 1)
-
+function LevelOpeningPreview({ level }: { level: LevelConfig }) {
+  const state = useMemo(
+    () => createInitialState(level.id, level.rocks),
+    [level.id, level.rocks],
+  )
+  const theme = useMemo(() => themeForChapter(level.chapterId), [level.chapterId])
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="mt-4 w-full max-w-sm rounded bg-[#e8f0e4]">
-      {Array.from({ length: BOARD_MAX }, (_, i) => {
-        const v = pad + i * cell
-        return (
-          <g key={i}>
-            <line x1={pad} y1={v} x2={pad + cell * 5} y2={v} stroke="#5c6b52" strokeWidth={1} />
-            <line x1={v} y1={pad} x2={v} y2={pad + cell * 5} stroke="#5c6b52" strokeWidth={1} />
-          </g>
-        )
-      })}
-      {Array.from({ length: BOARD_MAX }, (_, ri) =>
-        Array.from({ length: BOARD_MAX }, (_, ci) => {
-          const r = ri + 1
-          const c = ci + 1
-          const x = pad + (c - 1) * cell
-          const y = pad + (r - 1) * cell
-          if (!rockSet.has(`${r},${c}`)) return null
-          return (
-            <rect
-              key={`${r}-${c}`}
-              x={x - 8}
-              y={y - 8}
-              width={16}
-              height={16}
-              rx={2}
-              fill="#3f3a34"
-            />
-          )
-        }),
-      )}
-    </svg>
+    <div className="rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4">
+      <p className="mb-2 text-sm font-medium text-[#2c3328]">
+        开局盘（3 狼 / 15 羊 + 岩石 · 章节季节皮）
+      </p>
+      <BoardSvg
+        state={state}
+        selectedWolfId={null}
+        stepHighlights={[]}
+        jumpHighlights={[]}
+        jumpThroughs={[]}
+        interactive={false}
+        onSelectWolf={() => undefined}
+        onClickCell={() => undefined}
+        theme={theme}
+      />
+    </div>
+  )
+}
+
+function MetaPanel({ level }: { level: LevelConfig }) {
+  return (
+    <div className="rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
+      <p className="font-medium text-[#2c3328]">元数据</p>
+      <dl className="mt-2 grid gap-2 sm:grid-cols-2">
+        <div>
+          <dt className="text-xs text-[#7a8574]">chapter</dt>
+          <dd>{CHAPTER_LABEL[level.chapterId]} ({level.chapterId})</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[#7a8574]">ai</dt>
+          <dd>
+            <span className={`rounded px-1.5 py-0.5 text-xs ${AI_COLOR[level.ai]}`}>{level.ai}</span>
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[#7a8574]">nameZh</dt>
+          <dd>{level.nameZh}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[#7a8574]">nameEn</dt>
+          <dd>{level.nameEn}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[#7a8574]">indexInChapter</dt>
+          <dd>{level.indexInChapter}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[#7a8574]">rocks</dt>
+          <dd>{level.rocks.length}</dd>
+        </div>
+      </dl>
+    </div>
+  )
+}
+
+function BlurbPanel({ level }: { level: LevelConfig }) {
+  return (
+    <div className="rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="font-medium text-[#2c3328]">SEO 文案（/hunt）</p>
+        <div className="flex gap-3 text-xs">
+          <a
+            href={`/hunt/${level.id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[#3d4a3a] underline"
+          >
+            /hunt/{level.id}
+          </a>
+          <a
+            href={`/zh/hunt/${level.id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[#3d4a3a] underline"
+          >
+            /zh/hunt/{level.id}
+          </a>
+        </div>
+      </div>
+      <div className="mt-3 space-y-3">
+        <div>
+          <p className="text-xs text-[#7a8574]">blurbEn · {level.blurbEn.length} chars</p>
+          <p className="mt-1 leading-relaxed text-[#2c3328]">{level.blurbEn}</p>
+        </div>
+        <div>
+          <p className="text-xs text-[#7a8574]">blurbZh · {level.blurbZh.length} 字</p>
+          <p className="mt-1 leading-relaxed text-[#2c3328]">{level.blurbZh}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function RewardPanel({ level }: { level: LevelConfig }) {
+  const first = level.firstClearReward
+  const drop = level.repeatDrop
+  return (
+    <div className="rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="font-medium text-[#2c3328]">奖励 / 掉落</p>
+        <Link href="/admin/economy" className="text-xs text-[#3d4a3a] underline">
+          经济台总览
+        </Link>
+      </div>
+      <ul className="mt-2 space-y-1 text-[#5c6b52]">
+        <li>
+          首通：通用 {first.universal ?? 0}
+          {first.season
+            ? ` · 季节 ${Object.entries(first.season)
+                .map(([k, v]) => `${k}:${v}`)
+                .join(', ')}`
+            : ''}
+        </li>
+        <li>
+          重复掉落：
+          {drop
+            ? `概率 ${(drop.chance * 100).toFixed(0)}% · 通用 ${drop.universal ?? 0}`
+            : '无（见 LevelConfig.repeatDrop）'}
+        </li>
+      </ul>
+    </div>
   )
 }

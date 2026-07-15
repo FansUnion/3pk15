@@ -16,10 +16,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             关卡
           </Link>
           <Link href="/admin/ai" className="hover:underline">
-            AI 模拟
+            AI
           </Link>
           <Link href="/admin/docs" className="hover:underline">
             说明
+          </Link>
+          <Link href="/admin/economy" className="hover:underline">
+            经济
+          </Link>
+          <Link href="/admin/checklist" className="hover:underline">
+            清单
           </Link>
         </nav>
         <div className="ml-auto flex gap-3 text-[#5c6b52]">

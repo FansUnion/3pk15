@@ -1,32 +1,44 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+
+function safeAdminNext(raw: string | null): string {
+  if (!raw || !raw.startsWith('/admin')) return '/admin'
+  if (raw.startsWith('/admin/gate')) return '/admin'
+  return raw
+}
 
 function GateForm() {
   const [key, setKey] = useState('')
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
-  const router = useRouter()
   const search = useSearchParams()
-  const next = search.get('next') || '/admin'
+  const next = safeAdminNext(search.get('next'))
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true)
     setErr('')
-    const res = await fetch('/api/admin/unlock', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key }),
-    })
-    setBusy(false)
-    if (!res.ok) {
-      setErr('密钥错误')
-      return
+    try {
+      const res = await fetch('/api/admin/unlock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ key }),
+      })
+      if (!res.ok) {
+        setErr('密钥错误')
+        setBusy(false)
+        return
+      }
+      // Hard navigation so middleware sees the freshly set httpOnly cookie.
+      // router.replace soft-nav often hits /admin before the cookie is applied → bounce back to gate.
+      window.location.assign(next)
+    } catch {
+      setErr('网络错误，请重试')
+      setBusy(false)
     }
-    router.replace(next)
   }
 
   return (
