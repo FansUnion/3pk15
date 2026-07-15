@@ -1,0 +1,39 @@
+# Fangrush (三狼连猎)
+URL: https://fangrush.com
+Type: Free browser board game. No download. No account (v1).
+Platform: Web (desktop + mobile).
+
+## One-liner
+EN: Command 3 wolves. Gap-rush the flock in chains — break lines with rocks.
+ZH: 操控三狼，隔空连吃破阵，借岩石通关四季猎场。
+
+## Key pages
+- Home: https://fangrush.com/
+- How to play: https://fangrush.com/how-to-play
+- Seasonal hunts: https://fangrush.com/chapters
+- Level guides: https://fangrush.com/hunt/{levelId} (e.g. spring-01)
+- Play sessions: /play/{levelId} (noindex)
+- Skins: https://fangrush.com/skins
+- Privacy: https://fangrush.com/privacy
+- Chinese: prefix paths with /zh (e.g. /zh/how-to-play)
+
+## Rules (canonical)
+- Board: 6x6 points, orthogonal moves only.
+- Gap-eat: wolf — empty — sheep on a line; wolf lands on sheep; sheep removed.
+- Chain eats: up to 5 per wolf turn; ending chain early allowed.
+- Win: eat 8 sheep to clear. Lose: all three wolves have no legal moves.
+- Sheep AI moves automatically; sheep cannot retreat toward row 1.
+- Rocks block points; used for seasonal difficulty.
+
+## Seasons
+Spring easy / Summer+Autumn normal / Winter hard. Autumn uses rocks for feel.
+Each level has a short unique blurb on its /hunt page.
+
+## Progress
+LocalStorage only (key wolf-sheep-save-v1). Clearing site data resets progress.
+
+## Languages
+Default English (no /en prefix). Simplified Chinese under /zh. Only zh* browser languages auto-select Chinese.
+
+## Contact / Privacy
+See https://fangrush.com/privacy

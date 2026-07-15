@@ -1,6 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <ellipse cx="32" cy="40" rx="16" ry="12" fill="#f4f1ea" stroke="#8a8478" stroke-width="1.5"/>
-  <circle cx="32" cy="26" r="10" fill="#f4f1ea" stroke="#8a8478" stroke-width="1.5"/>
-  <circle cx="28" cy="26" r="1.5" fill="#3d4a3a"/>
-  <circle cx="36" cy="26" r="1.5" fill="#3d4a3a"/>
+  <!-- Meadow sheep — fluffy fleece + dark face/legs; readable at 36px -->
+  <ellipse cx="32" cy="54" rx="15" ry="3.5" fill="#1a1f18" opacity="0.18"/>
+  <!-- wool clumps -->
+  <circle cx="18" cy="36" r="10" fill="#f7f5ef"/>
+  <circle cx="46" cy="36" r="10" fill="#f7f5ef"/>
+  <circle cx="32" cy="28" r="12" fill="#faf8f3"/>
+  <circle cx="22" cy="44" r="9" fill="#ebe6dc"/>
+  <circle cx="42" cy="44" r="9" fill="#ebe6dc"/>
+  <ellipse cx="32" cy="40" rx="17" ry="13" fill="#f4f1ea"/>
+  <ellipse cx="32" cy="41" rx="12" ry="9" fill="#ebe6dc"/>
+  <!-- wool bumps top -->
+  <circle cx="24" cy="24" r="5" fill="#f7f5ef"/>
+  <circle cx="40" cy="24" r="5" fill="#f7f5ef"/>
+  <circle cx="32" cy="20" r="5.5" fill="#faf8f3"/>
+  <!-- dark face -->
+  <ellipse cx="32" cy="30" rx="9" ry="8.5" fill="#3a342e"/>
+  <circle cx="28.5" cy="28.5" r="1.5" fill="#f4f1ea"/>
+  <circle cx="35.5" cy="28.5" r="1.5" fill="#f4f1ea"/>
+  <circle cx="28.8" cy="28.7" r="0.7" fill="#1a1f18"/>
+  <circle cx="35.8" cy="28.7" r="0.7" fill="#1a1f18"/>
+  <ellipse cx="32" cy="33" rx="2.4" ry="1.5" fill="#1a1f18"/>
+  <path d="M29 35.5c1.2 1.2 4.8 1.2 6 0" stroke="#1a1f18" stroke-width="1" stroke-linecap="round" fill="none"/>
+  <!-- ears -->
+  <ellipse cx="22" cy="24" rx="3.5" ry="4.5" fill="#3a342e" transform="rotate(-18 22 24)"/>
+  <ellipse cx="42" cy="24" rx="3.5" ry="4.5" fill="#3a342e" transform="rotate(18 42 24)"/>
+  <ellipse cx="22" cy="24" rx="1.8" ry="2.4" fill="#6b5a48" transform="rotate(-18 22 24)"/>
+  <ellipse cx="42" cy="24" rx="1.8" ry="2.4" fill="#6b5a48" transform="rotate(18 42 24)"/>
+  <!-- legs -->
+  <path d="M22 48v10M28 49v10M36 49v10M42 48v10" stroke="#2c3328" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M22 48v10M28 49v10M36 49v10M42 48v10" stroke="#3d4a3a" stroke-width="1.8" stroke-linecap="round"/>
 </svg>

@@ -1,11 +1,20 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { getLevel } from '@wolf-sheep/game-core'
+import { getLevel, levelDisplayName } from '@wolf-sheep/game-core'
 import { useSaveStore } from '@/lib/save-store'
+import { LocaleLink } from '@/components/LocaleSwitcher'
+import type { SupportedLocale } from '@/config/locales'
 
-export function HomeContinueLink() {
+export function HomeContinueLink({
+  locale,
+  labelTemplate,
+  fallbackLabel,
+}: {
+  locale: SupportedLocale
+  labelTemplate: string
+  fallbackLabel: string
+}) {
   const hydrate = useSaveStore((s) => s.hydrate)
   const save = useSaveStore((s) => s.save)
   const [ready, setReady] = useState(false)
@@ -18,17 +27,21 @@ export function HomeContinueLink() {
   const levelId = save.lastPlayedLevelId ?? 'spring-01'
   const level = getLevel(levelId) ?? getLevel('spring-01')
   const href = `/play/${level?.id ?? 'spring-01'}`
-  const label = level ? `继续 · ${level.name}` : '继续 · 春日第 1 关'
+  const label = level
+    ? labelTemplate.replace('{name}', levelDisplayName(level, locale))
+    : fallbackLabel
 
   if (!ready) {
-    return (
-      <span className="text-center text-sm text-[#5c6b52]/60">继续 · …</span>
-    )
+    return <span className="text-center text-sm text-[#5c6b52]/60">{fallbackLabel} · …</span>
   }
 
   return (
-    <Link href={href} className="text-center text-sm text-[#5c6b52] underline-offset-2 hover:underline">
+    <LocaleLink
+      href={href}
+      locale={locale}
+      className="text-center text-sm text-[#5c6b52] underline-offset-2 hover:underline"
+    >
       {label}
-    </Link>
+    </LocaleLink>
   )
 }

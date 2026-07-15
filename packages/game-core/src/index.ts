@@ -1,9 +1,15 @@
 export type { ChapterId, LevelConfig } from './content/levels'
 export {
+  adjacentLevels,
   CHAPTER_AI,
+  CHAPTER_BLURB_EN,
+  CHAPTER_BLURB_ZH,
   CHAPTER_LABEL,
+  CHAPTER_LABEL_EN,
   CHAPTER_ORDER,
   getLevel,
+  levelBlurb,
+  levelDisplayName,
   LEVELS,
   levelsForChapter,
   validateAllLevels,

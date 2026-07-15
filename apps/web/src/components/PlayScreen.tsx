@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
 import {
   activateDoubleDrop,
   applyClearToSave,
   createSeededRng,
   isDoubleDropActive,
+  levelDisplayName,
   recordPlayStarted,
   resolveSkin,
   rollClearReward,
@@ -14,10 +14,13 @@ import {
   type LevelConfig,
 } from '@wolf-sheep/game-core'
 import { BoardSvg } from '@/components/BoardSvg'
+import { LocaleLink } from '@/components/LocaleSwitcher'
 import { getAds } from '@/lib/ads'
 import { usePlayStore } from '@/lib/play-store'
 import { useSaveStore } from '@/lib/save-store'
 import { playSfx } from '@/lib/sfx'
+import { fmt, type MessageTree } from '@/i18n/messages'
+import { useClientMessages } from '@/i18n/use-client-locale'
 
 type Props = {
   level: LevelConfig
@@ -52,6 +55,8 @@ export function PlayScreen({ level }: Props) {
   const prevEaten = useRef(0)
   const terminalSfxDone = useRef(false)
   const muted = save.settings?.muted ?? false
+  const { locale, t } = useClientMessages()
+  const p = t.play
 
   useEffect(() => {
     hydrate()
@@ -130,12 +135,14 @@ export function PlayScreen({ level }: Props) {
 
   useEffect(() => {
     if (!isDoubleDropActive(save)) return
-    const id = setInterval(() => setTick((t) => t + 1), 1000)
+    const id = setInterval(() => setTick((n) => n + 1), 1000)
     return () => clearInterval(id)
   }, [save])
 
   const theme = useMemo(() => {
     const { wolfSet, board } = resolveSkin(save)
+    const rockWarm =
+      board.id === 'board-autumn' ? 0.55 : board.id === 'board-winter' ? -0.45 : board.id === 'board-summer' ? 0.25 : 0
     return {
       boardFill: board.boardFill,
       lineStroke: board.lineStroke,
@@ -144,15 +151,17 @@ export function PlayScreen({ level }: Props) {
       wolfSrc: wolfSet.assets.wolf,
       sheepSrc: wolfSet.assets.sheep,
       boardBgSrc: board.assets.boardBg,
+      rockWarm,
     }
   }, [save])
 
-  const sheepLeft = state.pieces.filter((p) => p.side === 'sheep').length
+  const sheepLeft = state.pieces.filter((piece) => piece.side === 'sheep').length
   const interactive = uiPhase === 'playing' && state.toMove === 'wolf'
   const backHref = `/levels/${level.chapterId}`
   const doubleLeft = doubleDropLabel(save.buffs.doubleDropUntil)
   const thinking = uiPhase === 'aiThinking'
   const chainFlash = Boolean(state.chain && uiPhase === 'playing')
+  const title = levelDisplayName(level, locale)
 
   function finishGuide() {
     setGuideOpen(false)
@@ -196,29 +205,45 @@ export function PlayScreen({ level }: Props) {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-lg flex-col gap-4 px-4 py-6">
+    <div className="mx-auto flex min-h-dvh max-w-lg flex-col gap-3 px-4 pb-4 pt-4">
       <header className="flex items-center justify-between gap-3">
-        <Link href={backHref} className="text-sm text-[#5c6b52] underline-offset-2 hover:underline">
-          返回
-        </Link>
-        <h1 className="font-serif text-lg tracking-wide text-[#2c3328]">{level.name}</h1>
+        <LocaleLink
+          href={backHref}
+          locale={locale}
+          className="text-sm text-[var(--muted)] underline-offset-2 hover:underline"
+        >
+          ← {p.back}
+        </LocaleLink>
+        <h1 className="font-serif text-lg tracking-wide text-[var(--ink)]">{title}</h1>
         <span className="w-10" />
       </header>
 
       <div
-        className={`flex flex-wrap justify-between gap-2 rounded-lg px-3 py-2 text-sm text-[#2c3328] ${
-          chainFlash ? 'bg-[#e8c4b8] ring-2 ring-[#c44836]/50' : 'bg-[#dfe8d8]'
+        className={`flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm tabular-nums shadow-sm ${
+          chainFlash
+            ? 'bg-[#e8c4b8] font-semibold text-[#8b2e22] ring-2 ring-[var(--danger)]/40'
+            : 'bg-[var(--panel)] text-[var(--ink)] ring-1 ring-[#5c6b52]/15'
         }`}
       >
-        <span>已吃 {state.eatenSheep}/8</span>
-        <span>剩羊 {sheepLeft}</span>
-        <span className={thinking ? 'font-medium text-[#5c6b52]' : undefined} aria-live="polite">
-          {turnLabel(uiPhase, state)}
+        <span className="font-semibold">{fmt(p.eaten, { n: state.eatenSheep })}</span>
+        <span>{fmt(p.sheepLeft, { n: sheepLeft })}</span>
+        <span
+          className={`inline-flex items-center gap-1.5 ${thinking ? 'font-medium text-[var(--muted)]' : ''}`}
+          aria-live="polite"
+        >
+          <span
+            className={`inline-block h-2 w-2 rounded-full ${
+              thinking || state.toMove === 'sheep' ? 'bg-[var(--muted)]' : 'bg-[var(--accent)]'
+            }`}
+          />
+          {turnLabel(uiPhase, state, p)}
         </span>
-        {doubleLeft && <span className="w-full text-xs text-[#5c6b52]">双倍掉落剩余 {doubleLeft}</span>}
+        {doubleLeft && (
+          <span className="w-full text-xs text-[var(--muted)]">{fmt(p.doubleLeft, { t: doubleLeft })}</span>
+        )}
       </div>
 
-      <div className="relative flex flex-1 flex-col items-center justify-center">
+      <div className="relative flex flex-1 flex-col items-center justify-center py-1">
         <BoardSvg
           state={state}
           selectedWolfId={selectedWolfId}
@@ -232,7 +257,7 @@ export function PlayScreen({ level }: Props) {
           theme={theme}
         />
         {thinking && (
-          <div className="absolute inset-0 z-10 cursor-default rounded-lg bg-black/[0.04]" aria-hidden />
+          <div className="absolute inset-0 z-10 cursor-default rounded-xl bg-black/[0.03]" aria-hidden />
         )}
       </div>
 
@@ -240,23 +265,25 @@ export function PlayScreen({ level }: Props) {
         <button
           type="button"
           onClick={endChain}
-          className="rounded-lg bg-[#3d4a3a] px-4 py-3 text-center text-sm font-medium text-[#f4f1ea]"
+          className="rounded-full bg-[var(--accent)] px-4 py-3 text-center text-sm font-medium text-[#f4f1ea] active:scale-[0.97]"
         >
-          结束连吃
+          {p.endChain}
         </button>
       )}
 
       {uiPhase === 'terminal' && (
-        <div className="rounded-lg border border-[#5c6b52]/30 bg-[#f7f5ef] p-4 text-center">
-          <p className="font-serif text-xl text-[#2c3328]">
-            {state.status === 'won' ? '胜利' : '失败'}
+        <div className="rounded-xl bg-[var(--panel)] p-4 text-center ring-1 ring-[#5c6b52]/20">
+          <p className="font-serif text-2xl text-[var(--ink)]">
+            {state.status === 'won' ? p.win : p.lose}
           </p>
-          <p className="mt-1 text-sm text-[#5c6b52]">
-            {state.status === 'won' ? '吃羊达到 8 只' : '三狼无路可走'}
+          <p className="mt-1 text-sm text-[var(--muted)]">
+            {state.status === 'won' ? p.winSub : p.loseSub}
           </p>
-          {adBusy && <p className="mt-1 text-xs text-[#7a8574]">准备中…</p>}
-          {state.status === 'won' && lastGrant && <GrantLine grant={lastGrant} />}
-          <p className="mt-2 text-xs text-[#7a8574]">通用碎片 {save.fragments.universal}</p>
+          {adBusy && <p className="mt-1 text-xs text-[#7a8574]">{p.preparing}</p>}
+          {state.status === 'won' && lastGrant && (
+            <GrantLine grant={lastGrant} labels={p} locale={locale} />
+          )}
+          <p className="mt-2 text-xs text-[#7a8574]">{fmt(p.universal, { n: save.fragments.universal })}</p>
           <div className="mt-4 flex flex-col items-center gap-2">
             <button
               type="button"
@@ -269,97 +296,92 @@ export function PlayScreen({ level }: Props) {
                 replace(recordPlayStarted(useSaveStore.getState().save, level.id))
                 playCountedRef.current = true
               }}
-              className="w-full max-w-xs rounded-lg bg-[#3d4a3a] px-4 py-3 text-sm font-medium text-[#f4f1ea] disabled:opacity-50"
+              className="w-full max-w-xs rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-medium text-[#f4f1ea] disabled:opacity-50 active:scale-[0.97]"
             >
-              再来一局
+              {p.again}
             </button>
             {state.status === 'won' && !isDoubleDropActive(save) && (
               <button
                 type="button"
                 disabled={adBusy}
                 onClick={() => void watchDouble()}
-                className="text-sm text-[#5c6b52] underline-offset-2 hover:underline disabled:opacity-50"
+                className="text-sm text-[var(--muted)] underline-offset-2 hover:underline disabled:opacity-50"
               >
-                看广告 · 碎片双倍 30 分钟
+                {p.doubleAd}
               </button>
             )}
-            <Link
+            <LocaleLink
               href={backHref}
-              className="rounded-lg border border-[#5c6b52]/40 px-4 py-2 text-sm text-[#2c3328]"
+              locale={locale}
+              className="px-4 py-2 text-sm text-[var(--ink)] underline-offset-2 hover:underline"
             >
-              关卡列表
-            </Link>
+              {p.levelList}
+            </LocaleLink>
           </div>
         </div>
       )}
 
-      <p className="text-center text-xs text-[#7a8574]">
-        绿点走空格 · 隔一空点羊即吃（红圈在羊上）
-      </p>
+      {uiPhase !== 'terminal' && (
+        <p className="text-center text-xs text-[#7a8574]">{p.tip}</p>
+      )}
 
-      <footer className="mt-auto grid grid-cols-3 gap-2 border-t border-[#5c6b52]/20 pt-3">
+      <footer className="mt-auto flex items-center justify-around border-t border-[#5c6b52]/15 pt-2">
         <button
           type="button"
           onClick={confirmReset}
-          className={`rounded-lg border py-2.5 text-sm ${
-            resetArmed
-              ? 'border-[#c44836]/50 bg-[#e8c4b8]/40 text-[#8b2e22]'
-              : 'border-[#5c6b52]/30 text-[#2c3328]'
+          className={`min-h-11 min-w-[4.5rem] rounded-lg px-3 py-2 text-sm active:scale-[0.97] ${
+            resetArmed ? 'bg-[#e8c4b8]/50 font-medium text-[#8b2e22]' : 'text-[var(--ink)]'
           }`}
         >
-          {resetArmed ? '再点确认' : '重置'}
+          {resetArmed ? p.resetConfirm : p.reset}
         </button>
         <button
           type="button"
           onClick={toggleMute}
-          className="rounded-lg border border-[#5c6b52]/30 py-2.5 text-sm text-[#2c3328]"
+          className="min-h-11 min-w-[4.5rem] rounded-lg px-3 py-2 text-sm text-[var(--ink)] active:scale-[0.97]"
+          aria-pressed={muted}
         >
-          {muted ? '取消静音' : '静音'}
+          {muted ? p.unmute : p.mute}
         </button>
-        <Link
+        <LocaleLink
           href={backHref}
-          className="rounded-lg border border-[#5c6b52]/30 py-2.5 text-center text-sm text-[#2c3328]"
+          locale={locale}
+          className="inline-flex min-h-11 min-w-[4.5rem] items-center justify-center rounded-lg px-3 py-2 text-sm text-[var(--ink)]"
         >
-          退出
-        </Link>
+          {p.exit}
+        </LocaleLink>
       </footer>
 
       {guideOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center">
-          <div className="w-full max-w-sm rounded-xl bg-[#f7f5ef] p-5 shadow-lg">
-            <p className="font-serif text-lg text-[#2c3328]">春日第一课</p>
-            {guideStep === 0 ? (
-              <p className="mt-2 text-sm leading-relaxed text-[#5c6b52]">
-                点选深色狼，再点绿色高亮空格，即可走一格。
-              </p>
-            ) : (
-              <p className="mt-2 text-sm leading-relaxed text-[#5c6b52]">
-                隔空吃：同线「狼 — 空 — 羊」时，点红圈羊或中间空即可冲吃。连吃可继续，最多 5 次。
-              </p>
-            )}
+          <div className="w-full max-w-sm rounded-xl bg-[var(--panel)] p-5 shadow-lg">
+            <p className="font-serif text-lg text-[var(--ink)]">{p.guideTitle}</p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+              {guideStep === 0 ? p.guideStep1 : p.guideStep2}
+            </p>
             <div className="mt-4 flex justify-between gap-2">
               <button
                 type="button"
                 className="text-sm text-[#7a8574] underline-offset-2 hover:underline"
                 onClick={finishGuide}
               >
-                跳过
+                {p.guideSkip}
               </button>
               {guideStep === 0 ? (
                 <button
                   type="button"
-                  className="rounded-lg bg-[#3d4a3a] px-4 py-2 text-sm text-[#f4f1ea]"
+                  className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm text-[#f4f1ea]"
                   onClick={() => setGuideStep(1)}
                 >
-                  下一步
+                  {p.guideNext}
                 </button>
               ) : (
                 <button
                   type="button"
-                  className="rounded-lg bg-[#3d4a3a] px-4 py-2 text-sm text-[#f4f1ea]"
+                  className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm text-[#f4f1ea]"
                   onClick={finishGuide}
                 >
-                  开始猎食
+                  {p.guideStart}
                 </button>
               )}
             </div>
@@ -373,26 +395,43 @@ export function PlayScreen({ level }: Props) {
 function turnLabel(
   uiPhase: string,
   state: { toMove: string; chain: { count: number } | null },
+  p: MessageTree['play'],
 ): string {
-  if (uiPhase === 'aiThinking') return '羊回合'
+  if (uiPhase === 'aiThinking') return p.turnSheep
   if (state.toMove === 'wolf') {
-    return state.chain ? `连吃 ${state.chain.count}/5` : '狼回合'
+    return state.chain ? fmt(p.chain, { n: state.chain.count }) : p.turnWolf
   }
-  return '羊回合'
+  return p.turnSheep
 }
 
-function GrantLine({ grant }: { grant: DropGrant }) {
+function GrantLine({
+  grant,
+  labels,
+  locale,
+}: {
+  grant: DropGrant
+  labels: MessageTree['play']
+  locale: 'en' | 'zh'
+}) {
+  const seasonName: Record<string, { en: string; zh: string }> = {
+    spring: { en: 'Spring', zh: '春' },
+    summer: { en: 'Summer', zh: '夏' },
+    autumn: { en: 'Autumn', zh: '秋' },
+    winter: { en: 'Winter', zh: '冬' },
+  }
   const seasonBits = Object.entries(grant.season)
     .filter(([, v]) => (v ?? 0) > 0)
-    .map(([k, v]) => `${k}+${v}`)
+    .map(([k, v]) => `${seasonName[k]?.[locale] ?? k}+${v}`)
     .join(' ')
   if (grant.universal === 0 && !seasonBits) {
-    return <p className="mt-2 text-sm text-[#5c6b52]">本次无碎片掉落</p>
+    return <p className="mt-2 text-sm text-[var(--muted)]">{labels.noDrop}</p>
   }
+  const sep = locale === 'zh' ? '：' : ': '
   return (
-    <p className="mt-2 text-sm text-[#2c3328]">
-      {grant.firstClear ? '首次通关' : '重复通关'}
-      {grant.doubled ? '（双倍）' : ''}：通用 +{grant.universal}
+    <p className="mt-2 text-sm text-[var(--ink)]">
+      {grant.firstClear ? labels.firstClear : labels.repeatClear}
+      {grant.doubled ? labels.doubled : ''}
+      {sep}+{grant.universal}
       {seasonBits ? ` · ${seasonBits}` : ''}
     </p>
   )

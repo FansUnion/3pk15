@@ -61,8 +61,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     name: '原野棋盘',
     unlock: { type: 'default' },
     assets: { boardBg: '/skins/boards/default.svg' },
-    boardFill: '#e8f0e4',
-    lineStroke: '#5c6b52',
+    boardFill: '#e4f0d8',
+    lineStroke: '#4a5c3e',
   },
   {
     id: 'board-spring',
@@ -70,8 +70,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     name: '春日棋盘',
     unlock: { type: 'chapter', chapterId: 'spring' },
     assets: { boardBg: '/skins/boards/spring.svg' },
-    boardFill: '#e5f2dc',
-    lineStroke: '#5a7a4a',
+    boardFill: '#e8f6d8',
+    lineStroke: '#4a7a3a',
   },
   {
     id: 'board-summer',
@@ -79,8 +79,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     name: '夏日棋盘',
     unlock: { type: 'chapter', chapterId: 'summer' },
     assets: { boardBg: '/skins/boards/summer.svg' },
-    boardFill: '#e8f0d8',
-    lineStroke: '#6a7a3a',
+    boardFill: '#f2e8c0',
+    lineStroke: '#6a5a28',
   },
   {
     id: 'board-autumn',
@@ -88,8 +88,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     name: '秋日棋盘',
     unlock: { type: 'chapter', chapterId: 'autumn' },
     assets: { boardBg: '/skins/boards/autumn.svg' },
-    boardFill: '#f0e8d8',
-    lineStroke: '#8a6a3a',
+    boardFill: '#f2dcb8',
+    lineStroke: '#7a4020',
   },
   {
     id: 'board-winter',
@@ -97,8 +97,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     name: '冬日棋盘',
     unlock: { type: 'chapter', chapterId: 'winter' },
     assets: { boardBg: '/skins/boards/winter.svg' },
-    boardFill: '#e4eaf0',
-    lineStroke: '#4a5a6a',
+    boardFill: '#e8f0f6',
+    lineStroke: '#3a5566',
   },
 ]
 

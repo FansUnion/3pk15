@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
+  <defs>
+    <linearGradient id="field" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8f2dc"/>
+      <stop offset="50%" stop-color="#d5e4c8"/>
+      <stop offset="100%" stop-color="#c5d4b0"/>
+    </linearGradient>
+    <pattern id="grass" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M6 22c1-5 2-5 3 0M12 24c1-4 2-4 2 0M18 21c1-6 3-5 3 1" stroke="#7a9a58" stroke-width="1.2" opacity="0.35" stroke-linecap="round" fill="none"/>
+    </pattern>
+  </defs>
+  <rect width="640" height="360" fill="url(#field)"/>
+  <rect width="640" height="360" fill="url(#grass)"/>
+  <g transform="translate(100,24)">
+    <rect x="0" y="0" width="440" height="312" rx="12" fill="#eef5e6" stroke="#5c6b52" stroke-width="2.5"/>
+    <g stroke="#5c6b52" stroke-width="1.5" opacity="0.55">
+      <line x1="44" y1="44" x2="396" y2="44"/><line x1="44" y1="96" x2="396" y2="96"/>
+      <line x1="44" y1="148" x2="396" y2="148"/><line x1="44" y1="200" x2="396" y2="200"/>
+      <line x1="44" y1="252" x2="396" y2="252"/>
+      <line x1="44" y1="44" x2="44" y2="252"/><line x1="114" y1="44" x2="114" y2="252"/>
+      <line x1="184" y1="44" x2="184" y2="252"/><line x1="254" y1="44" x2="254" y2="252"/>
+      <line x1="324" y1="44" x2="324" y2="252"/><line x1="396" y1="44" x2="396" y2="252"/>
+    </g>
+    <!-- same sheep asset as play -->
+    <image href="/skins/default/sheep.svg" x="54" y="30" width="44" height="44"/>
+    <image href="/skins/default/sheep.svg" x="124" y="30" width="44" height="44"/>
+    <image href="/skins/default/sheep.svg" x="194" y="30" width="44" height="44"/>
+    <image href="/skins/default/sheep.svg" x="264" y="30" width="44" height="44"/>
+    <image href="/skins/default/sheep.svg" x="334" y="30" width="44" height="44"/>
+    <image href="/skins/default/sheep.svg" x="90" y="82" width="44" height="44"/>
+    <image href="/skins/default/sheep.svg" x="230" y="82" width="44" height="44"/>
+    <image href="/skins/default/sheep.svg" x="300" y="82" width="44" height="44"/>
+    <!-- rocks -->
+    <path d="M210 168l12-8 10 6-4 12-14 2z" fill="#6e665c" stroke="#3f3a34" stroke-width="1"/>
+    <path d="M300 200l11-7 9 5-3 11-13 2z" fill="#7a7268" stroke="#3f3a34" stroke-width="1"/>
+    <!-- same wolf asset as play -->
+    <image href="/skins/default/wolf.svg" x="100" y="210" width="56" height="56"/>
+    <image href="/skins/default/wolf.svg" x="190" y="210" width="56" height="56"/>
+    <image href="/skins/default/wolf.svg" x="280" y="210" width="56" height="56"/>
+  </g>
+</svg>

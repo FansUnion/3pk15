@@ -1,31 +1,33 @@
-export default function PrivacyPage() {
+import { SiteFooter, SiteHeader } from '@/components/SiteChrome'
+import { getT } from '@/i18n/get-locale'
+
+export default async function PrivacyPage() {
+  const { locale, t } = await getT()
   return (
-    <main className="mx-auto max-w-lg px-6 py-10 text-sm leading-relaxed text-[#2c3328]">
-      <h1 className="font-serif text-2xl">隐私说明</h1>
-      <p className="mt-4 text-[#5c6b52]">Fangrush（三狼连猎）一期说明（无账号）。</p>
-      <ul className="mt-4 list-disc space-y-2 pl-5 text-[#5c6b52]">
-        <li>关卡进度、碎片、皮肤与任务进度保存在你的浏览器本地（localStorage）。</li>
-        <li>清除浏览器数据会导致进度丢失；一期不提供云同步。</li>
-        <li>
-          独立站使用 Google Analytics（GA4）统计匿名访问与页面浏览，适用{' '}
-          <a
-            href="https://policies.google.com/privacy"
-            className="underline underline-offset-2"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Google 隐私政策
-          </a>
-          。
-        </li>
-        <li>观看广告时，适用广告服务商自身的隐私政策与技术 Cookie/标识。</li>
-        <li>独立站可由托管商（如 Vercel）记录常规访问日志（如 IP、时间）。</li>
-        <li>门户瘦包构建不加载 GA4；独立站加载。</li>
-        <li>本产品不主动收集邮箱、手机号或实名信息。</li>
-      </ul>
-      <p className="mt-6 text-xs text-[#7a8574]">
-        网站：fangrush.com · 联系请通过站内设置页或发行渠道提供的开发者邮箱。
-      </p>
-    </main>
+    <div className="flex min-h-dvh flex-col">
+      <SiteHeader locale={locale} />
+      <main className="mx-auto w-full max-w-lg flex-1 px-6 py-10 text-sm leading-relaxed text-[#2c3328]">
+        <h1 className="font-serif text-2xl">{t.privacy.title}</h1>
+        <div className="mt-4 space-y-3 text-[#5c6b52]">
+          <p>{t.privacy.p1}</p>
+          <p>{t.privacy.p2}</p>
+          <p>{t.privacy.p3}</p>
+          <p>{t.privacy.p4}</p>
+          <p>
+            Analytics:{' '}
+            <a
+              href="https://policies.google.com/privacy"
+              className="underline underline-offset-2"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Google Privacy Policy
+            </a>
+          </p>
+        </div>
+        <p className="mt-6 text-xs text-[#7a8574]">fangrush.com</p>
+      </main>
+      <SiteFooter locale={locale} t={t} />
+    </div>
   )
 }

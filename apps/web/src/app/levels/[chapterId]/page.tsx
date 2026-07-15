@@ -1,11 +1,31 @@
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import {
+  CHAPTER_BLURB_EN,
+  CHAPTER_BLURB_ZH,
   CHAPTER_LABEL,
+  CHAPTER_LABEL_EN,
   CHAPTER_ORDER,
+  levelDisplayName,
   levelsForChapter,
   type ChapterId,
 } from '@wolf-sheep/game-core'
 import { LevelList } from '@/components/LevelList'
+import { getT } from '@/i18n/get-locale'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ chapterId: string }>
+}): Promise<Metadata> {
+  const { chapterId: raw } = await params
+  if (!CHAPTER_ORDER.includes(raw as ChapterId)) return {}
+  const chapterId = raw as ChapterId
+  const { locale } = await getT()
+  const label = locale === 'zh' ? CHAPTER_LABEL[chapterId] : CHAPTER_LABEL_EN[chapterId]
+  const blurb = locale === 'zh' ? CHAPTER_BLURB_ZH[chapterId] : CHAPTER_BLURB_EN[chapterId]
+  return { title: `${label} · Fangrush`, description: blurb }
+}
 
 export default async function LevelsPage({
   params,
@@ -15,20 +35,21 @@ export default async function LevelsPage({
   const { chapterId: raw } = await params
   if (!CHAPTER_ORDER.includes(raw as ChapterId)) notFound()
   const chapterId = raw as ChapterId
+  const { locale } = await getT()
   const levels = levelsForChapter(chapterId)
+  const chapterLabel = locale === 'zh' ? CHAPTER_LABEL[chapterId] : CHAPTER_LABEL_EN[chapterId]
+  const chapterBlurb = locale === 'zh' ? CHAPTER_BLURB_ZH[chapterId] : CHAPTER_BLURB_EN[chapterId]
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-lg flex-col gap-6 px-6 py-10">
-      <LevelList
-        chapterId={chapterId}
-        chapterLabel={CHAPTER_LABEL[chapterId]}
-        levels={levels.map((l) => ({
-          id: l.id,
-          name: l.name,
-          rocks: l.rocks.length,
-          ai: l.ai,
-        }))}
-      />
-    </main>
+    <LevelList
+      chapterId={chapterId}
+      chapterLabel={chapterLabel}
+      chapterBlurb={chapterBlurb}
+      levels={levels.map((l) => ({
+        id: l.id,
+        name: levelDisplayName(l, locale),
+        rocks: l.rocks.length,
+      }))}
+    />
   )
 }

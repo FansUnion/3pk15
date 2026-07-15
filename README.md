@@ -22,7 +22,7 @@ pnpm build         # 全仓构建
 |------|------|
 | `packages/game-core` | 规则、FSM、三档 AI（纯 TS） |
 | `apps/web` | Next.js 独立站壳 |
-| `docs/` | 创意 / 技术设计 / 任务清单 |
+| `docs/` | 游戏创意 / 技术设计 / 任务 |
 
 ## 构建
 
@@ -37,5 +37,5 @@ pnpm build:portal   # 门户瘦包：无可用 admin
 
 ## 环境变量
 
-复制 `.env.example`。生产检查见 `docs/MVP技术设计/13-生产环境变量检查单.md`。
+复制 `.env.example`。生产检查见 `docs/任务/未完成.md`（「生产环境变量」一节）。
 

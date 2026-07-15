@@ -1,17 +1,43 @@
-/** 轻量 Web Audio 音效；无资源文件依赖。静音由调用方判断。 */
+/** Prefer short sample buffers; fall back to richer procedural tones. */
 
 type SfxKind = 'step' | 'jump' | 'chain' | 'win' | 'lose'
 
 let ctx: AudioContext | null = null
+const bufferCache = new Map<SfxKind, AudioBuffer>()
 
 function getCtx(): AudioContext | null {
   if (typeof window === 'undefined') return null
   if (!ctx) {
-    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    const AC =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
     if (!AC) return null
     ctx = new AC()
   }
   return ctx
+}
+
+async function loadBuffer(kind: SfxKind): Promise<AudioBuffer | null> {
+  const audio = getCtx()
+  if (!audio) return null
+  if (bufferCache.has(kind)) return bufferCache.get(kind)!
+  const map: Record<SfxKind, string> = {
+    step: '/sfx/step.wav',
+    jump: '/sfx/capture.wav',
+    chain: '/sfx/chain.wav',
+    win: '/sfx/win.wav',
+    lose: '/sfx/lose.wav',
+  }
+  try {
+    const res = await fetch(map[kind])
+    if (!res.ok) return null
+    const arr = await res.arrayBuffer()
+    const buf = await audio.decodeAudioData(arr.slice(0))
+    bufferCache.set(kind, buf)
+    return buf
+  } catch {
+    return null
+  }
 }
 
 function beep(
@@ -27,38 +53,64 @@ function beep(
   const t0 = audio.currentTime + when
   const osc = audio.createOscillator()
   const g = audio.createGain()
+  const filter = audio.createBiquadFilter()
+  filter.type = 'lowpass'
+  filter.frequency.value = 2200
   osc.type = type
   osc.frequency.value = frequency
   g.gain.setValueAtTime(gain, t0)
   g.gain.exponentialRampToValueAtTime(0.001, t0 + durationMs / 1000)
-  osc.connect(g)
+  osc.connect(filter)
+  filter.connect(g)
   g.connect(audio.destination)
   osc.start(t0)
   osc.stop(t0 + durationMs / 1000 + 0.02)
 }
 
-export function playSfx(kind: SfxKind) {
+function playFallback(kind: SfxKind) {
   switch (kind) {
     case 'step':
-      beep(420, 70, 'triangle', 0.06)
+      beep(380, 55, 'triangle', 0.05)
+      beep(220, 40, 'sine', 0.03, 0.02)
       break
     case 'jump':
-      beep(520, 90, 'square', 0.05)
-      beep(680, 120, 'sine', 0.07, 0.05)
+      beep(480, 70, 'square', 0.04)
+      beep(720, 110, 'sine', 0.06, 0.04)
       break
     case 'chain':
-      beep(600, 60, 'square', 0.05)
-      beep(760, 80, 'sine', 0.06, 0.04)
-      beep(900, 100, 'sine', 0.05, 0.1)
+      beep(560, 50, 'square', 0.04)
+      beep(700, 60, 'sine', 0.05, 0.04)
+      beep(880, 90, 'sine', 0.05, 0.09)
       break
     case 'win':
-      beep(523, 120, 'sine', 0.07)
-      beep(659, 140, 'sine', 0.07, 0.12)
-      beep(784, 180, 'sine', 0.08, 0.26)
+      beep(523, 100, 'sine', 0.06)
+      beep(659, 120, 'sine', 0.06, 0.1)
+      beep(784, 160, 'sine', 0.07, 0.22)
       break
     case 'lose':
-      beep(300, 160, 'triangle', 0.06)
-      beep(220, 220, 'triangle', 0.05, 0.15)
+      beep(280, 140, 'triangle', 0.05)
+      beep(200, 200, 'triangle', 0.045, 0.12)
       break
   }
+}
+
+function playBuffer(buf: AudioBuffer) {
+  const audio = getCtx()
+  if (!audio) return
+  void audio.resume()
+  const src = audio.createBufferSource()
+  const g = audio.createGain()
+  g.gain.value = 0.7
+  src.buffer = buf
+  src.connect(g)
+  g.connect(audio.destination)
+  src.start()
+}
+
+export function playSfx(kind: SfxKind) {
+  void (async () => {
+    const buf = await loadBuffer(kind)
+    if (buf) playBuffer(buf)
+    else playFallback(kind)
+  })()
 }
