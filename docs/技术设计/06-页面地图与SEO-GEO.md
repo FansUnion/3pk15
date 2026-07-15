@@ -1,6 +1,7 @@
-# 02 · 页面地图与 SEO / GEO
+# 06 · 页面地图与 SEO / GEO
 
-> 品牌文案槽：[`游戏品牌/01`](../游戏创意/游戏品牌/01-产品定位与模式边界.md)。
+> 品牌文案槽：[`游戏品牌/01`](../游戏创意/游戏品牌/01-产品定位与模式边界.md)。  
+> 感官资源规格 → [`docs/美术资源和用户体验/`](../美术资源和用户体验/00-索引.md)。
 
 ## 0. 语言路由（定稿）
 
@@ -73,19 +74,9 @@ flowchart TB
 4. 主 CTA → `/play/[levelId]`  
 5. 链：本章列表、how-to、上一关/下一关  
 
-**数据约定（施工）**
+**数据约定（已落地）**
 
-`LevelConfig` 增加（或 i18n 平行表）：
-
-```ts
-// 预告字段 —— 写入技术设计 04 时落地
-blurbZh?: string
-blurbEn?: string
-seoTitleZh?: string
-seoTitleEn?: string
-```
-
-关卡 blurb 字段已落地（`LevelConfig.blurbEn/Zh`）；页：`/hunt/[levelId]`。状态见 [07](./07-缺口验收与施工顺序.md)。
+`LevelConfig` 已含 `blurbEn` / `blurbZh`、`nameEn` / `nameZh`；页：`/hunt/[levelId]`；Admin 关卡台可预览。
 
 ## 3. 四季短文（`/chapters`）
 
@@ -116,14 +107,12 @@ seoTitleEn?: string
 
 ## 6. sitemap / robots / GEO
 
-- sitemap：**纳入** `/`、`/how-to-play`、`/chapters`、`/levels/*`、`/hunt/*`、`/skins`、`/privacy` 及 `/zh/...`  
+- sitemap：以 [`apps/web/src/app/sitemap.ts`](../../apps/web/src/app/sitemap.ts) 为准——纳入 `/`、`/how-to-play`、`/chapters`、`/levels/*`、`/hunt/*`、`/skins`、`/privacy` 及 `/zh/...`  
 - **排除**：`/play/*`、`/quests`、`/settings`、`/admin*`  
 - robots：Disallow `/admin`、`/api/`  
 - `llm-full.txt`：英文为主；与 how-to / blurb 口径一致  
 - 首页 + how-to：VideoGame/WebApplication + 可选 FAQPage JSON-LD  
 - hreflang：en 无前缀；zh = `/zh/...`；x-default → 英
-
-施工时改现有 [`apps/web/src/app/sitemap.ts`](../../apps/web/src/app/sitemap.ts)（当前仍可能收录 settings；以本文为准纠正）。
 
 ## 7. SEO 词库（EN / ZH）
 
