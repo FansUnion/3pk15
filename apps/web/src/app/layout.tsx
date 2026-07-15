@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Literata, Nunito_Sans } from 'next/font/google'
+import { Ga4 } from '@/components/Ga4'
 import './globals.css'
 
 const display = Literata({
@@ -25,7 +26,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN" className={`${display.variable} ${sans.variable}`}>
-      <body className="min-h-dvh font-sans antialiased">{children}</body>
+      <body className="min-h-dvh font-sans antialiased">
+        <Ga4 />
+        {children}
+      </body>
     </html>
   )
 }

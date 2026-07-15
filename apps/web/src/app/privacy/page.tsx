@@ -6,9 +6,21 @@ export default function PrivacyPage() {
       <ul className="mt-4 list-disc space-y-2 pl-5 text-[#5c6b52]">
         <li>关卡进度、碎片、皮肤与任务进度保存在你的浏览器本地（localStorage）。</li>
         <li>清除浏览器数据会导致进度丢失；一期不提供云同步。</li>
+        <li>
+          独立站使用 Google Analytics（GA4）统计匿名访问与页面浏览，适用{' '}
+          <a
+            href="https://policies.google.com/privacy"
+            className="underline underline-offset-2"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Google 隐私政策
+          </a>
+          。
+        </li>
         <li>观看广告时，适用广告服务商自身的隐私政策与技术 Cookie/标识。</li>
         <li>独立站可由托管商（如 Vercel）记录常规访问日志（如 IP、时间）。</li>
-        <li>门户版本默认不额外接入自建远程遥测。</li>
+        <li>门户瘦包构建不加载 GA4；独立站加载。</li>
         <li>本产品不主动收集邮箱、手机号或实名信息。</li>
       </ul>
       <p className="mt-6 text-xs text-[#7a8574]">
