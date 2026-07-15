@@ -54,11 +54,11 @@ export default async function HomePage() {
             <p className="mt-5 max-w-sm text-base leading-relaxed text-[var(--muted)]">{t.brand.tagline}</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/brand/hero-board.svg"
+              src="/og.png"
               alt="Fangrush — three wolves face the flock"
-              width={640}
-              height={360}
-              className="hunter-breathe mt-7 w-full rounded-[1.4rem] border border-white/50 bg-white/20 p-2 shadow-[0_24px_50px_rgba(56,76,48,.18)]"
+              width={1536}
+              height={1024}
+              className="hunter-breathe mt-7 w-full rounded-[1.4rem] border border-white/50 bg-white/20 shadow-[0_24px_50px_rgba(56,76,48,.18)]"
             />
             <div className="mt-7 flex flex-col gap-3">
               <LocaleLink

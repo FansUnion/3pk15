@@ -72,6 +72,10 @@ export function PlayScreen({ level }: Props) {
   }, [juice, muted, state.chain])
 
   useEffect(() => {
+    if (!muted && uiPhase === 'aiThinking') playSfx('ai')
+  }, [muted, uiPhase])
+
+  useEffect(() => {
     if (uiPhase !== 'terminal' || muted || terminalSfxDone.current) return
     terminalSfxDone.current = true
     playSfx(state.status === 'won' ? 'win' : 'lose')

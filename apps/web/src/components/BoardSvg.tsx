@@ -8,7 +8,7 @@ import type { JuiceFlash } from '@/lib/play-store'
 const PAD = 28
 const CELL = 56
 const SIZE = PAD * 2 + CELL * (BOARD_MAX - 1)
-const PIECE = 40
+const PIECE = 46
 
 type Props = {
   state: BoardState
@@ -294,7 +294,7 @@ export function BoardSvg({
               if (interactive && p.side === 'wolf') onSelectWolf(p.id)
             }}
             style={moveStyle}
-            className={isMover ? 'piece-slide' : p.side === 'sheep' ? 'piece-idle' : undefined}
+            className={isMover ? 'piece-slide' : 'piece-idle'}
           >
             {p.side === 'sheep' && !selected && <title>Sheep</title>}
             {p.side === 'wolf' && !selected && <title>Wolf</title>}
@@ -359,6 +359,13 @@ export function BoardSvg({
             stroke={juice.kind === 'jump' ? '#c44836' : undefined}
             strokeWidth={juice.kind === 'jump' ? 4 : undefined}
           />
+          {juice.kind === 'jump' && [0, 1, 2, 3, 4, 5].map((i) => {
+            const angle = i * 60
+            const radius = 26
+            const x = toXy.x + Math.cos((angle * Math.PI) / 180) * radius
+            const y = toXy.y + Math.sin((angle * Math.PI) / 180) * radius
+            return <circle key={`spark-${i}`} cx={x} cy={y} r={2.5} fill="#f4d37b" className="impact-spark" />
+          })}
         </g>
       )}
 

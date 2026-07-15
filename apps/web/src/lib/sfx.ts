@@ -1,6 +1,6 @@
 /** Prefer short sample buffers; fall back to richer procedural tones. */
 
-type SfxKind = 'step' | 'jump' | 'chain' | 'win' | 'lose' | 'select' | 'invalid'
+type SfxKind = 'step' | 'jump' | 'chain' | 'win' | 'lose' | 'select' | 'invalid' | 'ai'
 
 let ctx: AudioContext | null = null
 const bufferCache = new Map<SfxKind, AudioBuffer>()
@@ -29,6 +29,7 @@ async function loadBuffer(kind: SfxKind): Promise<AudioBuffer | null> {
     lose: '/sfx/lose.wav',
     select: null,
     invalid: null,
+    ai: null,
   }
   const source = map[kind]
   if (!source) return null
@@ -100,6 +101,10 @@ function playFallback(kind: SfxKind) {
       break
     case 'invalid':
       beep(170, 65, 'triangle', 0.025)
+      break
+    case 'ai':
+      beep(190, 90, 'sine', 0.018)
+      beep(260, 120, 'sine', 0.014, 0.08)
       break
   }
 }

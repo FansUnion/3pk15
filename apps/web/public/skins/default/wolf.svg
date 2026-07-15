@@ -1,29 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- Meadow wolf — profile L, ear/snout/shoulder; readable at 36px -->
-  <ellipse cx="34" cy="52" rx="14" ry="4" fill="#1a1f18" opacity="0.25"/>
-  <!-- hind / body mass -->
-  <path d="M48 28c4 2 8 8 7 16-1 7-6 12-14 14-10 2-20-1-28-8-5-4-8-10-6-14 3-8 12-14 24-14 6 0 12 2 17 6z" fill="#2a3328"/>
-  <path d="M46 30c3 2 6 7 5 13-1 6-5 10-12 12-9 2-18-1-24-7-4-4-6-8-5-12 2-7 10-12 21-12 5 0 11 2 15 6z" fill="#3d4a3a"/>
-  <!-- shoulder highlight -->
-  <path d="M28 32c6-4 14-4 20 0 2 2 3 5 2 8-2 4-7 6-13 5-6-1-11-4-13-8-1-2 0-4 4-5z" fill="#5a6b55" opacity="0.55"/>
-  <!-- neck + head -->
-  <path d="M22 30c-2-6 2-14 10-16 5-1 9 1 12 5 2 3 2 7 0 10-3 5-9 7-15 6-4-1-7-3-7-5z" fill="#3d4a3a"/>
-  <path d="M20 28c-1-5 2-11 8-13 4-1 7 1 9 4" fill="#4a5a46"/>
-  <!-- snout -->
-  <path d="M14 30c-6 1-10 4-11 7 0 2 2 3 5 3l8-1c2 0 3-2 2-4-1-3-2-5-4-5z" fill="#4a5a46"/>
-  <path d="M6 36c1 1 3 2 5 2" stroke="#2a3328" stroke-width="1.2" stroke-linecap="round"/>
-  <ellipse cx="5.5" cy="35.5" rx="1.6" ry="1.2" fill="#1a1f18"/>
-  <!-- ear -->
-  <path d="M30 14l2-10 8 8-2 6z" fill="#2a3328"/>
-  <path d="M31 14l1-7 5 5z" fill="#6b5a48"/>
-  <!-- eye -->
-  <circle cx="22" cy="26" r="2.2" fill="#f4f1ea"/>
-  <circle cx="21.5" cy="26.2" r="1.1" fill="#1a1f18"/>
-  <circle cx="21.2" cy="25.8" r="0.35" fill="#f4f1ea"/>
-  <path d="M14 40c6 3 13 4 20 2" stroke="#c9a227" stroke-width="2.6" stroke-linecap="round" opacity=".9"/>
-  <!-- chest fluff -->
-  <path d="M26 38c2 3 6 4 10 3" stroke="#c9c4b0" stroke-width="2" stroke-linecap="round" opacity="0.45"/>
-  <!-- legs -->
-  <path d="M24 46c0 5 1 9 1 12M32 47c0 5 0 9 1 11M40 46c1 5 1 9 2 12M46 44c1 5 2 9 2 11" stroke="#1e261c" stroke-width="3.2" stroke-linecap="round"/>
-  <path d="M24 46c0 5 1 9 1 12M32 47c0 5 0 9 1 11M40 46c1 5 1 9 2 12M46 44c1 5 2 9 2 11" stroke="#3d4a3a" stroke-width="1.6" stroke-linecap="round"/>
+  <ellipse cx="32" cy="57" rx="17" ry="3" fill="#101820" opacity=".28"/>
+  <path d="M12 18 23 24c3-2 6-3 9-3s6 1 9 3l11-6-4 17c2 10-4 20-16 23-12-3-18-13-16-23z" fill="#243448" stroke="#101820" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M16 17 20 4l11 10 2 8H20zM48 17 44 4 33 14l-2 8h12z" fill="#172437" stroke="#101820" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M21 29c3-7 19-7 22 0l7 5-7 13c-6 5-16 5-22 0l-7-13z" fill="#30465c"/>
+  <path d="M23 38c3-3 6-4 9-4s6 1 9 4l-2 10c-4 3-10 3-14 0z" fill="#d6e0e5"/>
+  <circle cx="25" cy="27" r="4" fill="#e8b84a" stroke="#101820" stroke-width="1.5"/><circle cx="39" cy="27" r="4" fill="#e8b84a" stroke="#101820" stroke-width="1.5"/>
+  <circle cx="25" cy="27" r="1.7" fill="#111827"/><circle cx="39" cy="27" r="1.7" fill="#111827"/>
+  <path d="M29 42h6M19 50h26" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/>
 </svg>
