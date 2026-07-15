@@ -1,0 +1,16 @@
+{
+  "name": "wolf-sheep",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm --filter @wolf-sheep/web dev",
+    "build": "pnpm -r build",
+    "build:portal": "pnpm --filter @wolf-sheep/web build:portal",
+    "test": "pnpm --filter @wolf-sheep/game-core test",
+    "lint": "pnpm -r lint",
+    "check:skins": "pnpm --filter @wolf-sheep/game-core check:skins"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

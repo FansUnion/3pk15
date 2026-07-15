@@ -1,0 +1,113 @@
+import type { BoardState } from '../types'
+import { listWolfActionsAsIfTurn, getWolfLegalSummary } from '../rules'
+import { posKey } from '../board'
+
+/**
+ * Higher is better for sheep (defender).
+ * Weights are starting points for calibration (see docs/MVP????/05).
+ */
+export type EvalBreakdown = {
+  total: number
+  material: number
+  wolfMobility: number
+  cluster: number
+  advance: number
+  surround: number
+}
+
+const W = {
+  material: 12,
+  wolfMobility: -1.5,
+  cluster: 0.8,
+  advance: 0.4,
+  surround: 2.5,
+}
+
+function sheepPositions(state: BoardState) {
+  return state.pieces.filter((p) => p.side === 'sheep')
+}
+
+function wolfPositions(state: BoardState) {
+  return state.pieces.filter((p) => p.side === 'wolf')
+}
+
+/** Average pairwise Chebyshev proximity among sheep (higher = tighter). */
+function clusterScore(state: BoardState): number {
+  const sheep = sheepPositions(state)
+  if (sheep.length < 2) return 0
+  let sum = 0
+  let n = 0
+  for (let i = 0; i < sheep.length; i++) {
+    for (let j = i + 1; j < sheep.length; j++) {
+      const a = sheep[i]!
+      const b = sheep[j]!
+      const dist = Math.max(Math.abs(a.r - b.r), Math.abs(a.c - b.c))
+      sum += Math.max(0, 5 - dist)
+      n++
+    }
+  }
+  return n === 0 ? 0 : sum / n
+}
+
+/** Prefer sheep not all stuck on row 1. */
+function advanceScore(state: BoardState): number {
+  const sheep = sheepPositions(state)
+  if (sheep.length === 0) return 0
+  return sheep.reduce((s, p) => s + p.r, 0) / sheep.length
+}
+
+/** Empty ortho neighbors of wolves occupied by sheep or rocks count as pressing. */
+function surroundScore(state: BoardState): number {
+  const occ = new Set(state.pieces.map((p) => posKey(p.r, p.c)))
+  let score = 0
+  for (const w of wolfPositions(state)) {
+    const dirs = [
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0],
+    ] as const
+    for (const [dr, dc] of dirs) {
+      const k = posKey(w.r + dr, w.c + dc)
+      if (state.rocks.has(k) || occ.has(k)) score += 1
+    }
+  }
+  return score
+}
+
+export function evaluate(state: BoardState): EvalBreakdown {
+  const sheepCount = sheepPositions(state).length
+  const summary = getWolfLegalSummary(state)
+  const wolfMoves = summary.reduce((s, x) => s + x.steps + x.jumps, 0)
+  const material = sheepCount
+  const cluster = clusterScore(state)
+  const advance = advanceScore(state)
+  const surround = surroundScore(state)
+
+  const total =
+    W.material * material +
+    W.wolfMobility * wolfMoves +
+    W.cluster * cluster +
+    W.advance * advance +
+    W.surround * surround
+
+  if (state.status === 'won') {
+    return { total: -10_000, material, wolfMobility: wolfMoves, cluster, advance, surround }
+  }
+  if (state.status === 'lost' || listWolfActionsAsIfTurn(state).length === 0) {
+    return { total: 10_000, material, wolfMobility: wolfMoves, cluster, advance, surround }
+  }
+
+  return {
+    total,
+    material,
+    wolfMobility: wolfMoves,
+    cluster,
+    advance,
+    surround,
+  }
+}
+
+export function evaluateScore(state: BoardState): number {
+  return evaluate(state).total
+}
