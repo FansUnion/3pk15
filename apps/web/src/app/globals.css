@@ -32,7 +32,12 @@ body {
 
 ::selection { background: #c9a227; color: #20281d; }
 
-.page-shell { width: min(100%, 42rem); margin-inline: auto; padding-inline: 1.5rem; }
+.page-shell { width: min(calc(100% - 2rem), 72rem); margin-inline: auto; padding-inline: 1.5rem; }
+.content-shell { width: min(calc(100% - 2rem), 72rem); margin-inline: auto; }
+.desktop-page-grid { display: grid; gap: 2rem; }
+@media (min-width: 1024px) {
+  .desktop-page-grid { grid-template-columns: minmax(0, 1.2fr) minmax(18rem, .8fr); align-items: start; }
+}
 .eyebrow { font-size: .69rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
 .display-title { font-family: var(--font-display), "Songti SC", serif; letter-spacing: -.045em; color: var(--ink); }
 .primary-action { display: inline-flex; min-height: 3.25rem; align-items: center; justify-content: center; border-radius: 999px; background: var(--accent); padding: .75rem 1.35rem; color: #f7f5ef; font-weight: 800; box-shadow: 0 10px 22px rgb(42 57 37 / 23%); transition: transform .16s ease, box-shadow .16s ease; }

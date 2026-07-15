@@ -29,7 +29,7 @@ export default async function HowToPlayPage() {
     <div className="flex min-h-dvh flex-col">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
       <SiteHeader locale={locale} />
-      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-8 px-6 py-8">
+      <main className="page-shell flex flex-1 flex-col gap-8 py-8">
         <header className="game-panel p-5">
           <p className="eyebrow">Fangrush field guide</p>
           <h1 className="display-title mt-2 text-4xl">{h.title}</h1>

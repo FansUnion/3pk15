@@ -21,7 +21,7 @@ export default function SettingsPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-10">
+      <main className="page-shell flex flex-1 flex-col gap-6 py-8">
         <header className="flex items-center justify-between">
           <LocaleLink href="/" locale={locale} className="text-sm text-[#5c6b52] hover:underline">
             {t.nav.home}
@@ -44,6 +44,10 @@ export default function SettingsPage() {
             }}
           />
         </label>
+
+        <LocaleLink href={`/play/${save.lastPlayedLevelId ?? 'spring-01'}`} locale={locale} className="primary-action w-full justify-center">
+          {save.lastPlayedLevelId ? t.nav.continue : t.nav.play}
+        </LocaleLink>
 
         <LocaleLink
           href="/how-to-play"

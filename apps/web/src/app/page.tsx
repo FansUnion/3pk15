@@ -43,7 +43,7 @@ export default async function HomePage() {
                 'radial-gradient(ellipse at 70% 10%, #f5f0e0 0%, transparent 50%), radial-gradient(ellipse at 15% 90%, #c5d4b8 0%, transparent 55%), #dfe8d8',
             }}
           />
-          <div className="relative mx-auto flex max-w-lg flex-col px-6 pb-12 pt-8">
+          <div className="relative content-shell flex flex-col px-6 pb-12 pt-8">
             <p className="eyebrow">Three wolves · one moving flock</p>
             <h1 className="display-title mt-3 text-5xl leading-[.92] sm:text-6xl">
               {t.brand.name}
@@ -77,7 +77,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <div className="mx-auto flex w-full max-w-lg flex-col gap-10 px-6 py-10">
+        <div className="content-shell desktop-page-grid px-6 py-10">
           <section className="paper-card p-5">
             <h2 className="font-serif text-xl text-[var(--ink)]">{t.home.howTitle}</h2>
             <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-[var(--muted)]">

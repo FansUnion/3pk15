@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { equipSkin, isSkinUnlocked, SKIN_CATALOG, unlockSkinWithCost } from '@wolf-sheep/game-core'
 import { SkinPreview } from '@/components/SkinPreview'
 import { LocaleLink } from '@/components/LocaleSwitcher'
@@ -42,6 +43,9 @@ export default function SkinsPage() {
         </header>
 
         <SkinPreview save={save} />
+        <LocaleLink href={`/play/${save.lastPlayedLevelId ?? 'spring-01'}`} locale={locale} className="primary-action w-full justify-center">
+          {save.lastPlayedLevelId ? t.nav.continue : t.nav.play}
+        </LocaleLink>
         <p className="text-center text-sm leading-relaxed text-[var(--muted)]">
           {locale === 'zh' ? '选择皮肤后，猎场预览会立即更新。狼、羊与棋盘应属于同一个主题。' : 'The field preview updates immediately. Wolf, sheep, and board belong to one theme.'}
         </p>
@@ -75,7 +79,7 @@ function SkinSection({ title, children }: { title: string; children: React.React
 function SkinCard({ name, preview, unlocked, equipped, cost, onEquip, onUnlock, labels, locale }: { name: string; preview: string[]; unlocked: boolean; equipped: boolean; cost: number | null; onEquip: () => void; onUnlock: () => void; labels: { equip: string; equipped: string; cost: string }; locale: 'en' | 'zh' }) {
   return <div className="paper-card flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center">
     <div className="flex min-w-0 items-center gap-3">
-      <div className="flex h-16 w-28 shrink-0 items-center justify-center gap-1 rounded-xl border border-[var(--line)] bg-[#e8eee2] p-2">{preview.map((src) => <img key={src} src={src} alt="" className="h-12 w-12 object-contain" />)}</div>
+      <div className="flex h-16 w-28 shrink-0 items-center justify-center gap-1 rounded-xl border border-[var(--line)] bg-[#e8eee2] p-2">{preview.map((src) => <Image key={src} src={src} alt="" width={48} height={48} className="h-12 w-12 object-contain" unoptimized />)}</div>
       <div><p className="font-bold text-[var(--ink)]">{name}</p><p className="mt-1 text-xs text-[var(--muted)]">{equipped ? labels.equipped : unlocked ? (locale === 'zh' ? '已解锁' : 'Unlocked') : cost !== null ? labels.cost.replace('{n}', String(cost)) : (locale === 'zh' ? '通关对应猎场解锁' : 'Clear its hunt to unlock')}</p></div>
     </div>
     {!equipped && (unlocked ? <button type="button" className="quiet-action min-h-10 px-3 text-xs sm:ml-auto" onClick={onEquip}>{labels.equip}</button> : cost !== null ? <button type="button" className="primary-action min-h-10 px-3 text-xs sm:ml-auto" onClick={onUnlock}>{locale === 'zh' ? '兑换' : 'Unlock'}</button> : null)}

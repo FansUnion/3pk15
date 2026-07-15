@@ -363,7 +363,7 @@ export function PlayScreen({ level }: Props) {
           {muted ? p.unmute : p.mute}
         </button>
         <LocaleLink
-          href={backHref}
+          href="/"
           locale={locale}
           className="inline-flex min-h-11 min-w-[4.5rem] items-center justify-center rounded-lg px-3 py-2 text-sm text-[var(--ink)]"
         >
