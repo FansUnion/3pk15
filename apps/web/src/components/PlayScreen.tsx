@@ -204,8 +204,22 @@ export function PlayScreen({ level }: Props) {
     })
   }
 
+  function handleSelectWolf(wolfId: string) {
+    if (interactive && wolfId !== selectedWolfId) playSfx('select')
+    selectWolf(wolfId)
+  }
+
+  function handleClickCell(pos: { r: number; c: number }) {
+    if (!interactive) return
+    if (!selectedWolfId) {
+      playSfx('invalid')
+      return
+    }
+    clickCell(pos)
+  }
+
   return (
-    <div className="mx-auto flex min-h-dvh max-w-lg flex-col gap-3 px-4 pb-4 pt-4">
+    <div className="mx-auto flex min-h-dvh max-w-lg flex-col gap-3 px-4 pb-4 pt-5">
       <header className="flex items-center justify-between gap-3">
         <LocaleLink
           href={backHref}
@@ -219,14 +233,14 @@ export function PlayScreen({ level }: Props) {
       </header>
 
       <div
-        className={`flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm tabular-nums shadow-sm ${
+        className={`game-panel flex flex-wrap items-center justify-between gap-2 px-3 py-3 text-sm tabular-nums ${
           chainFlash
             ? 'bg-[#e8c4b8] font-semibold text-[#8b2e22] ring-2 ring-[var(--danger)]/40'
-            : 'bg-[var(--panel)] text-[var(--ink)] ring-1 ring-[#5c6b52]/15'
+            : 'text-[var(--ink)]'
         }`}
       >
-        <span className="font-semibold">{fmt(p.eaten, { n: state.eatenSheep })}</span>
-        <span>{fmt(p.sheepLeft, { n: sheepLeft })}</span>
+        <span className="game-stat"><span className="block text-[0.65rem] uppercase tracking-wider text-[var(--muted)]">Progress</span><strong>{fmt(p.eaten, { n: state.eatenSheep })}</strong></span>
+        <span className="game-stat"><span className="block text-[0.65rem] uppercase tracking-wider text-[var(--muted)]">Flock</span><strong>{fmt(p.sheepLeft, { n: sheepLeft })}</strong></span>
         <span
           className={`inline-flex items-center gap-1.5 ${thinking ? 'font-medium text-[var(--muted)]' : ''}`}
           aria-live="polite"
@@ -243,7 +257,7 @@ export function PlayScreen({ level }: Props) {
         )}
       </div>
 
-      <div className="relative flex flex-1 flex-col items-center justify-center py-1">
+      <div className="relative flex flex-1 flex-col items-center justify-center py-2">
         <BoardSvg
           state={state}
           selectedWolfId={selectedWolfId}
@@ -252,8 +266,8 @@ export function PlayScreen({ level }: Props) {
           jumpThroughs={highlights.throughs}
           juice={juice}
           interactive={interactive}
-          onSelectWolf={selectWolf}
-          onClickCell={clickCell}
+          onSelectWolf={handleSelectWolf}
+          onClickCell={handleClickCell}
           theme={theme}
         />
         {thinking && (
@@ -272,7 +286,8 @@ export function PlayScreen({ level }: Props) {
       )}
 
       {uiPhase === 'terminal' && (
-        <div className="rounded-xl bg-[var(--panel)] p-4 text-center ring-1 ring-[#5c6b52]/20">
+        <div className="game-panel victory-pop p-5 text-center">
+          <p className="eyebrow">{state.status === 'won' ? 'Hunt complete' : 'The flock escaped'}</p>
           <p className="font-serif text-2xl text-[var(--ink)]">
             {state.status === 'won' ? p.win : p.lose}
           </p>
@@ -296,7 +311,7 @@ export function PlayScreen({ level }: Props) {
                 replace(recordPlayStarted(useSaveStore.getState().save, level.id))
                 playCountedRef.current = true
               }}
-              className="w-full max-w-xs rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-medium text-[#f4f1ea] disabled:opacity-50 active:scale-[0.97]"
+              className="primary-action w-full max-w-xs disabled:opacity-50"
             >
               {p.again}
             </button>
@@ -322,10 +337,10 @@ export function PlayScreen({ level }: Props) {
       )}
 
       {uiPhase !== 'terminal' && (
-        <p className="text-center text-xs text-[#7a8574]">{p.tip}</p>
+        <p className="status-chip justify-center text-center text-xs text-[var(--muted)]" aria-live="polite">{p.tip}</p>
       )}
 
-      <footer className="mt-auto flex items-center justify-around border-t border-[#5c6b52]/15 pt-2">
+      <footer className="mt-auto flex items-center justify-around rounded-2xl border border-[var(--line)] bg-[var(--paper)]/75 pt-1 shadow-sm">
         <button
           type="button"
           onClick={confirmReset}

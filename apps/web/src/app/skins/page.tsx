@@ -1,195 +1,83 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import {
-  equipSkin,
-  grantUniversalFragments,
-  isSkinUnlocked,
-  SKIN_CATALOG,
-  unlockSkinWithCost,
-} from '@wolf-sheep/game-core'
-import { getAds } from '@/lib/ads'
-import { useSaveStore } from '@/lib/save-store'
+import { equipSkin, isSkinUnlocked, SKIN_CATALOG, unlockSkinWithCost } from '@wolf-sheep/game-core'
+import { SkinPreview } from '@/components/SkinPreview'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { SiteFooter } from '@/components/SiteChrome'
+import { useSaveStore } from '@/lib/save-store'
 import { useClientMessages } from '@/i18n/use-client-locale'
-
-const TOPUP_AMOUNT = 10
 
 export default function SkinsPage() {
   const save = useSaveStore((s) => s.save)
   const replace = useSaveStore((s) => s.replace)
   const hydrate = useSaveStore((s) => s.hydrate)
-  const [msg, setMsg] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState('')
   const { locale, t } = useClientMessages()
 
-  useEffect(() => {
-    hydrate()
-  }, [hydrate])
+  useEffect(() => hydrate(), [hydrate])
 
-  async function topUp() {
-    setBusy(true)
-    const res = await getAds().showRewarded('fragment_topup')
-    setBusy(false)
-    if (!res.ok) {
-      setMsg(locale === 'zh' ? '广告未完成，未发放碎片' : 'Ad not completed')
-      return
+  function equip(id: string) {
+    const result = equipSkin(save, id)
+    if (result.ok) replace(result.save)
+  }
+
+  function unlock(id: string) {
+    const result = unlockSkinWithCost(save, id)
+    if (result.ok) {
+      replace(result.save)
+      setMessage(locale === 'zh' ? '已解锁，可立即装备。' : 'Unlocked and ready to equip.')
+    } else {
+      setMessage(locale === 'zh' ? '碎片不足，先完成更多猎场。' : 'Not enough shards. Clear more hunts first.')
     }
-    replace(grantUniversalFragments(useSaveStore.getState().save, TOPUP_AMOUNT))
-    setMsg(locale === 'zh' ? `获得通用碎片 +${TOPUP_AMOUNT}` : `+${TOPUP_AMOUNT} shards`)
   }
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-10">
+      <main className="page-shell flex flex-1 flex-col gap-6 py-8">
         <header className="flex items-center justify-between">
-          <LocaleLink href="/" locale={locale} className="text-sm text-[#5c6b52] hover:underline">
-            {t.nav.home}
-          </LocaleLink>
-          <h1 className="font-serif text-2xl text-[#2c3328]">{t.skins.title}</h1>
-          <span className="text-xs text-[#7a8574]">{save.fragments.universal}</span>
+          <LocaleLink href="/" locale={locale} className="quiet-action text-sm">{t.nav.home}</LocaleLink>
+          <div className="text-center"><p className="eyebrow">Collection</p><h1 className="display-title text-3xl">{t.skins.title}</h1></div>
+          <span className="min-w-16 text-right text-sm font-bold text-[var(--muted)]">✦ {save.fragments.universal}</span>
         </header>
-        <p className="text-sm text-[#5c6b52]">
-          <LocaleLink href="/how-to-play" locale={locale} className="hover:underline">
-            {t.nav.howToPlay}
-          </LocaleLink>
-          {' · '}
-          <LocaleLink href="/chapters" locale={locale} className="hover:underline">
-            {t.nav.chapters}
-          </LocaleLink>
+
+        <SkinPreview save={save} />
+        <p className="text-center text-sm leading-relaxed text-[var(--muted)]">
+          {locale === 'zh' ? '选择皮肤后，猎场预览会立即更新。狼、羊与棋盘应属于同一个主题。' : 'The field preview updates immediately. Wolf, sheep, and board belong to one theme.'}
         </p>
+        {message ? <p className="rounded-xl bg-[#f4e5de] px-4 py-3 text-center text-sm text-[#8b2e22]">{message}</p> : null}
 
-        {msg ? <p className="text-sm text-[#5c6b52]">{msg}</p> : null}
-
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void topUp()}
-          className="rounded-lg border border-[#5c6b52]/40 px-4 py-2 text-sm text-[#2c3328] disabled:opacity-50"
-        >
-          {locale === 'zh' ? `看广告补通用碎片 (+${TOPUP_AMOUNT})` : `Watch ad (+${TOPUP_AMOUNT} shards)`}
-        </button>
-
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#5c6b52]">
-            {locale === 'zh' ? '狼套装（含羊）' : 'Wolf sets'}
-          </h2>
-          {SKIN_CATALOG.filter((s) => s.kind === 'wolf_set').map((skin) => {
+        <SkinSection title={locale === 'zh' ? '狼群套装' : 'Wolf sets'}>
+          {SKIN_CATALOG.filter((skin) => skin.kind === 'wolf_set').map((skin) => {
             const unlocked = isSkinUnlocked(save, skin)
             const equipped = save.equipped.wolfSetId === skin.id
-            return (
-              <div
-                key={skin.id}
-                className="flex items-center justify-between rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={skin.assets.wolf} alt="" className="h-10 w-10 object-contain" />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={skin.assets.sheep} alt="" className="h-8 w-8 object-contain opacity-90" />
-                  <div>
-                    <p className="font-medium text-[#2c3328]">{skin.name}</p>
-                    <p className="text-xs text-[#7a8574]">
-                      {unlocked
-                        ? equipped
-                          ? t.skins.equipped
-                          : locale === 'zh'
-                            ? '已解锁'
-                            : 'Unlocked'
-                        : skin.unlock.type === 'cost'
-                          ? t.skins.cost.replace('{n}', String(skin.unlock.universal))
-                          : locale === 'zh'
-                            ? '未解锁'
-                            : 'Locked'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  {!unlocked && skin.unlock.type === 'cost' ? (
-                    <button
-                      type="button"
-                      className="rounded bg-[#3d4a3a] px-3 py-1 text-xs text-[#f4f1ea]"
-                      onClick={() => {
-                        const r = unlockSkinWithCost(save, skin.id)
-                        if (!r.ok) {
-                          setMsg(locale === 'zh' ? '碎片不足' : 'Not enough shards')
-                          return
-                        }
-                        replace(r.save)
-                      }}
-                    >
-                      {locale === 'zh' ? '兑换' : 'Redeem'}
-                    </button>
-                  ) : null}
-                  {unlocked && !equipped ? (
-                    <button
-                      type="button"
-                      className="rounded border border-[#5c6b52]/40 px-3 py-1 text-xs"
-                      onClick={() => {
-                        const r = equipSkin(save, skin.id)
-                        if (r.ok) replace(r.save)
-                      }}
-                    >
-                      {t.skins.equip}
-                    </button>
-                  ) : null}
-                </div>
-              </div>
-            )
+            return <SkinCard key={skin.id} name={skin.name} preview={[skin.assets.wolf, skin.assets.sheep]} unlocked={unlocked} equipped={equipped} cost={skin.unlock.type === 'cost' ? skin.unlock.universal : null} onEquip={() => equip(skin.id)} onUnlock={() => unlock(skin.id)} labels={t.skins} locale={locale} />
           })}
-        </section>
+        </SkinSection>
 
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#5c6b52]">{locale === 'zh' ? '棋盘' : 'Boards'}</h2>
-          {SKIN_CATALOG.filter((s) => s.kind === 'board').map((skin) => {
+        <SkinSection title={locale === 'zh' ? '猎场棋盘' : 'Field boards'}>
+          {SKIN_CATALOG.filter((skin) => skin.kind === 'board').map((skin) => {
             const unlocked = isSkinUnlocked(save, skin)
             const equipped = save.equipped.boardId === skin.id
-            return (
-              <div
-                key={skin.id}
-                className="flex items-center justify-between rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={skin.assets.boardBg}
-                    alt=""
-                    className="h-10 w-10 rounded border border-[#5c6b52]/20 object-cover"
-                  />
-                  <div>
-                    <p className="font-medium text-[#2c3328]">{skin.name}</p>
-                    <p className="text-xs text-[#7a8574]">
-                      {unlocked
-                        ? equipped
-                          ? t.skins.equipped
-                          : locale === 'zh'
-                            ? '已解锁'
-                            : 'Unlocked'
-                        : locale === 'zh'
-                          ? '通关对应章节解锁'
-                          : 'Clear chapter to unlock'}
-                    </p>
-                  </div>
-                </div>
-                {unlocked && !equipped ? (
-                  <button
-                    type="button"
-                    className="rounded border border-[#5c6b52]/40 px-3 py-1 text-xs"
-                    onClick={() => {
-                      const r = equipSkin(save, skin.id)
-                      if (r.ok) replace(r.save)
-                    }}
-                  >
-                    {t.skins.equip}
-                  </button>
-                ) : null}
-              </div>
-            )
+            return <SkinCard key={skin.id} name={skin.name} preview={[skin.assets.boardBg]} unlocked={unlocked} equipped={equipped} cost={null} onEquip={() => equip(skin.id)} onUnlock={() => undefined} labels={t.skins} locale={locale} />
           })}
-        </section>
+        </SkinSection>
       </main>
       <SiteFooter locale={locale} t={t} />
     </div>
   )
+}
+
+function SkinSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return <section className="flex flex-col gap-3"><h2 className="font-serif text-xl text-[var(--ink)]">{title}</h2>{children}</section>
+}
+
+function SkinCard({ name, preview, unlocked, equipped, cost, onEquip, onUnlock, labels, locale }: { name: string; preview: string[]; unlocked: boolean; equipped: boolean; cost: number | null; onEquip: () => void; onUnlock: () => void; labels: { equip: string; equipped: string; cost: string }; locale: 'en' | 'zh' }) {
+  return <div className="paper-card flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center">
+    <div className="flex min-w-0 items-center gap-3">
+      <div className="flex h-16 w-28 shrink-0 items-center justify-center gap-1 rounded-xl border border-[var(--line)] bg-[#e8eee2] p-2">{preview.map((src) => <img key={src} src={src} alt="" className="h-12 w-12 object-contain" />)}</div>
+      <div><p className="font-bold text-[var(--ink)]">{name}</p><p className="mt-1 text-xs text-[var(--muted)]">{equipped ? labels.equipped : unlocked ? (locale === 'zh' ? '已解锁' : 'Unlocked') : cost !== null ? labels.cost.replace('{n}', String(cost)) : (locale === 'zh' ? '通关对应猎场解锁' : 'Clear its hunt to unlock')}</p></div>
+    </div>
+    {!equipped && (unlocked ? <button type="button" className="quiet-action min-h-10 px-3 text-xs sm:ml-auto" onClick={onEquip}>{labels.equip}</button> : cost !== null ? <button type="button" className="primary-action min-h-10 px-3 text-xs sm:ml-auto" onClick={onUnlock}>{locale === 'zh' ? '兑换' : 'Unlock'}</button> : null)}
+  </div>
 }

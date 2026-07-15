@@ -51,16 +51,16 @@ export default function ChaptersPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-10">
+      <main className="page-shell flex flex-1 flex-col gap-6 py-8">
         <header className="flex items-center justify-between">
-          <LocaleLink href="/" locale={locale} className="text-sm text-[#5c6b52] hover:underline">
+          <LocaleLink href="/" locale={locale} className="quiet-action text-sm">
             {t.nav.home}
           </LocaleLink>
-          <h1 className="font-serif text-2xl text-[#2c3328]">{t.chapters.title}</h1>
+          <h1 className="display-title text-3xl">{t.chapters.title}</h1>
           <span className="text-xs text-[#7a8574]">{save.fragments.universal}</span>
         </header>
 
-        <LocaleLink href="/how-to-play" locale={locale} className="text-sm text-[#5c6b52] hover:underline">
+        <LocaleLink href="/how-to-play" locale={locale} className="status-chip text-sm text-[var(--muted)]">
           {t.chapters.howLink}
         </LocaleLink>
 

@@ -1,6 +1,6 @@
 /** Prefer short sample buffers; fall back to richer procedural tones. */
 
-type SfxKind = 'step' | 'jump' | 'chain' | 'win' | 'lose'
+type SfxKind = 'step' | 'jump' | 'chain' | 'win' | 'lose' | 'select' | 'invalid'
 
 let ctx: AudioContext | null = null
 const bufferCache = new Map<SfxKind, AudioBuffer>()
@@ -21,15 +21,19 @@ async function loadBuffer(kind: SfxKind): Promise<AudioBuffer | null> {
   const audio = getCtx()
   if (!audio) return null
   if (bufferCache.has(kind)) return bufferCache.get(kind)!
-  const map: Record<SfxKind, string> = {
+  const map: Record<SfxKind, string | null> = {
     step: '/sfx/step.wav',
     jump: '/sfx/capture.wav',
     chain: '/sfx/chain.wav',
     win: '/sfx/win.wav',
     lose: '/sfx/lose.wav',
+    select: null,
+    invalid: null,
   }
+  const source = map[kind]
+  if (!source) return null
   try {
-    const res = await fetch(map[kind])
+    const res = await fetch(source)
     if (!res.ok) return null
     const arr = await res.arrayBuffer()
     const buf = await audio.decodeAudioData(arr.slice(0))
@@ -90,6 +94,12 @@ function playFallback(kind: SfxKind) {
     case 'lose':
       beep(280, 140, 'triangle', 0.05)
       beep(200, 200, 'triangle', 0.045, 0.12)
+      break
+    case 'select':
+      beep(460, 45, 'sine', 0.035)
+      break
+    case 'invalid':
+      beep(170, 65, 'triangle', 0.025)
       break
   }
 }

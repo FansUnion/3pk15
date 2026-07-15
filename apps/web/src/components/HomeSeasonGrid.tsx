@@ -32,12 +32,12 @@ export function HomeSeasonGrid() {
             key={s.id}
             href={open ? `/levels/${s.id}` : '/chapters'}
             locale={locale}
-            className={`border-l-4 border-l-[var(--accent)] bg-[var(--panel)] px-3 py-3 text-sm text-[var(--ink)] ${
-              open ? '' : 'opacity-70'
+            className={`season-${s.id} ${open ? 'season-card shadow-sm' : 'border border-[var(--line)] bg-[var(--panel)] opacity-70'} rounded-xl px-4 py-4 text-sm ${
+              open ? '' : 'text-[var(--ink)]'
             }`}
           >
-            <span className="block font-medium capitalize">{s.id}</span>
-            <span className="mt-1 block text-xs text-[var(--muted)]">
+            <span className="block font-serif text-lg capitalize">{s.id}</span>
+            <span className={`mt-1 block text-xs ${open ? 'text-white/85' : 'text-[var(--muted)]'}`}>
               {t.home.seasons[s.key]}
               {!open ? ` · ${t.chapters.locked}` : ''}
             </span>

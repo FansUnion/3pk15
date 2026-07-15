@@ -30,9 +30,9 @@ export default async function HowToPlayPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
       <SiteHeader locale={locale} />
       <main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-8 px-6 py-8">
-        <header>
-          <p className="text-xs tracking-[0.2em] text-[var(--muted)] uppercase">Fangrush</p>
-          <h1 className="mt-1 font-serif text-3xl text-[var(--ink)]">{h.title}</h1>
+        <header className="game-panel p-5">
+          <p className="eyebrow">Fangrush field guide</p>
+          <h1 className="display-title mt-2 text-4xl">{h.title}</h1>
           <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{h.intro}</p>
         </header>
 
@@ -46,7 +46,7 @@ export default async function HowToPlayPage() {
             [h.saveTitle, h.saveBody],
           ] as const
         ).map(([title, body]) => (
-          <section key={title}>
+          <section key={title} className="paper-card p-4">
             <h2 className="font-serif text-xl text-[var(--ink)]">{title}</h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{body}</p>
           </section>

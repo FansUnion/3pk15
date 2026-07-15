@@ -37,16 +37,16 @@ export function LevelList({
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-10">
+      <div className="page-shell flex flex-1 flex-col gap-6 py-8">
         <header className="flex items-center justify-between">
-          <LocaleLink href="/chapters" locale={locale} className="text-sm text-[#5c6b52] hover:underline">
+          <LocaleLink href="/chapters" locale={locale} className="quiet-action text-sm">
             {t.nav.chapters}
           </LocaleLink>
-          <h1 className="font-serif text-2xl text-[#2c3328]">{chapterLabel}</h1>
+          <h1 className="display-title text-3xl">{chapterLabel}</h1>
           <span className="w-10" />
         </header>
 
-        {chapterBlurb ? <p className="text-sm leading-relaxed text-[#5c6b52]">{chapterBlurb}</p> : null}
+        {chapterBlurb ? <p className="game-panel p-4 text-sm leading-relaxed text-[var(--muted)]">{chapterBlurb}</p> : null}
 
         <LocaleLink href="/how-to-play" locale={locale} className="text-sm text-[#5c6b52] hover:underline">
           {t.nav.howToPlay}

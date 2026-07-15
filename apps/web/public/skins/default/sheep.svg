@@ -21,6 +21,7 @@
   <circle cx="35.8" cy="28.7" r="0.7" fill="#1a1f18"/>
   <ellipse cx="32" cy="33" rx="2.4" ry="1.5" fill="#1a1f18"/>
   <path d="M29 35.5c1.2 1.2 4.8 1.2 6 0" stroke="#1a1f18" stroke-width="1" stroke-linecap="round" fill="none"/>
+  <path d="M24 37c5 2 11 2 16 0l-2 7c-4 2-8 2-12 0z" fill="#9abf78" stroke="#527b45" stroke-width="1"/>
   <!-- ears -->
   <ellipse cx="22" cy="24" rx="3.5" ry="4.5" fill="#3a342e" transform="rotate(-18 22 24)"/>
   <ellipse cx="42" cy="24" rx="3.5" ry="4.5" fill="#3a342e" transform="rotate(18 42 24)"/>

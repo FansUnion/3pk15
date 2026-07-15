@@ -111,12 +111,13 @@ export function BoardSvg({
   const dy = fromXy && toXy ? fromXy.y - toXy.y : 0
 
   return (
-    <svg
-      viewBox={`0 0 ${SIZE} ${SIZE}`}
-      className="h-auto w-full max-w-[min(92vw,420px)] touch-manipulation drop-shadow-sm"
-      role="img"
-      aria-label="Fangrush board"
-    >
+    <div className="game-board-frame w-full max-w-[min(92vw,420px)]">
+      <svg
+        viewBox={`0 0 ${SIZE} ${SIZE}`}
+        className="h-auto w-full touch-manipulation"
+        role="img"
+        aria-label="Fangrush board"
+      >
       {theme.boardBgSrc ? (
         <image href={theme.boardBgSrc} x={0} y={0} width={SIZE} height={SIZE} preserveAspectRatio="none" />
       ) : (
@@ -293,8 +294,10 @@ export function BoardSvg({
               if (interactive && p.side === 'wolf') onSelectWolf(p.id)
             }}
             style={moveStyle}
-            className={isMover ? 'piece-slide' : undefined}
+            className={isMover ? 'piece-slide' : p.side === 'sheep' ? 'piece-idle' : undefined}
           >
+            {p.side === 'sheep' && !selected && <title>Sheep</title>}
+            {p.side === 'wolf' && !selected && <title>Wolf</title>}
             {selected && (
               <>
                 <circle
@@ -332,7 +335,7 @@ export function BoardSvg({
             fill="none"
             stroke="#c44836"
             strokeWidth={3}
-            className="juice-pulse"
+            className="juice-pulse danger-ring"
             pointerEvents="none"
           />
         )
@@ -385,6 +388,7 @@ export function BoardSvg({
           )
         }),
       )}
-    </svg>
+      </svg>
+    </div>
   )
 }

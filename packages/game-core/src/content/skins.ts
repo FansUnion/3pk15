@@ -56,6 +56,18 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     sheepFill: '#e8eef2',
   },
   {
+    id: 'wolf-night',
+    kind: 'wolf_set',
+    name: 'Night Watch',
+    unlock: { type: 'cost', universal: 80 },
+    assets: {
+      wolf: '/skins/night/wolf.svg',
+      sheep: '/skins/night/sheep.svg',
+    },
+    wolfFill: '#26364c',
+    sheepFill: '#dce8f0',
+  },
+  {
     id: 'board-default',
     kind: 'board',
     name: '原野棋盘',
@@ -99,6 +111,15 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     assets: { boardBg: '/skins/boards/winter.svg' },
     boardFill: '#e8f0f6',
     lineStroke: '#3a5566',
+  },
+  {
+    id: 'board-night',
+    kind: 'board',
+    name: 'Moonlit Field',
+    unlock: { type: 'cost', season: 'winter', amount: 30 },
+    assets: { boardBg: '/skins/boards/night.svg' },
+    boardFill: '#1c3040',
+    lineStroke: '#b7c8d4',
   },
 ]
 

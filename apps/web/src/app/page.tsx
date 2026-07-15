@@ -43,27 +43,28 @@ export default async function HomePage() {
                 'radial-gradient(ellipse at 70% 10%, #f5f0e0 0%, transparent 50%), radial-gradient(ellipse at 15% 90%, #c5d4b8 0%, transparent 55%), #dfe8d8',
             }}
           />
-          <div className="relative mx-auto flex max-w-lg flex-col px-6 pb-10 pt-6">
-            <h1 className="font-serif text-5xl leading-none tracking-wide text-[var(--ink)]">
+          <div className="relative mx-auto flex max-w-lg flex-col px-6 pb-12 pt-8">
+            <p className="eyebrow">Three wolves · one moving flock</p>
+            <h1 className="display-title mt-3 text-5xl leading-[.92] sm:text-6xl">
               {t.brand.name}
             </h1>
             {t.brand.subtitle ? (
               <p className="mt-2 text-sm text-[var(--muted)]">{t.brand.subtitle}</p>
             ) : null}
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-[var(--muted)]">{t.brand.tagline}</p>
+            <p className="mt-5 max-w-sm text-base leading-relaxed text-[var(--muted)]">{t.brand.tagline}</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/brand/hero-board.svg"
               alt="Fangrush — three wolves face the flock"
               width={640}
               height={360}
-              className="mt-6 w-full"
+              className="hunter-breathe mt-7 w-full rounded-[1.4rem] border border-white/50 bg-white/20 p-2 shadow-[0_24px_50px_rgba(56,76,48,.18)]"
             />
-            <div className="mt-6 flex flex-col gap-3">
+            <div className="mt-7 flex flex-col gap-3">
               <LocaleLink
-                href="/chapters"
+                href="/play/spring-01"
                 locale={locale}
-                className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-6 py-3.5 text-base font-medium text-[#f4f1ea] active:scale-[0.97]"
+                className="primary-action"
               >
                 {t.nav.play}
               </LocaleLink>
@@ -77,7 +78,7 @@ export default async function HomePage() {
         </section>
 
         <div className="mx-auto flex w-full max-w-lg flex-col gap-10 px-6 py-10">
-          <section>
+          <section className="paper-card p-5">
             <h2 className="font-serif text-xl text-[var(--ink)]">{t.home.howTitle}</h2>
             <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-[var(--muted)]">
               {t.home.how.map((step) => (
@@ -105,7 +106,7 @@ export default async function HomePage() {
             </LocaleLink>
           </section>
 
-          <section className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-[var(--muted)]">
+          <section className="paper-card flex flex-wrap gap-x-4 gap-y-2 p-4 text-sm text-[var(--muted)]">
             <LocaleLink href="/skins" locale={locale} className="hover:underline">
               {t.nav.skins}
             </LocaleLink>
