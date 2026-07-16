@@ -1,6 +1,6 @@
 # P-ACCOUNT · 账号与云存档（傻瓜式实施说明）
 
-> 本文件独立维护，不挂任务清单。  
+> 本文件是 `T-015 账号与云存档` 的实施规格；状态与优先级以 [任务清单](任务清单.md) 为准。
 > **参考仓库（本机绝对路径）**：`C:\Users\fansu\git\StartUpSense`  
 > Fangrush 仓库：`C:\Users\fansu\git\3pk15`  
 > 下文凡写「SS:」= StartUpSense 里打开这个文件照着改；「FR:」= Fangrush 建议落到的路径。
