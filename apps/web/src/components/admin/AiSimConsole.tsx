@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   applyAction,
+  createLevelInitialState,
   createInitialState,
   createSeededRng,
   deserialize,
@@ -20,6 +21,7 @@ import {
   type BoardState,
   type Difficulty,
   type HardBudgets,
+  type LevelConfig,
   type Piece,
   type Pos,
   type Side,
@@ -51,7 +53,7 @@ type Props = {
 export function AiSimConsole({ initialLevel, initialDiff }: Props) {
   const [state, setState] = useState(() => {
     const level = initialLevel ? getLevel(initialLevel) : undefined
-    if (level) return createInitialState(level.id, level.rocks)
+    if (level) return createLevelInitialState(level)
     return createInitialState('spring-01')
   })
   const [difficulty, setDifficulty] = useState<Difficulty>(() => {
@@ -80,6 +82,7 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
     degraded: boolean
     nodes: number
     elapsedMs: number
+    lookaheadCompleted: boolean
   } | null>(null)
   const stopRef = useRef(false)
   const appliedUrl = useRef(false)
@@ -101,7 +104,7 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
     const level = getLevel(initialLevel)
     if (!level) return
     appliedUrl.current = true
-    setState(createInitialState(level.id, level.rocks))
+    setState(createLevelInitialState(level))
     setBatchLevelId(level.id)
     const d =
       initialDiff === 'easy' || initialDiff === 'normal' || initialDiff === 'hard'
@@ -115,7 +118,7 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
   function loadLevel(id: string) {
     const level = getLevel(id)
     if (!level) return
-    setState(createInitialState(level.id, level.rocks))
+    setState(createLevelInitialState(level))
     pushLog(`loaded level ${id} ai=${level.ai}`)
     setDifficulty(level.ai)
     setBatchLevelId(id)
@@ -153,7 +156,7 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
         action = a
         setLastHardMeta(meta)
         pushLog(
-          `[hard] degraded=${meta.degraded} nodes=${meta.nodes} ms=${meta.elapsedMs.toFixed(1)} budgets=${JSON.stringify(hardBudgets)}`,
+          `[hard] degraded=${meta.degraded} lookahead=${meta.lookaheadCompleted} nodes=${meta.nodes} ms=${meta.elapsedMs.toFixed(1)} budgets=${JSON.stringify(hardBudgets)}`,
         )
       } else {
         setLastHardMeta(null)
@@ -282,7 +285,7 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
         pushLog(`batch stopped at ${g}/${n}`)
         break
       }
-      const sim = simulateOneGame(level.id, level.rocks, batchDiff, localSeed, 400, hardBudgets)
+      const sim = simulateOneGame(level, batchDiff, localSeed, 400, hardBudgets)
       localSeed += 10007
       pliesSum += sim.plies
       if (sim.outcome === 'wolf_win') wolfWins++
@@ -695,17 +698,16 @@ function gameRate(n: number, total: number) {
 }
 
 function simulateOneGame(
-  levelId: string,
-  rocks: Pos[],
+  level: LevelConfig,
   difficulty: Difficulty,
   seed: number,
-  maxPlies = 400,
+  maxSteps = 400,
   budgets?: HardBudgets,
 ): { outcome: 'wolf_win' | 'sheep_win' | 'timeout'; plies: number; serialized: string } {
-  let s = createInitialState(levelId, rocks)
+  let s = createLevelInitialState(level)
   let localSeed = seed
   let plies = 0
-  while (s.status === 'playing' && plies < maxPlies) {
+  while (s.status === 'playing' && plies < maxSteps) {
     plies++
     if (s.toMove === 'wolf') {
       const legal = listLegalActions(s)

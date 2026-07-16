@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   applyAction,
   assertInvariants,
+  boardPositionKey,
   createInitialState,
   createSeededRng,
   endWolfTurn,
@@ -37,6 +38,36 @@ describe('opening (T01)', () => {
     expect(legal.some((a) => a.type === 'step' && a.pieceId === 'wolf-1' && a.to.r === 5)).toBe(
       true,
     )
+  })
+})
+
+describe('threefold repetition', () => {
+  it('draws when the same complete position occurs for the third time', () => {
+    let state = makeState({
+      pieces: [
+        { id: 'wolf-1', side: 'wolf', r: 6, c: 1 },
+        { id: 'sheep-1', side: 'sheep', r: 1, c: 1 },
+      ],
+      toMove: 'wolf',
+      maxPlies: 20,
+    })
+    const cycle = [
+      { type: 'step' as const, pieceId: 'wolf-1', to: { r: 6, c: 2 } },
+      { type: 'step' as const, pieceId: 'sheep-1', to: { r: 1, c: 2 } },
+      { type: 'step' as const, pieceId: 'wolf-1', to: { r: 6, c: 1 } },
+      { type: 'step' as const, pieceId: 'sheep-1', to: { r: 1, c: 1 } },
+    ]
+
+    for (const action of [...cycle, ...cycle]) {
+      const result = applyAction(state, action)
+      expect(result.ok).toBe(true)
+      if (!result.ok) return
+      state = result.state
+    }
+
+    expect(state.status).toBe('draw')
+    expect(state.chain).toBeNull()
+    expect(state.repetitionCounts.get(boardPositionKey(state))).toBe(3)
   })
 })
 

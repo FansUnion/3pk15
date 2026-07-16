@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   applyAction,
-  createInitialState,
+  createLevelInitialState,
   createSeededRng,
   LEVELS,
   listLegalActions,
@@ -21,7 +21,7 @@ type BalanceSummary = {
   averagePlies: number
 }
 
-function chooseWolfAction(state: ReturnType<typeof createInitialState>, actions: Action[], rng: ReturnType<typeof createSeededRng>, strategy: string) {
+function chooseWolfAction(state: ReturnType<typeof createLevelInitialState>, actions: Action[], rng: ReturnType<typeof createSeededRng>, strategy: string) {
   if (strategy === 'random') return actions[Math.floor(rng.nextFloat() * actions.length)]!
   const scored = actions.map((action) => {
     const result = applyAction(state, action)
@@ -40,7 +40,7 @@ function runBalance(level: LevelConfig, sheepDifficulty: 'easy' | 'normal' | 'ha
   let totalPlies = 0
 
   for (let i = 0; i < games; i += 1) {
-    let state = createInitialState(level.id, level.rocks, level.targetEaten, level.maxPlies)
+    let state = createLevelInitialState(level)
     const rng = createSeededRng(i + level.indexInChapter * 1000 + sheepDifficulty.length * 10000)
     for (let ply = 0; ply < 500 && state.status === 'playing'; ply += 1) {
       const actions = listLegalActions(state)
@@ -75,7 +75,7 @@ describe('spring balance smoke simulation', () => {
 
   it('starts and terminates every mainline level with its configured AI', () => {
     for (const level of LEVELS) {
-      let state = createInitialState(level.id, level.rocks, level.targetEaten, level.maxPlies)
+      let state = createLevelInitialState(level)
       const rng = createSeededRng(level.indexInChapter * 97 + level.id.length)
       for (let ply = 0; ply < 320 && state.status === 'playing'; ply += 1) {
         const actions = listLegalActions(state)

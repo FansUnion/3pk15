@@ -20,7 +20,7 @@ const ITEMS: Item[] = [
     group: '漏斗断点',
     label: '落地 3s：品牌 Fangrush + 一句话 + 一键开玩清晰',
     href: '/',
-    doc: '感官硬约束见美术资源和用户体验/01-体验标准指针',
+    doc: '感官硬约束见美术资源和用户体验/01-体验与设计系统',
     adminHref: '/admin/docs',
   },
   {

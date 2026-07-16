@@ -4,6 +4,7 @@ import type {
   ApplyResult,
   BoardState,
   JumpMove,
+  OpeningLayout,
   Piece,
   Pos,
   Side,
@@ -11,7 +12,7 @@ import type {
 } from './types'
 import { MAX_CHAIN, OPENING_SHEEP, WIN_EATEN } from './types'
 
-const SHEEP_OPENING: Pos[] = [
+export const DEFAULT_SHEEP_OPENING: readonly Pos[] = [
   { r: 1, c: 1 },
   { r: 1, c: 2 },
   { r: 1, c: 3 },
@@ -29,7 +30,7 @@ const SHEEP_OPENING: Pos[] = [
   { r: 3, c: 5 },
 ]
 
-const WOLF_OPENING: Pos[] = [
+export const DEFAULT_WOLF_OPENING: readonly Pos[] = [
   { r: 6, c: 2 },
   { r: 6, c: 3 },
   { r: 6, c: 5 },
@@ -42,22 +43,33 @@ export function createInitialState(
   rocks: Pos[] = [],
   targetEaten = WIN_EATEN,
   maxPlies = DEFAULT_MAX_PLIES,
+  opening?: OpeningLayout,
 ): BoardState {
   const rockSet = new Set(rocks.map((p) => keyOf(p)))
-  for (const p of [...SHEEP_OPENING, ...WOLF_OPENING]) {
-    if (rockSet.has(keyOf(p))) {
+  const wolves = opening?.wolves ?? DEFAULT_WOLF_OPENING
+  const sheep = opening?.sheep ?? DEFAULT_SHEEP_OPENING
+  if (wolves.length !== 3) throw new Error('Opening must contain exactly 3 wolves')
+  if (sheep.length !== OPENING_SHEEP) throw new Error(`Opening must contain exactly ${OPENING_SHEEP} sheep`)
+
+  const occupied = new Set<string>()
+  for (const p of [...wolves, ...sheep]) {
+    if (!inBounds(p.r, p.c)) throw new Error(`Opening piece out of bounds at (${p.r},${p.c})`)
+    const key = keyOf(p)
+    if (occupied.has(key)) throw new Error(`Opening pieces overlap at (${p.r},${p.c})`)
+    occupied.add(key)
+    if (rockSet.has(key)) {
       throw new Error(`Rock overlaps opening piece at (${p.r},${p.c})`)
     }
   }
 
   const pieces: Piece[] = [
-    ...WOLF_OPENING.map((p, i) => ({
+    ...wolves.map((p, i) => ({
       id: `wolf-${i + 1}`,
       side: 'wolf' as const,
       r: p.r,
       c: p.c,
     })),
-    ...SHEEP_OPENING.map((p, i) => ({
+    ...sheep.map((p, i) => ({
       id: `sheep-${i + 1}`,
       side: 'sheep' as const,
       r: p.r,
@@ -65,7 +77,7 @@ export function createInitialState(
     })),
   ]
 
-  return refreshStatus({
+  const state: BoardState = {
     pieces,
     rocks: rockSet,
     eatenSheep: 0,
@@ -76,6 +88,11 @@ export function createInitialState(
     targetEaten,
     plyCount: 0,
     maxPlies,
+    repetitionCounts: new Map(),
+  }
+  return refreshStatus({
+    ...state,
+    repetitionCounts: new Map([[boardPositionKey(state), 1]]),
   })
 }
 
@@ -202,6 +219,28 @@ export function getWolfLegalSummary(
     }))
 }
 
+/** Position identity used for threefold-repetition detection. */
+export function boardPositionKey(state: BoardState): string {
+  const pieces = [...state.pieces]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((piece) => `${piece.id}:${piece.r},${piece.c}`)
+    .join('|')
+  const chain = state.chain ? `${state.chain.wolfId}:${state.chain.count}` : '-'
+  return `${pieces}::${[...state.rocks].sort().join(',')}::${state.toMove}::${chain}`
+}
+
+function recordPosition(state: BoardState): BoardState {
+  if (state.status !== 'playing') return state
+  const repetitionCounts = new Map(state.repetitionCounts)
+  const key = boardPositionKey(state)
+  const count = (repetitionCounts.get(key) ?? 0) + 1
+  repetitionCounts.set(key, count)
+  if (count >= 3) {
+    return { ...state, repetitionCounts, status: 'draw', chain: null }
+  }
+  return { ...state, repetitionCounts }
+}
+
 export function evaluateTerminal(state: BoardState): BoardState['status'] {
   if (state.eatenSheep >= state.targetEaten) return 'won'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'lost'
@@ -240,6 +279,7 @@ function cloneState(state: BoardState): BoardState {
     chain: state.chain ? { ...state.chain } : null,
     plyCount: state.plyCount,
     maxPlies: state.maxPlies,
+    repetitionCounts: new Map(state.repetitionCounts),
   }
 }
 
@@ -267,7 +307,7 @@ export function applyAction(state: BoardState, action: Action): ApplyResult {
       // sheep one step then wolf
       next.toMove = 'wolf'
     }
-    return { ok: true, state: refreshStatus(next) }
+    return { ok: true, state: recordPosition(refreshStatus(next)) }
   }
 
   // jump / 隔空吃 (wolf only): remove sheep at `to`, wolf lands on `to`
@@ -290,7 +330,7 @@ export function applyAction(state: BoardState, action: Action): ApplyResult {
   if (newCount >= MAX_CHAIN) {
     next.chain = null
     next.toMove = 'sheep'
-    return { ok: true, state: refreshStatus(next) }
+    return { ok: true, state: recordPosition(refreshStatus(next)) }
   }
 
   next.chain = { wolfId: action.pieceId, count: newCount }
@@ -302,7 +342,7 @@ export function applyAction(state: BoardState, action: Action): ApplyResult {
     next.toMove = 'sheep'
   }
 
-  return { ok: true, state: refreshStatus(next) }
+  return { ok: true, state: recordPosition(refreshStatus(next)) }
 }
 
 export function endWolfTurn(state: BoardState): ApplyResult {
@@ -315,7 +355,7 @@ export function endWolfTurn(state: BoardState): ApplyResult {
   const next = cloneState(state)
   next.chain = null
   next.toMove = 'sheep'
-  return { ok: true, state: refreshStatus(next) }
+  return { ok: true, state: recordPosition(refreshStatus(next)) }
 }
 
 export function assertInvariants(state: BoardState): void {

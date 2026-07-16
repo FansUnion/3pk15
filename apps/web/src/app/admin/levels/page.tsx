@@ -7,7 +7,7 @@ import {
   CHAPTER_BLURB_ZH,
   CHAPTER_LABEL,
   CHAPTER_ORDER,
-  createInitialState,
+  createLevelInitialState,
   LEVELS,
   validateAllLevels,
   validateLevel,
@@ -198,8 +198,8 @@ function ChapterBlock({
 
 function LevelOpeningPreview({ level }: { level: LevelConfig }) {
   const state = useMemo(
-    () => createInitialState(level.id, level.rocks),
-    [level.id, level.rocks],
+    () => createLevelInitialState(level),
+    [level],
   )
   const theme = useMemo(() => themeForChapter(level.chapterId), [level.chapterId])
   return (

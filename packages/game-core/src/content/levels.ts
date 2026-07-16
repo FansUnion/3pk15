@@ -1,6 +1,12 @@
-import type { Difficulty, Pos } from '../types'
+import type { Difficulty, OpeningLayout, Pos } from '../types'
 import { BOARD_MAX, BOARD_MIN } from '../types'
 import { inBounds, keyOf, ORTHO, posKey } from '../board'
+import {
+  createInitialState,
+  DEFAULT_SHEEP_OPENING,
+  DEFAULT_WOLF_OPENING,
+  listLegalActions,
+} from '../rules'
 
 export type ChapterId = 'spring' | 'summer' | 'autumn' | 'winter'
 
@@ -15,6 +21,8 @@ export type LevelConfig = {
   blurbEn: string
   blurbZh: string
   rocks: Pos[]
+  /** Override either side's standard start while preserving a full legal opening. */
+  opening?: OpeningLayout
   ai: Difficulty
   /** Default is 8; special challenge levels may override this target. */
   targetEaten?: number
@@ -35,13 +43,23 @@ export type LevelConfig = {
   }
 }
 
-/** Opening piece positions — rocks must not occupy these. */
-const OPENING_KEYS = new Set<string>([
-  ...[1, 2, 3].flatMap((r) => [1, 2, 3, 4, 5].map((c) => posKey(r, c))),
-  posKey(6, 2),
-  posKey(6, 3),
-  posKey(6, 5),
-])
+function openingPositions(level: LevelConfig) {
+  return {
+    wolves: level.opening?.wolves ?? DEFAULT_WOLF_OPENING,
+    sheep: level.opening?.sheep ?? DEFAULT_SHEEP_OPENING,
+  }
+}
+
+/** Creates the exact configured opening used by gameplay, previews, and simulations. */
+export function createLevelInitialState(level: LevelConfig) {
+  return createInitialState(
+    level.id,
+    level.rocks,
+    level.targetEaten,
+    level.maxPlies,
+    level.opening,
+  )
+}
 
 export const CHAPTER_AI: Record<ChapterId, Difficulty> = {
   spring: 'normal',
@@ -119,6 +137,20 @@ export function validateLevel(level: LevelConfig): string[] {
     )
   }
 
+  const opening = openingPositions(level)
+  if (opening.wolves.length !== 3) errors.push('opening wolves must contain exactly 3 positions')
+  if (opening.sheep.length !== 15) errors.push('opening sheep must contain exactly 15 positions')
+  const openingKeys = new Set<string>()
+  for (const p of [...opening.wolves, ...opening.sheep]) {
+    if (!inBounds(p.r, p.c)) {
+      errors.push(`opening piece out of bounds (${p.r},${p.c})`)
+      continue
+    }
+    const key = keyOf(p)
+    if (openingKeys.has(key)) errors.push(`opening pieces overlap at ${key}`)
+    openingKeys.add(key)
+  }
+
   const seen = new Set<string>()
   for (const p of level.rocks) {
     if (!inBounds(p.r, p.c)) {
@@ -128,7 +160,7 @@ export function validateLevel(level: LevelConfig): string[] {
     const k = keyOf(p)
     if (seen.has(k)) errors.push(`duplicate rock ${k}`)
     seen.add(k)
-    if (OPENING_KEYS.has(k)) errors.push(`rock on opening piece ${k}`)
+    if (openingKeys.has(k)) errors.push(`rock on opening piece ${k}`)
   }
 
   const adj = new Set<string>()
@@ -144,6 +176,16 @@ export function validateLevel(level: LevelConfig): string[] {
     }
   }
   errors.push(...adj)
+
+  if (errors.length === 0) {
+    try {
+      if (listLegalActions(createLevelInitialState(level)).length === 0) {
+        errors.push('opening must provide at least one wolf legal action')
+      }
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : 'invalid opening')
+    }
+  }
 
   return errors
 }
@@ -282,6 +324,7 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '春日终局，综合短连吃、路线选择和提前收束。',
     blurbEn: 'Spring finale: combine short chains, route choice, and clean exits.',
     rocks: [{ r: 4, c: 1 }, { r: 4, c: 4 }],
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 5 }] },
     openingTemplate: 'spring-finale',
     teachingPoint: 'Finish a short spring hunt without stranding a wolf.',
     expectedPlies: { min: 45, target: 140, max: 300 }, difficulty: 4,
@@ -318,6 +361,7 @@ export const LEVELS: LevelConfig[] = [
       { r: 4, c: 1 },
       { r: 4, c: 4 },
     ],
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 5 }] },
     openingTemplate: 'summer-crosscut-rocks',
     teachingPoint: 'Delay the rush and keep a second wolf available for the crosscut.',
     expectedPlies: { min: 40, target: 135, max: 290 },
@@ -337,6 +381,7 @@ export const LEVELS: LevelConfig[] = [
       { r: 4, c: 5 },
       { r: 5, c: 3 },
     ],
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 4 }, { r: 6, c: 6 }] },
     openingTemplate: 'summer-tug-of-war',
     teachingPoint: 'Split wolf roles and avoid entering a dead corner too early.',
     expectedPlies: { min: 45, target: 145, max: 300 },
@@ -348,6 +393,7 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '羊群分流后，狼需要决定追击主线还是侧翼。',
     blurbEn: 'The flock splits the flow. Choose the main lane or the flank.',
     rocks: [{ r: 2, c: 6 }, { r: 4, c: 2 }, { r: 5, c: 5 }],
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 5 }] },
     openingTemplate: 'summer-split-flow',
     teachingPoint: 'Assign wolves to pressure two flock lanes without losing mobility.',
     expectedPlies: { min: 50, target: 150, max: 300 }, difficulty: 4,
@@ -359,6 +405,7 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '羊群会把狼推向边角，提前保留第二条退路。',
     blurbEn: 'The flock pushes back toward the edge. Keep a second exit open.',
     rocks: [{ r: 2, c: 6 }, { r: 4, c: 1 }, { r: 4, c: 4 }, { r: 6, c: 1 }],
+    opening: { wolves: [{ r: 6, c: 2 }, { r: 6, c: 4 }, { r: 6, c: 6 }] },
     openingTemplate: 'summer-counterpush',
     teachingPoint: 'Protect a retreat route before starting a committed chain.',
     expectedPlies: { min: 55, target: 160, max: 300 }, difficulty: 5,
@@ -369,6 +416,7 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '夏日终局，综合阻挡、分工和中场路线压力。',
     blurbEn: 'Summer finale: combine blocking, wolf roles, and midfield pressure.',
     rocks: [{ r: 2, c: 6 }, { r: 4, c: 2 }, { r: 4, c: 5 }, { r: 5, c: 3 }],
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 5 }] },
     openingTemplate: 'summer-pressure-line',
     teachingPoint: 'Coordinate all three wolves before taking the decisive line.',
     expectedPlies: { min: 60, target: 170, max: 300 }, difficulty: 5,
@@ -391,6 +439,7 @@ export const LEVELS: LevelConfig[] = [
       { r: 5, c: 2 },
       { r: 5, c: 6 },
     ],
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 5 }] },
   }),
   L({
     id: 'autumn-02',
@@ -399,16 +448,17 @@ export const LEVELS: LevelConfig[] = [
     ai: 'normal',
     nameZh: '秋日 · 通道',
     nameEn: 'Autumn · Corridor',
-    blurbZh: '七石挤出一条主通道。控制通道两端，连吃会像潮水一样涌出。',
-    blurbEn: 'Seven rocks squeeze one main corridor. Own both ends and chains will surge like a tide.',
+    blurbZh: '六石挤出一条主通道。控制通道两端，连吃会像潮水一样涌出。',
+    blurbEn: 'Six rocks squeeze one main corridor. Own both ends and chains will surge like a tide.',
     rocks: [
       { r: 2, c: 6 },
       { r: 4, c: 1 },
       { r: 4, c: 3 },
       { r: 4, c: 5 },
-      { r: 5, c: 2 },
+      { r: 6, c: 4 },
       { r: 5, c: 6 },
     ],
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 5 }] },
   }),
   L({
     id: 'autumn-03',
@@ -427,6 +477,7 @@ export const LEVELS: LevelConfig[] = [
       { r: 5, c: 1 },
       { r: 5, c: 3 },
     ],
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 4 }, { r: 6, c: 6 }] },
   }),
   L({
     id: 'autumn-04', chapterId: 'autumn', indexInChapter: 4,
@@ -446,6 +497,7 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '两端都要保持通行，任何一只狼走错都会失去窗口。',
     blurbEn: 'Keep both ends open. One careless wolf can close the window.',
     rocks: [{ r: 2, c: 6 }, { r: 4, c: 1 }, { r: 4, c: 3 }, { r: 4, c: 5 }, { r: 5, c: 6 }, { r: 5, c: 4 }],
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 5 }] },
     openingTemplate: 'autumn-narrow-gate',
     teachingPoint: 'Preserve both corridor ends while planning a forced capture.',
     expectedPlies: { min: 65, target: 180, max: 300 }, difficulty: 5,
@@ -471,6 +523,7 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '空盘寂静。没有岩石挡点，完全靠走位撕开合围。',
     blurbEn: 'Silent empty board. No rocks to lean on — only spacing can tear the surround.',
     rocks: [],
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 5 }] },
   }),
   L({
     id: 'winter-02',
@@ -481,6 +534,7 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '高阶羊群合力围狼。先保三狼通路，再找隔空破口。',
     blurbEn: 'A hard flock closes the ring. Keep all three wolves mobile, then punch a gap-eat hole.',
     rocks: [],
+    opening: { wolves: [{ r: 6, c: 2 }, { r: 6, c: 4 }, { r: 6, c: 6 }] },
   }),
   L({
     id: 'winter-03',
@@ -516,6 +570,7 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '四季终章，检验空盘位置计算和连续狩猎能力。',
     blurbEn: 'The four-season finale: prove open-board calculation and clean chains.',
     rocks: [], openingTemplate: 'winter-final-hunt',
+    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 4 }, { r: 6, c: 6 }] },
     teachingPoint: 'Solve the open-board surround without sacrificing wolf mobility.',
     expectedPlies: { min: 80, target: 210, max: 300 }, difficulty: 5,
   }),

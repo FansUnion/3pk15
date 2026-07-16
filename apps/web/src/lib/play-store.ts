@@ -9,6 +9,7 @@ import {
   type Action,
   type BoardState,
   type Difficulty,
+  type OpeningLayout,
   type Pos,
 } from '@wolf-sheep/game-core'
 
@@ -42,7 +43,7 @@ type PlayStore = {
   juice: JuiceFlash
   difficulty: Difficulty
   seed: number
-  init: (levelId: string, rocks: Pos[], difficulty: Difficulty, targetEaten?: number, maxPlies?: number) => void
+  init: (levelId: string, rocks: Pos[], difficulty: Difficulty, targetEaten?: number, maxPlies?: number, opening?: OpeningLayout) => void
   selectWolf: (wolfId: string | null) => void
   clickCell: (pos: Pos) => void
   endChain: () => void
@@ -99,26 +100,8 @@ function juiceFromAction(state: BoardState, action: Action): JuiceFlash {
   }
 }
 
-let levelMeta = { levelId: 'spring-01', rocks: [] as Pos[], difficulty: 'easy' as Difficulty, targetEaten: undefined as number | undefined, maxPlies: undefined as number | undefined }
+let levelMeta = { levelId: 'spring-01', rocks: [] as Pos[], difficulty: 'easy' as Difficulty, targetEaten: undefined as number | undefined, maxPlies: undefined as number | undefined, opening: undefined as OpeningLayout | undefined }
 let turnSeq = 0
-let positionCounts = new Map<string, number>()
-
-function positionKey(state: BoardState) {
-  const pieces = [...state.pieces]
-    .sort((a, b) => a.id.localeCompare(b.id))
-    .map((p) => `${p.id}:${p.r},${p.c}`)
-    .join('|')
-  const chain = state.chain ? `${state.chain.wolfId}:${state.chain.count}` : '-'
-  return `${pieces}::${[...state.rocks].sort().join(',')}::${state.toMove}::${chain}`
-}
-
-function applyRepetitionGuard(state: BoardState) {
-  if (state.status !== 'playing') return state
-  const key = positionKey(state)
-  const count = (positionCounts.get(key) ?? 0) + 1
-  positionCounts.set(key, count)
-  return count >= 3 ? { ...state, status: 'draw' as const, chain: null } : state
-}
 
 export const usePlayStore = create<PlayStore>((set, get) => ({
   state: createInitialState('spring-01'),
@@ -129,11 +112,10 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
   difficulty: 'easy',
   seed: 1,
 
-  init(levelId, rocks, difficulty, targetEaten, maxPlies) {
-    levelMeta = { levelId, rocks, difficulty, targetEaten, maxPlies }
+  init(levelId, rocks, difficulty, targetEaten, maxPlies, opening) {
+    levelMeta = { levelId, rocks, difficulty, targetEaten, maxPlies, opening }
     turnSeq += 1
-    const state = createInitialState(levelId, rocks, targetEaten, maxPlies)
-    positionCounts = new Map([[positionKey(state), 1]])
+    const state = createInitialState(levelId, rocks, targetEaten, maxPlies, opening)
     set({
       state,
       selectedWolfId: null,
@@ -172,7 +154,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     const result = applyAction(state, action)
     if (!result.ok) return
 
-    const next = applyRepetitionGuard(result.state)
+    const next = result.state
     const seq = ++turnSeq
 
     void (async () => {
@@ -225,7 +207,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     if (uiPhase !== 'playing' || state.toMove !== 'wolf') return
     const result = endWolfTurn(state)
     if (!result.ok) return
-    const next = applyRepetitionGuard(result.state)
+    const next = result.state
     const seq = ++turnSeq
 
     void (async () => {
@@ -254,7 +236,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
 
   reset() {
     turnSeq += 1
-    get().init(levelMeta.levelId, levelMeta.rocks, levelMeta.difficulty, levelMeta.targetEaten, levelMeta.maxPlies)
+    get().init(levelMeta.levelId, levelMeta.rocks, levelMeta.difficulty, levelMeta.targetEaten, levelMeta.maxPlies, levelMeta.opening)
   },
 }))
 
@@ -281,7 +263,7 @@ async function runAiTurn(
       set({ uiPhase: 'playing', juice: null })
       return
     }
-    const next = applyRepetitionGuard(result.state)
+    const next = result.state
     set({
       state: next,
       selectedWolfId: null,

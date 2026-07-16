@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   applyClearToSave,
+  createLevelInitialState,
   createSeededRng,
   defaultSave,
   LEVELS,
@@ -30,6 +31,19 @@ describe('level table', () => {
       expect(level.teachingPoint).toBeTruthy()
       expect(level.expectedPlies!.min).toBeLessThanOrEqual(level.expectedPlies!.target)
       expect(level.expectedPlies!.target).toBeLessThanOrEqual(level.expectedPlies!.max)
+    }
+  })
+
+  it('creates each configured opening without falling back to default positions', () => {
+    for (const level of LEVELS) {
+      const state = createLevelInitialState(level)
+      expect(state.targetEaten).toBe(level.targetEaten)
+      expect(state.maxPlies).toBe(level.maxPlies)
+      if (level.opening?.wolves) {
+        expect(state.pieces.filter((piece) => piece.side === 'wolf')).toMatchObject(
+          level.opening.wolves,
+        )
+      }
     }
   })
 

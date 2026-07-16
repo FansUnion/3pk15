@@ -7,6 +7,7 @@ export {
   CHAPTER_LABEL,
   CHAPTER_LABEL_EN,
   CHAPTER_ORDER,
+  createLevelInitialState,
   getLevel,
   levelBlurb,
   levelDisplayName,
@@ -60,6 +61,7 @@ export type {
   Difficulty,
   GameStatus,
   JumpMove,
+  OpeningLayout,
   Piece,
   Pos,
   Side,
@@ -76,6 +78,7 @@ export { keyOf, posKey, inBounds, ORTHO } from './board'
 export {
   applyAction,
   assertInvariants,
+  boardPositionKey,
   createInitialState,
   endWolfTurn,
   evaluateTerminal,

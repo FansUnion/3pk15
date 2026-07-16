@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   LEVELS,
   applyAction,
-  createInitialState,
+  createLevelInitialState,
   createSeededRng,
+  getWolfLegalSummary,
   listLegalActions,
   listWolfActionsAsIfTurn,
   makeState,
@@ -16,6 +17,10 @@ describe('sheep AI behavior guardrails', () => {
     const result = applyAction(state, action)
     if (!result.ok) throw new Error(result.error)
     return listWolfActionsAsIfTurn(result.state).filter((candidate) => candidate.type === 'jump').length
+  }
+
+  function wolfMoveCount(state: ReturnType<typeof makeState>) {
+    return getWolfLegalSummary(state).reduce((total, wolf) => total + wolf.steps + wolf.jumps, 0)
   }
 
   it('normal and hard avoid a directly capturable square when a safe move exists', () => {
@@ -33,15 +38,88 @@ describe('sheep AI behavior guardrails', () => {
     expect(Math.max(...risks)).toBeGreaterThan(0)
 
     for (const difficulty of ['normal', 'hard'] as const) {
-      const action = pickSheepAction(state, { difficulty, rng: createSeededRng(31) })
-      expect(directCaptureCountAfter(state, action)).toBe(0)
+      const action = pickSheepAction(state, {
+        difficulty,
+        rng: createSeededRng(31),
+        budgets: difficulty === 'hard' ? { maxNodes: 4_000, maxMs: 100 } : undefined,
+      })
+      expect(directCaptureCountAfter(state, action), difficulty).toBe(0)
+    }
+  })
+
+  it('normal and hard close an available flock gap', () => {
+    const state = makeState({
+      toMove: 'sheep',
+      pieces: [
+        { id: 'wolf-1', side: 'wolf', r: 1, c: 6 },
+        { id: 'sheep-1', side: 'sheep', r: 1, c: 1 },
+        { id: 'sheep-2', side: 'sheep', r: 1, c: 3 },
+      ],
+      rocks: [{ r: 2, c: 1 }, { r: 2, c: 3 }],
+    })
+
+    for (const difficulty of ['normal', 'hard'] as const) {
+      const action = pickSheepAction(state, {
+        difficulty,
+        rng: createSeededRng(41),
+        budgets: difficulty === 'hard' ? { maxNodes: 4_000, maxMs: 100 } : undefined,
+      })
+      expect(action.to).toEqual({ r: 1, c: 2 })
+    }
+  })
+
+  it('normal and hard block wolf mobility when a blocking move is available', () => {
+    const state = makeState({
+      toMove: 'sheep',
+      pieces: [
+        { id: 'wolf-1', side: 'wolf', r: 2, c: 2 },
+        { id: 'sheep-1', side: 'sheep', r: 1, c: 3 },
+      ],
+      rocks: [{ r: 1, c: 2 }, { r: 2, c: 1 }, { r: 3, c: 2 }],
+    })
+    const minWolfMoves = Math.min(
+      ...listLegalActions(state).map((action) => {
+        const result = applyAction(state, action)
+        if (!result.ok) throw new Error(result.error)
+        return wolfMoveCount(result.state)
+      }),
+    )
+
+    for (const difficulty of ['normal', 'hard'] as const) {
+      const action = pickSheepAction(state, {
+        difficulty,
+        rng: createSeededRng(53),
+        budgets: difficulty === 'hard' ? { maxNodes: 4_000, maxMs: 100 } : undefined,
+      })
+      const result = applyAction(state, action)
+      if (!result.ok) throw new Error(result.error)
+      expect(wolfMoveCount(result.state)).toBe(minWolfMoves)
+    }
+  })
+
+  it('normal and hard keep an available sheep out of a low-mobility corner', () => {
+    const state = makeState({
+      toMove: 'sheep',
+      pieces: [
+        { id: 'wolf-1', side: 'wolf', r: 1, c: 6 },
+        { id: 'sheep-1', side: 'sheep', r: 5, c: 1 },
+      ],
+    })
+
+    for (const difficulty of ['normal', 'hard'] as const) {
+      const action = pickSheepAction(state, {
+        difficulty,
+        rng: createSeededRng(67),
+        budgets: difficulty === 'hard' ? { maxNodes: 4_000, maxMs: 100 } : undefined,
+      })
+      expect(action).toMatchObject({ pieceId: 'sheep-1', to: { r: 5, c: 2 } })
     }
   })
 
   it('keeps every difficulty inside the current legal action set', () => {
     const level = LEVELS.find((item) => item.id === 'summer-02')!
     const state = {
-      ...createInitialState(level.id, level.rocks, level.targetEaten, level.maxPlies),
+      ...createLevelInitialState(level),
       toMove: 'sheep' as const,
     }
     const legal = listLegalActions(state)
@@ -58,7 +136,7 @@ describe('sheep AI behavior guardrails', () => {
   it('keeps hard AI bounded and reports whether it degraded', () => {
     const level = LEVELS.find((item) => item.id === 'winter-01')!
     const state = {
-      ...createInitialState(level.id, level.rocks, level.targetEaten, level.maxPlies),
+      ...createLevelInitialState(level),
       toMove: 'sheep' as const,
     }
     const result = pickHardWithMeta(state, createSeededRng(7), { maxNodes: 80, maxMs: 8 })
@@ -66,24 +144,55 @@ describe('sheep AI behavior guardrails', () => {
     expect(result.meta.nodes).toBeLessThanOrEqual(80)
     expect(result.meta.elapsedMs).toBeGreaterThanOrEqual(0)
     expect(typeof result.meta.degraded).toBe('boolean')
+    expect(typeof result.meta.lookaheadCompleted).toBe('boolean')
+  })
+
+  it('hard evaluates a bounded next sheep response when budget permits', () => {
+    const level = LEVELS.find((item) => item.id === 'winter-01')!
+    const state = { ...createLevelInitialState(level), toMove: 'sheep' as const }
+    const result = pickHardWithMeta(state, createSeededRng(17), { maxNodes: 4_000, maxMs: 100 })
+    expect(result.meta.degraded).toBe(false)
+    expect(result.meta.lookaheadCompleted).toBe(true)
+    expect(listLegalActions(state)).toContainEqual(result.action)
+  })
+
+  it('hard simulation preserves the input board while resolving wolf replies', () => {
+    const state = makeState({
+      toMove: 'sheep',
+      pieces: [
+        { id: 'wolf-1', side: 'wolf', r: 6, c: 1 },
+        { id: 'sheep-1', side: 'sheep', r: 3, c: 1 },
+        { id: 'sheep-2', side: 'sheep', r: 1, c: 4 },
+      ],
+    })
+    const before = {
+      ...state,
+      pieces: state.pieces.map((piece) => ({ ...piece })),
+      rocks: new Set(state.rocks),
+    }
+
+    pickHardWithMeta(state, createSeededRng(23), { maxNodes: 4_000, maxMs: 100 })
+
+    expect(state).toEqual(before)
   })
 
   it('hard falls back to a legal normal action when its search budget is exhausted', () => {
     const level = LEVELS.find((item) => item.id === 'winter-02')!
     const state = {
-      ...createInitialState(level.id, level.rocks, level.targetEaten, level.maxPlies),
+      ...createLevelInitialState(level),
       toMove: 'sheep' as const,
     }
     const result = pickHardWithMeta(state, createSeededRng(9), { maxNodes: 0, maxMs: 0 })
     expect(result.meta.degraded).toBe(true)
     expect(result.meta.nodes).toBe(0)
+    expect(result.meta.lookaheadCompleted).toBe(false)
     expect(listLegalActions(state)).toContainEqual(result.action)
   })
 
   it('keeps the same AI profile deterministic for the same seed', () => {
     const level = LEVELS.find((item) => item.id === 'autumn-03')!
     const state = {
-      ...createInitialState(level.id, level.rocks, level.targetEaten, level.maxPlies),
+      ...createLevelInitialState(level),
       toMove: 'sheep' as const,
     }
     const first = pickSheepAction(state, { difficulty: 'normal', rng: createSeededRng(42) })

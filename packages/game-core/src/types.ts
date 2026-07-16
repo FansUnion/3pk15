@@ -4,6 +4,12 @@ export type GameStatus = 'playing' | 'won' | 'lost' | 'draw'
 
 export type Pos = { r: number; c: number }
 
+/** Optional per-level starting positions. Omitted sides use the standard opening. */
+export type OpeningLayout = {
+  wolves?: readonly Pos[]
+  sheep?: readonly Pos[]
+}
+
 export type Piece = {
   id: string
   side: Side
@@ -28,6 +34,8 @@ export type BoardState = {
   targetEaten: number
   plyCount: number
   maxPlies: number
+  /** Occurrences of complete positions in this game; the third is a draw. */
+  repetitionCounts: ReadonlyMap<string, number>
 }
 
 export type StepMove = {

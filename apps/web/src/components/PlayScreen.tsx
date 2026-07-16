@@ -87,8 +87,8 @@ export function PlayScreen({ level }: Props) {
     playCountedRef.current = false
     terminalSfxDone.current = false
     setLastGrant(null)
-    init(level.id, level.rocks, level.ai, level.targetEaten, level.maxPlies)
-  }, [level.id, level.ai, level.rocks, level.targetEaten, level.maxPlies, init, setLastGrant])
+    init(level.id, level.rocks, level.ai, level.targetEaten, level.maxPlies, level.opening)
+  }, [level.id, level.ai, level.rocks, level.targetEaten, level.maxPlies, level.opening, init, setLastGrant])
 
   useEffect(() => {
     if (playCountedRef.current) return

@@ -1,5 +1,5 @@
 import type { Action, BoardState } from '../types'
-import { applyAction, listLegalActions } from '../rules'
+import { applyAction, endWolfTurn, listLegalActions } from '../rules'
 import { evaluateScore } from './evaluate'
 import type { Rng } from './rng'
 import { pickIndex } from './rng'
@@ -16,78 +16,105 @@ function clockNow() {
   return Date.now()
 }
 
-type SearchResult = { score: number; nodes: number }
+function exhausted(nodes: { n: number }, budget: HardBudgets, start: number) {
+  return nodes.n >= budget.maxNodes || clockNow() - start >= budget.maxMs
+}
 
 /**
- * After a sheep move, approximate wolf reply by greedy-min (minimize sheep score).
+ * Resolve the most damaging legal wolf turn, including any continuation of a
+ * capture chain. The result is always a completed wolf turn or a terminal state.
  */
-function wolfGreedyMin(
+function worstWolfTurn(
   state: BoardState,
   nodes: { n: number },
   budget: HardBudgets,
   start: number,
-): number {
-  if (state.status !== 'playing') return evaluateScore(state)
-  const wolfState = { ...state, toMove: 'wolf' as const, chain: null }
-  const actions = listLegalActions(wolfState)
-  if (actions.length === 0) return evaluateScore(wolfState)
+): BoardState {
+  if (state.status !== 'playing' || exhausted(nodes, budget, start)) return state
+  // A wolf step ends the turn. Only a jump with an active chain can recurse.
+  if (state.toMove !== 'wolf') return state
 
-  let worst = Infinity
+  const wolfState: BoardState = state
+  if (wolfState.chain) {
+    const ended = endWolfTurn(wolfState)
+    let worst: BoardState = ended.ok ? ended.state : wolfState
+    let worstScore = evaluateScore(worst)
+
+    for (const action of listLegalActions(wolfState)) {
+      if (exhausted(nodes, budget, start)) break
+      nodes.n++
+      const result = applyAction(wolfState, action)
+      if (!result.ok) continue
+      const candidate = worstWolfTurn(result.state, nodes, budget, start)
+      const score = evaluateScore(candidate)
+      if (score < worstScore) {
+        worst = candidate
+        worstScore = score
+      }
+    }
+    return worst
+  }
+
+  const actions = listLegalActions(wolfState)
+  if (actions.length === 0) return wolfState
+
+  let worst: BoardState = wolfState
+  let worstScore = Infinity
   for (const action of actions) {
-    if (nodes.n >= budget.maxNodes || clockNow() - start >= budget.maxMs) break
+    if (exhausted(nodes, budget, start)) break
     nodes.n++
     const result = applyAction(wolfState, action)
     if (!result.ok) continue
-    let after = result.state
-    if (after.chain && after.status === 'playing') {
-      const cont = listLegalActions(after)
-      if (cont.length === 0 || cont[0]!.type !== 'jump') {
-        after = { ...after, chain: null, toMove: 'sheep' }
-      }
+    const candidate = worstWolfTurn(result.state, nodes, budget, start)
+    const score = evaluateScore(candidate)
+    if (score < worstScore) {
+      worst = candidate
+      worstScore = score
     }
-    const score = evaluateScore(after)
-    if (score < worst) worst = score
   }
-  return worst === Infinity ? evaluateScore(state) : worst
+  return worstScore === Infinity ? wolfState : worst
 }
 
-function searchSheep(
+/** Evaluate one additional sheep decision after the worst complete wolf turn. */
+function bestNextSheepResponse(
   state: BoardState,
-  depth: number,
   nodes: { n: number },
-  start: number,
   budget: HardBudgets,
-): SearchResult {
-  if (
-    depth <= 0 ||
-    state.status !== 'playing' ||
-    nodes.n >= budget.maxNodes ||
-    clockNow() - start >= budget.maxMs
-  ) {
-    return { score: evaluateScore(state), nodes: nodes.n }
+  start: number,
+): { score: number; completed: boolean } {
+  if (state.status !== 'playing' || state.toMove !== 'sheep' || exhausted(nodes, budget, start)) {
+    return { score: evaluateScore(state), completed: false }
   }
 
-  const actions = listLegalActions(state)
-  if (actions.length === 0) return { score: evaluateScore(state), nodes: nodes.n }
-
   let best = -Infinity
-  for (const action of actions) {
-    if (nodes.n >= budget.maxNodes || clockNow() - start >= budget.maxMs) break
+  let completed = false
+  for (const action of listLegalActions(state)) {
+    if (exhausted(nodes, budget, start)) break
     nodes.n++
     const result = applyAction(state, action)
     if (!result.ok) continue
-    const afterWolf = wolfGreedyMin(result.state, nodes, budget, start)
-    if (afterWolf > best) best = afterWolf
+    const afterWolf = worstWolfTurn(result.state, nodes, budget, start)
+    best = Math.max(best, evaluateScore(afterWolf))
+    completed = true
   }
-  return { score: best === -Infinity ? evaluateScore(state) : best, nodes: nodes.n }
+  return {
+    score: best === -Infinity ? evaluateScore(state) : best,
+    completed,
+  }
 }
 
 export type HardPickMeta = {
   degraded: boolean
   nodes: number
   elapsedMs: number
+  /** True when the chosen decision evaluated at least one next sheep response. */
+  lookaheadCompleted: boolean
 }
 
+/**
+ * Hard is deliberately bounded: one sheep decision, the worst complete wolf
+ * reply, then one best sheep response. It is not an exhaustive game solver.
+ */
 export function pickHardWithMeta(
   state: BoardState,
   rng: Rng,
@@ -99,22 +126,21 @@ export function pickHardWithMeta(
   const start = clockNow()
   const nodes = { n: 0 }
   let bestScore = -Infinity
+  let lookaheadCompleted = false
   const tops: Action[] = []
 
   for (const action of actions) {
-    if (nodes.n >= budgets.maxNodes || clockNow() - start >= budgets.maxMs) break
+    if (exhausted(nodes, budgets, start)) break
     nodes.n++
     const result = applyAction(state, action)
     if (!result.ok) continue
-    const after = wolfGreedyMin(result.state, nodes, budgets, start)
-    const deep = searchSheep(
-      { ...result.state, toMove: 'sheep', chain: null },
-      0,
-      nodes,
-      start,
-      budgets,
-    )
-    const score = Math.max(after, deep.score * 0.01 + after)
+
+    const afterWolf = worstWolfTurn(result.state, nodes, budgets, start)
+    const immediate = evaluateScore(afterWolf)
+    const next = bestNextSheepResponse(afterWolf, nodes, budgets, start)
+    const score = immediate * 0.35 + next.score * 0.65
+    lookaheadCompleted ||= next.completed
+
     if (score > bestScore) {
       bestScore = score
       tops.length = 0
@@ -128,12 +154,12 @@ export function pickHardWithMeta(
   if (tops.length === 0) {
     return {
       action: pickNormal(state, rng),
-      meta: { degraded: true, nodes: nodes.n, elapsedMs },
+      meta: { degraded: true, nodes: nodes.n, elapsedMs, lookaheadCompleted: false },
     }
   }
   return {
     action: tops[pickIndex(rng, tops.length)]!,
-    meta: { degraded: false, nodes: nodes.n, elapsedMs },
+    meta: { degraded: false, nodes: nodes.n, elapsedMs, lookaheadCompleted },
   }
 }
 

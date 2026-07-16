@@ -1,4 +1,5 @@
 import { keyOf, parseKey } from './board'
+import { boardPositionKey } from './rules'
 import type { BoardState, ChainContext, Piece } from './types'
 
 export type SerializedBoard = {
@@ -12,6 +13,7 @@ export type SerializedBoard = {
   targetEaten?: number
   plyCount?: number
   maxPlies?: number
+  repetitionCounts?: [string, number][]
 }
 
 export function serialize(state: BoardState): SerializedBoard {
@@ -26,11 +28,12 @@ export function serialize(state: BoardState): SerializedBoard {
     targetEaten: state.targetEaten,
     plyCount: state.plyCount,
     maxPlies: state.maxPlies,
+    repetitionCounts: [...state.repetitionCounts],
   }
 }
 
 export function deserialize(data: SerializedBoard): BoardState {
-  return {
+  const state: BoardState = {
     pieces: data.pieces.map((p) => ({ ...p })),
     rocks: new Set(data.rocks),
     eatenSheep: data.eatenSheep,
@@ -41,7 +44,10 @@ export function deserialize(data: SerializedBoard): BoardState {
     targetEaten: data.targetEaten ?? 8,
     plyCount: data.plyCount ?? 0,
     maxPlies: data.maxPlies ?? 300,
+    repetitionCounts: new Map(data.repetitionCounts),
   }
+  if (data.repetitionCounts) return state
+  return { ...state, repetitionCounts: new Map([[boardPositionKey(state), 1]]) }
 }
 
 /** Build a custom position for tests / admin (rocks as Pos[]). */
@@ -56,8 +62,9 @@ export function makeState(partial: {
   targetEaten?: number
   plyCount?: number
   maxPlies?: number
+  repetitionCounts?: ReadonlyMap<string, number>
 }): BoardState {
-  return {
+  const state: BoardState = {
     pieces: partial.pieces.map((p) => ({ ...p })),
     rocks: new Set((partial.rocks ?? []).map(keyOf)),
     eatenSheep: partial.eatenSheep ?? 0,
@@ -68,7 +75,10 @@ export function makeState(partial: {
     targetEaten: partial.targetEaten ?? 8,
     plyCount: partial.plyCount ?? 0,
     maxPlies: partial.maxPlies ?? 300,
+    repetitionCounts: partial.repetitionCounts ?? new Map(),
   }
+  if (partial.repetitionCounts) return state
+  return { ...state, repetitionCounts: new Map([[boardPositionKey(state), 1]]) }
 }
 
 export { parseKey }

@@ -38,8 +38,8 @@ export default function AdminHomePage() {
     <main className="mx-auto max-w-3xl">
       <h1 className="font-serif text-2xl text-[#2c3328]">内容质量驾驶舱</h1>
       <p className="mt-2 text-sm text-[#5c6b52]">
-        只读配置 + 与线上同一套 game-core AI。不写玩家存档。职责地图见技术设计{' '}
-        <code className="rounded bg-[#dfe8d8] px-1">05-Admin职责地图</code>。
+        只读配置 + 与线上同一套 game-core AI。不写玩家存档。职责见技术设计{' '}
+        <code className="rounded bg-[#dfe8d8] px-1">01-工程契约与红线</code>（Admin 节）。
       </p>
       <ul className="mt-6 grid gap-3 sm:grid-cols-2">
         {cards.map((c) => (
