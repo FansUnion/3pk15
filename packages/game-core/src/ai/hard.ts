@@ -73,11 +73,17 @@ function searchSheep(
   return { score: best === -Infinity ? evaluateScore(state) : best, nodes: nodes.n }
 }
 
-export function pickHard(
+export type HardPickMeta = {
+  degraded: boolean
+  nodes: number
+  elapsedMs: number
+}
+
+export function pickHardWithMeta(
   state: BoardState,
   rng: Rng,
   budgets: HardBudgets = DEFAULT_BUDGETS,
-): Action {
+): { action: Action; meta: HardPickMeta } {
   const actions = listLegalActions(state)
   if (actions.length === 0) throw new Error('hard: no legal sheep moves')
 
@@ -109,8 +115,23 @@ export function pickHard(
     }
   }
 
+  const elapsedMs = performance.now() - start
   if (tops.length === 0) {
-    return pickNormal(state, rng)
+    return {
+      action: pickNormal(state, rng),
+      meta: { degraded: true, nodes: nodes.n, elapsedMs },
+    }
   }
-  return tops[pickIndex(rng, tops.length)]!
+  return {
+    action: tops[pickIndex(rng, tops.length)]!,
+    meta: { degraded: false, nodes: nodes.n, elapsedMs },
+  }
+}
+
+export function pickHard(
+  state: BoardState,
+  rng: Rng,
+  budgets: HardBudgets = DEFAULT_BUDGETS,
+): Action {
+  return pickHardWithMeta(state, rng, budgets).action
 }

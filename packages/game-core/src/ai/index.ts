@@ -2,7 +2,7 @@ import type { Action, BoardState, Difficulty } from '../types'
 import type { ChapterId } from '../content/levels'
 import { pickEasy } from './easy'
 import { pickNormal } from './normal'
-import { pickHard, type HardBudgets } from './hard'
+import { pickHard, pickHardWithMeta, type HardBudgets } from './hard'
 import type { Rng } from './rng'
 import { createSeededRng } from './rng'
 
@@ -48,5 +48,6 @@ export function tierForChapter(chapterId: ChapterId): Difficulty {
   }
 }
 
-export { createSeededRng, pickEasy, pickNormal, pickHard }
-export type { Rng, HardBudgets }
+export { createSeededRng, pickEasy, pickNormal, pickHard, pickHardWithMeta }
+export type { Rng } from './rng'
+export type { HardBudgets, HardPickMeta } from './hard'

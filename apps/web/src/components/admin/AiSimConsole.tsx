@@ -13,17 +13,20 @@ import {
   listLegalActions,
   makeState,
   OPENING_SHEEP,
+  pickHardWithMeta,
   pickSheepAction,
   posKey,
   serialize,
   type BoardState,
   type Difficulty,
+  type HardBudgets,
   type Piece,
   type Pos,
   type Side,
 } from '@wolf-sheep/game-core'
 import { BoardSvg } from '@/components/BoardSvg'
 import { themeForChapter } from '@/components/admin/adminBoardTheme'
+import { AI_FIXTURES } from '@/components/admin/aiFixtures'
 
 type PlaceMode = 'cycle' | 'empty' | 'wolf' | 'sheep' | 'rock'
 
@@ -71,8 +74,20 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
   const [batchDiff, setBatchDiff] = useState<Difficulty>(difficulty)
   const [batchResult, setBatchResult] = useState<BatchResult | null>(null)
   const [batchProgress, setBatchProgress] = useState(0)
+  const [maxNodes, setMaxNodes] = useState(4000)
+  const [maxMs, setMaxMs] = useState(12)
+  const [lastHardMeta, setLastHardMeta] = useState<{
+    degraded: boolean
+    nodes: number
+    elapsedMs: number
+  } | null>(null)
   const stopRef = useRef(false)
   const appliedUrl = useRef(false)
+
+  const hardBudgets: HardBudgets = useMemo(
+    () => ({ maxNodes: Math.max(1, maxNodes), maxMs: Math.max(1, maxMs) }),
+    [maxNodes, maxMs],
+  )
 
   const breakdown = useMemo(() => evaluate(state), [state])
 
@@ -131,10 +146,19 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
         pushLog('game not playing')
         return
       }
-      const action = pickSheepAction(s, {
-        difficulty,
-        rng: createSeededRng(seed),
-      })
+      const rng = createSeededRng(seed)
+      let action
+      if (difficulty === 'hard') {
+        const { action: a, meta } = pickHardWithMeta(s, rng, hardBudgets)
+        action = a
+        setLastHardMeta(meta)
+        pushLog(
+          `[hard] degraded=${meta.degraded} nodes=${meta.nodes} ms=${meta.elapsedMs.toFixed(1)} budgets=${JSON.stringify(hardBudgets)}`,
+        )
+      } else {
+        setLastHardMeta(null)
+        action = pickSheepAction(s, { difficulty, rng, budgets: hardBudgets })
+      }
       const res = applyAction(s, action)
       if (!res.ok) {
         pushLog(`apply failed: ${res.error}`)
@@ -146,14 +170,25 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
       pushLog(
         `[sheep ${difficulty}] ${JSON.stringify(action)} score=${ev.total.toFixed(1)}`,
       )
-      if (difficulty === 'hard') {
-        pushLog(`[hard] budgets=default (core pickHard)`)
-      }
     } catch (e) {
       pushLog(`AI error: ${e instanceof Error ? e.message : String(e)}`)
     } finally {
       setBusy(false)
     }
+  }
+
+  function loadFixture(id: string) {
+    const fx = AI_FIXTURES.find((f) => f.id === id)
+    if (!fx) return
+    const next = fx.build()
+    setState(next)
+    setDifficulty(fx.suggestedDiff)
+    setBatchDiff(fx.suggestedDiff)
+    if (fx.id === 'budget-starve') {
+      setMaxNodes(1)
+      setMaxMs(1)
+    }
+    pushLog(`fixture ${fx.id}: ${fx.expect}`)
   }
 
   async function autoRun(maxSteps: number) {
@@ -188,10 +223,21 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
         pushLog(`[wolf random] ${JSON.stringify(pick)}`)
       } else {
         try {
-          const action = pickSheepAction(s, {
-            difficulty,
-            rng: createSeededRng(localSeed++),
-          })
+          const rng = createSeededRng(localSeed++)
+          let action
+          if (difficulty === 'hard') {
+            const { action: a, meta } = pickHardWithMeta(s, rng, hardBudgets)
+            action = a
+            if (meta.degraded) {
+              pushLog(`[hard degraded] nodes=${meta.nodes} ms=${meta.elapsedMs.toFixed(1)}`)
+            }
+          } else {
+            action = pickSheepAction(s, {
+              difficulty,
+              rng,
+              budgets: hardBudgets,
+            })
+          }
           const res = applyAction(s, action)
           if (!res.ok) break
           s = res.state
@@ -236,7 +282,7 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
         pushLog(`batch stopped at ${g}/${n}`)
         break
       }
-      const sim = simulateOneGame(level.id, level.rocks, batchDiff, localSeed)
+      const sim = simulateOneGame(level.id, level.rocks, batchDiff, localSeed, 400, hardBudgets)
       localSeed += 10007
       pliesSum += sim.plies
       if (sim.outcome === 'wolf_win') wolfWins++
@@ -333,14 +379,68 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
             />
           </label>
           <label className="flex flex-col gap-1">
+            Fixture 一键载入
+            <select
+              defaultValue=""
+              onChange={(e) => {
+                if (e.target.value) {
+                  loadFixture(e.target.value)
+                  e.target.value = ''
+                }
+              }}
+              className="rounded border border-[#5c6b52]/40 bg-[#f7f5ef] px-2 py-1"
+            >
+              <option value="">选择坏局…</option>
+              {AI_FIXTURES.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="rounded border border-[#5c6b52]/25 bg-[#f7f5ef] p-2 text-xs text-[#5c6b52]">
+            <p className="font-medium text-[#2c3328]">HardBudgets</p>
+            <label className="mt-1 flex items-center gap-2">
+              maxNodes
+              <input
+                type="number"
+                min={1}
+                value={maxNodes}
+                onChange={(e) => setMaxNodes(Number(e.target.value) || 1)}
+                className="w-20 rounded border border-[#5c6b52]/40 bg-white px-1 py-0.5"
+              />
+            </label>
+            <label className="mt-1 flex items-center gap-2">
+              maxMs
+              <input
+                type="number"
+                min={1}
+                value={maxMs}
+                onChange={(e) => setMaxMs(Number(e.target.value) || 1)}
+                className="w-20 rounded border border-[#5c6b52]/40 bg-white px-1 py-0.5"
+              />
+            </label>
+            {lastHardMeta ? (
+              <p
+                className={`mt-1 ${lastHardMeta.degraded ? 'text-amber-800' : 'text-green-800'}`}
+              >
+                上次 hard：degraded={String(lastHardMeta.degraded)} · nodes=
+                {lastHardMeta.nodes} · {lastHardMeta.elapsedMs.toFixed(1)}ms
+              </p>
+            ) : (
+              <p className="mt-1 opacity-70">跑 hard 单步后显示降级观测</p>
+            )}
+          </div>
+          <label className="flex flex-col gap-1">
             加载关卡
             <select
-              value={state.levelId}
+              value={LEVELS.some((l) => l.id === state.levelId) ? state.levelId : ''}
               onChange={(e) => {
                 if (e.target.value) loadLevel(e.target.value)
               }}
               className="rounded border border-[#5c6b52]/40 bg-[#f7f5ef] px-2 py-1"
             >
+              <option value="">（fixture / 自定义）</option>
               {LEVELS.map((l) => (
                 <option key={l.id} value={l.id}>
                   {l.id}
@@ -600,6 +700,7 @@ function simulateOneGame(
   difficulty: Difficulty,
   seed: number,
   maxPlies = 400,
+  budgets?: HardBudgets,
 ): { outcome: 'wolf_win' | 'sheep_win' | 'timeout'; plies: number; serialized: string } {
   let s = createInitialState(levelId, rocks)
   let localSeed = seed
@@ -622,6 +723,7 @@ function simulateOneGame(
       const action = pickSheepAction(s, {
         difficulty,
         rng: createSeededRng(localSeed++),
+        budgets,
       })
       const res = applyAction(s, action)
       if (!res.ok) break

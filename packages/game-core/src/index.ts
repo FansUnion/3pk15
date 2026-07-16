@@ -91,6 +91,7 @@ export {
   pickSheepAction,
   tierForChapter,
 } from './ai/index'
-export type { AiContext, HardBudgets, Rng } from './ai/index'
+export type { AiContext, HardBudgets, HardPickMeta, Rng } from './ai/index'
+export { pickHardWithMeta } from './ai/index'
 export { evaluate, evaluateScore } from './ai/evaluate'
 export type { EvalBreakdown } from './ai/evaluate'

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 const STORAGE_KEY = 'ws-admin-checklist-v1'
 
@@ -9,6 +10,7 @@ type Item = {
   group: string
   label: string
   href?: string
+  adminHref?: string
   doc?: string
 }
 
@@ -18,13 +20,15 @@ const ITEMS: Item[] = [
     group: '漏斗断点',
     label: '落地 3s：品牌 Fangrush + 一句话 + 一键开玩清晰',
     href: '/',
-    doc: '/docs 见美术资源和用户体验/01',
+    doc: '感官硬约束见美术资源和用户体验/01-体验标准指针',
+    adminHref: '/admin/docs',
   },
   {
     id: 'teach',
     group: '漏斗断点',
     label: '首 60s：春日 1 教会隔空吃',
     href: '/play/spring-01',
+    adminHref: '/admin/docs',
   },
   {
     id: 'juice',
@@ -37,6 +41,7 @@ const ITEMS: Item[] = [
     group: '漏斗断点',
     label: '穿上皮后盘面立刻变（图鉴=对局）',
     href: '/skins',
+    adminHref: '/admin/skins',
   },
   {
     id: 'ads-seam',
@@ -49,6 +54,7 @@ const ITEMS: Item[] = [
     group: '冒烟 M1',
     label: '春日至少 1 关可胜可败；隔空吃/连吃正确',
     href: '/play/spring-01',
+    adminHref: '/admin/levels',
   },
   {
     id: 'm2-progress',
@@ -61,23 +67,26 @@ const ITEMS: Item[] = [
     group: '冒烟 M3',
     label: '皮肤解锁/装备；碎片可见闭环',
     href: '/skins',
+    adminHref: '/admin/economy',
   },
   {
     id: 'm4-seo',
     group: '冒烟 M4',
     label: '/hunt 关卡页文案像成品；how-to-play 可读',
     href: '/hunt/spring-01',
+    adminHref: '/admin/docs',
   },
   {
     id: 'ai-calibrate',
     group: '难度',
-    label: 'AI 台对春日 easy / 冬日 hard 跑过批量胜率粗看',
+    label: 'AI 台对春日 easy / 冬日 hard 跑过批量胜率；fixture 挡吃/合围看过',
     href: '/admin/ai?level=spring-01&diff=easy',
+    adminHref: '/admin/ai',
   },
   {
     id: 'ads-real',
     group: '上线',
-    label: '真 AdSense / 门户 Bridge（待有号）',
+    label: '真 AdSense / 平台广告（待有号）',
   },
   {
     id: 'deploy',
@@ -122,6 +131,23 @@ export default function AdminChecklistPage() {
         <code className="rounded bg-[#dfe8d8] px-1">{STORAGE_KEY}</code>
         ），不进玩家存档，不替代远程遥测。
       </p>
+      <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[#5c6b52]">
+        <Link href="/admin/skins" className="underline">
+          皮肤台
+        </Link>
+        <Link href="/admin/levels" className="underline">
+          关卡台
+        </Link>
+        <Link href="/admin/ai" className="underline">
+          AI 台
+        </Link>
+        <Link href="/admin/docs" className="underline">
+          说明
+        </Link>
+        <Link href="/admin/economy" className="underline">
+          经济台
+        </Link>
+      </p>
       <p className="mt-2 text-sm text-[#2c3328]">
         进度 {done}/{ITEMS.length}
       </p>
@@ -143,18 +169,32 @@ export default function AdminChecklistPage() {
                     onChange={() => toggle(item.id)}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className={checked[item.id] ? 'text-[#7a8574] line-through' : 'text-[#2c3328]'}>
+                    <p
+                      className={
+                        checked[item.id] ? 'text-[#7a8574] line-through' : 'text-[#2c3328]'
+                      }
+                    >
                       {item.label}
                     </p>
-                    {item.href && (
-                      <a
-                        href={item.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-1 inline-block text-xs text-[#3d4a3a] underline"
-                      >
-                        {item.href}
-                      </a>
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                      {item.href && (
+                        <a
+                          href={item.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[#3d4a3a] underline"
+                        >
+                          玩家 {item.href}
+                        </a>
+                      )}
+                      {item.adminHref && (
+                        <Link href={item.adminHref} className="text-[#3d4a3a] underline">
+                          Admin {item.adminHref}
+                        </Link>
+                      )}
+                    </div>
+                    {item.doc && (
+                      <p className="mt-1 text-xs text-[#7a8574]">{item.doc}</p>
                     )}
                   </div>
                 </li>

@@ -4,11 +4,21 @@ import {
   LEVELS,
   QUEST_DEFS,
   SKIN_CATALOG,
+  type ChapterId,
+  type SkinCatalogItem,
 } from '@wolf-sheep/game-core'
 
 export default function AdminEconomyPage() {
   const wolfSets = SKIN_CATALOG.filter((s) => s.kind === 'wolf_set')
   const boards = SKIN_CATALOG.filter((s) => s.kind === 'board')
+  const avgFirst = avgFirstClearUniversal()
+  const dailyQuestU = QUEST_DEFS.filter((q) => q.period === 'daily').reduce(
+    (n, q) => n + q.rewardUniversal,
+    0,
+  )
+  const estimates = SKIN_CATALOG.filter(
+    (s) => s.unlock.type === 'cost',
+  ).map((s) => estimateSkin(s, avgFirst, dailyQuestU))
 
   return (
     <main className="mx-auto max-w-4xl">
@@ -19,10 +29,28 @@ export default function AdminEconomyPage() {
       </p>
 
       <section className="mt-6 rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
-        <p className="font-medium text-[#2c3328]">闭环一句话</p>
+        <p className="font-medium text-[#2c3328]">闭环估算（由 Catalog / LEVELS / QUEST 动态算）</p>
         <p className="mt-2 text-[#5c6b52]">
-          首通约 10 通用 + 2 季节碎片；重复关约 30% 掉 2 通用。霜狼 50 / Night Watch 80
-          通用；Moonlit Field 需冬日季节碎片 30。任务补通用碎片，驱动回访。
+          平均首通通用碎片 ≈ <strong className="text-[#2c3328]">{avgFirst.toFixed(1)}</strong>
+          ；每日任务合计可领通用 ≈ <strong className="text-[#2c3328]">{dailyQuestU}</strong>
+          。下表按「只刷首通」粗算次数（不含重复掉落期望）。
+        </p>
+        {estimates.length > 0 ? (
+          <ul className="mt-3 space-y-1.5 text-[#2c3328]">
+            {estimates.map((e) => (
+              <li key={e.id}>
+                <span className="font-medium">{e.name}</span>
+                <span className="text-[#5c6b52]"> · {e.line}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-2 text-[#5c6b52]">无付费碎片皮（全默认/章节解锁）</p>
+        )}
+        <p className="mt-3 text-xs text-[#7a8574]">
+          叠盘见 <Link href="/admin/skins" className="underline">皮肤台</Link>
+          {' · '}
+          玩家图鉴 <a href="/skins" target="_blank" rel="noreferrer" className="underline">/skins</a>
         </p>
       </section>
 
@@ -48,9 +76,6 @@ export default function AdminEconomyPage() {
             ))}
           </tbody>
         </table>
-        <p className="mt-2 text-xs text-[#7a8574]">
-          叠盘预览见 <Link href="/admin/skins" className="underline">皮肤台</Link>
-        </p>
       </section>
 
       <section className="mt-8">
@@ -108,7 +133,13 @@ export default function AdminEconomyPage() {
                   </td>
                   <td className="px-2 py-1.5 text-xs">
                     {l.repeatDrop
-                      ? `${(l.repeatDrop.chance * 100).toFixed(0)}% U${l.repeatDrop.universal ?? 0}`
+                      ? `${(l.repeatDrop.chance * 100).toFixed(0)}% U${l.repeatDrop.universal ?? 0}${
+                          l.repeatDrop.season
+                            ? ` · ${Object.entries(l.repeatDrop.season)
+                                .map(([k, v]) => `${k}:${v}`)
+                                .join(' ')}`
+                            : ''
+                        }`
                       : '—'}
                   </td>
                 </tr>
@@ -124,9 +155,50 @@ export default function AdminEconomyPage() {
   )
 }
 
-function formatUnlock(
-  s: (typeof SKIN_CATALOG)[number],
-): string {
+function avgFirstClearUniversal(): number {
+  if (LEVELS.length === 0) return 0
+  const sum = LEVELS.reduce((n, l) => n + (l.firstClearReward.universal ?? 0), 0)
+  return sum / LEVELS.length
+}
+
+function avgFirstSeason(season: ChapterId): number {
+  const levels = LEVELS.filter((l) => l.chapterId === season)
+  if (levels.length === 0) return 0
+  const sum = levels.reduce((n, l) => n + (l.firstClearReward.season?.[season] ?? 0), 0)
+  return sum / levels.length
+}
+
+function estimateSkin(
+  s: SkinCatalogItem,
+  avgFirstU: number,
+  dailyQuestU: number,
+): { id: string; name: string; line: string } {
+  if (s.unlock.type !== 'cost') {
+    return { id: s.id, name: s.name, line: formatUnlock(s) }
+  }
+  if (s.kind === 'wolf_set') {
+    const need = s.unlock.universal
+    const clears = avgFirstU > 0 ? Math.ceil(need / avgFirstU) : Infinity
+    const daysIfQuestOnly =
+      dailyQuestU > 0 ? Math.ceil(need / dailyQuestU) : Infinity
+    return {
+      id: s.id,
+      name: s.name,
+      line: `需通用 ${need} ≈ 首通 ${clears === Infinity ? '?' : clears} 次（均 U${avgFirstU.toFixed(1)}）· 仅每日任务约 ${daysIfQuestOnly === Infinity ? '?' : daysIfQuestOnly} 天`,
+    }
+  }
+  const season = s.unlock.season
+  const need = s.unlock.amount
+  const per = avgFirstSeason(season)
+  const clears = per > 0 ? Math.ceil(need / per) : Infinity
+  return {
+    id: s.id,
+    name: s.name,
+    line: `需 ${CHAPTER_LABEL[season]}碎片 ${need} ≈ 该章首通 ${clears === Infinity ? '?' : clears} 次（章均季碎 ${per.toFixed(1)}）`,
+  }
+}
+
+function formatUnlock(s: SkinCatalogItem): string {
   if (s.unlock.type === 'default') return '默认'
   if (s.unlock.type === 'chapter') return `章节 ${CHAPTER_LABEL[s.unlock.chapterId]}`
   if (s.kind === 'wolf_set' && s.unlock.type === 'cost') return `通用 × ${s.unlock.universal}`
