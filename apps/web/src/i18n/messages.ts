@@ -52,6 +52,8 @@ export type MessageTree = {
   hunt: {
     playCta: string
     seasonLine: string
+    goalLine: string
+    teachingLabel: string
     levelsLink: string
     howLink: string
     prev: string
@@ -72,9 +74,12 @@ export type MessageTree = {
     lose: string
     winSub: string
     loseSub: string
+    draw: string
+    drawSub: string
     preparing: string
     again: string
     doubleAd: string
+    adFailed: string
     levelList: string
     tip: string
     reset: string
@@ -206,6 +211,8 @@ export const en: MessageTree = {
   hunt: {
     playCta: 'Play this hunt',
     seasonLine: '{season} · {rocks} rocks',
+    goalLine: 'Goal: eat {n} sheep · target {target} moves',
+    teachingLabel: 'This hunt teaches',
     levelsLink: 'All levels in this season',
     howLink: 'How to play',
     prev: 'Previous',
@@ -226,9 +233,12 @@ export const en: MessageTree = {
     lose: 'Defeat',
     winSub: 'Eight sheep taken',
     loseSub: 'No moves for the wolves',
+    draw: 'Stalemate',
+    drawSub: 'The hunt reached its move limit.',
     preparing: 'Preparing…',
     again: 'Play again',
     doubleAd: 'Watch ad · double shards 30 min',
+    adFailed: 'The reward video is unavailable. Your clear is still safe.',
     levelList: 'Level list',
     tip: 'Green = step · Red ring on sheep = gap-eat',
     reset: 'Reset',
@@ -367,6 +377,8 @@ export const zh: MessageTree = {
   hunt: {
     playCta: '开始本关',
     seasonLine: '{season} · {rocks} 枚岩石',
+    goalLine: '目标：吃掉 {n} 只羊 · 预计 {target} 步',
+    teachingLabel: '本关学习',
     levelsLink: '本章全部关卡',
     howLink: '怎么玩',
     prev: '上一关',
@@ -387,9 +399,12 @@ export const zh: MessageTree = {
     lose: '失败',
     winSub: '吃羊达到 8 只',
     loseSub: '三狼无路可走',
+    draw: '和局',
+    drawSub: '对局达到步数上限，请重新挑战。',
     preparing: '准备中…',
     again: '再来一局',
     doubleAd: '看广告 · 碎片双倍 30 分钟',
+    adFailed: '广告暂时不可用，本关进度和碎片不受影响。',
     levelList: '关卡列表',
     tip: '绿点走空格 · 红圈在羊上即隔空吃',
     reset: '重置',

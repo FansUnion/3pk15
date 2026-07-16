@@ -4,6 +4,7 @@ import {
   createSeededRng,
   defaultSave,
   LEVELS,
+  migrate,
   recomputeUnlockedChapters,
   rollClearReward,
   validateAllLevels,
@@ -15,9 +16,20 @@ describe('level table', () => {
     expect(validateAllLevels()).toEqual([])
   })
 
-  it('has 3 levels per season', () => {
+  it('has 6 levels per season', () => {
     for (const ch of ['spring', 'summer', 'autumn', 'winter'] as const) {
-      expect(LEVELS.filter((l) => l.chapterId === ch)).toHaveLength(3)
+      expect(LEVELS.filter((l) => l.chapterId === ch)).toHaveLength(6)
+    }
+  })
+
+  it('every level has valid long-term design defaults', () => {
+    for (const level of LEVELS) {
+      expect(level.targetEaten).toBe(8)
+      expect(level.maxPlies).toBeGreaterThanOrEqual(20)
+      expect(level.openingTemplate).toBeTruthy()
+      expect(level.teachingPoint).toBeTruthy()
+      expect(level.expectedPlies!.min).toBeLessThanOrEqual(level.expectedPlies!.target)
+      expect(level.expectedPlies!.target).toBeLessThanOrEqual(level.expectedPlies!.max)
     }
   })
 
@@ -35,6 +47,18 @@ describe('level table', () => {
 })
 
 describe('save clear flow', () => {
+  it('repairs malformed progress without removing the spring entry point', () => {
+    const save = migrate({
+      schemaVersion: 1,
+      unlockedChapters: [],
+      fragments: { universal: -20, season: 'broken' },
+    })
+
+    expect(save.unlockedChapters).toEqual(['spring'])
+    expect(save.fragments.universal).toBe(0)
+    expect(save.fragments.season).toEqual({ spring: 0, summer: 0, autumn: 0, winter: 0 })
+  })
+
   it('first clear grants reward and unlocks summer after spring done', () => {
     let save = defaultSave()
     const spring = LEVELS.filter((l) => l.chapterId === 'spring')

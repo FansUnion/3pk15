@@ -12,6 +12,7 @@ type LevelRow = {
   id: string
   name: string
   rocks: number
+  indexInChapter: number
 }
 
 export function LevelList({
@@ -56,15 +57,16 @@ export function LevelList({
           <p className="text-[#5c6b52]">{t.chapters.locked}</p>
         ) : (
           <ul className="flex flex-col gap-2">
-            {levels.map((level) => {
+            {levels.map((level, index) => {
               const cleared = save.clearedLevels.includes(level.id)
+              const open = index === 0 || save.clearedLevels.includes(levels[index - 1]!.id)
               return (
                 <li
                   key={level.id}
-                  className="flex items-center gap-2 rounded-xl border-l-4 border-l-[var(--accent)] bg-[var(--panel)] px-3 py-2.5 shadow-sm ring-1 ring-[#5c6b52]/10"
+                  className={`flex items-center gap-2 rounded-xl border-l-4 px-3 py-2.5 shadow-sm ring-1 ring-[#5c6b52]/10 ${open ? 'border-l-[var(--accent)] bg-[var(--panel)]' : 'border-l-[#a7b1a0] bg-[#eef1eb]'}`}
                 >
                   <LocaleLink
-                    href={`/play/${level.id}`}
+                    href={open ? `/play/${level.id}` : '/chapters'}
                     locale={locale}
                     className="min-w-0 flex-1 font-medium text-[var(--ink)] hover:underline"
                   >
@@ -75,7 +77,7 @@ export function LevelList({
                     </span>
                   </LocaleLink>
                   <LocaleLink
-                    href={`/hunt/${level.id}`}
+                    href={open ? `/hunt/${level.id}` : '/chapters'}
                     locale={locale}
                     className="shrink-0 text-xs text-[var(--muted)] underline-offset-2 hover:underline"
                   >

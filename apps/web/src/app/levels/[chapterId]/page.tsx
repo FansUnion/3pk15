@@ -49,6 +49,7 @@ export default async function LevelsPage({
         id: l.id,
         name: levelDisplayName(l, locale),
         rocks: l.rocks.length,
+        indexInChapter: l.indexInChapter,
       }))}
     />
   )

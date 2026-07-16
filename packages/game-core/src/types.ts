@@ -1,6 +1,6 @@
 export type Side = 'wolf' | 'sheep'
 export type Difficulty = 'easy' | 'normal' | 'hard'
-export type GameStatus = 'playing' | 'won' | 'lost'
+export type GameStatus = 'playing' | 'won' | 'lost' | 'draw'
 
 export type Pos = { r: number; c: number }
 
@@ -25,6 +25,9 @@ export type BoardState = {
   chain: ChainContext | null
   status: GameStatus
   levelId: string
+  targetEaten: number
+  plyCount: number
+  maxPlies: number
 }
 
 export type StepMove = {

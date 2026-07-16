@@ -59,10 +59,17 @@ export default async function HuntPage({
             {fmt(t.hunt.seasonLine, { season, rocks: level.rocks.length })}
           </p>
           <h1 className="mt-1 font-serif text-3xl text-[var(--ink)]">{name}</h1>
-          <p className="mt-1 text-sm text-[var(--muted)]">Fangrush</p>
+        <p className="mt-1 text-sm text-[var(--muted)]">Fangrush</p>
+          <p className="mt-3 text-sm text-[var(--muted)]">
+            {fmt(t.hunt.goalLine, { n: level.targetEaten ?? 8, target: level.expectedPlies?.target ?? 100 })}
+          </p>
         </header>
 
         <p className="text-sm leading-relaxed text-[var(--muted)]">{blurb}</p>
+        <section className="paper-card p-4">
+          <p className="eyebrow">{t.hunt.teachingLabel}</p>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--ink)]">{level.teachingPoint}</p>
+        </section>
 
         <LocaleLink
           href={`/play/${level.id}`}

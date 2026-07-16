@@ -9,6 +9,9 @@ export type SerializedBoard = {
   chain: ChainContext | null
   status: BoardState['status']
   levelId: string
+  targetEaten?: number
+  plyCount?: number
+  maxPlies?: number
 }
 
 export function serialize(state: BoardState): SerializedBoard {
@@ -20,6 +23,9 @@ export function serialize(state: BoardState): SerializedBoard {
     chain: state.chain ? { ...state.chain } : null,
     status: state.status,
     levelId: state.levelId,
+    targetEaten: state.targetEaten,
+    plyCount: state.plyCount,
+    maxPlies: state.maxPlies,
   }
 }
 
@@ -32,6 +38,9 @@ export function deserialize(data: SerializedBoard): BoardState {
     chain: data.chain ? { ...data.chain } : null,
     status: data.status,
     levelId: data.levelId,
+    targetEaten: data.targetEaten ?? 8,
+    plyCount: data.plyCount ?? 0,
+    maxPlies: data.maxPlies ?? 300,
   }
 }
 
@@ -44,6 +53,9 @@ export function makeState(partial: {
   chain?: ChainContext | null
   status?: BoardState['status']
   levelId?: string
+  targetEaten?: number
+  plyCount?: number
+  maxPlies?: number
 }): BoardState {
   return {
     pieces: partial.pieces.map((p) => ({ ...p })),
@@ -53,6 +65,9 @@ export function makeState(partial: {
     chain: partial.chain ?? null,
     status: partial.status ?? 'playing',
     levelId: partial.levelId ?? 'test',
+    targetEaten: partial.targetEaten ?? 8,
+    plyCount: partial.plyCount ?? 0,
+    maxPlies: partial.maxPlies ?? 300,
   }
 }
 

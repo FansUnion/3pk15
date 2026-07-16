@@ -374,6 +374,7 @@ export function BoardSvg({
           const r = ri + 1
           const c = ci + 1
           const { x, y } = xy(r, c)
+          const piece = state.pieces.find((item) => item.r === r && item.c === c)
           return (
             <circle
               key={`hit-${r}-${c}`}
@@ -382,6 +383,9 @@ export function BoardSvg({
               r={18}
               fill="transparent"
               style={{ cursor: interactive ? 'pointer' : 'default' }}
+              role="button"
+              tabIndex={interactive && (piece?.side === 'wolf' || isBoardTarget(stepHighlights, jumpHighlights, r, c)) ? 0 : -1}
+              aria-label={piece?.side === 'wolf' ? `Wolf at row ${r}, column ${c}` : `Board position row ${r}, column ${c}`}
               onClick={() => {
                 if (!interactive) return
                 const piece = state.pieces.find((p) => p.r === r && p.c === c)
@@ -391,6 +395,13 @@ export function BoardSvg({
                 }
                 onClickCell({ r, c })
               }}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return
+                event.preventDefault()
+                const currentPiece = state.pieces.find((piece) => piece.r === r && piece.c === c)
+                if (currentPiece?.side === 'wolf') onSelectWolf(currentPiece.id)
+                else onClickCell({ r, c })
+              }}
             />
           )
         }),
@@ -398,4 +409,8 @@ export function BoardSvg({
       </svg>
     </div>
   )
+}
+
+function isBoardTarget(steps: Pos[], jumps: Pos[], r: number, c: number) {
+  return hasPos(steps, r, c) || hasPos(jumps, r, c)
 }

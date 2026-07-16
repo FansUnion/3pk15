@@ -12,12 +12,21 @@ export type HardBudgets = {
 
 const DEFAULT_BUDGETS: HardBudgets = { maxNodes: 4000, maxMs: 12 }
 
+function clockNow() {
+  return Date.now()
+}
+
 type SearchResult = { score: number; nodes: number }
 
 /**
  * After a sheep move, approximate wolf reply by greedy-min (minimize sheep score).
  */
-function wolfGreedyMin(state: BoardState, nodes: { n: number }, budget: HardBudgets): number {
+function wolfGreedyMin(
+  state: BoardState,
+  nodes: { n: number },
+  budget: HardBudgets,
+  start: number,
+): number {
   if (state.status !== 'playing') return evaluateScore(state)
   const wolfState = { ...state, toMove: 'wolf' as const, chain: null }
   const actions = listLegalActions(wolfState)
@@ -25,7 +34,7 @@ function wolfGreedyMin(state: BoardState, nodes: { n: number }, budget: HardBudg
 
   let worst = Infinity
   for (const action of actions) {
-    if (nodes.n >= budget.maxNodes) break
+    if (nodes.n >= budget.maxNodes || clockNow() - start >= budget.maxMs) break
     nodes.n++
     const result = applyAction(wolfState, action)
     if (!result.ok) continue
@@ -53,7 +62,7 @@ function searchSheep(
     depth <= 0 ||
     state.status !== 'playing' ||
     nodes.n >= budget.maxNodes ||
-    performance.now() - start >= budget.maxMs
+    clockNow() - start >= budget.maxMs
   ) {
     return { score: evaluateScore(state), nodes: nodes.n }
   }
@@ -63,11 +72,11 @@ function searchSheep(
 
   let best = -Infinity
   for (const action of actions) {
-    if (nodes.n >= budget.maxNodes || performance.now() - start >= budget.maxMs) break
+    if (nodes.n >= budget.maxNodes || clockNow() - start >= budget.maxMs) break
     nodes.n++
     const result = applyAction(state, action)
     if (!result.ok) continue
-    const afterWolf = wolfGreedyMin(result.state, nodes, budget)
+    const afterWolf = wolfGreedyMin(result.state, nodes, budget, start)
     if (afterWolf > best) best = afterWolf
   }
   return { score: best === -Infinity ? evaluateScore(state) : best, nodes: nodes.n }
@@ -87,17 +96,17 @@ export function pickHardWithMeta(
   const actions = listLegalActions(state)
   if (actions.length === 0) throw new Error('hard: no legal sheep moves')
 
-  const start = performance.now()
+  const start = clockNow()
   const nodes = { n: 0 }
   let bestScore = -Infinity
   const tops: Action[] = []
 
   for (const action of actions) {
-    if (nodes.n >= budgets.maxNodes || performance.now() - start >= budgets.maxMs) break
+    if (nodes.n >= budgets.maxNodes || clockNow() - start >= budgets.maxMs) break
     nodes.n++
     const result = applyAction(state, action)
     if (!result.ok) continue
-    const after = wolfGreedyMin(result.state, nodes, budgets)
+    const after = wolfGreedyMin(result.state, nodes, budgets, start)
     const deep = searchSheep(
       { ...result.state, toMove: 'sheep', chain: null },
       0,
@@ -115,7 +124,7 @@ export function pickHardWithMeta(
     }
   }
 
-  const elapsedMs = performance.now() - start
+  const elapsedMs = clockNow() - start
   if (tops.length === 0) {
     return {
       action: pickNormal(state, rng),

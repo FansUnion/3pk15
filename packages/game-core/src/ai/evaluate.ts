@@ -1,5 +1,5 @@
 import type { BoardState } from '../types'
-import { listWolfActionsAsIfTurn, getWolfLegalSummary } from '../rules'
+import { listLegalActions, getWolfLegalSummary } from '../rules'
 import { posKey } from '../board'
 
 /**
@@ -13,6 +13,8 @@ export type EvalBreakdown = {
   cluster: number
   advance: number
   surround: number
+  safety: number
+  sheepMobility: number
 }
 
 const W = {
@@ -21,6 +23,8 @@ const W = {
   cluster: 0.8,
   advance: 0.4,
   surround: 2.5,
+  safety: 5,
+  sheepMobility: 0.6,
 }
 
 function sheepPositions(state: BoardState) {
@@ -75,14 +79,28 @@ function surroundScore(state: BoardState): number {
   return score
 }
 
+/** Penalize positions where wolves already have a direct jump capture. */
+function safetyScore(wolfJumps: number): number {
+  return -wolfJumps
+}
+
+/** Keep sheep from choosing moves that leave the flock with no useful exits. */
+function sheepMobilityScore(state: BoardState): number {
+  if (state.status !== 'playing') return 0
+  return listLegalActions({ ...state, toMove: 'sheep' as const, chain: null }).length
+}
+
 export function evaluate(state: BoardState): EvalBreakdown {
   const sheepCount = sheepPositions(state).length
   const summary = getWolfLegalSummary(state)
   const wolfMoves = summary.reduce((s, x) => s + x.steps + x.jumps, 0)
+  const wolfJumps = summary.reduce((s, x) => s + x.jumps, 0)
   const material = sheepCount
   const cluster = clusterScore(state)
   const advance = advanceScore(state)
   const surround = surroundScore(state)
+  const safety = safetyScore(wolfJumps)
+  const sheepMobility = sheepMobilityScore(state)
 
   const total =
     W.material * material +
@@ -90,12 +108,14 @@ export function evaluate(state: BoardState): EvalBreakdown {
     W.cluster * cluster +
     W.advance * advance +
     W.surround * surround
+    + W.safety * safety
+    + W.sheepMobility * sheepMobility
 
   if (state.status === 'won') {
-    return { total: -10_000, material, wolfMobility: wolfMoves, cluster, advance, surround }
+    return { total: -10_000, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility }
   }
-  if (state.status === 'lost' || listWolfActionsAsIfTurn(state).length === 0) {
-    return { total: 10_000, material, wolfMobility: wolfMoves, cluster, advance, surround }
+  if (state.status === 'lost' || wolfMoves === 0) {
+    return { total: 10_000, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility }
   }
 
   return {
@@ -105,6 +125,8 @@ export function evaluate(state: BoardState): EvalBreakdown {
     cluster,
     advance,
     surround,
+    safety,
+    sheepMobility,
   }
 }
 

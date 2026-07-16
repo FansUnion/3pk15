@@ -63,6 +63,10 @@ function emptySeason(): Record<ChapterId, number> {
   return { spring: 0, summer: 0, autumn: 0, winter: 0 }
 }
 
+function safeAmount(value: unknown, fallback = 0) {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : fallback
+}
+
 function parseQuests(raw: unknown): QuestState {
   if (!raw || typeof raw !== 'object') return emptyQuestState()
   const o = raw as QuestState
@@ -88,20 +92,26 @@ export function migrate(raw: unknown): SaveGame {
   if (o.schemaVersion !== 1) return defaultSave()
 
   const base = defaultSave()
-  const fragments = (o.fragments as SaveGame['fragments'] | undefined) ?? base.fragments
+  const fragments = o.fragments && typeof o.fragments === 'object' ? (o.fragments as Record<string, unknown>) : {}
+  const rawSeason = fragments.season && typeof fragments.season === 'object' ? (fragments.season as Record<string, unknown>) : {}
+  const unlockedChapters = Array.isArray(o.unlockedChapters)
+    ? (o.unlockedChapters.filter((x) => CHAPTER_ORDER.includes(x as ChapterId)) as ChapterId[])
+    : []
   return {
     schemaVersion: 1,
     clearedLevels: Array.isArray(o.clearedLevels)
       ? o.clearedLevels.filter((x): x is string => typeof x === 'string')
       : [],
-    unlockedChapters: Array.isArray(o.unlockedChapters)
-      ? (o.unlockedChapters.filter((x) =>
-          CHAPTER_ORDER.includes(x as ChapterId),
-        ) as ChapterId[])
-      : ['spring'],
+    unlockedChapters: unlockedChapters.includes('spring') ? unlockedChapters : ['spring', ...unlockedChapters],
     fragments: {
-      universal: Number(fragments.universal) || 0,
-      season: { ...emptySeason(), ...fragments.season },
+      universal: safeAmount(fragments.universal),
+      season: {
+        ...emptySeason(),
+        spring: safeAmount(rawSeason.spring),
+        summer: safeAmount(rawSeason.summer),
+        autumn: safeAmount(rawSeason.autumn),
+        winter: safeAmount(rawSeason.winter),
+      },
     },
     unlockedSkinIds: Array.isArray(o.unlockedSkinIds)
       ? o.unlockedSkinIds.filter((x): x is string => typeof x === 'string')

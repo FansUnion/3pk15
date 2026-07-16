@@ -47,6 +47,7 @@ export function PlayScreen({ level }: Props) {
   const rewardedRef = useRef(false)
   const playCountedRef = useRef(false)
   const [adBusy, setAdBusy] = useState(false)
+  const [adError, setAdError] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
   const [guideStep, setGuideStep] = useState(0)
   const [resetArmed, setResetArmed] = useState(false)
@@ -86,8 +87,8 @@ export function PlayScreen({ level }: Props) {
     playCountedRef.current = false
     terminalSfxDone.current = false
     setLastGrant(null)
-    init(level.id, level.rocks, level.ai)
-  }, [level.id, level.ai, level.rocks, init, setLastGrant])
+    init(level.id, level.rocks, level.ai, level.targetEaten, level.maxPlies)
+  }, [level.id, level.ai, level.rocks, level.targetEaten, level.maxPlies, init, setLastGrant])
 
   useEffect(() => {
     if (playCountedRef.current) return
@@ -119,22 +120,27 @@ export function PlayScreen({ level }: Props) {
   }, [state.eatenSheep, guideOpen, save.guide.spring1Done])
 
   useEffect(() => {
+    if (!guideOpen) return
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') finishGuide()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+    // finishGuide is stable for this mounted screen; the listener only tracks the modal state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [guideOpen])
+
+  useEffect(() => {
     if (uiPhase !== 'terminal' || rewardedRef.current) return
     rewardedRef.current = true
 
-    void (async () => {
-      setAdBusy(true)
-      await getAds().showInterstitial()
-      setAdBusy(false)
-
-      if (state.status === 'won') {
-        const current = useSaveStore.getState().save
-        const grant = rollClearReward(level, current, createSeededRng(Date.now()))
-        const next = applyClearToSave(current, level, grant)
-        replace(next)
-        setLastGrant(grant)
-      }
-    })()
+    if (state.status === 'won') {
+      const current = useSaveStore.getState().save
+      const grant = rollClearReward(level, current, createSeededRng(Date.now()))
+      const next = applyClearToSave(current, level, grant)
+      replace(next)
+      setLastGrant(grant)
+    }
   }, [uiPhase, state.status, level, replace, setLastGrant])
 
   useEffect(() => {
@@ -176,10 +182,14 @@ export function PlayScreen({ level }: Props) {
   }
 
   async function watchDouble() {
+    setAdError(false)
     setAdBusy(true)
     const res = await getAds().showRewarded('double_drop')
     setAdBusy(false)
-    if (!res.ok) return
+    if (!res.ok) {
+      setAdError(true)
+      return
+    }
     replace(activateDoubleDrop(useSaveStore.getState().save))
   }
 
@@ -243,8 +253,8 @@ export function PlayScreen({ level }: Props) {
             : 'text-[var(--ink)]'
         }`}
       >
-        <span className="game-stat"><span className="block text-[0.65rem] uppercase tracking-wider text-[var(--muted)]">Progress</span><strong>{fmt(p.eaten, { n: state.eatenSheep })}</strong></span>
-        <span className="game-stat"><span className="block text-[0.65rem] uppercase tracking-wider text-[var(--muted)]">Flock</span><strong>{fmt(p.sheepLeft, { n: sheepLeft })}</strong></span>
+        <span className="game-stat"><strong>{fmt(p.eaten, { n: state.eatenSheep })}</strong></span>
+        <span className="game-stat"><strong>{fmt(p.sheepLeft, { n: sheepLeft })}</strong></span>
         <span
           className={`inline-flex items-center gap-1.5 ${thinking ? 'font-medium text-[var(--muted)]' : ''}`}
           aria-live="polite"
@@ -291,14 +301,15 @@ export function PlayScreen({ level }: Props) {
 
       {uiPhase === 'terminal' && (
         <div className="game-panel victory-pop p-5 text-center">
-          <p className="eyebrow">{state.status === 'won' ? 'Hunt complete' : 'The flock escaped'}</p>
+          <p className="eyebrow">{state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose}</p>
           <p className="font-serif text-2xl text-[var(--ink)]">
-            {state.status === 'won' ? p.win : p.lose}
+            {state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose}
           </p>
           <p className="mt-1 text-sm text-[var(--muted)]">
-            {state.status === 'won' ? p.winSub : p.loseSub}
+            {state.status === 'won' ? p.winSub : state.status === 'draw' ? p.drawSub : p.loseSub}
           </p>
           {adBusy && <p className="mt-1 text-xs text-[#7a8574]">{p.preparing}</p>}
+          {adError && <p role="status" className="mt-1 text-xs text-[#8b2e22]">{p.adFailed}</p>}
           {state.status === 'won' && lastGrant && (
             <GrantLine grant={lastGrant} labels={p} locale={locale} />
           )}
@@ -373,8 +384,8 @@ export function PlayScreen({ level }: Props) {
 
       {guideOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center">
-          <div className="w-full max-w-sm rounded-xl bg-[var(--panel)] p-5 shadow-lg">
-            <p className="font-serif text-lg text-[var(--ink)]">{p.guideTitle}</p>
+          <div role="dialog" aria-modal="true" aria-labelledby="guide-title" className="w-full max-w-sm rounded-xl bg-[var(--panel)] p-5 shadow-lg">
+            <h2 id="guide-title" className="font-serif text-lg text-[var(--ink)]">{p.guideTitle}</h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
               {guideStep === 0 ? p.guideStep1 : p.guideStep2}
             </p>

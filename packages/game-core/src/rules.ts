@@ -35,7 +35,14 @@ const WOLF_OPENING: Pos[] = [
   { r: 6, c: 5 },
 ]
 
-export function createInitialState(levelId: string, rocks: Pos[] = []): BoardState {
+export const DEFAULT_MAX_PLIES = 300
+
+export function createInitialState(
+  levelId: string,
+  rocks: Pos[] = [],
+  targetEaten = WIN_EATEN,
+  maxPlies = DEFAULT_MAX_PLIES,
+): BoardState {
   const rockSet = new Set(rocks.map((p) => keyOf(p)))
   for (const p of [...SHEEP_OPENING, ...WOLF_OPENING]) {
     if (rockSet.has(keyOf(p))) {
@@ -66,6 +73,9 @@ export function createInitialState(levelId: string, rocks: Pos[] = []): BoardSta
     chain: null,
     status: 'playing',
     levelId,
+    targetEaten,
+    plyCount: 0,
+    maxPlies,
   })
 }
 
@@ -193,8 +203,9 @@ export function getWolfLegalSummary(
 }
 
 export function evaluateTerminal(state: BoardState): BoardState['status'] {
-  if (state.eatenSheep >= WIN_EATEN) return 'won'
+  if (state.eatenSheep >= state.targetEaten) return 'won'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'lost'
+  if (state.plyCount >= state.maxPlies) return 'draw'
   return 'playing'
 }
 
@@ -227,6 +238,8 @@ function cloneState(state: BoardState): BoardState {
     pieces: state.pieces.map((p) => ({ ...p })),
     rocks: cloneRocks(state.rocks),
     chain: state.chain ? { ...state.chain } : null,
+    plyCount: state.plyCount,
+    maxPlies: state.maxPlies,
   }
 }
 
@@ -239,6 +252,7 @@ export function applyAction(state: BoardState, action: Action): ApplyResult {
   }
 
   let next = cloneState(state)
+  next.plyCount += 1
   const piece = next.pieces.find((p) => p.id === action.pieceId)
   if (!piece) return { ok: false, error: 'Piece not found' }
 
@@ -266,7 +280,7 @@ export function applyAction(state: BoardState, action: Action): ApplyResult {
   wolf.c = action.to.c
   next.eatenSheep += 1
 
-  if (next.eatenSheep >= WIN_EATEN) {
+  if (next.eatenSheep >= next.targetEaten) {
     next.chain = null
     next.status = 'won'
     return { ok: true, state: next }

@@ -32,6 +32,15 @@ body {
 
 ::selection { background: #c9a227; color: #20281d; }
 
+:where(a, button, input, [role='button']):focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+:where(button, input):focus:not(:focus-visible) {
+  outline: none;
+}
+
 .page-shell { width: min(calc(100% - 2rem), 72rem); margin-inline: auto; padding-inline: 1.5rem; }
 .content-shell { width: min(calc(100% - 2rem), 72rem); margin-inline: auto; }
 .desktop-page-grid { display: grid; gap: 2rem; }

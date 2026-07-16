@@ -15,6 +15,16 @@ import {
 } from '../src/index'
 
 describe('opening (T01)', () => {
+  it('supports per-level targets and declares a draw at the ply limit', () => {
+    const custom = createInitialState('challenge', [], 8, 1)
+    const action = listLegalActions(custom)[0]!
+    const result = applyAction(custom, action)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.state.targetEaten).toBe(8)
+    expect(result.state.status).toBe('draw')
+  })
+
   it('places 3 wolves and 15 sheep on fixed coords', () => {
     const s = createInitialState('spring-01')
     assertInvariants(s)
