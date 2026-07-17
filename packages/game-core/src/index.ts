@@ -28,6 +28,8 @@ export {
   migrate,
   recomputeUnlockedChapters,
   recordPlayStarted,
+  recordGuideHint,
+  recordGuideResult,
   rollClearReward,
   SAVE_KEY,
 } from './content/save'

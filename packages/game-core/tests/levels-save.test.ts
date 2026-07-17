@@ -8,6 +8,8 @@ import {
   levelTeachingPoint,
   migrate,
   recomputeUnlockedChapters,
+  recordGuideHint,
+  recordGuideResult,
   rollClearReward,
   validateAllLevels,
   validateLevel,
@@ -96,6 +98,16 @@ describe('level table', () => {
 })
 
 describe('save clear flow', () => {
+  it('migrates and records guide usage without losing old saves', () => {
+    const migrated = migrate({ schemaVersion: 1, guide: { spring1Done: true } })
+    expect(migrated.guide).toEqual({ spring1Done: true, hintUsage: {}, failureStreak: {} })
+
+    const hinted = recordGuideHint(migrated, 'summer-01')
+    const failedTwice = recordGuideResult(recordGuideResult(hinted, 'summer-01', false), 'summer-01', false)
+    expect(failedTwice.guide.hintUsage['summer-01']).toBe(1)
+    expect(failedTwice.guide.failureStreak['summer-01']).toBe(2)
+    expect(recordGuideResult(failedTwice, 'summer-01', true).guide.failureStreak['summer-01']).toBe(0)
+  })
   it('repairs malformed progress without removing the spring entry point', () => {
     const save = migrate({
       schemaVersion: 1,

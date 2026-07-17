@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { getT } from '@/i18n/get-locale'
+import { HelpContent } from '@/components/HelpContent'
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getT()
@@ -36,21 +37,12 @@ export default async function HowToPlayPage() {
           <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{h.intro}</p>
         </header>
 
-        {(
-          [
-            [h.winTitle, h.winBody],
-            [h.moveTitle, h.moveBody],
-            [h.chainTitle, h.chainBody],
-            [h.sheepTitle, h.sheepBody],
-            [h.rocksTitle, h.rocksBody],
-            [h.saveTitle, h.saveBody],
-          ] as const
-        ).map(([title, body]) => (
-          <section key={title} className="paper-card p-4">
-            <h2 className="font-serif text-xl text-[var(--ink)]">{title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{body}</p>
-          </section>
-        ))}
+        <HelpContent h={h} />
+
+        <section className="border-t border-[var(--line)] pt-5">
+          <h2 className="font-serif text-xl text-[var(--ink)]">{h.saveTitle}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{h.saveBody}</p>
+        </section>
 
         <div className="flex flex-col gap-3">
           <LocaleLink

@@ -8,9 +8,12 @@ import {
   createSeededRng,
   isDoubleDropActive,
   levelDisplayName,
+  levelTeachingPoint,
   boardPositionKey,
   listWolfActionsAsIfTurn,
   recordPlayStarted,
+  recordGuideHint,
+  recordGuideResult,
   resolveSkin,
   rollClearReward,
   type DropGrant,
@@ -18,6 +21,7 @@ import {
   type LevelConfig,
 } from '@wolf-sheep/game-core'
 import { BoardSvg } from '@/components/BoardSvg'
+import { HelpContent } from '@/components/HelpContent'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { getAds } from '@/lib/ads'
 import { usePlayStore } from '@/lib/play-store'
@@ -69,6 +73,9 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const [adError, setAdError] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
   const [guideStep, setGuideStep] = useState(0)
+  const [helpOpen, setHelpOpen] = useState(false)
+  const [hintOpen, setHintOpen] = useState(false)
+  const [hintLevel, setHintLevel] = useState(0)
   const [resetArmed, setResetArmed] = useState(false)
   const resetArmTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -77,6 +84,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const prevEaten = useRef(0)
   const terminalSfxDone = useRef(false)
   const terminalReportedRef = useRef(false)
+  const guidanceReportedRef = useRef(false)
   const attemptRef = useRef<PlayAttemptMetric | null>(null)
   const attemptStartedAtRef = useRef(Date.now())
   const firstCapturePlyRef = useRef<number | null>(null)
@@ -115,6 +123,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     rewardedRef.current = false
     playCountedRef.current = false
     terminalReportedRef.current = false
+    guidanceReportedRef.current = false
     terminalSfxDone.current = false
     attemptStartedAtRef.current = Date.now()
     firstCapturePlyRef.current = null
@@ -178,6 +187,17 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }, [guideOpen])
 
   useEffect(() => {
+    if (!helpOpen && !hintOpen) return
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return
+      setHelpOpen(false)
+      setHintOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [helpOpen, hintOpen])
+
+  useEffect(() => {
     if (adminMode) return
     if (uiPhase !== 'terminal' || rewardedRef.current) return
     rewardedRef.current = true
@@ -216,6 +236,12 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       })
     }
   }, [adminMode, onAdminTerminal, state, uiPhase])
+
+  useEffect(() => {
+    if (adminMode || uiPhase !== 'terminal' || guidanceReportedRef.current) return
+    guidanceReportedRef.current = true
+    replace(recordGuideResult(useSaveStore.getState().save, level.id, state.status === 'won'))
+  }, [adminMode, level.id, replace, state.status, uiPhase])
 
   useEffect(() => {
     if (!isDoubleDropActive(save)) return
@@ -257,6 +283,19 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           ? p.guideMoveGreen
           : p.guideFindCapture
     : p.tip
+  const failureStreak = save.guide.failureStreak[level.id] ?? 0
+  const guidancePoints = [
+    levelTeachingPoint(level, locale),
+    locale === 'zh' ? level.playerGoalZh : levelTeachingPoint(level, locale),
+    locale === 'zh' ? level.wolfStrategyZh : levelTeachingPoint(level, locale),
+  ]
+  const hintTemplates = [p.hintObserve, p.hintGoal, p.hintStrategy]
+
+  function openHint() {
+    setHintLevel(0)
+    setHintOpen(true)
+    if (!adminMode) replace(recordGuideHint(useSaveStore.getState().save, level.id))
+  }
 
   function completeGuide() {
     setGuideOpen(false)
@@ -295,6 +334,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     rewardedRef.current = false
     playCountedRef.current = false
     terminalReportedRef.current = false
+    guidanceReportedRef.current = false
     attemptRef.current = adminMode ? null : beginPlayAttempt(level.id)
     attemptStartedAtRef.current = Date.now()
     firstCapturePlyRef.current = null
@@ -470,6 +510,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
                 rewardedRef.current = false
                 playCountedRef.current = false
                 terminalReportedRef.current = false
+                guidanceReportedRef.current = false
                 attemptRef.current = adminMode ? null : beginPlayAttempt(level.id)
                 attemptStartedAtRef.current = Date.now()
                 firstCapturePlyRef.current = null
@@ -515,19 +556,25 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       )}
 
       {uiPhase !== 'terminal' && (
-        <p
-          className={`status-chip justify-center text-center text-xs ${firstLessonActive ? 'font-medium text-[var(--ink)]' : 'text-[var(--muted)]'}`}
-          aria-live="polite"
-        >
-          {interactionNotice ?? lessonTip}
-        </p>
+        <div className="grid gap-2" aria-live="polite">
+          {failureStreak >= 2 && !interactionNotice && (
+            <button type="button" onClick={openHint} className="rounded-lg border border-[var(--accent)]/35 bg-[var(--paper)] px-3 py-2 text-center text-xs font-medium text-[var(--ink)]">
+              {p.hintAvailable}
+            </button>
+          )}
+          <p className={`status-chip justify-center text-center text-xs ${firstLessonActive ? 'font-medium text-[var(--ink)]' : 'text-[var(--muted)]'}`}>
+            {interactionNotice ?? lessonTip}
+          </p>
+        </div>
       )}
 
-      <footer className="mt-auto flex items-center justify-around rounded-2xl border border-[var(--line)] bg-[var(--paper)]/75 pt-1 shadow-sm">
+      <footer className="mt-auto grid grid-cols-5 items-center rounded-2xl border border-[var(--line)] bg-[var(--paper)]/75 pt-1 shadow-sm">
+        <button type="button" onClick={() => setHelpOpen(true)} className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm">{p.help}</button>
+        <button type="button" onClick={openHint} className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm">{p.hint}</button>
         <button
           type="button"
           onClick={confirmReset}
-          className={`min-h-11 min-w-[4.5rem] rounded-lg px-3 py-2 text-sm active:scale-[0.97] ${
+          className={`min-h-11 rounded-lg px-1 py-2 text-xs active:scale-[0.97] sm:text-sm ${
             resetArmed ? 'bg-[#e8c4b8]/50 font-medium text-[#8b2e22]' : 'text-[var(--ink)]'
           }`}
         >
@@ -536,7 +583,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
         <button
           type="button"
           onClick={toggleMute}
-          className="min-h-11 min-w-[4.5rem] rounded-lg px-3 py-2 text-sm text-[var(--ink)] active:scale-[0.97]"
+          className="min-h-11 rounded-lg px-1 py-2 text-xs text-[var(--ink)] active:scale-[0.97] sm:text-sm"
           aria-pressed={muted}
         >
           {muted ? p.unmute : p.mute}
@@ -544,11 +591,37 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
         <LocaleLink
           href={adminMode ? '/admin/levels' : '/'}
           locale={locale}
-          className="inline-flex min-h-11 min-w-[4.5rem] items-center justify-center rounded-lg px-3 py-2 text-sm text-[var(--ink)]"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg px-1 py-2 text-xs text-[var(--ink)] sm:text-sm"
         >
           {p.exit}
         </LocaleLink>
       </footer>
+
+      {helpOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center">
+          <div role="dialog" aria-modal="true" aria-labelledby="field-help-title" className="max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-xl bg-[var(--panel)] p-5 shadow-lg">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 id="field-help-title" className="font-serif text-xl text-[var(--ink)]">{p.helpTitle}</h2>
+              <button type="button" onClick={() => setHelpOpen(false)} className="quiet-action min-h-10 px-3 text-sm">{p.hintClose}</button>
+            </div>
+            <HelpContent h={t.howTo} compact />
+          </div>
+        </div>
+      )}
+
+      {hintOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center">
+          <div role="dialog" aria-modal="true" aria-labelledby="hunt-hint-title" className="w-full max-w-sm rounded-xl bg-[var(--panel)] p-5 shadow-lg">
+            <p className="eyebrow">{p.hintLevels[hintLevel]}</p>
+            <h2 id="hunt-hint-title" className="mt-1 font-serif text-xl text-[var(--ink)]">{p.hintTitle}</h2>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{fmt(hintTemplates[hintLevel]!, { point: guidancePoints[hintLevel]! })}</p>
+            <div className="mt-5 flex justify-between gap-2">
+              <button type="button" onClick={() => setHintOpen(false)} className="quiet-action min-h-10 px-3 text-sm">{p.hintClose}</button>
+              {hintLevel < 2 && <button type="button" onClick={() => setHintLevel((value) => value + 1)} className="primary-action min-h-10 px-4 text-sm">{p.hintNext}</button>}
+            </div>
+          </div>
+        </div>
+      )}
 
       {guideOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center">

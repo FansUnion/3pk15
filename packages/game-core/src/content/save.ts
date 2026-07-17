@@ -20,7 +20,11 @@ export type SaveGame = {
     wolfSetId: string
     boardId: string
   }
-  guide: { spring1Done: boolean }
+  guide: {
+    spring1Done: boolean
+    hintUsage: Record<string, number>
+    failureStreak: Record<string, number>
+  }
   settings: { muted: boolean }
   buffs: {
     doubleDropUntil: number | null
@@ -52,7 +56,7 @@ export function defaultSave(): SaveGame {
       wolfSetId: 'wolf-default',
       boardId: 'board-default',
     },
-    guide: { spring1Done: false },
+    guide: { spring1Done: false, hintUsage: {}, failureStreak: {} },
     settings: { muted: false },
     buffs: { doubleDropUntil: null },
     quests: emptyQuestState(),
@@ -128,6 +132,8 @@ export function migrate(raw: unknown): SaveGame {
     },
     guide: {
       spring1Done: Boolean((o.guide as SaveGame['guide'] | undefined)?.spring1Done),
+      hintUsage: parseNonNegativeRecord((o.guide as SaveGame['guide'] | undefined)?.hintUsage),
+      failureStreak: parseNonNegativeRecord((o.guide as SaveGame['guide'] | undefined)?.failureStreak),
     },
     settings: {
       muted: Boolean((o.settings as SaveGame['settings'] | undefined)?.muted),
@@ -141,6 +147,41 @@ export function migrate(raw: unknown): SaveGame {
     quests: parseQuests(o.quests),
     lastPlayedLevelId:
       typeof o.lastPlayedLevelId === 'string' ? o.lastPlayedLevelId : undefined,
+  }
+}
+
+function parseNonNegativeRecord(raw: unknown): Record<string, number> {
+  if (!raw || typeof raw !== 'object') return {}
+  return Object.fromEntries(
+    Object.entries(raw).filter((entry): entry is [string, number] =>
+      typeof entry[1] === 'number' && Number.isInteger(entry[1]) && entry[1] >= 0,
+    ),
+  )
+}
+
+export function recordGuideHint(save: SaveGame, levelId: string): SaveGame {
+  return {
+    ...save,
+    guide: {
+      ...save.guide,
+      hintUsage: {
+        ...save.guide.hintUsage,
+        [levelId]: (save.guide.hintUsage[levelId] ?? 0) + 1,
+      },
+    },
+  }
+}
+
+export function recordGuideResult(save: SaveGame, levelId: string, won: boolean): SaveGame {
+  return {
+    ...save,
+    guide: {
+      ...save.guide,
+      failureStreak: {
+        ...save.guide.failureStreak,
+        [levelId]: won ? 0 : (save.guide.failureStreak[levelId] ?? 0) + 1,
+      },
+    },
   }
 }
 

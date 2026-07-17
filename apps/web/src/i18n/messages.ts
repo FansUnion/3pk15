@@ -45,6 +45,14 @@ export type MessageTree = {
     rocksBody: string
     saveTitle: string
     saveBody: string
+    basicsTitle: string
+    controlsTitle: string
+    strategyTitle: string
+    strategyBody: string[]
+    diagramTitle: string
+    diagramMove: string
+    diagramCapture: string
+    diagramLegend: string
     ctaSpring: string
     ctaChapters: string
     faqTitle: string
@@ -118,6 +126,17 @@ export type MessageTree = {
     repeatClear: string
     doubled: string
     universal: string
+    help: string
+    hint: string
+    hintTitle: string
+    hintLevels: [string, string, string]
+    hintObserve: string
+    hintGoal: string
+    hintStrategy: string
+    hintNext: string
+    hintClose: string
+    hintAvailable: string
+    helpTitle: string
   }
   settings: {
     title: string
@@ -233,6 +252,19 @@ export const en: MessageTree = {
       'Rocks block landing points. Spring teaches rules; summer adds pressure; autumn packs rocks; winter is an empty-board hard duel.',
     saveTitle: 'Local progress',
     saveBody: 'Clears, shards, and skins stay in this browser. No account. Clearing site data resets everything.',
+    basicsTitle: 'Rules at a glance',
+    controlsTitle: 'Controls and feedback',
+    strategyTitle: 'Wolf strategy',
+    strategyBody: [
+      'Keep all three wolves mobile. One wolf creates contact while the other two cover exits.',
+      'Control a route before chasing a single sheep. A capture that traps a wolf can lose the hunt.',
+      'Before extending a chain, compare the next landing point with the exits you will leave open.',
+      'Rocks are blocked points. Use the corridors around them to split and contain the flock.',
+    ],
+    diagramTitle: 'Board examples',
+    diagramMove: 'Step: wolf moves one point orthogonally into an empty point.',
+    diagramCapture: 'Gap-capture: wolf, one empty point, then sheep on the same line; land on the sheep.',
+    diagramLegend: 'W = wolf · S = sheep · # = rock · . = empty point',
     ctaSpring: 'Play Spring · Open Meadow',
     ctaChapters: 'Browse seasonal hunts',
     faqTitle: 'FAQ',
@@ -313,6 +345,17 @@ export const en: MessageTree = {
     repeatClear: 'Repeat clear',
     doubled: '(doubled)',
     universal: 'Universal shards {n}',
+    help: 'Help',
+    hint: 'Hint',
+    hintTitle: 'Hunt guidance',
+    hintLevels: ['Observe', 'Objective', 'Strategy'],
+    hintObserve: 'Watch for this pattern: {point}',
+    hintGoal: 'Your objective: {point}',
+    hintStrategy: 'Plan before moving: {point}',
+    hintNext: 'Show next level',
+    hintClose: 'Return to hunt',
+    hintAvailable: 'You have failed this hunt twice. A free strategy hint is available.',
+    helpTitle: 'Field guide',
   },
   settings: {
     title: 'Settings',
@@ -441,6 +484,19 @@ export const zh: MessageTree = {
     rocksBody: '岩石不可落子。春学规则、夏承压、秋密岩破阵、冬空盘硬仗。',
     saveTitle: '本地进度',
     saveBody: '通关、碎片与皮肤存在本机浏览器；无账号。清除站点数据会清空进度。',
+    basicsTitle: '基础规则',
+    controlsTitle: '操作与反馈',
+    strategyTitle: '狼方基础策略',
+    strategyBody: [
+      '保持三只狼都有行动空间：一狼建立接触，另外两狼控制出口。',
+      '先控制路线再追单羊。一次捕食如果让狼失去退路，可能直接输掉本局。',
+      '继续连吃前，比较下一个落点与仍然开放的出口。',
+      '岩石是不可落脚点。利用岩石之间的通道分割并限制羊群。',
+    ],
+    diagramTitle: '棋盘图例',
+    diagramMove: '普通移动：狼横向或纵向走一格，落到相邻空点。',
+    diagramCapture: '隔空吃：同线「狼—空—羊」，狼落到羊位并移除羊。',
+    diagramLegend: 'W = 狼 · S = 羊 · # = 岩石 · . = 空点',
     ctaSpring: '去春日 · 空野',
     ctaChapters: '浏览四季猎场',
     faqTitle: '常见问题',
@@ -520,6 +576,17 @@ export const zh: MessageTree = {
     repeatClear: '重复通关',
     doubled: '（双倍）',
     universal: '通用碎片 {n}',
+    help: '帮助',
+    hint: '提示',
+    hintTitle: '本关指导',
+    hintLevels: ['观察', '目标', '策略'],
+    hintObserve: '先观察：{point}',
+    hintGoal: '本关目标：{point}',
+    hintStrategy: '行动前规划：{point}',
+    hintNext: '查看下一层',
+    hintClose: '返回对局',
+    hintAvailable: '本关已连续失败两次，可以免费查看策略提示。',
+    helpTitle: '猎场帮助',
   },
   settings: {
     title: '设置',
