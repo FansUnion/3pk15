@@ -32,12 +32,12 @@ body {
 
 ::selection { background: #c9a227; color: #20281d; }
 
-:where(a, button, input, [role='button']):focus-visible {
+:where(a, button, input, select, textarea, [role='button']):focus-visible {
   outline: 3px solid var(--gold);
   outline-offset: 3px;
 }
 
-:where(button, input):focus:not(:focus-visible) {
+:where(button, input, select, textarea):focus:not(:focus-visible) {
   outline: none;
 }
 

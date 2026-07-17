@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { CHAPTER_LABEL, CHAPTER_LABEL_EN, equipSkin, isSkinUnlocked, skinDisplayName, SKIN_CATALOG, unlockSkinWithCost, type SkinCatalogItem } from '@wolf-sheep/game-core'
+import { CHAPTER_LABEL, CHAPTER_LABEL_EN, equipSkin, isSkinUnlocked, skinDisplayName, SKIN_CATALOG, unlockSkinWithCost, type SaveGame, type SkinCatalogItem } from '@wolf-sheep/game-core'
 import { SkinPreview } from '@/components/SkinPreview'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { SiteFooter } from '@/components/SiteChrome'
@@ -56,7 +56,7 @@ export default function SkinsPage() {
           {SKIN_CATALOG.filter((skin) => skin.kind === 'wolf_set').map((skin) => {
             const unlocked = isSkinUnlocked(save, skin)
             const equipped = save.equipped.wolfSetId === skin.id
-            return <SkinCard key={skin.id} name={skinDisplayName(skin, locale)} preview={[skin.assets.wolf, skin.assets.sheep]} unlocked={unlocked} equipped={equipped} unlockText={skinUnlockText(skin, locale, t.skins)} purchasable={skin.unlock.type === 'cost'} onEquip={() => equip(skin.id)} onUnlock={() => unlock(skin.id)} labels={t.skins} />
+            return <SkinCard key={skin.id} name={skinDisplayName(skin, locale)} preview={[skin.assets.wolf, skin.assets.sheep]} unlocked={unlocked} equipped={equipped} unlockText={skinUnlockText(skin, locale, t.skins)} progressText={skinProgressText(save, skin, t.skins)} purchasable={skin.unlock.type === 'cost'} onEquip={() => equip(skin.id)} onUnlock={() => unlock(skin.id)} labels={t.skins} />
           })}
         </SkinSection>
 
@@ -64,7 +64,7 @@ export default function SkinsPage() {
           {SKIN_CATALOG.filter((skin) => skin.kind === 'board').map((skin) => {
             const unlocked = isSkinUnlocked(save, skin)
             const equipped = save.equipped.boardId === skin.id
-            return <SkinCard key={skin.id} name={skinDisplayName(skin, locale)} preview={[skin.assets.boardBg]} unlocked={unlocked} equipped={equipped} unlockText={skinUnlockText(skin, locale, t.skins)} purchasable={skin.unlock.type === 'cost'} onEquip={() => equip(skin.id)} onUnlock={() => unlock(skin.id)} labels={t.skins} />
+            return <SkinCard key={skin.id} name={skinDisplayName(skin, locale)} preview={[skin.assets.boardBg]} unlocked={unlocked} equipped={equipped} unlockText={skinUnlockText(skin, locale, t.skins)} progressText={skinProgressText(save, skin, t.skins)} purchasable={skin.unlock.type === 'cost'} onEquip={() => equip(skin.id)} onUnlock={() => unlock(skin.id)} labels={t.skins} />
           })}
         </SkinSection>
       </main>
@@ -87,11 +87,21 @@ function skinUnlockText(skin: SkinCatalogItem, locale: 'en' | 'zh', labels: Skin
   return fmt(labels.seasonCost, { n: skin.unlock.amount, season })
 }
 
-function SkinCard({ name, preview, unlocked, equipped, unlockText, purchasable, onEquip, onUnlock, labels }: { name: string; preview: string[]; unlocked: boolean; equipped: boolean; unlockText: string; purchasable: boolean; onEquip: () => void; onUnlock: () => void; labels: SkinLabels }) {
+function skinProgressText(save: SaveGame, skin: SkinCatalogItem, labels: SkinLabels): string | null {
+  if (skin.unlock.type !== 'cost') return null
+  const current = skin.kind === 'wolf_set'
+    ? save.fragments.universal
+    : (save.fragments.season[skin.unlock.season] ?? 0)
+  const cost = skin.kind === 'wolf_set' ? skin.unlock.universal : skin.unlock.amount
+  const state = current >= cost ? labels.readyUnlock : fmt(labels.remaining, { n: cost - current })
+  return `${fmt(labels.costProgress, { current, cost })} · ${state}`
+}
+
+function SkinCard({ name, preview, unlocked, equipped, unlockText, progressText, purchasable, onEquip, onUnlock, labels }: { name: string; preview: string[]; unlocked: boolean; equipped: boolean; unlockText: string; progressText: string | null; purchasable: boolean; onEquip: () => void; onUnlock: () => void; labels: SkinLabels }) {
   return <div className="paper-card flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center">
     <div className="flex min-w-0 items-center gap-3">
-      <div className="flex h-16 w-28 shrink-0 items-center justify-center gap-1 rounded-xl border border-[var(--line)] bg-[#e8eee2] p-2">{preview.map((src) => <Image key={src} src={src} alt="" width={48} height={48} className="h-12 w-12 object-contain" unoptimized />)}</div>
-      <div><p className="font-bold text-[var(--ink)]">{name}</p><p className="mt-1 text-xs text-[var(--muted)]">{equipped ? labels.equipped : unlocked ? labels.unlocked : unlockText}</p></div>
+      <div className="flex h-16 w-28 shrink-0 items-center justify-center gap-1 rounded-xl border border-[var(--line)] bg-[#e8eee2] p-2">{preview.map((src, index) => <Image key={src} src={src} alt={`${name} ${index + 1}`} width={48} height={48} className="h-12 w-12 object-contain" unoptimized />)}</div>
+      <div className="min-w-0"><p className="font-bold text-[var(--ink)]">{name}</p><p className="mt-1 text-xs text-[var(--muted)]">{equipped ? labels.equipped : unlocked ? labels.unlocked : unlockText}</p>{!unlocked && progressText ? <p className="mt-1 text-xs font-medium text-[var(--ink)]">{progressText}</p> : null}</div>
     </div>
     {!equipped && (unlocked ? <button type="button" className="quiet-action min-h-10 px-3 text-xs sm:ml-auto" onClick={onEquip}>{labels.equip}</button> : purchasable ? <button type="button" className="primary-action min-h-10 px-3 text-xs sm:ml-auto" onClick={onUnlock}>{labels.unlock}</button> : null)}
   </div>

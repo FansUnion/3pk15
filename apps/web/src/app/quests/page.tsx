@@ -137,7 +137,7 @@ function QuestRow({
           type="button"
           disabled={!done}
           onClick={onClaim}
-          className="rounded bg-[#3d4a3a] px-3 py-1 text-xs text-[#f4f1ea] disabled:opacity-40"
+          className="min-h-11 shrink-0 rounded bg-[#3d4a3a] px-4 py-2 text-xs font-medium text-[#f4f1ea] disabled:opacity-40"
         >
           {claimLabel}
         </button>

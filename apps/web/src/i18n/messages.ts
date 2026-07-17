@@ -132,6 +132,12 @@ export type MessageTree = {
     repeatClear: string
     doubled: string
     universal: string
+    rewardBalance: string
+    nextRewardTarget: string
+    rewardRemaining: string
+    rewardReady: string
+    openSkins: string
+    adBonusSeparate: string
     help: string
     hint: string
     hintTitle: string
@@ -164,7 +170,7 @@ export type MessageTree = {
     title: string; equip: string; equipped: string; unlocked: string; unlock: string
     universalCost: string; seasonCost: string; chapterUnlock: string; intro: string
     wolfSets: string; boards: string; preview: string; previewActive: string
-    unlockSuccess: string; insufficient: string
+    unlockSuccess: string; insufficient: string; costProgress: string; remaining: string; readyUnlock: string
   }
   quests: {
     title: string; claim: string; claimed: string; empty: string; daily: string; weekly: string
@@ -357,6 +363,12 @@ export const en: MessageTree = {
     repeatClear: 'Repeat clear',
     doubled: '(doubled)',
     universal: 'Universal shards {n}',
+    rewardBalance: 'Current balance: {n} universal shards',
+    nextRewardTarget: 'Next skin: {name} · costs {cost}',
+    rewardRemaining: '{n} more shards needed',
+    rewardReady: 'Enough shards — ready to unlock',
+    openSkins: 'View and equip skins',
+    adBonusSeparate: 'Ad bonuses are optional and never replace this clear reward.',
     help: 'Help',
     hint: 'Hint',
     hintTitle: 'Hunt guidance',
@@ -407,6 +419,9 @@ export const en: MessageTree = {
     previewActive: 'Changes apply immediately',
     unlockSuccess: 'Unlocked and ready to equip.',
     insufficient: 'Not enough shards. Clear more hunts first.',
+    costProgress: '{current}/{cost} shards',
+    remaining: '{n} more needed',
+    readyUnlock: 'Ready to unlock',
   },
   quests: {
     title: 'Quests',
@@ -594,6 +609,12 @@ export const zh: MessageTree = {
     repeatClear: '重复通关',
     doubled: '（双倍）',
     universal: '通用碎片 {n}',
+    rewardBalance: '当前通用碎片：{n}',
+    nextRewardTarget: '下一件皮肤：{name} · 需要 {cost}',
+    rewardRemaining: '还差 {n} 碎片',
+    rewardReady: '碎片已足够，可以兑换',
+    openSkins: '查看并装备皮肤',
+    adBonusSeparate: '广告奖励为可选加成，不会替代本局基础奖励。',
     help: '帮助',
     hint: '提示',
     hintTitle: '本关指导',
@@ -644,6 +665,9 @@ export const zh: MessageTree = {
     previewActive: '装备后立即生效',
     unlockSuccess: '已解锁，可立即装备。',
     insufficient: '碎片不足，先完成更多猎场。',
+    costProgress: '已有 {current}/{cost} 碎片',
+    remaining: '还差 {n}',
+    readyUnlock: '可以兑换',
   },
   quests: {
     title: '任务',

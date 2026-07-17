@@ -60,7 +60,7 @@ export default function ChaptersPage() {
           <span className="text-xs text-[#7a8574]">{save.fragments.universal}</span>
         </header>
 
-        <LocaleLink href="/how-to-play" locale={locale} className="status-chip text-sm text-[var(--muted)]">
+        <LocaleLink href="/how-to-play" locale={locale} className="status-chip min-h-11 justify-center text-sm text-[var(--muted)]">
           {t.chapters.howLink}
         </LocaleLink>
 

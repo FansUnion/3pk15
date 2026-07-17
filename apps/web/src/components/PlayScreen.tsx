@@ -17,6 +17,9 @@ import {
   recordGuideResult,
   resolveSkin,
   rollClearReward,
+  isSkinUnlocked,
+  skinDisplayName,
+  SKIN_CATALOG,
   type DropGrant,
   type BoardState,
   type LevelConfig,
@@ -99,6 +102,9 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const locale = localeOverride ?? clientMessages.locale
   const t = localeOverride ? getMessages(localeOverride) : clientMessages.t
   const p = t.play
+  const nextWolfSkin = SKIN_CATALOG.find(
+    (skin) => skin.kind === 'wolf_set' && skin.unlock.type === 'cost' && !isSkinUnlocked(save, skin),
+  )
 
   useEffect(() => {
     hydrate()
@@ -428,7 +434,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
         <LocaleLink
           href={backHref}
           locale={locale}
-          className="text-sm text-[var(--muted)] underline-offset-2 hover:underline"
+          className="quiet-action min-h-11 px-3 text-sm text-[var(--muted)]"
         >
           ← {p.back}
         </LocaleLink>
@@ -538,7 +544,26 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
             </p>
           )}
           {!adminMode && state.status === 'won' && lastGrant && (
-            <GrantLine grant={lastGrant} labels={p} locale={locale} />
+            <div className="mt-3 rounded-lg border border-[var(--line)] bg-[var(--paper)] px-3 py-3 text-left">
+              <GrantLine grant={lastGrant} labels={p} locale={locale} />
+              <p className="mt-2 text-xs text-[var(--muted)]">{fmt(p.rewardBalance, { n: save.fragments.universal })}</p>
+              {nextWolfSkin?.kind === 'wolf_set' && nextWolfSkin.unlock.type === 'cost' && (
+                <>
+                  <p className="mt-1 text-xs text-[var(--ink)]">
+                    {fmt(p.nextRewardTarget, { name: skinDisplayName(nextWolfSkin, locale), cost: nextWolfSkin.unlock.universal })}
+                  </p>
+                  <p className="mt-1 text-xs font-medium text-[var(--muted)]">
+                    {save.fragments.universal >= nextWolfSkin.unlock.universal
+                      ? p.rewardReady
+                      : fmt(p.rewardRemaining, { n: nextWolfSkin.unlock.universal - save.fragments.universal })}
+                  </p>
+                </>
+              )}
+              <p className="mt-2 text-xs text-[var(--muted)]">{p.adBonusSeparate}</p>
+              <LocaleLink href="/skins" locale={locale} className="mt-2 inline-flex text-xs font-semibold text-[var(--ink)] underline underline-offset-2">
+                {p.openSkins}
+              </LocaleLink>
+            </div>
           )}
           {!adminMode && <p className="mt-2 text-xs text-[#7a8574]">{fmt(p.universal, { n: save.fragments.universal })}</p>}
           <div className="mt-4 flex flex-col items-center gap-2">
@@ -746,7 +771,7 @@ function GrantLine({
   }
   const sep = locale === 'zh' ? '：' : ': '
   return (
-    <p className="mt-2 text-sm text-[var(--ink)]">
+    <p className="text-sm font-medium text-[var(--ink)]">
       {grant.firstClear ? labels.firstClear : labels.repeatClear}
       {grant.doubled ? labels.doubled : ''}
       {sep}+{grant.universal}
