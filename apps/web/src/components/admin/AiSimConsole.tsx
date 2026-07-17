@@ -32,6 +32,7 @@ import {
 import { BoardSvg } from '@/components/BoardSvg'
 import { themeForChapter } from '@/components/admin/adminBoardTheme'
 import { AI_FIXTURES } from '@/components/admin/aiFixtures'
+import { consumeCandidateHandoff } from '@/lib/candidate-handoff'
 
 type PlaceMode = 'cycle' | 'empty' | 'wolf' | 'sheep' | 'rock'
 
@@ -71,9 +72,10 @@ type Props = {
   initialLevel?: string
   initialDiff?: string
   initialSeed?: string
+  initialImport?: string
 }
 
-export function AiSimConsole({ initialLevel, initialDiff, initialSeed }: Props) {
+export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialImport }: Props) {
   const [state, setState] = useState(() => {
     const level = initialLevel ? getLevel(initialLevel) : undefined
     if (level) return createLevelInitialState(level)
@@ -133,12 +135,25 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed }: Props) 
   }, [])
 
   useEffect(() => {
+    if (initialImport !== 'candidate-replay') return
+    const imported = consumeCandidateHandoff()
+    if (!imported) {
+      pushLog('candidate replay handoff missing or invalid')
+      return
+    }
+    setState(imported)
+    setTakeover(true)
+    setSelectedWolfId(imported.chain?.wolfId ?? null)
+    pushLog(`candidate replay takeover level=${imported.levelId} ply=${imported.plyCount}`)
+  }, [initialImport, pushLog])
+
+  useEffect(() => {
     if (appliedUrl.current) return
     if (!initialLevel) return
     const level = getLevel(initialLevel)
     if (!level) return
     appliedUrl.current = true
-    setState(createLevelInitialState(level))
+    if (initialImport !== 'candidate-replay') setState(createLevelInitialState(level))
     setBatchLevelId(level.id)
     const d =
       initialDiff === 'easy' || initialDiff === 'normal' || initialDiff === 'hard'
@@ -147,7 +162,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed }: Props) 
     setDifficulty(d)
     setBatchDiff(d)
     pushLog(`deep-link level=${level.id} diff=${d}`)
-  }, [initialLevel, initialDiff, pushLog])
+  }, [initialLevel, initialDiff, initialImport, pushLog])
 
   function loadLevel(id: string) {
     const level = getLevel(id)

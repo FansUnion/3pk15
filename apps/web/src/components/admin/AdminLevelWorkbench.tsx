@@ -24,6 +24,7 @@ import {
 import type { CandidateAcceptanceReport, CandidateVerdict } from '@wolf-sheep/game-core'
 import { CANDIDATE_BASELINE, CANDIDATE_BASELINE_DATE } from '@/lib/candidate-baseline'
 import { buildCandidateReplay } from '@/lib/candidate-replay'
+import { saveCandidateHandoff } from '@/lib/candidate-handoff'
 
 type ChapterFilter = 'all' | ChapterId
 type AiFilter = 'all' | Difficulty
@@ -237,6 +238,17 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
                 <span>{replayIndex}/{replay.frames.length - 1}</span>
                 <button type="button" disabled={replayIndex >= replay.frames.length - 1} onClick={() => setReplayIndex((index) => Math.min(replay.frames.length - 1, index + 1))} className="border border-[#3d4a3a] px-3 py-2 disabled:opacity-30">下一步</button>
               </div>
+              <button
+                type="button"
+                disabled={replay.frames[Math.min(replayIndex, replay.frames.length - 1)]!.state.status !== 'playing'}
+                onClick={() => {
+                  saveCandidateHandoff(replay.frames[Math.min(replayIndex, replay.frames.length - 1)]!.state)
+                  window.location.assign(`/admin/ai?level=${encodeURIComponent(level.id)}&diff=${level.ai}&seed=${replayGame.seed}&import=candidate-replay`)
+                }}
+                className="mt-2 w-full bg-[#3d4a3a] px-3 py-2 text-sm text-[#f4f1ea] disabled:opacity-40"
+              >
+                从此步人工接管
+              </button>
             </div>
           )}
         </section>
