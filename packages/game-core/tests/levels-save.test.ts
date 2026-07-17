@@ -5,6 +5,7 @@ import {
   createSeededRng,
   defaultSave,
   LEVELS,
+  levelTeachingPoint,
   migrate,
   recomputeUnlockedChapters,
   rollClearReward,
@@ -48,6 +49,14 @@ describe('level table', () => {
       expect(level.wolfStrategyZh.trim()).not.toBe('')
       expect(level.sheepDefenseZh.trim()).not.toBe('')
       expect(level.productionStatus).toBe('approved')
+    }
+  })
+
+  it('provides localized teaching points for every level', () => {
+    for (const level of LEVELS) {
+      expect(levelTeachingPoint(level, 'zh')).toMatch(/[\u3400-\u9fff]/)
+      expect(levelTeachingPoint(level, 'en')).toMatch(/[A-Za-z]/)
+      expect(levelTeachingPoint(level, 'en')).not.toMatch(/[\u3400-\u9fff]/)
     }
   })
 

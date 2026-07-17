@@ -4,6 +4,8 @@ import {
   defaultSave,
   equipSkin,
   recordPlayStarted,
+  SKIN_CATALOG,
+  QUEST_DEFS,
   unlockSkinWithCost,
   validateSkinCatalog,
 } from '../src/index'
@@ -24,9 +26,29 @@ describe('skins', () => {
     const eq = equipSkin(r.save, 'wolf-frost')
     expect(eq.ok).toBe(true)
   })
+
+  it('has complete localized catalog names', () => {
+    expect(SKIN_CATALOG.every((skin) => skin.nameEn && skin.nameZh)).toBe(true)
+  })
+
+  it('unlocks a board with season fragments exactly once', () => {
+    const save = {
+      ...defaultSave(),
+      fragments: { ...defaultSave().fragments, season: { ...defaultSave().fragments.season, winter: 30 } },
+    }
+    const result = unlockSkinWithCost(save, 'board-night')
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.save.fragments.season.winter).toBe(0)
+    expect(result.save.unlockedSkinIds).toContain('board-night')
+    expect(unlockSkinWithCost(result.save, 'board-night').ok).toBe(false)
+  })
 })
 
 describe('quests', () => {
+  it('has complete localized quest titles', () => {
+    expect(QUEST_DEFS.every((quest) => quest.titleEn && quest.titleZh)).toBe(true)
+  })
   it('claim daily play after recording', () => {
     let save = recordPlayStarted(defaultSave())
     const r = claimQuest(save, 'daily-play-1')

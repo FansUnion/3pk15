@@ -148,6 +148,33 @@ export const CHAPTER_BLURB_ZH: Record<ChapterId, string> = {
   winter: '空盘硬仗：高阶合围，不再靠岩石挡点。',
 }
 
+const LEVEL_TEACHING_EN: Record<string, string> = {
+  'spring-01': 'Select a wolf, step to an empty point, then find your first gap capture.',
+  'spring-02': 'Treat the rock as a blocked landing point and route around it to create a capture.',
+  'spring-03': 'Choose a short capture chain and stop before the wolf becomes trapped.',
+  'spring-04': 'Make a safe repositioning move before committing to a capture route.',
+  'spring-05': 'Compare the left and right capture routes before moving the second wolf.',
+  'spring-06': 'Combine short chains and route choice while keeping every wolf mobile.',
+  'summer-01': 'Read the flock block and concentrate pressure on one breakthrough line.',
+  'summer-02': 'Keep a second wolf available to cut across midfield instead of rushing in.',
+  'summer-03': 'Give the three wolves separate roles: draw out, seal the exit, and support.',
+  'summer-04': 'Pressure both flock routes without crowding all three wolves onto one side.',
+  'summer-05': 'Check that a second exit remains open before starting a capture.',
+  'summer-06': 'Coordinate all three wolves before entering the decisive capture line.',
+  'autumn-01': 'Use two wolves to control a corridor while the third advances with an exit.',
+  'autumn-02': 'Control both ends of the main corridor, then extend one capture into a chain.',
+  'autumn-03': 'Balance chain value against the exit, and stop early when mobility is at risk.',
+  'autumn-04': 'Treat gaps between rocks as chain entries and calculate the next direction first.',
+  'autumn-05': 'Keep both ends of the narrow gate open while preparing the forced capture.',
+  'autumn-06': 'Choose between a long chain and keeping all three wolves mobile.',
+  'winter-01': 'Without rocks, use the spacing between all three wolves to open the flock.',
+  'winter-02': 'Keep a route for every wolf, then create the first opening from an edge.',
+  'winter-03': 'Maintain open-board coverage and wait for a capture opportunity you can fully convert.',
+  'winter-04': 'Do not chase one sheep; preserve broad three-wolf control of the board.',
+  'winter-05': 'Build the surround before committing the first wolf to a capture route.',
+  'winter-06': 'Complete the open-board surround and chain hunt without sacrificing mobility.',
+}
+
 const ROCK_COUNT_RANGE: Record<ChapterId, { min: number; max: number }> = {
   spring: { min: 0, max: 2 },
   summer: { min: 2, max: 4 },
@@ -293,6 +320,11 @@ export function levelDisplayName(level: LevelConfig, locale: 'en' | 'zh'): strin
 
 export function levelBlurb(level: LevelConfig, locale: 'en' | 'zh'): string {
   return locale === 'zh' ? level.blurbZh : level.blurbEn
+}
+
+export function levelTeachingPoint(level: LevelConfig, locale: 'en' | 'zh'): string {
+  if (locale === 'zh') return level.teachingPoint ?? ''
+  return LEVEL_TEACHING_EN[level.id] ?? level.teachingPoint ?? ''
 }
 
 /**

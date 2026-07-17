@@ -125,6 +125,7 @@ export type MessageTree = {
     help: string
     privacy: string
     close: string
+    quickTips: string
     helpBody: string[]
   }
   privacy: {
@@ -134,8 +135,16 @@ export type MessageTree = {
     p3: string
     p4: string
   }
-  skins: { title: string; equip: string; equipped: string; cost: string }
-  quests: { title: string; claim: string; claimed: string; empty: string }
+  skins: {
+    title: string; equip: string; equipped: string; unlocked: string; unlock: string
+    universalCost: string; seasonCost: string; chapterUnlock: string; intro: string
+    wolfSets: string; boards: string; preview: string; previewActive: string
+    unlockSuccess: string; insufficient: string
+  }
+  quests: {
+    title: string; claim: string; claimed: string; empty: string; daily: string; weekly: string
+    reward: string; claimSuccess: string
+  }
   common: { back: string; loading: string }
   locale: { switchLabel: string }
 }
@@ -311,6 +320,7 @@ export const en: MessageTree = {
     help: 'How to play',
     privacy: 'Privacy',
     close: 'Close',
+    quickTips: 'Quick tips',
     helpBody: [
       'Command 3 wolves. Gap-eat sheep; eat 8 to win.',
       'Move orthogonally one step. Gap-eat is wolf — empty — sheep; land on the sheep.',
@@ -330,13 +340,28 @@ export const en: MessageTree = {
     title: 'Skins',
     equip: 'Equip',
     equipped: 'Equipped',
-    cost: '{n} shards',
+    unlocked: 'Unlocked',
+    unlock: 'Unlock',
+    universalCost: '{n} universal shards',
+    seasonCost: '{n} {season} shards',
+    chapterUnlock: 'Clear its season to unlock',
+    intro: 'The field preview updates immediately. Wolf, sheep, and board belong to one theme.',
+    wolfSets: 'Wolf sets',
+    boards: 'Field boards',
+    preview: 'Field preview',
+    previewActive: 'Changes apply immediately',
+    unlockSuccess: 'Unlocked and ready to equip.',
+    insufficient: 'Not enough shards. Clear more hunts first.',
   },
   quests: {
     title: 'Quests',
     claim: 'Claim',
     claimed: 'Claimed',
     empty: 'No quests yet.',
+    daily: 'Daily',
+    weekly: 'Weekly',
+    reward: '+{n} universal shards',
+    claimSuccess: 'Claimed +{n} universal shards',
   },
   common: { back: 'Back', loading: '…' },
   locale: { switchLabel: 'Language' },
@@ -502,6 +527,7 @@ export const zh: MessageTree = {
     help: '玩法说明',
     privacy: '隐私说明',
     close: '关闭',
+    quickTips: '快速提示',
     helpBody: [
       '操控 3 狼，隔空吃绵羊；吃满 8 只获胜。',
       '横竖走一格；隔空吃为「狼—空—羊」同线，狼移到羊位。',
@@ -521,13 +547,28 @@ export const zh: MessageTree = {
     title: '图鉴',
     equip: '穿戴',
     equipped: '已穿戴',
-    cost: '{n} 碎片',
+    unlocked: '已解锁',
+    unlock: '兑换',
+    universalCost: '{n} 通用碎片',
+    seasonCost: '{n} {season}碎片',
+    chapterUnlock: '通关对应季节解锁',
+    intro: '选择皮肤后，猎场预览会立即更新。狼、羊与棋盘应属于同一个主题。',
+    wolfSets: '狼群套装',
+    boards: '猎场棋盘',
+    preview: '猎场预览',
+    previewActive: '装备后立即生效',
+    unlockSuccess: '已解锁，可立即装备。',
+    insufficient: '碎片不足，先完成更多猎场。',
   },
   quests: {
     title: '任务',
     claim: '领取',
     claimed: '已领',
     empty: '暂无任务',
+    daily: '每日',
+    weekly: '每周',
+    reward: '+{n} 通用碎片',
+    claimSuccess: '领取 +{n} 通用碎片',
   },
   common: { back: '返回', loading: '…' },
   locale: { switchLabel: '语言' },

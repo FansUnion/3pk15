@@ -62,7 +62,7 @@ export default function SettingsPage() {
           onClick={() => setShowHelp(true)}
           className="rounded-lg border border-[#5c6b52]/40 px-4 py-3 text-left text-[#2c3328]"
         >
-          {locale === 'zh' ? '快速提示' : 'Quick tips'}
+          {t.settings.quickTips}
         </button>
 
         <LocaleLink

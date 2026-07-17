@@ -4,6 +4,8 @@ export type QuestDef = {
   id: string
   period: 'daily' | 'weekly'
   title: string
+  titleEn: string
+  titleZh: string
   target: number
   metric: 'plays' | 'clears' | 'fragments_earned'
   rewardUniversal: number
@@ -14,6 +16,8 @@ export const QUEST_DEFS: QuestDef[] = [
     id: 'daily-play-1',
     period: 'daily',
     title: '今日对局 1 次',
+    titleEn: 'Play 1 hunt today',
+    titleZh: '今日对局 1 次',
     target: 1,
     metric: 'plays',
     rewardUniversal: 3,
@@ -22,6 +26,8 @@ export const QUEST_DEFS: QuestDef[] = [
     id: 'daily-clear-1',
     period: 'daily',
     title: '今日通关 1 关',
+    titleEn: 'Clear 1 hunt today',
+    titleZh: '今日通关 1 关',
     target: 1,
     metric: 'clears',
     rewardUniversal: 5,
@@ -30,6 +36,8 @@ export const QUEST_DEFS: QuestDef[] = [
     id: 'weekly-clear-3',
     period: 'weekly',
     title: '本周通关 3 关',
+    titleEn: 'Clear 3 hunts this week',
+    titleZh: '本周通关 3 关',
     target: 3,
     metric: 'clears',
     rewardUniversal: 15,
@@ -38,11 +46,17 @@ export const QUEST_DEFS: QuestDef[] = [
     id: 'weekly-frag-20',
     period: 'weekly',
     title: '本周获得 20 通用碎片',
+    titleEn: 'Earn 20 universal shards this week',
+    titleZh: '本周获得 20 通用碎片',
     target: 20,
     metric: 'fragments_earned',
     rewardUniversal: 10,
   },
 ]
+
+export function questDisplayTitle(quest: QuestDef, locale: 'en' | 'zh'): string {
+  return locale === 'zh' ? quest.titleZh : quest.titleEn
+}
 
 export type QuestBucket = {
   key: string

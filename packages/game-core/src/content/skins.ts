@@ -5,6 +5,8 @@ export type WolfSetSkin = {
   id: string
   kind: 'wolf_set'
   name: string
+  nameEn: string
+  nameZh: string
   unlock:
     | { type: 'default' }
     | { type: 'chapter'; chapterId: ChapterId }
@@ -19,6 +21,8 @@ export type BoardSkin = {
   id: string
   kind: 'board'
   name: string
+  nameEn: string
+  nameZh: string
   unlock:
     | { type: 'default' }
     | { type: 'chapter'; chapterId: ChapterId }
@@ -35,6 +39,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     id: 'wolf-default',
     kind: 'wolf_set',
     name: '原野狼',
+    nameEn: 'Meadow Wolves',
+    nameZh: '原野狼',
     unlock: { type: 'default' },
     assets: {
       wolf: '/skins/default/wolf.svg',
@@ -47,6 +53,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     id: 'wolf-frost',
     kind: 'wolf_set',
     name: '霜狼',
+    nameEn: 'Frost Wolves',
+    nameZh: '霜狼',
     unlock: { type: 'cost', universal: 50 },
     assets: {
       wolf: '/skins/frost/wolf.svg',
@@ -59,6 +67,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     id: 'wolf-night',
     kind: 'wolf_set',
     name: 'Night Watch',
+    nameEn: 'Night Watch',
+    nameZh: '夜巡狼群',
     unlock: { type: 'cost', universal: 80 },
     assets: {
       wolf: '/skins/night/wolf.svg',
@@ -71,6 +81,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     id: 'board-default',
     kind: 'board',
     name: '原野棋盘',
+    nameEn: 'Meadow Field',
+    nameZh: '原野棋盘',
     unlock: { type: 'default' },
     assets: { boardBg: '/skins/boards/default.svg' },
     boardFill: '#e4f0d8',
@@ -80,6 +92,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     id: 'board-spring',
     kind: 'board',
     name: '春日棋盘',
+    nameEn: 'Spring Field',
+    nameZh: '春日棋盘',
     unlock: { type: 'chapter', chapterId: 'spring' },
     assets: { boardBg: '/skins/boards/spring.svg' },
     boardFill: '#e8f6d8',
@@ -89,6 +103,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     id: 'board-summer',
     kind: 'board',
     name: '夏日棋盘',
+    nameEn: 'Summer Field',
+    nameZh: '夏日棋盘',
     unlock: { type: 'chapter', chapterId: 'summer' },
     assets: { boardBg: '/skins/boards/summer.svg' },
     boardFill: '#f2e8c0',
@@ -98,6 +114,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     id: 'board-autumn',
     kind: 'board',
     name: '秋日棋盘',
+    nameEn: 'Autumn Field',
+    nameZh: '秋日棋盘',
     unlock: { type: 'chapter', chapterId: 'autumn' },
     assets: { boardBg: '/skins/boards/autumn.svg' },
     boardFill: '#f2dcb8',
@@ -107,6 +125,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     id: 'board-winter',
     kind: 'board',
     name: '冬日棋盘',
+    nameEn: 'Winter Field',
+    nameZh: '冬日棋盘',
     unlock: { type: 'chapter', chapterId: 'winter' },
     assets: { boardBg: '/skins/boards/winter.svg' },
     boardFill: '#e8f0f6',
@@ -116,6 +136,8 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     id: 'board-night',
     kind: 'board',
     name: 'Moonlit Field',
+    nameEn: 'Moonlit Field',
+    nameZh: '月夜猎场',
     unlock: { type: 'cost', season: 'winter', amount: 30 },
     assets: { boardBg: '/skins/boards/night.svg' },
     boardFill: '#1c3040',
@@ -125,6 +147,10 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
 
 export function getSkin(id: string): SkinCatalogItem | undefined {
   return SKIN_CATALOG.find((s) => s.id === id)
+}
+
+export function skinDisplayName(skin: SkinCatalogItem, locale: 'en' | 'zh'): string {
+  return locale === 'zh' ? skin.nameZh : skin.nameEn
 }
 
 export function getWolfSet(id: string): WolfSetSkin | undefined {
@@ -228,6 +254,7 @@ export function validateSkinCatalog(): string[] {
   for (const s of SKIN_CATALOG) {
     if (ids.has(s.id)) errors.push(`duplicate id ${s.id}`)
     ids.add(s.id)
+    if (!s.nameEn.trim() || !s.nameZh.trim()) errors.push(`${s.id} missing localized name`)
     if (s.kind === 'wolf_set') {
       if (!s.assets.wolf || !s.assets.sheep) errors.push(`${s.id} missing wolf/sheep asset`)
       if (s.unlock.type === 'default') defaultWolf++

@@ -3,13 +3,13 @@
 import { createInitialState, resolveSkin, type SaveGame } from '@wolf-sheep/game-core'
 import { BoardSvg } from '@/components/BoardSvg'
 
-export function SkinPreview({ save }: { save: SaveGame }) {
+export function SkinPreview({ save, previewLabel, activeLabel }: { save: SaveGame; previewLabel: string; activeLabel: string }) {
   const skin = resolveSkin(save)
   return (
     <div className="paper-card overflow-hidden p-3">
       <div className="mb-2 flex items-center justify-between px-1">
-        <span className="eyebrow">Field preview</span>
-        <span className="text-xs text-[var(--muted)]">装备后立即生效</span>
+        <span className="eyebrow">{previewLabel}</span>
+        <span className="text-xs text-[var(--muted)]">{activeLabel}</span>
       </div>
       <BoardSvg
         state={createInitialState('spring-01')}

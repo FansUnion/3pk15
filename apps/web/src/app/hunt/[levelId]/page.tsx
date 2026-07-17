@@ -7,6 +7,7 @@ import {
   getLevel,
   levelBlurb,
   levelDisplayName,
+  levelTeachingPoint,
   LEVELS,
 } from '@wolf-sheep/game-core'
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome'
@@ -68,7 +69,7 @@ export default async function HuntPage({
         <p className="text-sm leading-relaxed text-[var(--muted)]">{blurb}</p>
         <section className="paper-card p-4">
           <p className="eyebrow">{t.hunt.teachingLabel}</p>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--ink)]">{level.teachingPoint}</p>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--ink)]">{levelTeachingPoint(level, locale)}</p>
         </section>
 
         <LocaleLink

@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { claimQuest, QUEST_DEFS, refreshQuestPeriod } from '@wolf-sheep/game-core'
+import { claimQuest, questDisplayTitle, QUEST_DEFS, refreshQuestPeriod } from '@wolf-sheep/game-core'
 import { useSaveStore } from '@/lib/save-store'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { SiteFooter } from '@/components/SiteChrome'
 import { useClientMessages } from '@/i18n/use-client-locale'
+import { fmt } from '@/i18n/messages'
 
 export default function QuestsPage() {
   const save = useSaveStore((s) => s.save)
@@ -34,7 +35,7 @@ export default function QuestsPage() {
         {msg && <p className="text-sm text-[#5c6b52]">{msg}</p>}
 
         <section className="flex flex-col gap-2">
-          <h2 className="text-sm text-[#5c6b52]">{locale === 'zh' ? '每日' : 'Daily'}</h2>
+          <h2 className="text-sm text-[#5c6b52]">{t.quests.daily}</h2>
           {QUEST_DEFS.filter((q) => q.period === 'daily').map((q) => {
             const progress = quests.daily.progress[q.id] ?? 0
             const claimed = quests.daily.claimed.includes(q.id)
@@ -42,10 +43,10 @@ export default function QuestsPage() {
             return (
               <QuestRow
                 key={q.id}
-                title={q.title}
+                title={questDisplayTitle(q, locale)}
                 progress={progress}
                 target={q.target}
-                reward={q.rewardUniversal}
+                rewardLabel={fmt(t.quests.reward, { n: q.rewardUniversal })}
                 claimed={claimed}
                 done={done}
                 claimLabel={t.quests.claim}
@@ -57,11 +58,7 @@ export default function QuestsPage() {
                     return
                   }
                   replace(r.save)
-                  setMsg(
-                    locale === 'zh'
-                      ? `领取 +${q.rewardUniversal} 通用碎片`
-                      : `Claimed +${q.rewardUniversal} shards`,
-                  )
+                  setMsg(fmt(t.quests.claimSuccess, { n: q.rewardUniversal }))
                 }}
               />
             )
@@ -69,7 +66,7 @@ export default function QuestsPage() {
         </section>
 
         <section className="flex flex-col gap-2">
-          <h2 className="text-sm text-[#5c6b52]">{locale === 'zh' ? '每周' : 'Weekly'}</h2>
+          <h2 className="text-sm text-[#5c6b52]">{t.quests.weekly}</h2>
           {QUEST_DEFS.filter((q) => q.period === 'weekly').map((q) => {
             const progress = quests.weekly.progress[q.id] ?? 0
             const claimed = quests.weekly.claimed.includes(q.id)
@@ -77,10 +74,10 @@ export default function QuestsPage() {
             return (
               <QuestRow
                 key={q.id}
-                title={q.title}
+                title={questDisplayTitle(q, locale)}
                 progress={progress}
                 target={q.target}
-                reward={q.rewardUniversal}
+                rewardLabel={fmt(t.quests.reward, { n: q.rewardUniversal })}
                 claimed={claimed}
                 done={done}
                 claimLabel={t.quests.claim}
@@ -92,11 +89,7 @@ export default function QuestsPage() {
                     return
                   }
                   replace(r.save)
-                  setMsg(
-                    locale === 'zh'
-                      ? `领取 +${q.rewardUniversal} 通用碎片`
-                      : `Claimed +${q.rewardUniversal} shards`,
-                  )
+                  setMsg(fmt(t.quests.claimSuccess, { n: q.rewardUniversal }))
                 }}
               />
             )
@@ -112,7 +105,7 @@ function QuestRow({
   title,
   progress,
   target,
-  reward,
+  rewardLabel,
   claimed,
   done,
   claimLabel,
@@ -122,7 +115,7 @@ function QuestRow({
   title: string
   progress: number
   target: number
-  reward: number
+  rewardLabel: string
   claimed: boolean
   done: boolean
   claimLabel: string
@@ -134,7 +127,7 @@ function QuestRow({
       <div>
         <p className="font-medium text-[#2c3328]">{title}</p>
         <p className="text-xs text-[#7a8574]">
-          {Math.min(progress, target)}/{target} · {reward}
+          {Math.min(progress, target)}/{target} · {rewardLabel}
         </p>
       </div>
       {claimed ? (
