@@ -94,6 +94,12 @@ export type MessageTree = {
     again: string
     doubleAd: string
     adFailed: string
+    share: string
+    sharePreparing: string
+    shareShared: string
+    shareCopied: string
+    shareDownloaded: string
+    shareFailed: string
     levelList: string
     nextLevel: string
     resultMetrics: string
@@ -306,6 +312,12 @@ export const en: MessageTree = {
     again: 'Play again',
     doubleAd: 'Watch ad · double shards 30 min',
     adFailed: 'The reward video is unavailable. Your clear is still safe.',
+    share: 'Share result',
+    sharePreparing: 'Preparing result card...',
+    shareShared: 'Shared.',
+    shareCopied: 'Result copied.',
+    shareDownloaded: 'Result card downloaded.',
+    shareFailed: 'Sharing was cancelled or unavailable.',
     levelList: 'Level list',
     nextLevel: 'Next hunt',
     resultMetrics: 'Attempt {attempt} · {plies} plies · {eaten} eaten · first {first} · {time} · {reason}',
@@ -538,6 +550,12 @@ export const zh: MessageTree = {
     again: '再来一局',
     doubleAd: '看广告 · 碎片双倍 30 分钟',
     adFailed: '广告暂时不可用，本关进度和碎片不受影响。',
+    share: '分享战绩',
+    sharePreparing: '正在生成战绩卡片...',
+    shareShared: '已分享。',
+    shareCopied: '战绩文字已复制。',
+    shareDownloaded: '战绩卡片已下载。',
+    shareFailed: '分享已取消或暂不可用。',
     levelList: '关卡列表',
     nextLevel: '进入下一关',
     resultMetrics: '第 {attempt} 次 · {plies} plies · 吃 {eaten} · 首吃 {first} · 用时 {time} · {reason}',

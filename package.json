@@ -6,7 +6,10 @@
     "dev": "pnpm --filter @wolf-sheep/web dev",
     "build": "pnpm -r build",
     "build:portal": "pnpm --filter @wolf-sheep/web build:portal",
+    "build:poki": "pnpm --filter @wolf-sheep/web build:poki",
+    "build:crazygames": "pnpm --filter @wolf-sheep/web build:crazygames",
     "test": "pnpm --filter @wolf-sheep/game-core test",
+    "test:web": "pnpm --filter @wolf-sheep/web test",
     "lint": "pnpm -r lint",
     "check:skins": "pnpm --filter @wolf-sheep/game-core check:skins"
   },

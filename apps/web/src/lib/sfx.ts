@@ -129,3 +129,11 @@ export function playSfx(kind: SfxKind) {
     else playFallback(kind)
   })()
 }
+
+export async function suspendSfx() {
+  if (ctx?.state === 'running') await ctx.suspend()
+}
+
+export async function resumeSfx() {
+  if (ctx?.state === 'suspended') await ctx.resume()
+}

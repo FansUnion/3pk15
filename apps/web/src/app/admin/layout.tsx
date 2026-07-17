@@ -8,7 +8,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Link href="/admin" className="font-serif text-base text-[#2c3328]">
           Admin
         </Link>
-        <nav className="flex flex-wrap gap-3 text-[#5c6b52]">
+        <nav className="order-3 flex w-full flex-wrap gap-3 text-[#5c6b52] sm:order-none sm:w-auto">
           <Link href="/admin/skins" className="hover:underline">
             皮肤
           </Link>
@@ -26,6 +26,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <Link href="/admin/checklist" className="hover:underline">
             清单
+          </Link>
+          <Link href="/admin/platform" className="hover:underline">
+            平台
           </Link>
         </nav>
         <div className="ml-auto flex gap-3 text-[#5c6b52]">

@@ -24,10 +24,11 @@ import {
 import { BoardSvg } from '@/components/BoardSvg'
 import { HelpContent } from '@/components/HelpContent'
 import { LocaleLink } from '@/components/LocaleSwitcher'
-import { getAds } from '@/lib/ads'
+import { getPlatform } from '@/lib/platform'
+import { shareResult, type ShareOutcome } from '@/lib/share-result'
 import { usePlayStore } from '@/lib/play-store'
 import { useSaveStore } from '@/lib/save-store'
-import { playSfx } from '@/lib/sfx'
+import { playSfx, resumeSfx, suspendSfx } from '@/lib/sfx'
 import {
   beginPlayAttempt,
   finishPlayAttempt,
@@ -72,6 +73,8 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const playCountedRef = useRef(false)
   const [adBusy, setAdBusy] = useState(false)
   const [adError, setAdError] = useState(false)
+  const [shareBusy, setShareBusy] = useState(false)
+  const [shareStatus, setShareStatus] = useState<ShareOutcome | 'failed' | null>(null)
   const [guideOpen, setGuideOpen] = useState(false)
   const [guideStep, setGuideStep] = useState(0)
   const [helpOpen, setHelpOpen] = useState(false)
@@ -318,13 +321,39 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   async function watchDouble() {
     setAdError(false)
     setAdBusy(true)
-    const res = await getAds().showRewarded('double_drop')
+    const res = await getPlatform().ads.showRewarded('double_drop', {
+      onStart: suspendSfx,
+      onFinish: () => muted ? undefined : resumeSfx(),
+    })
     setAdBusy(false)
     if (!res.ok) {
       setAdError(true)
       return
     }
     replace(activateDoubleDrop(useSaveStore.getState().save))
+  }
+
+  async function shareTerminalResult() {
+    setShareBusy(true)
+    setShareStatus(null)
+    try {
+      const result = state.status === 'won' ? 'won' : state.status === 'draw' ? 'draw' : 'lost'
+      const outcome = await shareResult({
+        levelId: level.id,
+        levelName: title,
+        result,
+        plies: state.plyCount,
+        eatenSheep: state.eatenSheep,
+        reason: terminalReasonLabel(terminalReason(state), p),
+        state,
+        url: getPlatform().shareUrl(level.id),
+      }, locale)
+      setShareStatus(outcome)
+    } catch {
+      setShareStatus('failed')
+    } finally {
+      setShareBusy(false)
+    }
   }
 
   function confirmReset() {
@@ -503,11 +532,24 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           )}
           {adBusy && <p className="mt-1 text-xs text-[#7a8574]">{p.preparing}</p>}
           {adError && <p role="status" className="mt-1 text-xs text-[#8b2e22]">{p.adFailed}</p>}
+          {shareStatus && (
+            <p role="status" className="mt-1 text-xs text-[var(--muted)]">
+              {shareStatus === 'shared' ? p.shareShared : shareStatus === 'copied' ? p.shareCopied : shareStatus === 'downloaded' ? p.shareDownloaded : p.shareFailed}
+            </p>
+          )}
           {!adminMode && state.status === 'won' && lastGrant && (
             <GrantLine grant={lastGrant} labels={p} locale={locale} />
           )}
           {!adminMode && <p className="mt-2 text-xs text-[#7a8574]">{fmt(p.universal, { n: save.fragments.universal })}</p>}
           <div className="mt-4 flex flex-col items-center gap-2">
+            <button
+              type="button"
+              disabled={shareBusy || adBusy}
+              onClick={() => void shareTerminalResult()}
+              className="primary-action w-full max-w-xs disabled:opacity-50"
+            >
+              {shareBusy ? p.sharePreparing : p.share}
+            </button>
             <button
               type="button"
               disabled={adBusy}

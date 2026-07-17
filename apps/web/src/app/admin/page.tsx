@@ -2,6 +2,11 @@ import Link from 'next/link'
 
 const cards = [
   {
+    href: '/admin/platform',
+    title: '平台与广告实验台',
+    desc: '平台识别 · Mock 广告状态 · 奖励发放验证',
+  },
+  {
     href: '/admin/skins',
     title: '皮肤台',
     desc: '身份感与资源验收 · 叠盘预览',

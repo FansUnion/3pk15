@@ -1,63 +1,84 @@
-export type AdResult =
-  | { ok: true }
-  | { ok: false; reason: 'cancelled' | 'failed' | 'unavailable' }
+export type AdFailureReason =
+  | 'cancelled'
+  | 'failed'
+  | 'unavailable'
+  | 'unfilled'
+  | 'cooldown'
 
+export type AdResult = { ok: true } | { ok: false; reason: AdFailureReason }
 export type AdPlacement = 'fragment_topup' | 'double_drop'
+export type MockAdOutcome = 'success' | AdFailureReason
+
+export type AdLifecycle = {
+  onStart?: () => void | Promise<void>
+  onFinish?: () => void | Promise<void>
+}
 
 export interface IAds {
-  showInterstitial(): Promise<AdResult>
-  showRewarded(placement: AdPlacement): Promise<AdResult>
+  showInterstitial(lifecycle?: AdLifecycle): Promise<AdResult>
+  showRewarded(placement: AdPlacement, lifecycle?: AdLifecycle): Promise<AdResult>
   preload?(): void
 }
 
-function failEnv(): boolean {
-  return typeof process !== 'undefined' && process.env.NEXT_PUBLIC_FAIL_ADS === '1'
-}
+export const MOCK_AD_OUTCOME_KEY = 'fangrush:mock-ad-outcome'
+export const MOCK_AD_OUTCOMES: readonly MockAdOutcome[] = [
+  'success',
+  'failed',
+  'cancelled',
+  'unavailable',
+  'unfilled',
+  'cooldown',
+]
 
 function delay(ms: number) {
-  return new Promise((r) => setTimeout(r, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-/** Instant mock ads for MVP; FAIL via NEXT_PUBLIC_FAIL_ADS=1 */
-export class MockAds implements IAds {
-  async showInterstitial(): Promise<AdResult> {
-    if (failEnv()) return { ok: false, reason: 'failed' }
-    await delay(200)
-    return { ok: true }
+export function getMockAdOutcome(): MockAdOutcome {
+  if (typeof window !== 'undefined') {
+    const stored = window.localStorage.getItem(MOCK_AD_OUTCOME_KEY)
+    if (MOCK_AD_OUTCOMES.includes(stored as MockAdOutcome)) return stored as MockAdOutcome
+  }
+  if (process.env.NEXT_PUBLIC_FAIL_ADS === '1') return 'failed'
+  const configured = process.env.NEXT_PUBLIC_MOCK_AD_OUTCOME
+  return MOCK_AD_OUTCOMES.includes(configured as MockAdOutcome)
+    ? (configured as MockAdOutcome)
+    : 'success'
+}
+
+export function setMockAdOutcome(outcome: MockAdOutcome) {
+  if (typeof window !== 'undefined') window.localStorage.setItem(MOCK_AD_OUTCOME_KEY, outcome)
+}
+
+async function runMock(lifecycle?: AdLifecycle): Promise<AdResult> {
+  const outcome = getMockAdOutcome()
+  if (outcome === 'failed' || outcome === 'unavailable' || outcome === 'unfilled' || outcome === 'cooldown') {
+    await delay(120)
+    return { ok: false, reason: outcome }
   }
 
-  async showRewarded(placement: AdPlacement): Promise<AdResult> {
-    void placement
-    if (failEnv()) return { ok: false, reason: 'failed' }
+  await lifecycle?.onStart?.()
+  try {
     await delay(300)
-    return { ok: true }
+    return outcome === 'success' ? { ok: true } : { ok: false, reason: 'cancelled' }
+  } finally {
+    await lifecycle?.onFinish?.()
   }
 }
 
-/**
- * Portal H5 shell — wire JSBridge when platform docs are available.
- * Until then behaves like Mock (unavailable if FAIL_ADS).
- */
-export class PortalAds implements IAds {
-  async showInterstitial(): Promise<AdResult> {
-    // TODO: call portal SDK interstitial
-    return new MockAds().showInterstitial()
+export class MockAds implements IAds {
+  showInterstitial(lifecycle?: AdLifecycle): Promise<AdResult> {
+    return runMock(lifecycle)
   }
 
-  async showRewarded(placement: AdPlacement): Promise<AdResult> {
+  showRewarded(placement: AdPlacement, lifecycle?: AdLifecycle): Promise<AdResult> {
     void placement
-    // TODO: call portal SDK rewarded
-    return new MockAds().showRewarded(placement)
+    return runMock(lifecycle)
   }
 }
 
-/**
- * Standalone real-network placeholder.
- * Replace body with AdSense / chosen network; keep IAds surface.
- */
-export class AdsenseAds implements IAds {
+export class UnavailableAds implements IAds {
   async showInterstitial(): Promise<AdResult> {
-    // TODO: integrate real web interstitial when account ready
     return { ok: false, reason: 'unavailable' }
   }
 
@@ -72,8 +93,6 @@ let adsSingleton: IAds | null = null
 export function getAds(): IAds {
   if (adsSingleton) return adsSingleton
   const provider = process.env.NEXT_PUBLIC_ADS_PROVIDER ?? 'mock'
-  if (provider === 'portal_sdk') adsSingleton = new PortalAds()
-  else if (provider === 'adsense') adsSingleton = new AdsenseAds()
-  else adsSingleton = new MockAds()
+  adsSingleton = provider === 'mock' ? new MockAds() : new UnavailableAds()
   return adsSingleton
 }
