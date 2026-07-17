@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/fansu/git/3pk15/apps/web/src/components/admin/AdminLogout.tsx"],"sourcesContent":["'use client'\n\nexport function AdminLogout() {\n  return (\n    <button\n      type=\"button\"\n      className=\"hover:underline\"\n      onClick={() => {\n        void fetch('/api/admin/unlock', { method: 'DELETE' }).then(() => {\n          window.location.href = '/admin/gate'\n        })\n      }}\n    >\n      退出密钥\n    </button>\n  )\n}\n"],"names":[],"mappings":";;;;;AAAA;;AAEO,SAAS;IACd,qBACE,8WAAC;QACC,MAAK;QACL,WAAU;QACV,SAAS;YACP,KAAK,MAAM,qBAAqB;gBAAE,QAAQ;YAAS,GAAG,IAAI,CAAC;gBACzD,OAAO,QAAQ,CAAC,IAAI,GAAG;YACzB;QACF;kBACD;;;;;;AAIL","debugId":null}}]
-}
