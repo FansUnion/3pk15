@@ -23,6 +23,7 @@ import {
 } from '@/lib/candidate-reports'
 import type { CandidateAcceptanceReport, CandidateVerdict } from '@wolf-sheep/game-core'
 import { CANDIDATE_BASELINE, CANDIDATE_BASELINE_DATE } from '@/lib/candidate-baseline'
+import { buildCandidateReplay } from '@/lib/candidate-replay'
 
 type ChapterFilter = 'all' | ChapterId
 type AiFilter = 'all' | Difficulty
@@ -183,6 +184,13 @@ function LevelCard({ level, review, report, baselineVerdict, selected, onSelect 
 }
 
 function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?: CandidateAcceptanceReport; baseline?: { verdict: CandidateVerdict; findingCodes: string[] } }) {
+  const [replaySeed, setReplaySeed] = useState<number | null>(null)
+  const replayGame = report?.games.find((game) => game.strategy === 'mixed' && game.seed === replaySeed)
+  const replay = useMemo(() => replayGame ? buildCandidateReplay(level, replayGame.trace) : null, [level, replayGame])
+  const [replayIndex, setReplayIndex] = useState(0)
+
+  useEffect(() => setReplayIndex(0), [replaySeed])
+
   return (
     <aside className="sticky top-4 border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
       <p className="text-xs text-[#7a8574]">{CHAPTER_LABEL[level.chapterId]}第 {level.indexInChapter} 关 · {level.id}</p>
@@ -207,9 +215,30 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
           {report.findings.length === 0 ? <p className="mt-2 text-xs text-green-800">未命中自动风险规则。</p> : report.findings.map((finding) => (
             <div key={finding.code} className="mt-2 border border-amber-300 bg-amber-50 p-2 text-xs text-amber-950">
               <p className="font-medium">{finding.code}</p><p>{finding.message}</p>
-              {finding.evidenceSeeds.length > 0 && <div className="mt-1 flex flex-wrap gap-1">{finding.evidenceSeeds.map((seed) => <Link key={seed} href={`/admin/ai?level=${encodeURIComponent(level.id)}&diff=${level.ai}&seed=${seed}`} className="underline">seed {seed}</Link>)}</div>}
+              {finding.evidenceSeeds.length > 0 && <div className="mt-2 flex flex-wrap gap-2">{finding.evidenceSeeds.map((seed) => (
+                <span key={seed} className="inline-flex gap-2">
+                  <button type="button" onClick={() => setReplaySeed(seed)} className="underline">播放 seed {seed}</button>
+                  <Link href={`/admin/ai?level=${encodeURIComponent(level.id)}&diff=${level.ai}&seed=${seed}`} className="underline">AI 诊断</Link>
+                </span>
+              ))}</div>}
             </div>
           ))}
+          {replay && replayGame && (
+            <div className="mt-3 border border-[#5c6b52]/25 bg-white p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div><p className="font-medium text-[#2c3328]">mixed 棋谱 · seed {replayGame.seed}</p><p className="text-[11px] text-[#7a8574]">{replayGame.winner} · {replayGame.reason} · {replayGame.plies} plies</p></div>
+                <button type="button" onClick={() => setReplaySeed(null)} className="text-xs underline">关闭</button>
+              </div>
+              {!replay.ok && <p className="mt-2 bg-red-50 p-2 text-xs text-red-800">{replay.error}</p>}
+              <div className="mx-auto mt-3 max-w-[260px]"><BoardSvg state={replay.frames[Math.min(replayIndex, replay.frames.length - 1)]!.state} selectedWolfId={null} stepHighlights={[]} jumpHighlights={[]} jumpThroughs={[]} interactive={false} onSelectWolf={() => undefined} onClickCell={() => undefined} theme={themeForChapter(level.chapterId)} /></div>
+              <p className="mt-2 min-h-8 break-all font-mono text-[11px] text-[#5c6b52]">{replay.frames[Math.min(replayIndex, replay.frames.length - 1)]!.label}</p>
+              <div className="mt-2 flex items-center justify-between gap-2 text-xs">
+                <button type="button" disabled={replayIndex === 0} onClick={() => setReplayIndex((index) => Math.max(0, index - 1))} className="border border-[#3d4a3a] px-3 py-2 disabled:opacity-30">上一步</button>
+                <span>{replayIndex}/{replay.frames.length - 1}</span>
+                <button type="button" disabled={replayIndex >= replay.frames.length - 1} onClick={() => setReplayIndex((index) => Math.min(replay.frames.length - 1, index + 1))} className="border border-[#3d4a3a] px-3 py-2 disabled:opacity-30">下一步</button>
+              </div>
+            </div>
+          )}
         </section>
       )}
       {!report && baseline && (
