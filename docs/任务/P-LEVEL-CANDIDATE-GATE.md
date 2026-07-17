@@ -67,8 +67,8 @@ const report = assessLevelCandidate(candidateLevel)
 
 ## 5. 2026-07-17 基线结果
 
-- `pass`：11 关。
-- `review`：10 关。
+- `pass`：12 关。
+- `review`：9 关。
 - `reject`：3 关，分别为 `winter-01`、`winter-03`、`winter-05`。
 - 三个 reject 均命中 `WOLF_FORCED_WIN_RISK`；mixed 分别为 `10/0/0`、`10/0/0`、`9/0/1`。
 - 本结果与 [24 关平衡矩阵](../产品核心/24关平衡矩阵-2026-07-17.md)一致，证明验收器复用了同一规则、AI、策略和固定种子。
@@ -81,4 +81,3 @@ const report = assessLevelCandidate(candidateLevel)
 - 在 `/admin/levels` 展示 `pass/review/reject`、命中规则和证据种子。
 - 从证据局直接进入 `/admin/ai` 棋谱播放和人工接管。
 - 建立持久化反例目录，记录候选配置、拒绝原因、代表棋谱和后续修复；当前先由返回报告和设计卡承载。
-
