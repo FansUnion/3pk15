@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   activateDoubleDrop,
+  adjacentLevels,
   applyClearToSave,
   createSeededRng,
   isDoubleDropActive,
@@ -44,6 +45,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const reset = usePlayStore((s) => s.reset)
 
   const save = useSaveStore((s) => s.save)
+  const hydrated = useSaveStore((s) => s.hydrated)
   const replace = useSaveStore((s) => s.replace)
   const hydrate = useSaveStore((s) => s.hydrate)
   const lastGrant = useSaveStore((s) => s.lastGrant)
@@ -118,25 +120,25 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }, [])
 
   useEffect(() => {
-    if (adminMode || level.id !== 'spring-01') return
+    if (adminMode || !hydrated || level.id !== 'spring-01') return
     if (save.guide.spring1Done) return
     setGuideOpen(true)
     setGuideStep(0)
-  }, [adminMode, level.id, save.guide.spring1Done])
+  }, [adminMode, hydrated, level.id, save.guide.spring1Done])
 
   useEffect(() => {
-    if (!guideOpen || save.guide.spring1Done) return
+    if (adminMode || level.id !== 'spring-01' || save.guide.spring1Done) return
     if (state.eatenSheep > prevEaten.current) {
-      finishGuide()
+      completeGuide()
     }
     prevEaten.current = state.eatenSheep
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.eatenSheep, guideOpen, save.guide.spring1Done])
+  }, [adminMode, level.id, state.eatenSheep, save.guide.spring1Done])
 
   useEffect(() => {
     if (!guideOpen) return
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') finishGuide()
+      if (event.key === 'Escape') skipGuide()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -193,14 +195,29 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const thinking = uiPhase === 'aiThinking'
   const chainFlash = Boolean(state.chain && uiPhase === 'playing')
   const title = levelDisplayName(level, locale)
+  const nextLevel = adjacentLevels(level.id).next
+  const firstLessonActive = !adminMode && level.id === 'spring-01' && !save.guide.spring1Done
+  const lessonTip = firstLessonActive
+    ? thinking || state.toMove === 'sheep'
+      ? p.guideWaitSheep
+      : state.plyCount === 0 && !selectedWolfId
+        ? p.guideSelectWolf
+        : state.plyCount === 0
+          ? p.guideMoveGreen
+          : p.guideFindCapture
+    : p.tip
 
-  function finishGuide() {
+  function completeGuide() {
     setGuideOpen(false)
     if (adminMode) return
     const current = useSaveStore.getState().save
     if (!current.guide.spring1Done) {
       replace({ ...current, guide: { ...current.guide, spring1Done: true } })
     }
+  }
+
+  function skipGuide() {
+    completeGuide()
   }
 
   async function watchDouble() {
@@ -336,6 +353,15 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           <p className="mt-1 text-sm text-[var(--muted)]">
             {state.status === 'won' ? p.winSub : state.status === 'draw' ? p.drawSub : p.loseSub}
           </p>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--ink)]">
+            {state.status === 'won'
+              ? p.winAdvice
+              : state.status === 'draw'
+                ? p.drawAdvice
+                : level.id === 'spring-01'
+                  ? p.firstLoseAdvice
+                  : p.loseAdvice}
+          </p>
           {adBusy && <p className="mt-1 text-xs text-[#7a8574]">{p.preparing}</p>}
           {adError && <p role="status" className="mt-1 text-xs text-[#8b2e22]">{p.adFailed}</p>}
           {!adminMode && state.status === 'won' && lastGrant && (
@@ -370,6 +396,15 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
                 {p.doubleAd}
               </button>
             )}
+            {!adminMode && state.status === 'won' && nextLevel && nextLevel.chapterId === level.chapterId && (
+              <LocaleLink
+                href={`/play/${nextLevel.id}`}
+                locale={locale}
+                className="primary-action w-full max-w-xs text-center"
+              >
+                {p.nextLevel}
+              </LocaleLink>
+            )}
             <LocaleLink
               href={backHref}
               locale={locale}
@@ -382,7 +417,12 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       )}
 
       {uiPhase !== 'terminal' && (
-        <p className="status-chip justify-center text-center text-xs text-[var(--muted)]" aria-live="polite">{p.tip}</p>
+        <p
+          className={`status-chip justify-center text-center text-xs ${firstLessonActive ? 'font-medium text-[var(--ink)]' : 'text-[var(--muted)]'}`}
+          aria-live="polite"
+        >
+          {lessonTip}
+        </p>
       )}
 
       <footer className="mt-auto flex items-center justify-around rounded-2xl border border-[var(--line)] bg-[var(--paper)]/75 pt-1 shadow-sm">
@@ -423,7 +463,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               <button
                 type="button"
                 className="text-sm text-[#7a8574] underline-offset-2 hover:underline"
-                onClick={finishGuide}
+                onClick={skipGuide}
               >
                 {p.guideSkip}
               </button>
@@ -439,7 +479,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
                 <button
                   type="button"
                   className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm text-[#f4f1ea]"
-                  onClick={finishGuide}
+                  onClick={() => setGuideOpen(false)}
                 >
                   {p.guideStart}
                 </button>

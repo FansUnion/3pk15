@@ -76,11 +76,16 @@ export type MessageTree = {
     loseSub: string
     draw: string
     drawSub: string
+    winAdvice: string
+    loseAdvice: string
+    firstLoseAdvice: string
+    drawAdvice: string
     preparing: string
     again: string
     doubleAd: string
     adFailed: string
     levelList: string
+    nextLevel: string
     tip: string
     reset: string
     resetConfirm: string
@@ -93,6 +98,10 @@ export type MessageTree = {
     guideSkip: string
     guideNext: string
     guideStart: string
+    guideSelectWolf: string
+    guideMoveGreen: string
+    guideWaitSheep: string
+    guideFindCapture: string
     noDrop: string
     firstClear: string
     repeatClear: string
@@ -235,11 +244,16 @@ export const en: MessageTree = {
     loseSub: 'No moves for the wolves',
     draw: 'Stalemate',
     drawSub: 'The hunt reached its move limit.',
+    winAdvice: 'Your route worked. Continue while the three-wolf coordination is fresh.',
+    loseAdvice: 'On the retry, keep two wolves mobile while the third creates contact.',
+    firstLoseAdvice: 'Retry with three roles: the center wolf approaches while both side wolves keep exits covered.',
+    drawAdvice: 'Retry with a different approach line; repeated waiting will not open the flock.',
     preparing: 'Preparing…',
     again: 'Play again',
     doubleAd: 'Watch ad · double shards 30 min',
     adFailed: 'The reward video is unavailable. Your clear is still safe.',
     levelList: 'Level list',
+    nextLevel: 'Next hunt',
     tip: 'Green = step · Red ring on sheep = gap-eat',
     reset: 'Reset',
     resetConfirm: 'Tap again',
@@ -253,6 +267,10 @@ export const en: MessageTree = {
     guideSkip: 'Skip',
     guideNext: 'Next',
     guideStart: 'Start hunt',
+    guideSelectWolf: 'First: select a dark wolf.',
+    guideMoveGreen: 'Now tap a green point to move that wolf.',
+    guideWaitSheep: 'The sheep are responding. Wait for your turn.',
+    guideFindCapture: 'Keep the side wolves mobile. Look for a red-ringed sheep to make your first capture.',
     noDrop: 'No shards this clear',
     firstClear: 'First clear',
     repeatClear: 'Repeat clear',
@@ -401,11 +419,16 @@ export const zh: MessageTree = {
     loseSub: '三狼无路可走',
     draw: '和局',
     drawSub: '对局达到步数上限，请重新挑战。',
+    winAdvice: '这条狩猎路线有效。趁三狼分工还清楚，继续下一关。',
+    loseAdvice: '重试时保留两狼机动，让第三只狼负责建立接触。',
+    firstLoseAdvice: '重试时让中狼接近羊群，两侧狼保留出口，不要三狼追向同一处。',
+    drawAdvice: '换一侧建立接触；原地往返和等待不会自动打开羊阵。',
     preparing: '准备中…',
     again: '再来一局',
     doubleAd: '看广告 · 碎片双倍 30 分钟',
     adFailed: '广告暂时不可用，本关进度和碎片不受影响。',
     levelList: '关卡列表',
+    nextLevel: '进入下一关',
     tip: '绿点走空格 · 红圈在羊上即隔空吃',
     reset: '重置',
     resetConfirm: '再点确认',
@@ -418,6 +441,10 @@ export const zh: MessageTree = {
     guideSkip: '跳过',
     guideNext: '下一步',
     guideStart: '开始猎食',
+    guideSelectWolf: '第一步：点选一只深色狼。',
+    guideMoveGreen: '现在点绿色空点，让这只狼走一步。',
+    guideWaitSheep: '羊群正在回应，等它走完再操作。',
+    guideFindCapture: '保持两侧狼能走，寻找带红圈的羊，完成第一次隔空吃。',
     noDrop: '本次无碎片掉落',
     firstClear: '首次通关',
     repeatClear: '重复通关',
