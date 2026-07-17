@@ -72,7 +72,7 @@ const report = assessLevelCandidate(candidateLevel)
 - 初始 `reject`：3 关，分别为 `winter-01`、`winter-03`、`winter-05`；均命中 `WOLF_FORCED_WIN_RISK`，mixed 分别为 `10/0/0`、`10/0/0`、`9/0/1`。
 - 首轮修订只调整羊开局：winter-01 使用 `row3-edge`，winter-03/05 使用 `right-shift`；三关复验均为 pass，mixed 分别为 `7/0/3`、`8/0/2`、`8/0/2`。
 - 修复 mixed 反重复、狼羊随机流耦合和 Hard 有限视野后，当前总计：`pass 11`、`review 13`、`reject 0`；玩家试玩确认仍为 0。review 增加主要因为策略收益被更真实地测出，不代表地图发生退化。
-- 本结果与 [24 关平衡矩阵](../产品核心/24关平衡矩阵-2026-07-17.md)一致，证明验收器复用了同一规则、AI、策略和固定种子。
+- 本结果与 [24 关平衡矩阵](../../产品核心/24关平衡矩阵-2026-07-17.md)一致，证明验收器复用了同一规则、AI、策略和固定种子。
 
 旧关复核优先级：试玩三个刚退出 reject 的冬季关，再复盘 summer 的高和棋和 spring 的策略敏感关。
 

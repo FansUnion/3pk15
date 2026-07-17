@@ -1,6 +1,6 @@
 # P-ACCOUNT · 账号与云存档（傻瓜式实施说明）
 
-> 本文件是 `T-015 账号与云存档` 的实施规格；状态与优先级以 [任务清单](任务清单.md) 为准。
+> 本文件是账号与云存档的需求池附件；启动条件与当前状态以 [需求池](需求池.md) 为准。
 > **参考仓库（本机绝对路径）**：`C:\Users\fansu\git\StartUpSense`  
 > Fangrush 仓库：`C:\Users\fansu\git\3pk15`  
 > 下文凡写「SS:」= StartUpSense 里打开这个文件照着改；「FR:」= Fangrush 建议落到的路径。
