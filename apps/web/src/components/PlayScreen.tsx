@@ -11,6 +11,7 @@ import {
   resolveSkin,
   rollClearReward,
   type DropGrant,
+  type BoardState,
   type LevelConfig,
 } from '@wolf-sheep/game-core'
 import { BoardSvg } from '@/components/BoardSvg'
@@ -19,14 +20,18 @@ import { getAds } from '@/lib/ads'
 import { usePlayStore } from '@/lib/play-store'
 import { useSaveStore } from '@/lib/save-store'
 import { playSfx } from '@/lib/sfx'
-import { fmt, type MessageTree } from '@/i18n/messages'
+import { fmt, getMessages, type MessageTree } from '@/i18n/messages'
 import { useClientMessages } from '@/i18n/use-client-locale'
 
 type Props = {
   level: LevelConfig
+  adminMode?: boolean
+  onAdminAttempt?: () => void
+  onAdminTerminal?: (state: BoardState) => void
+  localeOverride?: 'en' | 'zh'
 }
 
-export function PlayScreen({ level }: Props) {
+export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTerminal, localeOverride }: Props) {
   const state = usePlayStore((s) => s.state)
   const selectedWolfId = usePlayStore((s) => s.selectedWolfId)
   const highlights = usePlayStore((s) => s.highlights)
@@ -55,8 +60,12 @@ export function PlayScreen({ level }: Props) {
   const [, setTick] = useState(0)
   const prevEaten = useRef(0)
   const terminalSfxDone = useRef(false)
-  const muted = save.settings?.muted ?? false
-  const { locale, t } = useClientMessages()
+  const terminalReportedRef = useRef(false)
+  const [adminMuted, setAdminMuted] = useState(false)
+  const muted = adminMode ? adminMuted : (save.settings?.muted ?? false)
+  const clientMessages = useClientMessages()
+  const locale = localeOverride ?? clientMessages.locale
+  const t = localeOverride ? getMessages(localeOverride) : clientMessages.t
   const p = t.play
 
   useEffect(() => {
@@ -85,17 +94,22 @@ export function PlayScreen({ level }: Props) {
   useEffect(() => {
     rewardedRef.current = false
     playCountedRef.current = false
+    terminalReportedRef.current = false
     terminalSfxDone.current = false
     setLastGrant(null)
     init(level.id, level.rocks, level.ai, level.targetEaten, level.maxPlies, level.opening)
   }, [level.id, level.ai, level.rocks, level.targetEaten, level.maxPlies, level.opening, init, setLastGrant])
 
   useEffect(() => {
+    if (adminMode) {
+      onAdminAttempt?.()
+      return
+    }
     if (playCountedRef.current) return
     playCountedRef.current = true
     const current = useSaveStore.getState().save
     replace(recordPlayStarted(current, level.id))
-  }, [level.id, replace])
+  }, [adminMode, level.id, onAdminAttempt, replace])
 
   useEffect(() => {
     return () => {
@@ -104,11 +118,11 @@ export function PlayScreen({ level }: Props) {
   }, [])
 
   useEffect(() => {
-    if (level.id !== 'spring-01') return
+    if (adminMode || level.id !== 'spring-01') return
     if (save.guide.spring1Done) return
     setGuideOpen(true)
     setGuideStep(0)
-  }, [level.id, save.guide.spring1Done])
+  }, [adminMode, level.id, save.guide.spring1Done])
 
   useEffect(() => {
     if (!guideOpen || save.guide.spring1Done) return
@@ -131,6 +145,7 @@ export function PlayScreen({ level }: Props) {
   }, [guideOpen])
 
   useEffect(() => {
+    if (adminMode) return
     if (uiPhase !== 'terminal' || rewardedRef.current) return
     rewardedRef.current = true
 
@@ -141,7 +156,13 @@ export function PlayScreen({ level }: Props) {
       replace(next)
       setLastGrant(grant)
     }
-  }, [uiPhase, state.status, level, replace, setLastGrant])
+  }, [adminMode, uiPhase, state.status, level, replace, setLastGrant])
+
+  useEffect(() => {
+    if (!adminMode || uiPhase !== 'terminal' || terminalReportedRef.current) return
+    terminalReportedRef.current = true
+    onAdminTerminal?.(state)
+  }, [adminMode, onAdminTerminal, state, uiPhase])
 
   useEffect(() => {
     if (!isDoubleDropActive(save)) return
@@ -167,7 +188,7 @@ export function PlayScreen({ level }: Props) {
 
   const sheepLeft = state.pieces.filter((piece) => piece.side === 'sheep').length
   const interactive = uiPhase === 'playing' && state.toMove === 'wolf'
-  const backHref = `/levels/${level.chapterId}`
+  const backHref = adminMode ? '/admin/levels' : `/levels/${level.chapterId}`
   const doubleLeft = doubleDropLabel(save.buffs.doubleDropUntil)
   const thinking = uiPhase === 'aiThinking'
   const chainFlash = Boolean(state.chain && uiPhase === 'playing')
@@ -175,6 +196,7 @@ export function PlayScreen({ level }: Props) {
 
   function finishGuide() {
     setGuideOpen(false)
+    if (adminMode) return
     const current = useSaveStore.getState().save
     if (!current.guide.spring1Done) {
       replace({ ...current, guide: { ...current.guide, spring1Done: true } })
@@ -204,13 +226,19 @@ export function PlayScreen({ level }: Props) {
     setResetArmed(false)
     rewardedRef.current = false
     playCountedRef.current = false
+    terminalReportedRef.current = false
     setLastGrant(null)
     reset()
-    replace(recordPlayStarted(useSaveStore.getState().save, level.id))
+    if (adminMode) onAdminAttempt?.()
+    else replace(recordPlayStarted(useSaveStore.getState().save, level.id))
     playCountedRef.current = true
   }
 
   function toggleMute() {
+    if (adminMode) {
+      setAdminMuted((value) => !value)
+      return
+    }
     const current = useSaveStore.getState().save
     replace({
       ...current,
@@ -266,7 +294,7 @@ export function PlayScreen({ level }: Props) {
           />
           {turnLabel(uiPhase, state, p)}
         </span>
-        {doubleLeft && (
+          {!adminMode && doubleLeft && (
           <span className="w-full text-xs text-[var(--muted)]">{fmt(p.doubleLeft, { t: doubleLeft })}</span>
         )}
       </div>
@@ -310,10 +338,10 @@ export function PlayScreen({ level }: Props) {
           </p>
           {adBusy && <p className="mt-1 text-xs text-[#7a8574]">{p.preparing}</p>}
           {adError && <p role="status" className="mt-1 text-xs text-[#8b2e22]">{p.adFailed}</p>}
-          {state.status === 'won' && lastGrant && (
+          {!adminMode && state.status === 'won' && lastGrant && (
             <GrantLine grant={lastGrant} labels={p} locale={locale} />
           )}
-          <p className="mt-2 text-xs text-[#7a8574]">{fmt(p.universal, { n: save.fragments.universal })}</p>
+          {!adminMode && <p className="mt-2 text-xs text-[#7a8574]">{fmt(p.universal, { n: save.fragments.universal })}</p>}
           <div className="mt-4 flex flex-col items-center gap-2">
             <button
               type="button"
@@ -321,16 +349,18 @@ export function PlayScreen({ level }: Props) {
               onClick={() => {
                 rewardedRef.current = false
                 playCountedRef.current = false
+                terminalReportedRef.current = false
                 setLastGrant(null)
                 reset()
-                replace(recordPlayStarted(useSaveStore.getState().save, level.id))
+                if (adminMode) onAdminAttempt?.()
+                else replace(recordPlayStarted(useSaveStore.getState().save, level.id))
                 playCountedRef.current = true
               }}
               className="primary-action w-full max-w-xs disabled:opacity-50"
             >
               {p.again}
             </button>
-            {state.status === 'won' && !isDoubleDropActive(save) && (
+            {!adminMode && state.status === 'won' && !isDoubleDropActive(save) && (
               <button
                 type="button"
                 disabled={adBusy}
@@ -374,7 +404,7 @@ export function PlayScreen({ level }: Props) {
           {muted ? p.unmute : p.mute}
         </button>
         <LocaleLink
-          href="/"
+          href={adminMode ? '/admin/levels' : '/'}
           locale={locale}
           className="inline-flex min-h-11 min-w-[4.5rem] items-center justify-center rounded-lg px-3 py-2 text-sm text-[var(--ink)]"
         >

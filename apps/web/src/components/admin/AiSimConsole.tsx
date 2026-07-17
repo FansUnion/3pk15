@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   applyAction,
+  boardPositionKey,
   createLevelInitialState,
   createInitialState,
   createSeededRng,
@@ -12,6 +13,7 @@ import {
   getLevel,
   LEVELS,
   listLegalActions,
+  listWolfActionsAsIfTurn,
   makeState,
   OPENING_SHEEP,
   pickHardWithMeta,
@@ -19,6 +21,7 @@ import {
   posKey,
   serialize,
   type BoardState,
+  type Action,
   type Difficulty,
   type HardBudgets,
   type LevelConfig,
@@ -43,6 +46,25 @@ type BatchResult = {
   elapsedMs: number
   lastSerialize: string | null
   csv: string
+  records: BatchGameRecord[]
+}
+
+type TerminalReason = 'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition' | 'stepLimit' | 'unexpected'
+
+type BatchGameRecord = {
+  index: number
+  seed: number
+  outcome: 'wolf_win' | 'sheep_win' | 'timeout'
+  reason: TerminalReason
+  plies: number
+  eatenSheep: number
+  firstCapturePly: number | null
+}
+
+type ReplayData = {
+  record: BatchGameRecord
+  states: string[]
+  actions: string[]
 }
 
 type Props = {
@@ -76,6 +98,11 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
   const [batchDiff, setBatchDiff] = useState<Difficulty>(difficulty)
   const [batchResult, setBatchResult] = useState<BatchResult | null>(null)
   const [batchProgress, setBatchProgress] = useState(0)
+  const [reasonFilter, setReasonFilter] = useState<'all' | TerminalReason>('all')
+  const [replay, setReplay] = useState<ReplayData | null>(null)
+  const [replayIndex, setReplayIndex] = useState(0)
+  const [takeover, setTakeover] = useState(false)
+  const [selectedWolfId, setSelectedWolfId] = useState<string | null>(null)
   const [maxNodes, setMaxNodes] = useState(4000)
   const [maxMs, setMaxMs] = useState(12)
   const [lastHardMeta, setLastHardMeta] = useState<{
@@ -93,6 +120,9 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
   )
 
   const breakdown = useMemo(() => evaluate(state), [state])
+  const takeoverActions = useMemo(() => takeover && selectedWolfId && state.toMove === 'wolf'
+    ? listLegalActions(state).filter((action) => action.pieceId === selectedWolfId)
+    : [], [selectedWolfId, state, takeover])
 
   const pushLog = useCallback((line: string) => {
     setLogs((prev) => [`[${new Date().toLocaleTimeString()}] ${line}`, ...prev].slice(0, 80))
@@ -135,7 +165,37 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
   }
 
   function clickCell(pos: Pos) {
+    if (takeover) {
+      wolfTakeoverClick(pos)
+      return
+    }
     setState((prev) => editCell(prev, pos, placeMode, strict))
+  }
+
+  function wolfTakeoverClick(pos: Pos) {
+    if (state.status !== 'playing' || state.toMove !== 'wolf') return
+    const wolf = state.pieces.find((piece) => piece.side === 'wolf' && piece.r === pos.r && piece.c === pos.c)
+    if (wolf && !state.chain) {
+      setSelectedWolfId(wolf.id)
+      return
+    }
+    if (!selectedWolfId) return
+    const action = takeoverActions.find((candidate) => candidate.to.r === pos.r && candidate.to.c === pos.c)
+      ?? takeoverActions.find((candidate) => candidate.type === 'jump' && candidate.through.r === pos.r && candidate.through.c === pos.c)
+    if (!action) return
+    const result = applyAction(state, action)
+    if (!result.ok) return
+    setState(result.state)
+    setSelectedWolfId(result.state.chain?.wolfId ?? null)
+    pushLog(`[human wolf] ${JSON.stringify(action)}`)
+  }
+
+  function loadReplayForTakeover() {
+    if (!replay) return
+    setState(deserialize(JSON.parse(replay.states[replayIndex]!)))
+    setTakeover(true)
+    setSelectedWolfId(null)
+    pushLog(`human takeover replay game=${replay.record.index} step=${replayIndex}`)
   }
 
   function sheepStep() {
@@ -279,19 +339,22 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
     let pliesSum = 0
     let lastSerialize: string | null = null
     let localSeed = seed
+    const records: BatchGameRecord[] = []
 
     for (let g = 0; g < n; g++) {
       if (stopRef.current) {
         pushLog(`batch stopped at ${g}/${n}`)
         break
       }
-      const sim = simulateOneGame(level, batchDiff, localSeed, 400, hardBudgets)
+      const gameSeed = localSeed
+      const sim = simulateOneGame(level, batchDiff, gameSeed, 400, hardBudgets)
       localSeed += 10007
       pliesSum += sim.plies
       if (sim.outcome === 'wolf_win') wolfWins++
       else if (sim.outcome === 'sheep_win') sheepWins++
       else timeout++
       lastSerialize = sim.serialized
+      records.push({ index: g + 1, seed: gameSeed, outcome: sim.outcome, reason: sim.reason, plies: sim.plies, eatenSheep: sim.eatenSheep, firstCapturePly: sim.firstCapturePly })
       if (g % 5 === 0 || g === n - 1) {
         setBatchProgress(g + 1)
         await new Promise((r) => setTimeout(r, 0))
@@ -323,6 +386,7 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
       elapsedMs,
       lastSerialize,
       csv: `level,diff,games,wolfWins,sheepWins,timeout,wolfWinPct,avgPlies,ms,seedBase\n${csv}`,
+      records,
     }
     setBatchResult(result)
     setSeed(localSeed)
@@ -330,6 +394,32 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
       `batch done wolf=${wolfWins} sheep=${sheepWins} timeout=${timeout} avgPlies=${avgPlies.toFixed(1)} ${elapsedMs}ms`,
     )
     setBusy(false)
+  }
+
+  function openReplay(record: BatchGameRecord) {
+    const level = getLevel(batchLevelId)
+    if (!level) return
+    const sim = simulateOneGame(level, batchDiff, record.seed, 400, hardBudgets, true)
+    setReplay({ record, states: sim.states, actions: sim.actions })
+    setReplayIndex(0)
+    pushLog(`replay game=${record.index} seed=${record.seed} reason=${record.reason}`)
+  }
+
+  function exportReproduction(record: BatchGameRecord) {
+    const level = getLevel(batchLevelId)
+    if (!level) return
+    const payload = {
+      schemaVersion: 1,
+      levelId: level.id,
+      level,
+      sheepDifficulty: batchDiff,
+      wolfStrategy: 'random-legal',
+      seed: record.seed,
+      hardBudgets,
+      result: record,
+      command: `level=${level.id} diff=${batchDiff} seed=${record.seed} maxNodes=${hardBudgets.maxNodes} maxMs=${hardBudgets.maxMs}`,
+    }
+    downloadJson(payload, `repro-${level.id}-${record.seed}.json`)
   }
 
   function exportJson() {
@@ -469,6 +559,10 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
             <input type="checkbox" checked={strict} onChange={(e) => setStrict(e.target.checked)} />
             严格模式（禁重叠）
           </label>
+          <label className="flex items-center gap-2 border border-[#5c6b52]/25 bg-[#f7f5ef] p-2">
+            <input type="checkbox" checked={takeover} onChange={(event) => { setTakeover(event.target.checked); setSelectedWolfId(null) }} />
+            人工接管狼方
+          </label>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -548,13 +642,17 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
           </p>
           <BoardSvg
             state={state}
-            selectedWolfId={null}
-            stepHighlights={[]}
-            jumpHighlights={[]}
-            jumpThroughs={[]}
+            selectedWolfId={takeover ? selectedWolfId : null}
+            stepHighlights={takeoverActions.filter((action) => action.type === 'step').map((action) => action.to)}
+            jumpHighlights={takeoverActions.filter((action) => action.type === 'jump').map((action) => action.to)}
+            jumpThroughs={takeoverActions.filter((action): action is Extract<Action, { type: 'jump' }> => action.type === 'jump').map((action) => action.through)}
             interactive
             theme={themeForChapter(getLevel(state.levelId)?.chapterId ?? 'spring')}
             onSelectWolf={(id) => {
+              if (takeover) {
+                setSelectedWolfId(id)
+                return
+              }
               const piece = state.pieces.find((p) => p.id === id)
               if (piece) clickCell({ r: piece.r, c: piece.c })
             }}
@@ -621,6 +719,7 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
               onChange={(e) => setBatchN(Number(e.target.value))}
               className="rounded border border-[#5c6b52]/40 bg-white px-2 py-1"
             >
+              <option value={10}>10</option>
               <option value={50}>50</option>
               <option value={100}>100</option>
               <option value={200}>200</option>
@@ -686,9 +785,40 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
             <pre className="overflow-x-auto rounded bg-[#1e261c] p-2 font-mono text-xs text-[#dfe8d8]">
               {batchResult.csv}
             </pre>
+            <div className="flex flex-wrap items-end gap-3 border-t border-[#5c6b52]/20 pt-3">
+              <label className="grid gap-1 text-xs text-[#5c6b52]">终局筛选
+                <select value={reasonFilter} onChange={(event) => setReasonFilter(event.target.value as 'all' | TerminalReason)} className="border border-[#5c6b52]/30 bg-white px-2 py-1 text-sm">
+                  <option value="all">全部</option><option value="targetEaten">狼达成目标</option><option value="wolvesTrapped">狼无行动</option><option value="repetition">重复局面</option><option value="maxPlies">回合耗尽</option><option value="stepLimit">模拟步数上限</option><option value="unexpected">异常</option>
+                </select>
+              </label>
+              <span className="text-xs text-[#5c6b52]">显示 {batchResult.records.filter((record) => reasonFilter === 'all' || record.reason === reasonFilter).length}/{batchResult.records.length}</span>
+            </div>
+            <div className="max-h-72 overflow-auto border border-[#5c6b52]/20 bg-white">
+              <table className="w-full text-left text-xs">
+                <thead className="sticky top-0 bg-[#eef2ea]"><tr><th className="p-2">局</th><th>seed</th><th>终局</th><th>plies</th><th>首吃</th><th>操作</th></tr></thead>
+                <tbody>{batchResult.records.filter((record) => reasonFilter === 'all' || record.reason === reasonFilter).map((record) => (
+                  <tr key={record.index} className="border-t border-[#5c6b52]/10"><td className="p-2">{record.index}</td><td>{record.seed}</td><td>{record.reason}</td><td>{record.plies}</td><td>{record.firstCapturePly ?? '-'}</td><td className="space-x-2"><button type="button" onClick={() => openReplay(record)} className="underline">回放</button><button type="button" onClick={() => exportReproduction(record)} className="underline">复现包</button></td></tr>
+                ))}</tbody>
+              </table>
+            </div>
           </div>
         )}
       </section>
+
+      {replay && (
+        <section className="border border-[#5c6b52]/25 bg-[#f7f5ef] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-medium text-[#2c3328]">棋谱回放 · 第 {replay.record.index} 局</h2><p className="text-xs text-[#5c6b52]">seed {replay.record.seed} · {replay.record.reason} · 步骤 {replayIndex}/{replay.states.length - 1}</p></div><button type="button" onClick={() => setReplay(null)} className="text-sm underline">关闭回放</button></div>
+          <div className="mt-4 grid items-start gap-4 md:grid-cols-[minmax(0,480px)_1fr]">
+            <BoardSvg state={deserialize(JSON.parse(replay.states[replayIndex]!))} selectedWolfId={null} stepHighlights={[]} jumpHighlights={[]} jumpThroughs={[]} interactive={false} theme={themeForChapter(getLevel(batchLevelId)?.chapterId ?? 'spring')} onSelectWolf={() => undefined} onClickCell={() => undefined} />
+            <div>
+              <input aria-label="回放步骤" type="range" min={0} max={replay.states.length - 1} value={replayIndex} onChange={(event) => setReplayIndex(Number(event.target.value))} className="w-full" />
+              <div className="mt-2 flex gap-2"><button type="button" disabled={replayIndex === 0} onClick={() => setReplayIndex((value) => Math.max(0, value - 1))} className="border px-3 py-2 disabled:opacity-40">上一步</button><button type="button" disabled={replayIndex >= replay.states.length - 1} onClick={() => setReplayIndex((value) => Math.min(replay.states.length - 1, value + 1))} className="border px-3 py-2 disabled:opacity-40">下一步</button></div>
+              <button type="button" onClick={loadReplayForTakeover} className="mt-2 bg-[#3d4a3a] px-3 py-2 text-sm text-[#f4f1ea]">从此步人工接管</button>
+              <p className="mt-3 break-all font-mono text-xs text-[#5c6b52]">{replayIndex === 0 ? '初始局面' : replay.actions[replayIndex - 1]}</p>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   )
 }
@@ -703,12 +833,17 @@ function simulateOneGame(
   seed: number,
   maxSteps = 400,
   budgets?: HardBudgets,
-): { outcome: 'wolf_win' | 'sheep_win' | 'timeout'; plies: number; serialized: string } {
+  captureReplay = false,
+): { outcome: 'wolf_win' | 'sheep_win' | 'timeout'; reason: TerminalReason; plies: number; eatenSheep: number; firstCapturePly: number | null; serialized: string; states: string[]; actions: string[] } {
   let s = createLevelInitialState(level)
   let localSeed = seed
   let plies = 0
+  let firstCapturePly: number | null = null
+  const states = captureReplay ? [JSON.stringify(serialize(s))] : []
+  const actions: string[] = []
   while (s.status === 'playing' && plies < maxSteps) {
     plies++
+    const beforeEaten = s.eatenSheep
     if (s.toMove === 'wolf') {
       const legal = listLegalActions(s)
       if (legal.length === 0) break
@@ -717,6 +852,7 @@ function simulateOneGame(
       const res = applyAction(s, pick)
       if (!res.ok) break
       s = res.state
+      actions.push(`wolf:${JSON.stringify(pick)}`)
       if (s.chain) {
         const end = endWolfTurn(s)
         if (end.ok) s = end.state
@@ -730,12 +866,43 @@ function simulateOneGame(
       const res = applyAction(s, action)
       if (!res.ok) break
       s = res.state
+      actions.push(`sheep:${JSON.stringify(action)}`)
     }
+    if (firstCapturePly === null && s.eatenSheep > beforeEaten) firstCapturePly = s.plyCount
+    if (captureReplay) states.push(JSON.stringify(serialize(s)))
   }
   let outcome: 'wolf_win' | 'sheep_win' | 'timeout' = 'timeout'
   if (s.status === 'won') outcome = 'wolf_win'
   else if (s.status === 'lost') outcome = 'sheep_win'
-  return { outcome, plies, serialized: JSON.stringify(serialize(s), null, 2) }
+  return {
+    outcome,
+    reason: terminalReason(s, plies >= maxSteps),
+    plies,
+    eatenSheep: s.eatenSheep,
+    firstCapturePly,
+    serialized: JSON.stringify(serialize(s), null, 2),
+    states,
+    actions,
+  }
+}
+
+function terminalReason(state: BoardState, hitStepLimit: boolean): TerminalReason {
+  if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
+  if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
+  if (state.plyCount >= state.maxPlies) return 'maxPlies'
+  if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= 3) return 'repetition'
+  if (hitStepLimit) return 'stepLimit'
+  return 'unexpected'
+}
+
+function downloadJson(value: unknown, filename: string) {
+  const blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  anchor.click()
+  URL.revokeObjectURL(url)
 }
 
 function editCell(

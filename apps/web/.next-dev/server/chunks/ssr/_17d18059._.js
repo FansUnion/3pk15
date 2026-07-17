@@ -619,6 +619,105 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$
 ;
 ;
 ;
+const LEVEL_PRODUCT_META = {
+    'spring-01': meta('空野代表干扰最少的基础猎场。', '用一枚边石保留地形概念，集中教学移动和首次跳吃。', '看懂目标并完成第一次有效捕食。', '先移动中狼接近羊群，再寻找清晰跳吃。', '羊群压力较低，主要通过基础占位阻挡。', [
+        '教学'
+    ]),
+    'spring-02': meta('一石强调唯一岩石会阻挡落点。', '在开阔盘面加入单点绕行，建立岩石意识。', '绕开岩石完成短跳吃。', '从岩石另一侧换线，不急于连续跳吃。', '羊群利用边石压缩单侧落点。', [
+        '教学'
+    ]),
+    'spring-03': meta('双石表示两枚中场石共同切出路线。', '用双石形成通道，首次引入短连吃选择。', '找到短连吃并在被困前停止。', '比较左右入口，优先保留退出位置。', '羊群填补通道并封锁后续落点。', [
+        '连吃'
+    ]),
+    'spring-04': meta('回旋表示先换位再回到捕食线路。', '边石改变直线路径，训练安全调整。', '接受准备回合并建立吃口。', '先稳住三狼间距，再从侧面回切。', '羊群通过换线诱导狼无效追逐。', [
+        '走位'
+    ]),
+    'spring-05': meta('双线表示左右都有接近羊群的路线。', '提供两个入口，训练主攻方向选择。', '选择主攻侧并保留另一狼支援。', '一侧施压，另一侧狼控制出口。', '羊群在两线间转移以分散狼群。', [
+        '双路线'
+    ]),
+    'spring-06': meta('收束既是春季终关，也指把优势转成胜势。', '综合短连吃、路线选择和安全退出。', '独立完成基础狩猎并解释停止时机。', '三狼分工后用短链稳定累计捕食。', '羊群综合使用占位、换线和拖延。', [
+        '季末'
+    ]),
+    'summer-01': meta('裂隙指封锁之间留下的突破缝隙。', '从教学盘进入真实防守压力，要求集中突破。', '识别封锁并制造首个吃口。', '选择一条压力线，不同时追逐两侧。', '羊群主动挡线并填补跳吃落点。', [
+        '封锁'
+    ]),
+    'summer-02': meta('横切指岩石横向分割中场路线。', '三石配合 Hard AI，训练耐心布置和接应。', '在高压下保持退路并打开中场。', '保留第二只狼，从侧面横切进入。', 'Hard 羊群会抱团、避吃并把狼推向死角。', [
+        'Hard AI',
+        '死角'
+    ]),
+    'summer-03': meta('拉扯表示双方围绕漏斗反复争夺。', '四石漏斗要求诱开、封口和收割三狼分工。', '执行右侧首吃、左侧封口、中路支援。', '一狼诱开，两狼控制出口与后续吃线。', '羊群利用漏斗封口并诱导狼进入窄区。', [
+        '漏斗',
+        '困狼'
+    ]),
+    'summer-04': meta('分流指羊群沿主线与侧翼分开。', '三石形成两条防守流向，训练压力分配。', '保持两线压力而不失去机动。', '主线逼退、侧翼截断，避免三狼挤在一侧。', '羊群分散换线，迫使狼错误调动。', [
+        '分流'
+    ]),
+    'summer-05': meta('反推表示羊群会反向压缩狼的空间。', 'Hard AI 与底线地形强化反制和退路管理。', '识别陷阱并保留第二出口。', '捕食前先确认另一条退路仍开放。', '羊群通过站位把狼推向边角。', [
+        'Hard AI',
+        '退路'
+    ]),
+    'summer-06': meta('压线指三狼共同压迫中场路线。', '四石与偏右狼位检验夏季协作能力。', '完成协作站位后进入决定性吃线。', '两狼压线，一狼保留换线和收割位置。', '羊群集中封锁中场并拖延突破。', [
+        '季末',
+        '策略敏感'
+    ]),
+    'autumn-01': meta('碎盘表示五石把棋盘切成多个窄道。', '让岩石成为路线边界，训练复杂地形识别。', '快速找到有效窄道并避免困狼。', '两狼控口，一狼沿可退出通道推进。', '羊群填满狭窄落点并制造快速困狼。', [
+        '密岩',
+        '困狼'
+    ]),
+    'autumn-02': meta('通道指胜负围绕唯一主路线展开。', '把复杂地形压力集中到通道两端争夺。', '理解两狼控口、一狼兑现。', '控制两端后把一次跳吃扩展为连续收割。', '羊群争夺通道口并切断狼的接应。', [
+        '主通道'
+    ]),
+    'autumn-03': meta('丰收表示打开路线后可连续捕食。', '高收益窗口同时要求判断何时停止。', '体验长连吃并及时保住机动。', '边线建立首吃，确认出口后再延长链。', '羊群改变落点，引诱狼为贪吃失去退路。', [
+        '连吃',
+        '偏狼风险'
+    ]),
+    'autumn-04': meta('断桥指连吃路线被切成多个断点。', '入口清晰但后续方向变化，训练提前计算。', '进线前检查落点和出口。', '中狼进入断点，边狼维持两端控制。', '羊群在断点两侧切断后续接触。', [
+        '断桥',
+        '困狼'
+    ]),
+    'autumn-05': meta('窄门表示进攻窗口狭窄且需要双端开放。', '通过双端通道考验三狼协作。', '保持两端通行并兑现短暂窗口。', '两狼守门，一狼等待强制跳吃。', '羊群封住任一端即可破坏连吃窗口。', [
+        '窄门'
+    ]),
+    'autumn-06': meta('丰收终局是在高压力下完成秋季体系。', '综合密岩、连吃收益和三狼机动。', '完成干净可控的长连吃。', '先占稳定入口，再由第二狼接管出口。', '羊群分散到多个岩隙，迫使狼跨区。', [
+        '季末',
+        '密岩'
+    ]),
+    'winter-01': meta('空寂表示没有岩石，空间关系完全暴露。', '移除地形支点，只考验三狼间距与覆盖。', '从地形解题过渡到纯站位对抗。', '保持三狼横向覆盖，等待羊群出现破口。', 'Hard 羊群在空盘抱团并主动合围。', [
+        '空盘',
+        'Hard AI'
+    ]),
+    'winter-02': meta('合围表示高阶羊群主动压缩狼的空间。', '用 Hard AI 形成真实封锁压力。', '在高压下找到可解释的边线突破。', '先保三狼通路，再从边线制造首吃。', '羊群协同封锁、抱团并反复换线。', [
+        '空盘',
+        '高压'
+    ]),
+    'winter-03': meta('绝境表示容错极低，需要连续精确计算。', '不靠岩石变化，以空盘站位精度构成挑战。', '识别一次可连续兑现的决定性机会。', '耐心扩大覆盖，避免无支援的单狼突入。', '羊群最大化合围和拖延，等待狼失位。', [
+        '空盘',
+        '高难'
+    ]),
+    'winter-04': meta('回环指羊群反复换线诱导狼追逐。', '前置羊阵扩大横向流动，考验整体覆盖。', '不追单羊，维持三狼控制区域。', '用宽覆盖限制羊群回环路线。', '羊群横向循环并制造重复局面。', [
+        '空盘',
+        '重复'
+    ]),
+    'winter-05': meta('合围线指先包围再撕出捕食路线。', '不对称狼位训练从边缘建立首吃。', '建立合围后再投入进攻。', '边狼制造破口，中狼保持接应。', '羊群压缩边线并封锁孤立狼。', [
+        '空盘',
+        '策略敏感'
+    ]),
+    'winter-06': meta('终极狩猎是四季能力的综合考验。', '用空盘检验计算、协作、连吃控制和耐心。', '综合全部能力完成最终狩猎。', '维持机动与覆盖，等待干净连续吃线。', 'Hard 羊群综合合围、避吃、拖延和反重复。', [
+        '终局',
+        '高难'
+    ])
+};
+function meta(nameMeaningZh, designConceptZh, playerGoalZh, wolfStrategyZh, sheepDefenseZh, riskTags) {
+    return {
+        nameMeaningZh,
+        designConceptZh,
+        playerGoalZh,
+        wolfStrategyZh,
+        sheepDefenseZh,
+        riskTags,
+        productionStatus: 'approved'
+    };
+}
 function openingPositions(level) {
     return {
         wolves: level.opening?.wolves ?? __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DEFAULT_WOLF_OPENING"],
@@ -811,6 +910,7 @@ function L(partial) {
     };
     return {
         ...partial,
+        ...LEVEL_PRODUCT_META[partial.id],
         name: partial.nameZh,
         ai: partial.ai ?? CHAPTER_AI[partial.chapterId],
         targetEaten: partial.targetEaten ?? 8,
@@ -4875,7 +4975,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2
 ;
 ;
 ;
-function PlayScreen({ level }) {
+function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTerminal, localeOverride }) {
     const state = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["usePlayStore"])((s)=>s.state);
     const selectedWolfId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["usePlayStore"])((s)=>s.selectedWolfId);
     const highlights = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["usePlayStore"])((s)=>s.highlights);
@@ -4902,8 +5002,12 @@ function PlayScreen({ level }) {
     const [, setTick] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(0);
     const prevEaten = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"])(0);
     const terminalSfxDone = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"])(false);
-    const muted = save.settings?.muted ?? false;
-    const { locale, t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$use$2d$client$2d$locale$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useClientMessages"])();
+    const terminalReportedRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"])(false);
+    const [adminMuted, setAdminMuted] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const muted = adminMode ? adminMuted : save.settings?.muted ?? false;
+    const clientMessages = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$use$2d$client$2d$locale$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useClientMessages"])();
+    const locale = localeOverride ?? clientMessages.locale;
+    const t = localeOverride ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getMessages"])(localeOverride) : clientMessages.t;
     const p = t.play;
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         hydrate();
@@ -4940,6 +5044,7 @@ function PlayScreen({ level }) {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         rewardedRef.current = false;
         playCountedRef.current = false;
+        terminalReportedRef.current = false;
         terminalSfxDone.current = false;
         setLastGrant(null);
         init(level.id, level.rocks, level.ai, level.targetEaten, level.maxPlies, level.opening);
@@ -4954,12 +5059,18 @@ function PlayScreen({ level }) {
         setLastGrant
     ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (adminMode) {
+            onAdminAttempt?.();
+            return;
+        }
         if (playCountedRef.current) return;
         playCountedRef.current = true;
         const current = __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save;
         replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["recordPlayStarted"])(current, level.id));
     }, [
+        adminMode,
         level.id,
+        onAdminAttempt,
         replace
     ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
@@ -4968,11 +5079,12 @@ function PlayScreen({ level }) {
         };
     }, []);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        if (level.id !== 'spring-01') return;
+        if (adminMode || level.id !== 'spring-01') return;
         if (save.guide.spring1Done) return;
         setGuideOpen(true);
         setGuideStep(0);
     }, [
+        adminMode,
         level.id,
         save.guide.spring1Done
     ]);
@@ -5001,6 +5113,7 @@ function PlayScreen({ level }) {
         guideOpen
     ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (adminMode) return;
         if (uiPhase !== 'terminal' || rewardedRef.current) return;
         rewardedRef.current = true;
         if (state.status === 'won') {
@@ -5011,11 +5124,22 @@ function PlayScreen({ level }) {
             setLastGrant(grant);
         }
     }, [
+        adminMode,
         uiPhase,
         state.status,
         level,
         replace,
         setLastGrant
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (!adminMode || uiPhase !== 'terminal' || terminalReportedRef.current) return;
+        terminalReportedRef.current = true;
+        onAdminTerminal?.(state);
+    }, [
+        adminMode,
+        onAdminTerminal,
+        state,
+        uiPhase
     ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["isDoubleDropActive"])(save)) return;
@@ -5042,13 +5166,14 @@ function PlayScreen({ level }) {
     ]);
     const sheepLeft = state.pieces.filter((piece)=>piece.side === 'sheep').length;
     const interactive = uiPhase === 'playing' && state.toMove === 'wolf';
-    const backHref = `/levels/${level.chapterId}`;
+    const backHref = adminMode ? '/admin/levels' : `/levels/${level.chapterId}`;
     const doubleLeft = doubleDropLabel(save.buffs.doubleDropUntil);
     const thinking = uiPhase === 'aiThinking';
     const chainFlash = Boolean(state.chain && uiPhase === 'playing');
     const title = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["levelDisplayName"])(level, locale);
     function finishGuide() {
         setGuideOpen(false);
+        if (adminMode) return;
         const current = __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save;
         if (!current.guide.spring1Done) {
             replace({
@@ -5082,12 +5207,18 @@ function PlayScreen({ level }) {
         setResetArmed(false);
         rewardedRef.current = false;
         playCountedRef.current = false;
+        terminalReportedRef.current = false;
         setLastGrant(null);
         reset();
-        replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["recordPlayStarted"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save, level.id));
+        if (adminMode) onAdminAttempt?.();
+        else replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["recordPlayStarted"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save, level.id));
         playCountedRef.current = true;
     }
     function toggleMute() {
+        if (adminMode) {
+            setAdminMuted((value)=>!value);
+            return;
+        }
         const current = __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save;
         replace({
             ...current,
@@ -5125,7 +5256,7 @@ function PlayScreen({ level }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 238,
+                        lineNumber: 266,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -5133,20 +5264,20 @@ function PlayScreen({ level }) {
                         children: title
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 245,
+                        lineNumber: 273,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                         className: "w-10"
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 246,
+                        lineNumber: 274,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                lineNumber: 237,
+                lineNumber: 265,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5160,12 +5291,12 @@ function PlayScreen({ level }) {
                             })
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                            lineNumber: 256,
+                            lineNumber: 284,
                             columnNumber: 37
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 256,
+                        lineNumber: 284,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5176,12 +5307,12 @@ function PlayScreen({ level }) {
                             })
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                            lineNumber: 257,
+                            lineNumber: 285,
                             columnNumber: 37
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 257,
+                        lineNumber: 285,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5192,30 +5323,30 @@ function PlayScreen({ level }) {
                                 className: `inline-block h-2 w-2 rounded-full ${thinking || state.toMove === 'sheep' ? 'bg-[var(--muted)]' : 'bg-[var(--accent)]'}`
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                                lineNumber: 262,
+                                lineNumber: 290,
                                 columnNumber: 11
                             }, this),
                             turnLabel(uiPhase, state, p)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 258,
+                        lineNumber: 286,
                         columnNumber: 9
                     }, this),
-                    doubleLeft && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                    !adminMode && doubleLeft && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                         className: "w-full text-xs text-[var(--muted)]",
                         children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["fmt"])(p.doubleLeft, {
                             t: doubleLeft
                         })
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 270,
+                        lineNumber: 298,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                lineNumber: 249,
+                lineNumber: 277,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5234,7 +5365,7 @@ function PlayScreen({ level }) {
                         theme: theme
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 275,
+                        lineNumber: 303,
                         columnNumber: 9
                     }, this),
                     thinking && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5242,13 +5373,13 @@ function PlayScreen({ level }) {
                         "aria-hidden": true
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 288,
+                        lineNumber: 316,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                lineNumber: 274,
+                lineNumber: 302,
                 columnNumber: 7
             }, this),
             state.chain && uiPhase === 'playing' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5258,7 +5389,7 @@ function PlayScreen({ level }) {
                 children: p.endChain
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                lineNumber: 293,
+                lineNumber: 321,
                 columnNumber: 9
             }, this),
             uiPhase === 'terminal' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5269,7 +5400,7 @@ function PlayScreen({ level }) {
                         children: state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 304,
+                        lineNumber: 332,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5277,7 +5408,7 @@ function PlayScreen({ level }) {
                         children: state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 305,
+                        lineNumber: 333,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5285,7 +5416,7 @@ function PlayScreen({ level }) {
                         children: state.status === 'won' ? p.winSub : state.status === 'draw' ? p.drawSub : p.loseSub
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 308,
+                        lineNumber: 336,
                         columnNumber: 11
                     }, this),
                     adBusy && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5293,7 +5424,7 @@ function PlayScreen({ level }) {
                         children: p.preparing
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 311,
+                        lineNumber: 339,
                         columnNumber: 22
                     }, this),
                     adError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5302,27 +5433,27 @@ function PlayScreen({ level }) {
                         children: p.adFailed
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 312,
+                        lineNumber: 340,
                         columnNumber: 23
                     }, this),
-                    state.status === 'won' && lastGrant && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(GrantLine, {
+                    !adminMode && state.status === 'won' && lastGrant && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(GrantLine, {
                         grant: lastGrant,
                         labels: p,
                         locale: locale
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 314,
+                        lineNumber: 342,
                         columnNumber: 13
                     }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    !adminMode && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         className: "mt-2 text-xs text-[#7a8574]",
                         children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["fmt"])(p.universal, {
                             n: save.fragments.universal
                         })
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 316,
-                        columnNumber: 11
+                        lineNumber: 344,
+                        columnNumber: 26
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "mt-4 flex flex-col items-center gap-2",
@@ -5333,19 +5464,21 @@ function PlayScreen({ level }) {
                                 onClick: ()=>{
                                     rewardedRef.current = false;
                                     playCountedRef.current = false;
+                                    terminalReportedRef.current = false;
                                     setLastGrant(null);
                                     reset();
-                                    replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["recordPlayStarted"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save, level.id));
+                                    if (adminMode) onAdminAttempt?.();
+                                    else replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["recordPlayStarted"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save, level.id));
                                     playCountedRef.current = true;
                                 },
                                 className: "primary-action w-full max-w-xs disabled:opacity-50",
                                 children: p.again
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                                lineNumber: 318,
+                                lineNumber: 346,
                                 columnNumber: 13
                             }, this),
-                            state.status === 'won' && !(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["isDoubleDropActive"])(save) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                            !adminMode && state.status === 'won' && !(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["isDoubleDropActive"])(save) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                 type: "button",
                                 disabled: adBusy,
                                 onClick: ()=>void watchDouble(),
@@ -5353,7 +5486,7 @@ function PlayScreen({ level }) {
                                 children: p.doubleAd
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                                lineNumber: 334,
+                                lineNumber: 364,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$LocaleSwitcher$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["LocaleLink"], {
@@ -5363,19 +5496,19 @@ function PlayScreen({ level }) {
                                 children: p.levelList
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                                lineNumber: 343,
+                                lineNumber: 373,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 317,
+                        lineNumber: 345,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                lineNumber: 303,
+                lineNumber: 331,
                 columnNumber: 9
             }, this),
             uiPhase !== 'terminal' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5384,7 +5517,7 @@ function PlayScreen({ level }) {
                 children: p.tip
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                lineNumber: 355,
+                lineNumber: 385,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -5397,7 +5530,7 @@ function PlayScreen({ level }) {
                         children: resetArmed ? p.resetConfirm : p.reset
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 359,
+                        lineNumber: 389,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5408,23 +5541,23 @@ function PlayScreen({ level }) {
                         children: muted ? p.unmute : p.mute
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 368,
+                        lineNumber: 398,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$LocaleSwitcher$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["LocaleLink"], {
-                        href: "/",
+                        href: adminMode ? '/admin/levels' : '/',
                         locale: locale,
                         className: "inline-flex min-h-11 min-w-[4.5rem] items-center justify-center rounded-lg px-3 py-2 text-sm text-[var(--ink)]",
                         children: p.exit
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                        lineNumber: 376,
+                        lineNumber: 406,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                lineNumber: 358,
+                lineNumber: 388,
                 columnNumber: 7
             }, this),
             guideOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5441,7 +5574,7 @@ function PlayScreen({ level }) {
                             children: p.guideTitle
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                            lineNumber: 388,
+                            lineNumber: 418,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5449,7 +5582,7 @@ function PlayScreen({ level }) {
                             children: guideStep === 0 ? p.guideStep1 : p.guideStep2
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                            lineNumber: 389,
+                            lineNumber: 419,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5462,7 +5595,7 @@ function PlayScreen({ level }) {
                                     children: p.guideSkip
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                                    lineNumber: 393,
+                                    lineNumber: 423,
                                     columnNumber: 15
                                 }, this),
                                 guideStep === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5472,7 +5605,7 @@ function PlayScreen({ level }) {
                                     children: p.guideNext
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                                    lineNumber: 401,
+                                    lineNumber: 431,
                                     columnNumber: 17
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                     type: "button",
@@ -5481,30 +5614,30 @@ function PlayScreen({ level }) {
                                     children: p.guideStart
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                                    lineNumber: 409,
+                                    lineNumber: 439,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                            lineNumber: 392,
+                            lineNumber: 422,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                    lineNumber: 387,
+                    lineNumber: 417,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-                lineNumber: 386,
+                lineNumber: 416,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-        lineNumber: 236,
+        lineNumber: 264,
         columnNumber: 5
     }, this);
 }
@@ -5543,7 +5676,7 @@ function GrantLine({ grant, labels, locale }) {
             children: labels.noDrop
         }, void 0, false, {
             fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-            lineNumber: 457,
+            lineNumber: 487,
             columnNumber: 12
         }, this);
     }
@@ -5560,7 +5693,7 @@ function GrantLine({ grant, labels, locale }) {
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
-        lineNumber: 461,
+        lineNumber: 491,
         columnNumber: 5
     }, this);
 }

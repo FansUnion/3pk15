@@ -42,6 +42,12 @@ describe('level table', () => {
       expect(level.blurbZh.trim().length).toBeGreaterThanOrEqual(15)
       expect(level.teachingPoint!.trim().length).toBeGreaterThanOrEqual(10)
       expect(level.teachingPoint).toMatch(/[\u3400-\u9fff]/)
+      expect(level.nameMeaningZh.trim()).not.toBe('')
+      expect(level.designConceptZh.trim()).not.toBe('')
+      expect(level.playerGoalZh.trim()).not.toBe('')
+      expect(level.wolfStrategyZh.trim()).not.toBe('')
+      expect(level.sheepDefenseZh.trim()).not.toBe('')
+      expect(level.productionStatus).toBe('approved')
     }
   })
 
