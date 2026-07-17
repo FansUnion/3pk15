@@ -251,19 +251,7 @@ export function BoardSvg({
           Boolean(juice) && juice!.to.r === p.r && juice!.to.c === p.c
         const scale = selected ? 1.1 : 1
 
-        const body = src ? (
-          <image
-            href={src}
-            x={x - (PIECE * scale) / 2}
-            y={y - (PIECE * scale) / 2 - (selected ? 2 : 0)}
-            width={PIECE * scale}
-            height={PIECE * scale}
-            style={{
-              pointerEvents: 'none',
-              filter: selected ? 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' : undefined,
-            }}
-          />
-        ) : p.side === 'sheep' ? (
+        const fallbackBody = p.side === 'sheep' ? (
           <circle cx={x} cy={y} r={13} fill={theme.sheepFill} stroke="#8a8478" strokeWidth={1.5} />
         ) : (
           <circle
@@ -275,6 +263,22 @@ export function BoardSvg({
             strokeWidth={selected ? 3 : 1.5}
           />
         )
+        const body = src ? (
+          <>
+            {fallbackBody}
+            <image
+              href={src}
+              x={x - (PIECE * scale) / 2}
+              y={y - (PIECE * scale) / 2 - (selected ? 2 : 0)}
+              width={PIECE * scale}
+              height={PIECE * scale}
+              style={{
+                pointerEvents: 'none',
+                filter: selected ? 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' : undefined,
+              }}
+            />
+          </>
+        ) : fallbackBody
 
         const moveStyle = isMover
           ? ({

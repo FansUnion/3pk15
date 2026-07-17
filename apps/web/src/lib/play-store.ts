@@ -13,6 +13,7 @@ import {
   type Pos,
 } from '@wolf-sheep/game-core'
 import { clearActiveGame, loadActiveGame, saveActiveGame, type ActiveGameConfig } from '@/lib/active-game'
+import { consumeNextAiFailure } from '@/lib/ai-fault'
 
 /** 商业体验时序标准：docs/游戏创意/产品定位和商业成功/03 */
 export const FEEDBACK_MS = 200
@@ -300,6 +301,7 @@ async function runAiTurn(
   }
 
   try {
+    if (consumeNextAiFailure()) throw new Error('Injected sheep AI failure')
     const action = pickSheepAction(state, {
       difficulty,
       rng: createSeededRng(seed + state.eatenSheep * 17 + state.pieces.length),

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { getPlatform } from '@/lib/platform'
 import { getMockAdOutcome, MOCK_AD_OUTCOMES, setMockAdOutcome, type AdResult, type MockAdOutcome } from '@/lib/ads'
+import { setNextAiFailure } from '@/lib/ai-fault'
 
 export default function PlatformLabPage() {
   const [outcome, setOutcome] = useState<MockAdOutcome>('success')
@@ -37,6 +38,11 @@ export default function PlatformLabPage() {
           <button type="button" disabled={busy} onClick={() => void test('interstitial')} className="rounded border border-[#40513a] px-4 py-2 text-sm disabled:opacity-50">测试插屏广告</button>
         </div>
         <p className="mt-3 min-h-6 text-sm" role="status">{busy ? '测试中...' : result ? (result.ok ? '结果：success' : `结果：${result.reason}`) : ''}</p>
+      </section>
+      <section className="mt-6 border-t border-[#5c6b52]/25 pt-5">
+        <h2 className="font-medium">AI 故障恢复</h2>
+        <p className="mt-1 text-sm text-[#5c6b52]">下一次羊方行动将失败一次；开关随后自动清除，可验证棋盘保留和重试。</p>
+        <button type="button" onClick={() => setNextAiFailure()} className="mt-3 rounded border border-[#40513a] px-4 py-2 text-sm">注入下一次羊 AI 失败</button>
       </section>
       <p className="mt-6 text-xs leading-relaxed text-[#5c6b52]">真实 Poki / CrazyGames SDK 尚未接入时返回 unavailable，不会发放奖励。平台 SDK、广告频控和门户审核属于后续接入批次。</p>
     </main>
