@@ -1,5 +1,5 @@
 import { createSeededRng, pickSheepAction } from '../ai/index'
-import { evaluateScore } from '../ai/evaluate'
+import { chooseDiagnosticWolfAction, type DiagnosticWolfStrategy } from './diagnosticWolf'
 import { validateLevel, createLevelInitialState, type LevelConfig } from '../content/levels'
 import {
   applyAction,
@@ -10,7 +10,7 @@ import {
 } from '../rules'
 import type { Action, BoardState } from '../types'
 
-export type CandidateWolfStrategy = 'random' | 'mixed'
+export type CandidateWolfStrategy = DiagnosticWolfStrategy
 export type CandidateVerdict = 'pass' | 'review' | 'reject'
 
 export type CandidateGameEvidence = {
@@ -22,6 +22,12 @@ export type CandidateGameEvidence = {
   eaten: number
   firstCapturePly: number | null
   trace: string[]
+  repetitionCycle?: {
+    firstSeenPly: number
+    secondSeenPly: number
+    terminalPly: number
+    actions: string[]
+  }
 }
 
 export type CandidateFinding = {
@@ -60,18 +66,6 @@ function percentile(values: number[], ratio: number) {
   return sorted[Math.max(0, Math.ceil(sorted.length * ratio) - 1)] ?? 0
 }
 
-function chooseWolfAction(state: BoardState, actions: Action[], random: ReturnType<typeof createSeededRng>, strategy: CandidateWolfStrategy) {
-  if (strategy === 'random') return actions[Math.floor(random.nextFloat() * actions.length)]!
-  const scored = actions.map((action) => {
-    const result = applyAction(state, action)
-    return { action, score: result.ok ? evaluateScore(result.state) : Infinity }
-  })
-  const best = Math.min(...scored.map((item) => item.score))
-  const candidates = scored.filter((item) => item.score === best)
-  if (random.nextFloat() < 0.35) return actions[Math.floor(random.nextFloat() * actions.length)]!
-  return candidates[Math.floor(random.nextFloat() * candidates.length)]!.action
-}
-
 function actionLabel(action: Action) {
   const through = action.type === 'jump' ? ` via ${action.through.r},${action.through.c}` : ''
   return `${action.type}:${action.pieceId}>${action.to.r},${action.to.c}${through}`
@@ -87,18 +81,37 @@ function terminalReason(state: BoardState): CandidateGameEvidence['reason'] {
 
 function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, seed: number, hardMaxNodes: number): CandidateGameEvidence {
   let state = createLevelInitialState(level)
-  const random = createSeededRng(seed)
+  const wolfRandom = createSeededRng(seed)
+  const sheepRandom = createSeededRng(seed ^ 0x5f3759df)
   const trace: string[] = []
+  const seenPositions = new Map<string, { ply: number, traceIndex: number }[]>()
   let firstCapturePly: number | null = null
+  let repetitionCycle: CandidateGameEvidence['repetitionCycle']
+
+  const observePosition = () => {
+    const key = boardPositionKey(state)
+    const occurrences = seenPositions.get(key) ?? []
+    occurrences.push({ ply: state.plyCount, traceIndex: trace.length })
+    seenPositions.set(key, occurrences)
+    if (occurrences.length >= 3 && !repetitionCycle) {
+      repetitionCycle = {
+        firstSeenPly: occurrences[0]!.ply,
+        secondSeenPly: occurrences[1]!.ply,
+        terminalPly: state.plyCount,
+        actions: trace.slice(occurrences[1]!.traceIndex),
+      }
+    }
+  }
+  observePosition()
 
   while (state.status === 'playing') {
     const actions = listLegalActions(state)
     if (actions.length === 0) break
     const action = state.toMove === 'wolf'
-      ? chooseWolfAction(state, actions, random, strategy)
+      ? chooseDiagnosticWolfAction(state, actions, wolfRandom, strategy)
       : pickSheepAction(state, {
         difficulty: level.ai,
-        rng: random,
+        rng: sheepRandom,
         budgets: level.ai === 'hard' ? { maxNodes: hardMaxNodes } : undefined,
       })
     const eatenBefore = state.eatenSheep
@@ -106,12 +119,14 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
     if (!result.ok) throw new Error(result.error)
     state = result.state
     trace.push(`${state.plyCount}:${actionLabel(action)}`)
+    observePosition()
     if (firstCapturePly === null && state.eatenSheep > eatenBefore) firstCapturePly = state.plyCount
     if (state.status === 'playing' && state.chain) {
       const ended = endWolfTurn(state)
       if (!ended.ok) throw new Error(ended.error)
       state = ended.state
       trace.push(`${state.plyCount}:end-chain`)
+      observePosition()
     }
   }
 
@@ -124,6 +139,7 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
     eaten: state.eatenSheep,
     firstCapturePly,
     trace,
+    repetitionCycle,
   }
 }
 

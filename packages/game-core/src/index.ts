@@ -107,3 +107,5 @@ export type {
   CandidateVerdict,
   CandidateWolfStrategy,
 } from './analysis/candidateAcceptance'
+export { chooseDiagnosticWolfAction } from './analysis/diagnosticWolf'
+export type { DiagnosticWolfStrategy } from './analysis/diagnosticWolf'

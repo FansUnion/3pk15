@@ -129,12 +129,18 @@ export function pickHardWithMeta(
   let bestScore = -Infinity
   let lookaheadCompleted = false
   const tops: Action[] = []
+  const applicable = actions.flatMap((action) => {
+    const result = applyAction(state, action)
+    return result.ok ? [{ action, result, immediateSheepScore: evaluateScore(result.state) }] : []
+  })
+  const normalBest = Math.max(...applicable.map((item) => item.immediateSheepScore))
 
-  for (const action of actions) {
+  for (const { action, result, immediateSheepScore } of applicable) {
+    // Hard refines Normal's safest immediate choices; bounded lookahead must not
+    // justify an immediately inferior move through a horizon artifact.
+    if (immediateSheepScore < normalBest) continue
     if (exhausted(nodes, budgets, start)) break
     nodes.n++
-    const result = applyAction(state, action)
-    if (!result.ok) continue
 
     const afterWolf = worstWolfTurn(result.state, nodes, budgets, start)
     const immediate = evaluateScore(afterWolf)

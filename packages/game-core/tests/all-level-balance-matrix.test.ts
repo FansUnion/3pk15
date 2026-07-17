@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import {
   applyAction,
   boardPositionKey,
+  chooseDiagnosticWolfAction,
   createLevelInitialState,
   createSeededRng,
   endWolfTurn,
-  evaluateScore,
   LEVELS,
   listLegalActions,
   listWolfActionsAsIfTurn,
@@ -24,18 +24,6 @@ function percentile(values: number[], ratio: number) {
   return sorted[Math.max(0, Math.ceil(sorted.length * ratio) - 1)] ?? 0
 }
 
-function chooseWolfAction(state: BoardState, actions: Action[], rng: ReturnType<typeof createSeededRng>, strategy: WolfStrategy) {
-  if (strategy === 'random') return actions[Math.floor(rng.nextFloat() * actions.length)]!
-  const scored = actions.map((action) => {
-    const result = applyAction(state, action)
-    return { action, score: result.ok ? evaluateScore(result.state) : Infinity }
-  })
-  const best = Math.min(...scored.map((item) => item.score))
-  const candidates = scored.filter((item) => item.score === best)
-  if (rng.nextFloat() < 0.35) return actions[Math.floor(rng.nextFloat() * actions.length)]!
-  return candidates[Math.floor(rng.nextFloat() * candidates.length)]!.action
-}
-
 function reason(state: BoardState) {
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
@@ -46,17 +34,18 @@ function reason(state: BoardState) {
 
 function runGame(level: (typeof LEVELS)[number], strategy: WolfStrategy, seed: number) {
   let state = createLevelInitialState(level)
-  const rng = createSeededRng(seed)
+  const wolfRng = createSeededRng(seed)
+  const sheepRng = createSeededRng(seed ^ 0x5f3759df)
   let firstCapturePly: number | null = null
 
   while (state.status === 'playing') {
     const actions = listLegalActions(state)
     if (actions.length === 0) break
     const action = state.toMove === 'wolf'
-      ? chooseWolfAction(state, actions, rng, strategy)
+      ? chooseDiagnosticWolfAction(state, actions, wolfRng, strategy)
       : pickSheepAction(state, {
         difficulty: level.ai,
-        rng,
+        rng: sheepRng,
         budgets: level.ai === 'hard' ? HARD_BUDGET : undefined,
       })
     const beforeEaten = state.eatenSheep

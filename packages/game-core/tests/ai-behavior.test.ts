@@ -4,6 +4,7 @@ import {
   applyAction,
   createLevelInitialState,
   createSeededRng,
+  evaluateScore,
   getWolfLegalSummary,
   listLegalActions,
   listWolfActionsAsIfTurn,
@@ -207,5 +208,20 @@ describe('sheep AI behavior guardrails', () => {
     const second = pickHardWithMeta(state, createSeededRng(71), { maxNodes: 80 })
     expect(first.action).toEqual(second.action)
     expect(first.meta.nodes).toBe(second.meta.nodes)
+  })
+
+  it('keeps hard within the normal immediate-best action set', () => {
+    const level = LEVELS.find((item) => item.id === 'summer-02')!
+    const state = { ...createLevelInitialState(level), toMove: 'sheep' as const }
+    const actions = listLegalActions(state)
+    const best = Math.max(...actions.map((action) => {
+      const result = applyAction(state, action)
+      return result.ok ? evaluateScore(result.state) : -Infinity
+    }))
+    const hard = pickHardWithMeta(state, createSeededRng(91), { maxNodes: 400 })
+    const result = applyAction(state, hard.action)
+
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(evaluateScore(result.state)).toBe(best)
   })
 })
