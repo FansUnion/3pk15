@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { adjacentLevels, boardPositionKey, listWolfActionsAsIfTurn, type BoardState, type LevelConfig } from '@wolf-sheep/game-core'
 import { PlayScreen } from '@/components/PlayScreen'
+import type { TerminalAttemptDetails } from '@/lib/play-metrics'
 import {
   levelVersion,
   loadLevelReviews,
@@ -55,12 +56,14 @@ export function AdminPlayScreen({ level }: { level: LevelConfig }) {
     })
   }, [level.id, version])
 
-  const recordTerminal = useCallback((state: BoardState) => {
+  const recordTerminal = useCallback((state: BoardState, details: TerminalAttemptDetails) => {
     updateReview({
       result: state.status === 'won' ? 'wolf' : state.status === 'lost' ? 'sheep' : 'draw',
       terminalReason: terminalReason(state),
       plies: state.plyCount,
       eatenSheep: state.eatenSheep,
+      firstCapturePly: details.firstCapturePly,
+      durationMs: details.durationMs,
     })
   }, [updateReview])
 
@@ -116,6 +119,8 @@ export function AdminPlayScreen({ level }: { level: LevelConfig }) {
               <div><dt className="text-[#7a8574]">最近结果</dt><dd>{resultLabel(current)}</dd></div>
               <div><dt className="text-[#7a8574]">最近 plies</dt><dd>{current.plies ?? '-'}</dd></div>
               <div><dt className="text-[#7a8574]">最近吃子</dt><dd>{current.eatenSheep ?? '-'}</dd></div>
+              <div><dt className="text-[#7a8574]">首次捕食 ply</dt><dd>{current.firstCapturePly ?? '-'}</dd></div>
+              <div><dt className="text-[#7a8574]">最近用时</dt><dd>{current.durationMs == null ? '-' : formatDuration(current.durationMs)}</dd></div>
             </dl>
             <label className="mt-4 grid gap-1 text-xs text-[#5c6b52]">结论
               <select value={current.status} onChange={(event) => updateReview({ status: event.target.value as LevelReviewStatus })} className="h-10 border border-[#5c6b52]/25 bg-white px-3 text-sm text-[#2c3328]">
@@ -160,4 +165,9 @@ function resultLabel(review: LevelReview) {
   if (!review.result) return '-'
   const winner = review.result === 'wolf' ? '狼胜' : review.result === 'sheep' ? '羊胜' : '和棋'
   return `${winner}${review.terminalReason ? ` · ${review.terminalReason}` : ''}`
+}
+
+function formatDuration(durationMs: number) {
+  const seconds = Math.max(0, Math.round(durationMs / 1000))
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
 }

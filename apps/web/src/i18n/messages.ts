@@ -70,6 +70,8 @@ export type MessageTree = {
     chain: string
     doubleLeft: string
     endChain: string
+    endChainCount: string
+    chainDecision: string
     win: string
     lose: string
     winSub: string
@@ -86,6 +88,9 @@ export type MessageTree = {
     adFailed: string
     levelList: string
     nextLevel: string
+    resultMetrics: string
+    none: string
+    terminalReasons: Record<'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition' | 'unexpected', string>
     tip: string
     reset: string
     resetConfirm: string
@@ -238,6 +243,8 @@ export const en: MessageTree = {
     chain: 'Chain {n}/5',
     doubleLeft: 'Double drop {t}',
     endChain: 'End chain',
+    endChainCount: 'End chain · {n}/5 captured',
+    chainDecision: 'Red rings continue this chain. End now to keep this position and let the sheep respond.',
     win: 'Victory',
     lose: 'Defeat',
     winSub: 'Eight sheep taken',
@@ -254,6 +261,15 @@ export const en: MessageTree = {
     adFailed: 'The reward video is unavailable. Your clear is still safe.',
     levelList: 'Level list',
     nextLevel: 'Next hunt',
+    resultMetrics: 'Attempt {attempt} · {plies} plies · {eaten} eaten · first {first} · {time} · {reason}',
+    none: 'none',
+    terminalReasons: {
+      targetEaten: 'capture target',
+      wolvesTrapped: 'wolves trapped',
+      maxPlies: 'move limit',
+      repetition: 'threefold repetition',
+      unexpected: 'unexpected ending',
+    },
     tip: 'Green = step · Red ring on sheep = gap-eat',
     reset: 'Reset',
     resetConfirm: 'Tap again',
@@ -413,6 +429,8 @@ export const zh: MessageTree = {
     chain: '连吃 {n}/5',
     doubleLeft: '双倍掉落 {t}',
     endChain: '结束连吃',
+    endChainCount: '结束连吃 · 已连吃 {n}/5',
+    chainDecision: '点红圈可继续连吃；现在收手会保留当前位置，并交给羊方行动。',
     win: '胜利',
     lose: '失败',
     winSub: '吃羊达到 8 只',
@@ -429,6 +447,15 @@ export const zh: MessageTree = {
     adFailed: '广告暂时不可用，本关进度和碎片不受影响。',
     levelList: '关卡列表',
     nextLevel: '进入下一关',
+    resultMetrics: '第 {attempt} 次 · {plies} plies · 吃 {eaten} · 首吃 {first} · 用时 {time} · {reason}',
+    none: '无',
+    terminalReasons: {
+      targetEaten: '达到捕食目标',
+      wolvesTrapped: '三狼无合法行动',
+      maxPlies: '达到行动上限',
+      repetition: '三次重复局面',
+      unexpected: '异常终局',
+    },
     tip: '绿点走空格 · 红圈在羊上即隔空吃',
     reset: '重置',
     resetConfirm: '再点确认',

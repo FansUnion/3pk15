@@ -12,6 +12,8 @@ export type LevelReview = {
   terminalReason?: string
   plies?: number
   eatenSheep?: number
+  firstCapturePly?: number | null
+  durationMs?: number
   notes: string
   reviewedAt: string
 }

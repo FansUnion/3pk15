@@ -8,6 +8,8 @@ import {
   createSeededRng,
   isDoubleDropActive,
   levelDisplayName,
+  boardPositionKey,
+  listWolfActionsAsIfTurn,
   recordPlayStarted,
   resolveSkin,
   rollClearReward,
@@ -21,6 +23,12 @@ import { getAds } from '@/lib/ads'
 import { usePlayStore } from '@/lib/play-store'
 import { useSaveStore } from '@/lib/save-store'
 import { playSfx } from '@/lib/sfx'
+import {
+  beginPlayAttempt,
+  finishPlayAttempt,
+  type PlayAttemptMetric,
+  type TerminalAttemptDetails,
+} from '@/lib/play-metrics'
 import { fmt, getMessages, type MessageTree } from '@/i18n/messages'
 import { useClientMessages } from '@/i18n/use-client-locale'
 
@@ -28,7 +36,7 @@ type Props = {
   level: LevelConfig
   adminMode?: boolean
   onAdminAttempt?: () => void
-  onAdminTerminal?: (state: BoardState) => void
+  onAdminTerminal?: (state: BoardState, details: TerminalAttemptDetails) => void
   localeOverride?: 'en' | 'zh'
 }
 
@@ -63,6 +71,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const prevEaten = useRef(0)
   const terminalSfxDone = useRef(false)
   const terminalReportedRef = useRef(false)
+  const attemptRef = useRef<PlayAttemptMetric | null>(null)
+  const attemptStartedAtRef = useRef(Date.now())
+  const firstCapturePlyRef = useRef<number | null>(null)
+  const [terminalDetails, setTerminalDetails] = useState<TerminalAttemptDetails | null>(null)
   const [adminMuted, setAdminMuted] = useState(false)
   const muted = adminMode ? adminMuted : (save.settings?.muted ?? false)
   const clientMessages = useClientMessages()
@@ -98,6 +110,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     playCountedRef.current = false
     terminalReportedRef.current = false
     terminalSfxDone.current = false
+    attemptStartedAtRef.current = Date.now()
+    firstCapturePlyRef.current = null
+    prevEaten.current = 0
+    setTerminalDetails(null)
     setLastGrant(null)
     init(level.id, level.rocks, level.ai, level.targetEaten, level.maxPlies, level.opening)
   }, [level.id, level.ai, level.rocks, level.targetEaten, level.maxPlies, level.opening, init, setLastGrant])
@@ -114,6 +130,12 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }, [adminMode, level.id, onAdminAttempt, replace])
 
   useEffect(() => {
+    if (adminMode || !hydrated || attemptRef.current?.levelId === level.id) return
+    attemptRef.current = beginPlayAttempt(level.id)
+    attemptStartedAtRef.current = Date.now()
+  }, [adminMode, hydrated, level.id])
+
+  useEffect(() => {
     return () => {
       if (resetArmTimer.current) clearTimeout(resetArmTimer.current)
     }
@@ -127,13 +149,13 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }, [adminMode, hydrated, level.id, save.guide.spring1Done])
 
   useEffect(() => {
-    if (adminMode || level.id !== 'spring-01' || save.guide.spring1Done) return
     if (state.eatenSheep > prevEaten.current) {
-      completeGuide()
+      if (firstCapturePlyRef.current === null) firstCapturePlyRef.current = state.plyCount
+      if (!adminMode && level.id === 'spring-01' && !save.guide.spring1Done) completeGuide()
     }
     prevEaten.current = state.eatenSheep
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminMode, level.id, state.eatenSheep, save.guide.spring1Done])
+  }, [adminMode, level.id, state.eatenSheep, state.plyCount, save.guide.spring1Done])
 
   useEffect(() => {
     if (!guideOpen) return
@@ -161,9 +183,29 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }, [adminMode, uiPhase, state.status, level, replace, setLastGrant])
 
   useEffect(() => {
-    if (!adminMode || uiPhase !== 'terminal' || terminalReportedRef.current) return
+    if (uiPhase !== 'terminal' || terminalReportedRef.current) return
     terminalReportedRef.current = true
-    onAdminTerminal?.(state)
+    const details: TerminalAttemptDetails = {
+      durationMs: Math.max(0, Date.now() - attemptStartedAtRef.current),
+      firstCapturePly: firstCapturePlyRef.current,
+      attemptNumber: attemptRef.current?.attemptNumber ?? 1,
+    }
+    setTerminalDetails(details)
+    if (adminMode) {
+      onAdminTerminal?.(state, details)
+      return
+    }
+    if (attemptRef.current) {
+      finishPlayAttempt(attemptRef.current.id, {
+        endedAt: new Date().toISOString(),
+        durationMs: details.durationMs,
+        result: state.status === 'won' ? 'wolf' : state.status === 'lost' ? 'sheep' : 'draw',
+        terminalReason: terminalReason(state),
+        plies: state.plyCount,
+        eatenSheep: state.eatenSheep,
+        firstCapturePly: details.firstCapturePly,
+      })
+    }
   }, [adminMode, onAdminTerminal, state, uiPhase])
 
   useEffect(() => {
@@ -244,6 +286,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     rewardedRef.current = false
     playCountedRef.current = false
     terminalReportedRef.current = false
+    attemptRef.current = adminMode ? null : beginPlayAttempt(level.id)
+    attemptStartedAtRef.current = Date.now()
+    firstCapturePlyRef.current = null
+    setTerminalDetails(null)
     setLastGrant(null)
     reset()
     if (adminMode) onAdminAttempt?.()
@@ -335,13 +381,16 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       </div>
 
       {state.chain && uiPhase === 'playing' && (
-        <button
-          type="button"
-          onClick={endChain}
-          className="rounded-full bg-[var(--accent)] px-4 py-3 text-center text-sm font-medium text-[#f4f1ea] active:scale-[0.97]"
-        >
-          {p.endChain}
-        </button>
+        <div className="grid gap-2 rounded-lg border border-[var(--accent)]/35 bg-[var(--paper)] p-3">
+          <p className="text-center text-sm leading-relaxed text-[var(--ink)]">{p.chainDecision}</p>
+          <button
+            type="button"
+            onClick={endChain}
+            className="rounded-lg bg-[var(--accent)] px-4 py-3 text-center text-sm font-medium text-[#f4f1ea] active:scale-[0.97]"
+          >
+            {fmt(p.endChainCount, { n: state.chain.count })}
+          </button>
+        </div>
       )}
 
       {uiPhase === 'terminal' && (
@@ -362,6 +411,18 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
                   ? p.firstLoseAdvice
                   : p.loseAdvice}
           </p>
+          {terminalDetails && (
+            <p className="mt-3 text-xs tabular-nums text-[var(--muted)]">
+              {fmt(p.resultMetrics, {
+                attempt: terminalDetails.attemptNumber,
+                plies: state.plyCount,
+                eaten: state.eatenSheep,
+                first: terminalDetails.firstCapturePly ?? p.none,
+                time: formatDuration(terminalDetails.durationMs),
+                reason: terminalReasonLabel(terminalReason(state), p),
+              })}
+            </p>
+          )}
           {adBusy && <p className="mt-1 text-xs text-[#7a8574]">{p.preparing}</p>}
           {adError && <p role="status" className="mt-1 text-xs text-[#8b2e22]">{p.adFailed}</p>}
           {!adminMode && state.status === 'won' && lastGrant && (
@@ -376,6 +437,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
                 rewardedRef.current = false
                 playCountedRef.current = false
                 terminalReportedRef.current = false
+                attemptRef.current = adminMode ? null : beginPlayAttempt(level.id)
+                attemptStartedAtRef.current = Date.now()
+                firstCapturePlyRef.current = null
+                setTerminalDetails(null)
                 setLastGrant(null)
                 reset()
                 if (adminMode) onAdminAttempt?.()
@@ -543,4 +608,22 @@ function doubleDropLabel(until: number | null): string | null {
   const m = Math.floor(sec / 60)
   const s = sec % 60
   return `${m}:${String(s).padStart(2, '0')}`
+}
+
+function terminalReason(state: BoardState): 'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition' | 'unexpected' {
+  if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
+  if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
+  if (state.plyCount >= state.maxPlies) return 'maxPlies'
+  if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= 3) return 'repetition'
+  return 'unexpected'
+}
+
+function terminalReasonLabel(reason: ReturnType<typeof terminalReason>, p: MessageTree['play']): string {
+  return p.terminalReasons[reason]
+}
+
+function formatDuration(durationMs: number): string {
+  const seconds = Math.max(0, Math.round(durationMs / 1000))
+  const minutes = Math.floor(seconds / 60)
+  return `${minutes}:${String(seconds % 60).padStart(2, '0')}`
 }
