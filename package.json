@@ -11,7 +11,8 @@
     "test": "pnpm --filter @wolf-sheep/game-core test",
     "test:web": "pnpm --filter @wolf-sheep/web test",
     "lint": "pnpm -r lint",
-    "check:skins": "pnpm --filter @wolf-sheep/game-core check:skins"
+    "check:skins": "pnpm --filter @wolf-sheep/game-core check:skins",
+    "check:assets": "pnpm --filter @wolf-sheep/web check:assets"
   },
   "engines": {
     "node": ">=20"

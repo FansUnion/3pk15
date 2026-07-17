@@ -10,7 +10,8 @@
     "build:crazygames": "node ./scripts/build-portal.mjs crazygames",
     "start": "next start -p 5000",
     "lint": "next lint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:assets": "node ./scripts/check-public-assets.mjs"
   },
   "dependencies": {
     "@wolf-sheep/game-core": "workspace:*",
