@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createLevelInitialState, LEVELS } from '@wolf-sheep/game-core'
+import { BoardSvg } from '@/components/BoardSvg'
 import { getPlatform } from '@/lib/platform'
 import { getMockAdOutcome, MOCK_AD_OUTCOMES, setMockAdOutcome, type AdResult, type MockAdOutcome } from '@/lib/ads'
 import { setNextAiFailure } from '@/lib/ai-fault'
@@ -9,6 +11,7 @@ export default function PlatformLabPage() {
   const [outcome, setOutcome] = useState<MockAdOutcome>('success')
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<AdResult | null>(null)
+  const [showAssetFailure, setShowAssetFailure] = useState(false)
 
   useEffect(() => setOutcome(getMockAdOutcome()), [])
 
@@ -38,6 +41,29 @@ export default function PlatformLabPage() {
           <button type="button" disabled={busy} onClick={() => void test('interstitial')} className="rounded border border-[#40513a] px-4 py-2 text-sm disabled:opacity-50">测试插屏广告</button>
         </div>
         <p className="mt-3 min-h-6 text-sm" role="status">{busy ? '测试中...' : result ? (result.ok ? '结果：success' : `结果：${result.reason}`) : ''}</p>
+      </section>
+      <section className="mt-6 border-t border-[#5c6b52]/25 pt-5">
+        <h2 className="font-medium">资源失败降级</h2>
+        <p className="mt-1 text-sm text-[#5c6b52]">故意加载不存在的棋盘、狼和羊图片；基础棋盘与棋子仍应完整可见。</p>
+        <button type="button" onClick={() => setShowAssetFailure((value) => !value)} className="mt-3 rounded border border-[#40513a] px-4 py-2 text-sm">{showAssetFailure ? '关闭失败预览' : '打开失败预览'}</button>
+        {showAssetFailure && (
+          <div data-testid="asset-failure-preview" className="mx-auto mt-4 max-w-[420px]">
+            <BoardSvg
+              state={createLevelInitialState(LEVELS[0]!)}
+              selectedWolfId={null}
+              stepHighlights={[]}
+              jumpHighlights={[]}
+              jumpThroughs={[]}
+              interactive={false}
+              onSelectWolf={() => undefined}
+              onClickCell={() => undefined}
+              theme={{
+                boardFill: '#dfe8d8', lineStroke: '#5c6b52', wolfFill: '#3d4a3a', sheepFill: '#f4f1ea',
+                boardBgSrc: '/__missing__/board.svg', wolfSrc: '/__missing__/wolf.svg', sheepSrc: '/__missing__/sheep.svg',
+              }}
+            />
+          </div>
+        )}
       </section>
       <section className="mt-6 border-t border-[#5c6b52]/25 pt-5">
         <h2 className="font-medium">AI 故障恢复</h2>

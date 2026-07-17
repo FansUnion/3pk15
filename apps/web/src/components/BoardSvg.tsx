@@ -118,10 +118,9 @@ export function BoardSvg({
         role="img"
         aria-label="Fangrush board"
       >
-      {theme.boardBgSrc ? (
+      <rect data-board-fallback x={0} y={0} width={SIZE} height={SIZE} fill={theme.boardFill} rx={12} />
+      {theme.boardBgSrc && (
         <image href={theme.boardBgSrc} x={0} y={0} width={SIZE} height={SIZE} preserveAspectRatio="none" />
-      ) : (
-        <rect x={0} y={0} width={SIZE} height={SIZE} fill={theme.boardFill} rx={12} />
       )}
       {/* light wash only — keep meadow readable */}
       <rect
@@ -252,9 +251,10 @@ export function BoardSvg({
         const scale = selected ? 1.1 : 1
 
         const fallbackBody = p.side === 'sheep' ? (
-          <circle cx={x} cy={y} r={13} fill={theme.sheepFill} stroke="#8a8478" strokeWidth={1.5} />
+          <circle data-fallback-piece="sheep" cx={x} cy={y} r={13} fill={theme.sheepFill} stroke="#8a8478" strokeWidth={1.5} />
         ) : (
           <circle
+            data-fallback-piece="wolf"
             cx={x}
             cy={y}
             r={15}
