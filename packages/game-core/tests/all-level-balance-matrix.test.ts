@@ -19,6 +19,11 @@ type WolfStrategy = 'random' | 'mixed'
 const SEEDS = Array.from({ length: 10 }, (_, index) => 20260717 + index)
 const HARD_BUDGET = { maxNodes: 80 }
 
+function percentile(values: number[], ratio: number) {
+  const sorted = [...values].sort((left, right) => left - right)
+  return sorted[Math.max(0, Math.ceil(sorted.length * ratio) - 1)] ?? 0
+}
+
 function chooseWolfAction(state: BoardState, actions: Action[], rng: ReturnType<typeof createSeededRng>, strategy: WolfStrategy) {
   if (strategy === 'random') return actions[Math.floor(rng.nextFloat() * actions.length)]!
   const scored = actions.map((action) => {
@@ -92,7 +97,12 @@ matrixDescribe('all-level seeded balance matrix', () => {
         sheepWins: games.filter((game) => game.winner === 'sheep').length,
         draws: games.filter((game) => game.winner === 'draw').length,
         averagePlies: games.reduce((sum, game) => sum + game.plies, 0) / games.length,
+        p95Plies: percentile(games.map((game) => game.plies), 0.95),
+        averageEaten: games.reduce((sum, game) => sum + game.eaten, 0) / games.length,
         firstCapture: games.filter((game) => game.firstCapturePly !== null).length,
+        averageFirstCapturePly: games.filter((game) => game.firstCapturePly !== null)
+          .reduce((sum, game) => sum + game.firstCapturePly!, 0)
+          / Math.max(1, games.filter((game) => game.firstCapturePly !== null).length),
         reasons: games.reduce<Record<string, number>>((counts, game) => {
           counts[game.reason] = (counts[game.reason] ?? 0) + 1
           return counts
