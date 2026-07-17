@@ -12,6 +12,7 @@ import {
   type OpeningLayout,
   type Pos,
 } from '@wolf-sheep/game-core'
+import { clearActiveGame, loadActiveGame, saveActiveGame, type ActiveGameConfig } from '@/lib/active-game'
 
 /** 商业体验时序标准：docs/游戏创意/产品定位和商业成功/03 */
 export const FEEDBACK_MS = 200
@@ -43,7 +44,8 @@ type PlayStore = {
   juice: JuiceFlash
   difficulty: Difficulty
   seed: number
-  init: (levelId: string, rocks: Pos[], difficulty: Difficulty, targetEaten?: number, maxPlies?: number, opening?: OpeningLayout) => void
+  resumed: boolean
+  init: (levelId: string, rocks: Pos[], difficulty: Difficulty, targetEaten?: number, maxPlies?: number, opening?: OpeningLayout, resume?: boolean) => void
   selectWolf: (wolfId: string | null) => void
   clickCell: (pos: Pos) => void
   endChain: () => void
@@ -100,8 +102,18 @@ function juiceFromAction(state: BoardState, action: Action): JuiceFlash {
   }
 }
 
-let levelMeta = { levelId: 'spring-01', rocks: [] as Pos[], difficulty: 'easy' as Difficulty, targetEaten: undefined as number | undefined, maxPlies: undefined as number | undefined, opening: undefined as OpeningLayout | undefined }
+let levelMeta = { levelId: 'spring-01', rocks: [] as Pos[], difficulty: 'easy' as Difficulty, targetEaten: undefined as number | undefined, maxPlies: undefined as number | undefined, opening: undefined as OpeningLayout | undefined, resume: true }
 let turnSeq = 0
+
+function activeConfig(): ActiveGameConfig {
+  return { levelId: levelMeta.levelId, rocks: levelMeta.rocks, targetEaten: levelMeta.targetEaten, maxPlies: levelMeta.maxPlies, opening: levelMeta.opening }
+}
+
+function syncActiveGame(state: BoardState) {
+  if (!levelMeta.resume) return
+  if (state.status === 'playing') saveActiveGame(activeConfig(), state)
+  else clearActiveGame()
+}
 
 export const usePlayStore = create<PlayStore>((set, get) => ({
   state: createInitialState('spring-01'),
@@ -111,20 +123,34 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
   juice: null,
   difficulty: 'easy',
   seed: 1,
+  resumed: false,
 
-  init(levelId, rocks, difficulty, targetEaten, maxPlies, opening) {
-    levelMeta = { levelId, rocks, difficulty, targetEaten, maxPlies, opening }
+  init(levelId, rocks, difficulty, targetEaten, maxPlies, opening, resume = true) {
+    levelMeta = { levelId, rocks, difficulty, targetEaten, maxPlies, opening, resume }
     turnSeq += 1
-    const state = createInitialState(levelId, rocks, targetEaten, maxPlies, opening)
+    const config = activeConfig()
+    const restored = resume ? loadActiveGame(config) : null
+    const state = restored ?? createInitialState(levelId, rocks, targetEaten, maxPlies, opening)
+    syncActiveGame(state)
+    const selectedWolfId = state.chain?.wolfId ?? null
+    const seq = turnSeq
     set({
       state,
-      selectedWolfId: null,
-      highlights: EMPTY_HIGHLIGHTS,
-      uiPhase: state.status === 'playing' ? 'playing' : 'terminal',
+      selectedWolfId,
+      highlights: highlightsFor(state, selectedWolfId),
+      uiPhase: state.status !== 'playing' ? 'terminal' : state.toMove === 'sheep' ? 'aiThinking' : 'playing',
       juice: null,
       difficulty,
       seed: Date.now() % 1_000_000,
+      resumed: Boolean(restored),
     })
+    if (state.status === 'playing' && state.toMove === 'sheep') {
+      void (async () => {
+        await delay(THINK_MS)
+        if (seq !== turnSeq) return
+        await runAiTurn(get, set, seq)
+      })()
+    }
   },
 
   selectWolf(wolfId) {
@@ -155,6 +181,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     if (!result.ok) return
 
     const next = result.state
+    syncActiveGame(next)
     const seq = ++turnSeq
 
     void (async () => {
@@ -208,6 +235,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     const result = endWolfTurn(state)
     if (!result.ok) return
     const next = result.state
+    syncActiveGame(next)
     const seq = ++turnSeq
 
     void (async () => {
@@ -236,7 +264,8 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
 
   reset() {
     turnSeq += 1
-    get().init(levelMeta.levelId, levelMeta.rocks, levelMeta.difficulty, levelMeta.targetEaten, levelMeta.maxPlies, levelMeta.opening)
+    if (levelMeta.resume) clearActiveGame()
+    get().init(levelMeta.levelId, levelMeta.rocks, levelMeta.difficulty, levelMeta.targetEaten, levelMeta.maxPlies, levelMeta.opening, levelMeta.resume)
   },
 }))
 
@@ -264,6 +293,7 @@ async function runAiTurn(
       return
     }
     const next = result.state
+    syncActiveGame(next)
     set({
       state: next,
       selectedWolfId: null,

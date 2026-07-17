@@ -107,6 +107,9 @@ export type MessageTree = {
     guideMoveGreen: string
     guideWaitSheep: string
     guideFindCapture: string
+    wolfSelected: string
+    selectWolfFirst: string
+    invalidTarget: string
     noDrop: string
     firstClear: string
     repeatClear: string
@@ -287,6 +290,9 @@ export const en: MessageTree = {
     guideMoveGreen: 'Now tap a green point to move that wolf.',
     guideWaitSheep: 'The sheep are responding. Wait for your turn.',
     guideFindCapture: 'Keep the side wolves mobile. Look for a red-ringed sheep to make your first capture.',
+    wolfSelected: 'Wolf selected. Green steps; red marks a capture.',
+    selectWolfFirst: 'Select a wolf before choosing a destination.',
+    invalidTarget: 'That point is not legal. Choose a green step or red capture.',
     noDrop: 'No shards this clear',
     firstClear: 'First clear',
     repeatClear: 'Repeat clear',
@@ -472,6 +478,9 @@ export const zh: MessageTree = {
     guideMoveGreen: '现在点绿色空点，让这只狼走一步。',
     guideWaitSheep: '羊群正在回应，等它走完再操作。',
     guideFindCapture: '保持两侧狼能走，寻找带红圈的羊，完成第一次隔空吃。',
+    wolfSelected: '已选中狼：绿点可走，红圈可吃。',
+    selectWolfFirst: '请先点选一只狼，再选择落点。',
+    invalidTarget: '这里不能走，请选择绿点或红圈位置。',
     noDrop: '本次无碎片掉落',
     firstClear: '首次通关',
     repeatClear: '重复通关',

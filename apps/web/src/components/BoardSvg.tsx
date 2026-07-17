@@ -380,7 +380,7 @@ export function BoardSvg({
               key={`hit-${r}-${c}`}
               cx={x}
               cy={y}
-              r={18}
+              r={23}
               fill="transparent"
               style={{ cursor: interactive ? 'pointer' : 'default' }}
               role="button"

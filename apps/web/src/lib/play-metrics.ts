@@ -39,6 +39,11 @@ export function beginPlayAttempt(levelId: string): PlayAttemptMetric {
   return record
 }
 
+export function resumePlayAttempt(levelId: string): PlayAttemptMetric | null {
+  const records = loadPlayMetrics()
+  return [...records].reverse().find((record) => record.levelId === levelId && record.result === 'playing') ?? null
+}
+
 export function finishPlayAttempt(
   id: string,
   result: Omit<PlayAttemptMetric, 'id' | 'levelId' | 'attemptNumber' | 'startedAt'>,

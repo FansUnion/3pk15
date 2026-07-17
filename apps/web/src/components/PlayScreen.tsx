@@ -26,6 +26,7 @@ import { playSfx } from '@/lib/sfx'
 import {
   beginPlayAttempt,
   finishPlayAttempt,
+  resumePlayAttempt,
   type PlayAttemptMetric,
   type TerminalAttemptDetails,
 } from '@/lib/play-metrics'
@@ -51,6 +52,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const clickCell = usePlayStore((s) => s.clickCell)
   const endChain = usePlayStore((s) => s.endChain)
   const reset = usePlayStore((s) => s.reset)
+  const resumed = usePlayStore((s) => s.resumed)
 
   const save = useSaveStore((s) => s.save)
   const hydrated = useSaveStore((s) => s.hydrated)
@@ -67,6 +69,8 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const [guideStep, setGuideStep] = useState(0)
   const [resetArmed, setResetArmed] = useState(false)
   const resetArmTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [interactionNotice, setInteractionNotice] = useState<string | null>(null)
   const [, setTick] = useState(0)
   const prevEaten = useRef(0)
   const terminalSfxDone = useRef(false)
@@ -115,29 +119,32 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     prevEaten.current = 0
     setTerminalDetails(null)
     setLastGrant(null)
-    init(level.id, level.rocks, level.ai, level.targetEaten, level.maxPlies, level.opening)
-  }, [level.id, level.ai, level.rocks, level.targetEaten, level.maxPlies, level.opening, init, setLastGrant])
+    init(level.id, level.rocks, level.ai, level.targetEaten, level.maxPlies, level.opening, !adminMode)
+  }, [adminMode, level.id, level.ai, level.rocks, level.targetEaten, level.maxPlies, level.opening, init, setLastGrant])
 
   useEffect(() => {
     if (adminMode) {
       onAdminAttempt?.()
       return
     }
+    if (usePlayStore.getState().resumed) return
     if (playCountedRef.current) return
     playCountedRef.current = true
     const current = useSaveStore.getState().save
     replace(recordPlayStarted(current, level.id))
-  }, [adminMode, level.id, onAdminAttempt, replace])
+  }, [adminMode, level.id, onAdminAttempt, replace, resumed])
 
   useEffect(() => {
     if (adminMode || !hydrated || attemptRef.current?.levelId === level.id) return
-    attemptRef.current = beginPlayAttempt(level.id)
+    const currentResumed = usePlayStore.getState().resumed
+    attemptRef.current = currentResumed ? resumePlayAttempt(level.id) ?? beginPlayAttempt(level.id) : beginPlayAttempt(level.id)
     attemptStartedAtRef.current = Date.now()
-  }, [adminMode, hydrated, level.id])
+  }, [adminMode, hydrated, level.id, resumed])
 
   useEffect(() => {
     return () => {
       if (resetArmTimer.current) clearTimeout(resetArmTimer.current)
+      if (noticeTimer.current) clearTimeout(noticeTimer.current)
     }
   }, [])
 
@@ -312,15 +319,31 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   function handleSelectWolf(wolfId: string) {
     if (interactive && wolfId !== selectedWolfId) playSfx('select')
     selectWolf(wolfId)
+    if (interactive) showNotice(p.wolfSelected)
   }
 
   function handleClickCell(pos: { r: number; c: number }) {
     if (!interactive) return
     if (!selectedWolfId) {
       playSfx('invalid')
+      showNotice(p.selectWolfFirst)
+      return
+    }
+    const legalTarget = [...highlights.steps, ...highlights.jumps, ...highlights.throughs]
+      .some((target) => target.r === pos.r && target.c === pos.c)
+    const wolfAtTarget = state.pieces.some((piece) => piece.side === 'wolf' && piece.r === pos.r && piece.c === pos.c)
+    if (!legalTarget && !wolfAtTarget) {
+      playSfx('invalid')
+      showNotice(p.invalidTarget)
       return
     }
     clickCell(pos)
+  }
+
+  function showNotice(message: string) {
+    setInteractionNotice(message)
+    if (noticeTimer.current) clearTimeout(noticeTimer.current)
+    noticeTimer.current = setTimeout(() => setInteractionNotice(null), 1600)
   }
 
   return (
@@ -486,7 +509,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           className={`status-chip justify-center text-center text-xs ${firstLessonActive ? 'font-medium text-[var(--ink)]' : 'text-[var(--muted)]'}`}
           aria-live="polite"
         >
-          {lessonTip}
+          {interactionNotice ?? lessonTip}
         </p>
       )}
 
