@@ -18,7 +18,7 @@
 | SEO | sitemap 含英 + `/zh`；`hreflang`：`en`、`zh`、`x-default`→英 |
 | Admin | 固定英文 UI |
 
-实现：`apps/web/src/config/locales.ts`、`middleware.ts`、`LocaleSwitcher`。待办见 [`P-I18N`](../任务/P-I18N.md)。
+实现：`apps/web/src/config/locales.ts`、`middleware.ts`、`LocaleSwitcher`。
 
 ## 1. 信息架构与索引
 
