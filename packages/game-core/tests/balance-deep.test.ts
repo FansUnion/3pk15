@@ -3,6 +3,7 @@ import {
   applyAction,
   createLevelInitialState,
   createSeededRng,
+  endWolfTurn,
   evaluateScore,
   LEVELS,
   listLegalActions,
@@ -23,7 +24,7 @@ type Profile = {
   anomalies: string[]
 }
 
-const HARD_BUDGETS = { maxNodes: 4_000, maxMs: 12 }
+const HARD_BUDGETS = { maxNodes: 80 }
 
 function chooseWolfAction(
   state: ReturnType<typeof createInitialState>,
@@ -62,6 +63,12 @@ function runProfile(level: LevelConfig, strategy: WolfStrategy, games = 5): Prof
       const result = applyAction(state, action)
       if (!result.ok) throw new Error(result.error)
       state = result.state
+      if (state.status === 'playing' && state.chain) {
+        const ended = endWolfTurn(state)
+        if (!ended.ok) throw new Error(ended.error)
+        state = ended.state
+        trace.push(`${state.plyCount}:end-chain`)
+      }
     }
     if (state.status === 'won') wolfWins += 1
     else if (state.status === 'lost') sheepWins += 1

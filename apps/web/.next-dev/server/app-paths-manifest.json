@@ -1,0 +1,10 @@
+{
+  "/admin/ai/page": "app/admin/ai/page.js",
+  "/admin/levels/page": "app/admin/levels/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/chapters/page": "app/chapters/page.js",
+  "/hunt/[levelId]/page": "app/hunt/[levelId]/page.js",
+  "/levels/[chapterId]/page": "app/levels/[chapterId]/page.js",
+  "/page": "app/page.js",
+  "/play/[levelId]/page": "app/play/[levelId]/page.js"
+}

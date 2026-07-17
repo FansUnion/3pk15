@@ -199,4 +199,13 @@ describe('sheep AI behavior guardrails', () => {
     const second = pickSheepAction(state, { difficulty: 'normal', rng: createSeededRng(42) })
     expect(first).toEqual(second)
   })
+
+  it('keeps hard AI deterministic when analysis uses only its node budget', () => {
+    const level = LEVELS.find((item) => item.id === 'winter-02')!
+    const state = { ...createLevelInitialState(level), toMove: 'sheep' as const }
+    const first = pickHardWithMeta(state, createSeededRng(71), { maxNodes: 80 })
+    const second = pickHardWithMeta(state, createSeededRng(71), { maxNodes: 80 })
+    expect(first.action).toEqual(second.action)
+    expect(first.meta.nodes).toBe(second.meta.nodes)
+  })
 })

@@ -1,0 +1,3216 @@
+module.exports = [
+"[project]/apps/web/.next-internal/server/app/play/[levelId]/page/actions.js [app-rsc] (server actions loader, ecmascript)", ((__turbopack_context__, module, exports) => {
+
+}),
+"[project]/apps/web/src/app/layout.tsx [app-rsc] (ecmascript, Next.js Server Component)", ((__turbopack_context__) => {
+
+__turbopack_context__.n(__turbopack_context__.i("[project]/apps/web/src/app/layout.tsx [app-rsc] (ecmascript)"));
+}),
+"[project]/packages/game-core/src/types.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "BOARD_MAX",
+    ()=>BOARD_MAX,
+    "BOARD_MIN",
+    ()=>BOARD_MIN,
+    "MAX_CHAIN",
+    ()=>MAX_CHAIN,
+    "OPENING_SHEEP",
+    ()=>OPENING_SHEEP,
+    "WIN_EATEN",
+    ()=>WIN_EATEN
+]);
+const BOARD_MIN = 1;
+const BOARD_MAX = 6;
+const WIN_EATEN = 8;
+const MAX_CHAIN = 5;
+const OPENING_SHEEP = 15;
+}),
+"[project]/packages/game-core/src/board.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ORTHO",
+    ()=>ORTHO,
+    "cloneRocks",
+    ()=>cloneRocks,
+    "inBounds",
+    ()=>inBounds,
+    "inBoundsPos",
+    ()=>inBoundsPos,
+    "keyOf",
+    ()=>keyOf,
+    "parseKey",
+    ()=>parseKey,
+    "posKey",
+    ()=>posKey
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/types.ts [app-rsc] (ecmascript)");
+;
+function posKey(r, c) {
+    return `${r},${c}`;
+}
+function keyOf(p) {
+    return posKey(p.r, p.c);
+}
+function parseKey(key) {
+    const [rs, cs] = key.split(',');
+    return {
+        r: Number(rs),
+        c: Number(cs)
+    };
+}
+function inBounds(r, c) {
+    return r >= __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["BOARD_MIN"] && r <= __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["BOARD_MAX"] && c >= __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["BOARD_MIN"] && c <= __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["BOARD_MAX"];
+}
+function inBoundsPos(p) {
+    return inBounds(p.r, p.c);
+}
+const ORTHO = [
+    {
+        r: -1,
+        c: 0
+    },
+    {
+        r: 1,
+        c: 0
+    },
+    {
+        r: 0,
+        c: -1
+    },
+    {
+        r: 0,
+        c: 1
+    }
+];
+function cloneRocks(rocks) {
+    return new Set(rocks);
+}
+}),
+"[project]/packages/game-core/src/rules.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "DEFAULT_MAX_PLIES",
+    ()=>DEFAULT_MAX_PLIES,
+    "DEFAULT_SHEEP_OPENING",
+    ()=>DEFAULT_SHEEP_OPENING,
+    "DEFAULT_WOLF_OPENING",
+    ()=>DEFAULT_WOLF_OPENING,
+    "applyAction",
+    ()=>applyAction,
+    "assertInvariants",
+    ()=>assertInvariants,
+    "boardPositionKey",
+    ()=>boardPositionKey,
+    "countSide",
+    ()=>countSide,
+    "createInitialState",
+    ()=>createInitialState,
+    "endWolfTurn",
+    ()=>endWolfTurn,
+    "evaluateTerminal",
+    ()=>evaluateTerminal,
+    "getWolfLegalSummary",
+    ()=>getWolfLegalSummary,
+    "listLegalActions",
+    ()=>listLegalActions,
+    "listWolfActionsAsIfTurn",
+    ()=>listWolfActionsAsIfTurn,
+    "refreshStatus",
+    ()=>refreshStatus
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/board.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/types.ts [app-rsc] (ecmascript)");
+;
+;
+const DEFAULT_SHEEP_OPENING = [
+    {
+        r: 1,
+        c: 1
+    },
+    {
+        r: 1,
+        c: 2
+    },
+    {
+        r: 1,
+        c: 3
+    },
+    {
+        r: 1,
+        c: 4
+    },
+    {
+        r: 1,
+        c: 5
+    },
+    {
+        r: 2,
+        c: 1
+    },
+    {
+        r: 2,
+        c: 2
+    },
+    {
+        r: 2,
+        c: 3
+    },
+    {
+        r: 2,
+        c: 4
+    },
+    {
+        r: 2,
+        c: 5
+    },
+    {
+        r: 3,
+        c: 1
+    },
+    {
+        r: 3,
+        c: 2
+    },
+    {
+        r: 3,
+        c: 3
+    },
+    {
+        r: 3,
+        c: 4
+    },
+    {
+        r: 3,
+        c: 5
+    }
+];
+const DEFAULT_WOLF_OPENING = [
+    {
+        r: 6,
+        c: 2
+    },
+    {
+        r: 6,
+        c: 3
+    },
+    {
+        r: 6,
+        c: 5
+    }
+];
+const DEFAULT_MAX_PLIES = 300;
+function createInitialState(levelId, rocks = [], targetEaten = __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["WIN_EATEN"], maxPlies = DEFAULT_MAX_PLIES, opening) {
+    const rockSet = new Set(rocks.map((p)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["keyOf"])(p)));
+    const wolves = opening?.wolves ?? DEFAULT_WOLF_OPENING;
+    const sheep = opening?.sheep ?? DEFAULT_SHEEP_OPENING;
+    if (wolves.length !== 3) throw new Error('Opening must contain exactly 3 wolves');
+    if (sheep.length !== __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["OPENING_SHEEP"]) throw new Error(`Opening must contain exactly ${__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["OPENING_SHEEP"]} sheep`);
+    const occupied = new Set();
+    for (const p of [
+        ...wolves,
+        ...sheep
+    ]){
+        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["inBounds"])(p.r, p.c)) throw new Error(`Opening piece out of bounds at (${p.r},${p.c})`);
+        const key = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["keyOf"])(p);
+        if (occupied.has(key)) throw new Error(`Opening pieces overlap at (${p.r},${p.c})`);
+        occupied.add(key);
+        if (rockSet.has(key)) {
+            throw new Error(`Rock overlaps opening piece at (${p.r},${p.c})`);
+        }
+    }
+    const pieces = [
+        ...wolves.map((p, i)=>({
+                id: `wolf-${i + 1}`,
+                side: 'wolf',
+                r: p.r,
+                c: p.c
+            })),
+        ...sheep.map((p, i)=>({
+                id: `sheep-${i + 1}`,
+                side: 'sheep',
+                r: p.r,
+                c: p.c
+            }))
+    ];
+    const state = {
+        pieces,
+        rocks: rockSet,
+        eatenSheep: 0,
+        toMove: 'wolf',
+        chain: null,
+        status: 'playing',
+        levelId,
+        targetEaten,
+        plyCount: 0,
+        maxPlies,
+        repetitionCounts: new Map()
+    };
+    return refreshStatus({
+        ...state,
+        repetitionCounts: new Map([
+            [
+                boardPositionKey(state),
+                1
+            ]
+        ])
+    });
+}
+function occupancy(state) {
+    const map = new Map();
+    for (const p of state.pieces){
+        map.set((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["posKey"])(p.r, p.c), p);
+    }
+    return map;
+}
+function isBlocked(state, r, c, occ) {
+    if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["inBounds"])(r, c)) return true;
+    const k = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["posKey"])(r, c);
+    if (state.rocks.has(k)) return true;
+    return occ.has(k);
+}
+function listWolfSteps(state, wolf, occ) {
+    const moves = [];
+    for (const d of __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ORTHO"]){
+        const nr = wolf.r + d.r;
+        const nc = wolf.c + d.c;
+        if (!isBlocked(state, nr, nc, occ)) {
+            moves.push({
+                type: 'step',
+                pieceId: wolf.id,
+                to: {
+                    r: nr,
+                    c: nc
+                }
+            });
+        }
+    }
+    return moves;
+}
+/** 隔空吃：狼 — 空 — 羊；落到羊位并移除羊 */ function listWolfJumps(state, wolf, occ) {
+    const moves = [];
+    for (const d of __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ORTHO"]){
+        const tr = wolf.r + d.r;
+        const tc = wolf.c + d.c;
+        const lr = wolf.r + 2 * d.r;
+        const lc = wolf.c + 2 * d.c;
+        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["inBounds"])(tr, tc) || !(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["inBounds"])(lr, lc)) continue;
+        const midKey = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["posKey"])(tr, tc);
+        if (state.rocks.has(midKey) || occ.has(midKey)) continue;
+        const target = occ.get((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["posKey"])(lr, lc));
+        if (!target || target.side !== 'sheep') continue;
+        moves.push({
+            type: 'jump',
+            pieceId: wolf.id,
+            through: {
+                r: tr,
+                c: tc
+            },
+            to: {
+                r: lr,
+                c: lc
+            }
+        });
+    }
+    return moves;
+}
+function listSheepSteps(state, sheep, occ) {
+    const moves = [];
+    for (const d of __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ORTHO"]){
+        const nr = sheep.r + d.r;
+        const nc = sheep.c + d.c;
+        // Cannot retreat toward row 1 (decreasing r)
+        if (nr < sheep.r) continue;
+        if (!isBlocked(state, nr, nc, occ)) {
+            moves.push({
+                type: 'step',
+                pieceId: sheep.id,
+                to: {
+                    r: nr,
+                    c: nc
+                }
+            });
+        }
+    }
+    return moves;
+}
+function listLegalActions(state) {
+    if (state.status !== 'playing') return [];
+    const occ = occupancy(state);
+    if (state.toMove === 'wolf') {
+        if (state.chain) {
+            const wolf = state.pieces.find((p)=>p.id === state.chain.wolfId);
+            if (!wolf || wolf.side !== 'wolf') return [];
+            return listWolfJumps(state, wolf, occ);
+        }
+        const wolves = state.pieces.filter((p)=>p.side === 'wolf');
+        const actions = [];
+        for (const w of wolves){
+            actions.push(...listWolfSteps(state, w, occ), ...listWolfJumps(state, w, occ));
+        }
+        return actions;
+    }
+    // sheep turn
+    const sheep = state.pieces.filter((p)=>p.side === 'sheep');
+    const actions = [];
+    for (const s of sheep){
+        actions.push(...listSheepSteps(state, s, occ));
+    }
+    return actions;
+}
+function listWolfActionsAsIfTurn(state) {
+    const probe = {
+        ...state,
+        toMove: 'wolf',
+        chain: null,
+        status: 'playing'
+    };
+    return listLegalActions(probe);
+}
+function getWolfLegalSummary(state) {
+    const probe = {
+        ...state,
+        toMove: 'wolf',
+        chain: null,
+        status: 'playing'
+    };
+    const occ = occupancy(probe);
+    return probe.pieces.filter((p)=>p.side === 'wolf').map((w)=>({
+            wolfId: w.id,
+            steps: listWolfSteps(probe, w, occ).length,
+            jumps: listWolfJumps(probe, w, occ).length
+        }));
+}
+function boardPositionKey(state) {
+    const pieces = [
+        ...state.pieces
+    ].sort((a, b)=>a.id.localeCompare(b.id)).map((piece)=>`${piece.id}:${piece.r},${piece.c}`).join('|');
+    const chain = state.chain ? `${state.chain.wolfId}:${state.chain.count}` : '-';
+    return `${pieces}::${[
+        ...state.rocks
+    ].sort().join(',')}::${state.toMove}::${chain}`;
+}
+function recordPosition(state) {
+    if (state.status !== 'playing') return state;
+    const repetitionCounts = new Map(state.repetitionCounts);
+    const key = boardPositionKey(state);
+    const count = (repetitionCounts.get(key) ?? 0) + 1;
+    repetitionCounts.set(key, count);
+    if (count >= 3) {
+        return {
+            ...state,
+            repetitionCounts,
+            status: 'draw',
+            chain: null
+        };
+    }
+    return {
+        ...state,
+        repetitionCounts
+    };
+}
+function evaluateTerminal(state) {
+    if (state.eatenSheep >= state.targetEaten) return 'won';
+    if (listWolfActionsAsIfTurn(state).length === 0) return 'lost';
+    if (state.plyCount >= state.maxPlies) return 'draw';
+    return 'playing';
+}
+function refreshStatus(state) {
+    const status = evaluateTerminal(state);
+    if (status === state.status) return state;
+    return {
+        ...state,
+        status,
+        chain: status === 'playing' ? state.chain : null
+    };
+}
+function samePos(a, b) {
+    return a.r === b.r && a.c === b.c;
+}
+function actionEquals(a, b) {
+    if (a.type !== b.type || a.pieceId !== b.pieceId) return false;
+    if (a.type === 'step' && b.type === 'step') return samePos(a.to, b.to);
+    if (a.type === 'jump' && b.type === 'jump') {
+        return samePos(a.to, b.to) && samePos(a.through, b.through);
+    }
+    return false;
+}
+function isLegal(state, action) {
+    return listLegalActions(state).some((a)=>actionEquals(a, action));
+}
+function cloneState(state) {
+    return {
+        ...state,
+        pieces: state.pieces.map((p)=>({
+                ...p
+            })),
+        rocks: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cloneRocks"])(state.rocks),
+        chain: state.chain ? {
+            ...state.chain
+        } : null,
+        plyCount: state.plyCount,
+        maxPlies: state.maxPlies,
+        repetitionCounts: new Map(state.repetitionCounts)
+    };
+}
+function applyAction(state, action) {
+    if (state.status !== 'playing') {
+        return {
+            ok: false,
+            error: 'Game already ended'
+        };
+    }
+    if (!isLegal(state, action)) {
+        return {
+            ok: false,
+            error: 'Illegal action'
+        };
+    }
+    let next = cloneState(state);
+    next.plyCount += 1;
+    const piece = next.pieces.find((p)=>p.id === action.pieceId);
+    if (!piece) return {
+        ok: false,
+        error: 'Piece not found'
+    };
+    if (action.type === 'step') {
+        piece.r = action.to.r;
+        piece.c = action.to.c;
+        next.chain = null;
+        if (next.toMove === 'wolf') {
+            next.toMove = 'sheep';
+        } else {
+            // sheep one step then wolf
+            next.toMove = 'wolf';
+        }
+        return {
+            ok: true,
+            state: recordPosition(refreshStatus(next))
+        };
+    }
+    // jump / 隔空吃 (wolf only): remove sheep at `to`, wolf lands on `to`
+    next.pieces = next.pieces.filter((p)=>!(p.side === 'sheep' && p.r === action.to.r && p.c === action.to.c));
+    const wolf = next.pieces.find((p)=>p.id === action.pieceId);
+    if (!wolf) return {
+        ok: false,
+        error: 'Wolf not found after jump'
+    };
+    wolf.r = action.to.r;
+    wolf.c = action.to.c;
+    next.eatenSheep += 1;
+    if (next.eatenSheep >= next.targetEaten) {
+        next.chain = null;
+        next.status = 'won';
+        return {
+            ok: true,
+            state: next
+        };
+    }
+    const newCount = (state.chain?.count ?? 0) + 1;
+    if (newCount >= __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["MAX_CHAIN"]) {
+        next.chain = null;
+        next.toMove = 'sheep';
+        return {
+            ok: true,
+            state: recordPosition(refreshStatus(next))
+        };
+    }
+    next.chain = {
+        wolfId: action.pieceId,
+        count: newCount
+    };
+    next.toMove = 'wolf';
+    const remainingJumps = listLegalActions(next).filter((a)=>a.type === 'jump');
+    if (remainingJumps.length === 0) {
+        next.chain = null;
+        next.toMove = 'sheep';
+    }
+    return {
+        ok: true,
+        state: recordPosition(refreshStatus(next))
+    };
+}
+function endWolfTurn(state) {
+    if (state.status !== 'playing') {
+        return {
+            ok: false,
+            error: 'Game already ended'
+        };
+    }
+    if (state.toMove !== 'wolf') {
+        return {
+            ok: false,
+            error: 'Not wolf turn'
+        };
+    }
+    const next = cloneState(state);
+    next.chain = null;
+    next.toMove = 'sheep';
+    return {
+        ok: true,
+        state: recordPosition(refreshStatus(next))
+    };
+}
+function assertInvariants(state) {
+    const seen = new Set();
+    let sheep = 0;
+    let wolves = 0;
+    for (const p of state.pieces){
+        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["inBounds"])(p.r, p.c)) throw new Error(`Out of bounds ${p.id}`);
+        const k = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["posKey"])(p.r, p.c);
+        if (seen.has(k)) throw new Error(`Overlap at ${k}`);
+        seen.add(k);
+        if (state.rocks.has(k)) throw new Error(`Piece on rock ${k}`);
+        if (p.side === 'sheep') sheep++;
+        else wolves++;
+    }
+    if (wolves > 3) throw new Error('Too many wolves');
+    if (state.eatenSheep !== __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["OPENING_SHEEP"] - sheep) {
+        throw new Error(`eatenSheep mismatch: ${state.eatenSheep} vs ${__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["OPENING_SHEEP"] - sheep}`);
+    }
+    if (state.chain) {
+        if (state.toMove !== 'wolf') throw new Error('chain while not wolf turn');
+        if (state.chain.count < 1 || state.chain.count > __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["MAX_CHAIN"]) {
+            throw new Error('invalid chain count');
+        }
+    }
+    if (state.status !== 'playing' && state.chain !== null) {
+        throw new Error('chain after terminal');
+    }
+}
+function countSide(state, side) {
+    return state.pieces.filter((p)=>p.side === side).length;
+}
+}),
+"[project]/packages/game-core/src/content/levels.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "CHAPTER_AI",
+    ()=>CHAPTER_AI,
+    "CHAPTER_BLURB_EN",
+    ()=>CHAPTER_BLURB_EN,
+    "CHAPTER_BLURB_ZH",
+    ()=>CHAPTER_BLURB_ZH,
+    "CHAPTER_LABEL",
+    ()=>CHAPTER_LABEL,
+    "CHAPTER_LABEL_EN",
+    ()=>CHAPTER_LABEL_EN,
+    "CHAPTER_ORDER",
+    ()=>CHAPTER_ORDER,
+    "LEVELS",
+    ()=>LEVELS,
+    "adjacentLevels",
+    ()=>adjacentLevels,
+    "createLevelInitialState",
+    ()=>createLevelInitialState,
+    "getLevel",
+    ()=>getLevel,
+    "levelBlurb",
+    ()=>levelBlurb,
+    "levelDisplayName",
+    ()=>levelDisplayName,
+    "levelsForChapter",
+    ()=>levelsForChapter,
+    "validateAllLevels",
+    ()=>validateAllLevels,
+    "validateLevel",
+    ()=>validateLevel
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/types.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/board.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-rsc] (ecmascript)");
+;
+;
+;
+function openingPositions(level) {
+    return {
+        wolves: level.opening?.wolves ?? __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DEFAULT_WOLF_OPENING"],
+        sheep: level.opening?.sheep ?? __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["DEFAULT_SHEEP_OPENING"]
+    };
+}
+function createLevelInitialState(level) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createInitialState"])(level.id, level.rocks, level.targetEaten, level.maxPlies, level.opening);
+}
+const CHAPTER_AI = {
+    spring: 'normal',
+    summer: 'normal',
+    autumn: 'normal',
+    winter: 'hard'
+};
+const CHAPTER_ORDER = [
+    'spring',
+    'summer',
+    'autumn',
+    'winter'
+];
+const CHAPTER_LABEL = {
+    spring: '春日',
+    summer: '夏日',
+    autumn: '秋日',
+    winter: '冬日'
+};
+const CHAPTER_LABEL_EN = {
+    spring: 'Spring',
+    summer: 'Summer',
+    autumn: 'Autumn',
+    winter: 'Winter'
+};
+const CHAPTER_BLURB_EN = {
+    spring: 'Learn gap-eat and short chains on a gentle flock — rocks stay scarce.',
+    summer: 'The flock blocks for real. Midfield rocks start to matter.',
+    autumn: 'Same AI tier as summer, but dense rocks crack your lines and create lanes.',
+    winter: 'Empty-board master duel — the hard AI surrounds without rock crutches.'
+};
+const CHAPTER_BLURB_ZH = {
+    spring: '在温和羊群上学会隔空吃与短连吃；岩石很少，专注规则。',
+    summer: '羊群开始认真挡线，中场岩石开始影响路线。',
+    autumn: 'AI 档位与夏同级，但密岩撕开通道、逼出隔空连吃。',
+    winter: '空盘硬仗：高阶合围，不再靠岩石挡点。'
+};
+const ROCK_COUNT_RANGE = {
+    spring: {
+        min: 0,
+        max: 2
+    },
+    summer: {
+        min: 2,
+        max: 4
+    },
+    autumn: {
+        min: 5,
+        max: 6
+    },
+    winter: {
+        min: 0,
+        max: 0
+    }
+};
+function validateLevel(level) {
+    const errors = [];
+    const allowedAi = {
+        spring: [
+            'easy',
+            'normal'
+        ],
+        summer: [
+            'normal',
+            'hard'
+        ],
+        autumn: [
+            'normal',
+            'hard'
+        ],
+        winter: [
+            'hard'
+        ]
+    };
+    if (!allowedAi[level.chapterId].includes(level.ai)) {
+        errors.push(`ai ${level.ai} is not allowed for ${level.chapterId}`);
+    }
+    if (level.targetEaten !== undefined && (!Number.isInteger(level.targetEaten) || level.targetEaten < 1 || level.targetEaten > 15)) {
+        errors.push('targetEaten must be an integer between 1 and 15');
+    }
+    if (level.maxPlies !== undefined && (!Number.isInteger(level.maxPlies) || level.maxPlies < 20)) {
+        errors.push('maxPlies must be an integer of at least 20');
+    }
+    if (level.expectedPlies) {
+        const { min, target, max } = level.expectedPlies;
+        if (!(min > 0 && min <= target && target <= max)) {
+            errors.push('expectedPlies must satisfy 0 < min <= target <= max');
+        }
+    }
+    const range = ROCK_COUNT_RANGE[level.chapterId];
+    if (level.rocks.length < range.min || level.rocks.length > range.max) {
+        errors.push(`rocks count ${level.rocks.length} out of range [${range.min},${range.max}] for ${level.chapterId}`);
+    }
+    const opening = openingPositions(level);
+    if (opening.wolves.length !== 3) errors.push('opening wolves must contain exactly 3 positions');
+    if (opening.sheep.length !== 15) errors.push('opening sheep must contain exactly 15 positions');
+    const openingKeys = new Set();
+    for (const p of [
+        ...opening.wolves,
+        ...opening.sheep
+    ]){
+        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["inBounds"])(p.r, p.c)) {
+            errors.push(`opening piece out of bounds (${p.r},${p.c})`);
+            continue;
+        }
+        const key = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["keyOf"])(p);
+        if (openingKeys.has(key)) errors.push(`opening pieces overlap at ${key}`);
+        openingKeys.add(key);
+    }
+    const seen = new Set();
+    for (const p of level.rocks){
+        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["inBounds"])(p.r, p.c)) {
+            errors.push(`rock out of bounds (${p.r},${p.c})`);
+            continue;
+        }
+        const k = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["keyOf"])(p);
+        if (seen.has(k)) errors.push(`duplicate rock ${k}`);
+        seen.add(k);
+        if (openingKeys.has(k)) errors.push(`rock on opening piece ${k}`);
+    }
+    const adj = new Set();
+    for (const a of level.rocks){
+        for (const d of __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ORTHO"]){
+            const nr = a.r + d.r;
+            const nc = a.c + d.c;
+            if (nr < __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["BOARD_MIN"] || nr > __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["BOARD_MAX"] || nc < __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["BOARD_MIN"] || nc > __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["BOARD_MAX"]) continue;
+            if (seen.has((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["posKey"])(nr, nc))) {
+                const pair = [
+                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["keyOf"])(a),
+                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["posKey"])(nr, nc)
+                ].sort().join('|');
+                adj.add(`adjacent rocks ${pair}`);
+            }
+        }
+    }
+    errors.push(...adj);
+    if (errors.length === 0) {
+        try {
+            if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["listLegalActions"])(createLevelInitialState(level)).length === 0) {
+                errors.push('opening must provide at least one wolf legal action');
+            }
+        } catch (error) {
+            errors.push(error instanceof Error ? error.message : 'invalid opening');
+        }
+    }
+    return errors;
+}
+function L(partial) {
+    const seasonTeaching = {
+        spring: 'Learn one clear movement or capture idea before adding pressure.',
+        summer: 'Read flock blocking and plan a route through midfield pressure.',
+        autumn: 'Use dense rock corridors to plan the order of a short chain.',
+        winter: 'Keep all wolves mobile and solve the open-board surround.'
+    };
+    const seasonDifficulty = {
+        spring: 1,
+        summer: 3,
+        autumn: 4,
+        winter: 5
+    };
+    const baseExpected = {
+        spring: {
+            min: 30,
+            target: 100,
+            max: 260
+        },
+        summer: {
+            min: 40,
+            target: 130,
+            max: 290
+        },
+        autumn: {
+            min: 45,
+            target: 145,
+            max: 300
+        },
+        winter: {
+            min: 50,
+            target: 160,
+            max: 300
+        }
+    };
+    return {
+        ...partial,
+        name: partial.nameZh,
+        ai: partial.ai ?? CHAPTER_AI[partial.chapterId],
+        targetEaten: partial.targetEaten ?? 8,
+        maxPlies: partial.maxPlies ?? 300,
+        openingTemplate: partial.openingTemplate ?? `${partial.chapterId}-standard-${partial.indexInChapter}`,
+        teachingPoint: partial.teachingPoint ?? seasonTeaching[partial.chapterId],
+        expectedPlies: partial.expectedPlies ?? baseExpected[partial.chapterId],
+        difficulty: partial.difficulty ?? Math.min(5, seasonDifficulty[partial.chapterId] + Math.max(0, partial.indexInChapter - 1)),
+        firstClearReward: partial.firstClearReward ?? {
+            universal: 10,
+            season: {
+                [partial.chapterId]: 2
+            }
+        },
+        repeatDrop: partial.repeatDrop ?? {
+            chance: 0.3,
+            universal: 2
+        }
+    };
+}
+function levelDisplayName(level, locale) {
+    return locale === 'zh' ? level.nameZh : level.nameEn;
+}
+function levelBlurb(level, locale) {
+    return locale === 'zh' ? level.blurbZh : level.blurbEn;
+}
+const LEVELS = [
+    L({
+        id: 'spring-01',
+        chapterId: 'spring',
+        indexInChapter: 1,
+        nameZh: '春日 · 空野',
+        nameEn: 'Spring · Open Meadow',
+        blurbZh: '带一枚边缘岩石的开阔草地。先学会点选狼、走空格，再试一次隔空吃。',
+        blurbEn: 'An open meadow with one safe edge rock. Learn to select a wolf, step to empty points, then try one gap-eat.',
+        rocks: [
+            {
+                r: 4,
+                c: 6
+            }
+        ],
+        openingTemplate: 'spring-gentle-edge-rock',
+        teachingPoint: '先点选一只狼走到空位，再寻找第一次隔空跳吃。',
+        expectedPlies: {
+            min: 20,
+            target: 90,
+            max: 220
+        },
+        difficulty: 1
+    }),
+    L({
+        id: 'spring-02',
+        chapterId: 'spring',
+        indexInChapter: 2,
+        nameZh: '春日 · 一石',
+        nameEn: 'Spring · Single Stone',
+        blurbZh: '一枚边石轻轻挡路。绕开它，把隔空吃练顺，别急着连吃。',
+        blurbEn: 'One edge rock nudges your path. Slip around it, clean a gap-eat, and keep chains short.',
+        rocks: [
+            {
+                r: 4,
+                c: 6
+            }
+        ],
+        openingTemplate: 'spring-single-edge-rock',
+        teachingPoint: '把岩石视为不可落脚的位置，绕开它建立跳吃路线。',
+        expectedPlies: {
+            min: 25,
+            target: 100,
+            max: 240
+        },
+        difficulty: 2
+    }),
+    L({
+        id: 'spring-03',
+        chapterId: 'spring',
+        indexInChapter: 3,
+        nameZh: '春日 · 双石',
+        nameEn: 'Spring · Twin Stones',
+        blurbZh: '两枚中场石切开通道。用它们当支点，完成春日的第一次短连吃。',
+        blurbEn: 'Two midfield stones split the lanes. Use them as pivots for your first short spring chain.',
+        rocks: [
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 5
+            }
+        ],
+        openingTemplate: 'spring-twin-midfield-rocks',
+        teachingPoint: '选择一条短连吃路线，并在狼被困前主动结束。',
+        expectedPlies: {
+            min: 30,
+            target: 110,
+            max: 260
+        },
+        difficulty: 3
+    }),
+    L({
+        id: 'spring-04',
+        chapterId: 'spring',
+        indexInChapter: 4,
+        ai: 'normal',
+        nameZh: '春日 · 回旋',
+        nameEn: 'Spring · Turnaround',
+        blurbZh: '边缘岩石改变回路，学会先稳住位置再找吃口。',
+        blurbEn: 'An edge rock bends the route. Hold position before opening the next gap.',
+        rocks: [
+            {
+                r: 4,
+                c: 1
+            }
+        ],
+        openingTemplate: 'spring-edge-turnaround',
+        teachingPoint: '先安全换位稳住阵形，再投入吃子路线。',
+        expectedPlies: {
+            min: 35,
+            target: 120,
+            max: 280
+        },
+        difficulty: 3
+    }),
+    L({
+        id: 'spring-05',
+        chapterId: 'spring',
+        indexInChapter: 5,
+        ai: 'normal',
+        nameZh: '春日 · 双线',
+        nameEn: 'Spring · Two Lanes',
+        blurbZh: '两条路线都能接近羊群，选择先处理哪一侧。',
+        blurbEn: 'Two lanes reach the flock. Choose which side to pressure first.',
+        rocks: [
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 4
+            }
+        ],
+        openingTemplate: 'spring-two-lanes',
+        teachingPoint: '移动第二只狼前，先比较左右两条吃子路线。',
+        expectedPlies: {
+            min: 40,
+            target: 130,
+            max: 290
+        },
+        difficulty: 3
+    }),
+    L({
+        id: 'spring-06',
+        chapterId: 'spring',
+        indexInChapter: 6,
+        ai: 'normal',
+        nameZh: '春日 · 收束',
+        nameEn: 'Spring · Close',
+        blurbZh: '春日终局，综合短连吃、路线选择和提前收束。',
+        blurbEn: 'Spring finale: combine short chains, route choice, and clean exits.',
+        rocks: [
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 4
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 5
+                }
+            ]
+        },
+        openingTemplate: 'spring-finale',
+        teachingPoint: '综合短连吃与路线选择，在不困狼的前提下完成春季狩猎。',
+        expectedPlies: {
+            min: 45,
+            target: 140,
+            max: 300
+        },
+        difficulty: 4
+    }),
+    L({
+        id: 'summer-01',
+        chapterId: 'summer',
+        indexInChapter: 1,
+        nameZh: '夏日 · 裂隙',
+        nameEn: 'Summer · Fissure',
+        blurbZh: '羊群开始认真挡线。两枚岩石撕开裂隙，逼你选择冲吃方向。',
+        blurbEn: 'The flock blocks for real. Two rocks tear a fissure — pick which gap-rush line to force.',
+        rocks: [
+            {
+                r: 3,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 3
+            }
+        ],
+        openingTemplate: 'summer-midfield-fissure',
+        teachingPoint: '观察羊群封锁，选择一条压力线集中突破。',
+        expectedPlies: {
+            min: 35,
+            target: 120,
+            max: 280
+        },
+        difficulty: 3
+    }),
+    L({
+        id: 'summer-02',
+        chapterId: 'summer',
+        indexInChapter: 2,
+        ai: 'hard',
+        nameZh: '夏日 · 横切',
+        nameEn: 'Summer · Crosscut',
+        blurbZh: '三石横切中场。耐心摆位，再隔空切入，别被羊群拖进死角。',
+        blurbEn: 'Three rocks crosscut the midfield. Set up patiently, then gap-cut in — don’t get herded into a dead corner.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 4
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 5
+                }
+            ]
+        },
+        openingTemplate: 'summer-crosscut-rocks',
+        teachingPoint: '不要急冲，保留第二只狼用于中场横切。',
+        expectedPlies: {
+            min: 40,
+            target: 135,
+            max: 290
+        },
+        difficulty: 4
+    }),
+    L({
+        id: 'summer-03',
+        chapterId: 'summer',
+        indexInChapter: 3,
+        nameZh: '夏日 · 拉扯',
+        nameEn: 'Summer · Tug',
+        blurbZh: '四石拉扯战线。三狼要分工：一狼诱开，另两狼冲吃收割。',
+        blurbEn: 'Four rocks tug the front. Split duties: one wolf baits, the other two gap-rush the harvest.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 1
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'summer-tug-of-war',
+        teachingPoint: '让三狼分工，避免过早进入无法退出的死角。',
+        expectedPlies: {
+            min: 45,
+            target: 145,
+            max: 300
+        },
+        difficulty: 4
+    }),
+    L({
+        id: 'summer-04',
+        chapterId: 'summer',
+        indexInChapter: 4,
+        nameZh: '夏日 · 分流',
+        nameEn: 'Summer · Split Flow',
+        blurbZh: '羊群分流后，狼需要决定追击主线还是侧翼。',
+        blurbEn: 'The flock splits the flow. Choose the main lane or the flank.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 5
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 5
+                }
+            ]
+        },
+        openingTemplate: 'summer-split-flow',
+        teachingPoint: '分配狼压制两条羊群路线，同时保持彼此机动。',
+        expectedPlies: {
+            min: 50,
+            target: 150,
+            max: 300
+        },
+        difficulty: 4
+    }),
+    L({
+        id: 'summer-05',
+        chapterId: 'summer',
+        indexInChapter: 5,
+        ai: 'hard',
+        nameZh: '夏日 · 反推',
+        nameEn: 'Summer · Counterpush',
+        blurbZh: '羊群会把狼推向边角，提前保留第二条退路。',
+        blurbEn: 'The flock pushes back toward the edge. Keep a second exit open.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 4
+            },
+            {
+                r: 6,
+                c: 1
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 2
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'summer-counterpush',
+        teachingPoint: '开始连续跳吃前，先为狼保留一条退路。',
+        expectedPlies: {
+            min: 55,
+            target: 160,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'summer-06',
+        chapterId: 'summer',
+        indexInChapter: 6,
+        nameZh: '夏日 · 压线',
+        nameEn: 'Summer · Pressure Line',
+        blurbZh: '夏日终局，综合阻挡、分工和中场路线压力。',
+        blurbEn: 'Summer finale: combine blocking, wolf roles, and midfield pressure.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 3
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 2
+                },
+                {
+                    r: 6,
+                    c: 5
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'summer-pressure-line',
+        teachingPoint: '先让三狼形成协作位置，再进入决定性的吃子线。',
+        expectedPlies: {
+            min: 60,
+            target: 170,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'autumn-01',
+        chapterId: 'autumn',
+        indexInChapter: 1,
+        ai: 'normal',
+        nameZh: '秋日 · 碎盘',
+        nameEn: 'Autumn · Shattered Board',
+        blurbZh: '五枚岩石把盘面切成窄道。找准通道连吃，岩石就是你的跳板。',
+        blurbEn: 'Five rocks cut the board into narrow lanes. Hunt the corridor — the stones become your springboards.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 3
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 6
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 2
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        teachingPoint: '识别被岩石切开的窄道，用两狼控口、一狼寻找连吃。'
+    }),
+    L({
+        id: 'autumn-02',
+        chapterId: 'autumn',
+        indexInChapter: 2,
+        ai: 'normal',
+        nameZh: '秋日 · 通道',
+        nameEn: 'Autumn · Corridor',
+        blurbZh: '六石挤出一条主通道。控制通道两端，连吃会像潮水一样涌出。',
+        blurbEn: 'Six rocks squeeze one main corridor. Own both ends and chains will surge like a tide.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 3
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 6
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 2
+                },
+                {
+                    r: 6,
+                    c: 5
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        teachingPoint: '控制主通道两端，再把一次跳吃扩展成连续收割。'
+    }),
+    L({
+        id: 'autumn-03',
+        chapterId: 'autumn',
+        indexInChapter: 3,
+        ai: 'normal',
+        nameZh: '秋日 · 丰收',
+        nameEn: 'Autumn · Harvest',
+        blurbZh: '五石密布的丰收盘。敢冲敢停：连吃满档前记得主动结束，保住胜势。',
+        blurbEn: 'A five-rock harvest board. Rush hard, stop clean — end the chain before you strand a wolf.',
+        rocks: [
+            {
+                r: 1,
+                c: 6
+            },
+            {
+                r: 3,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 4
+            },
+            {
+                r: 5,
+                c: 1
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        teachingPoint: '连吃时同时计算收益与退路，必要时主动收手。'
+    }),
+    L({
+        id: 'autumn-04',
+        chapterId: 'autumn',
+        indexInChapter: 4,
+        ai: 'normal',
+        nameZh: '秋日 · 断桥',
+        nameEn: 'Autumn · Broken Bridge',
+        blurbZh: '密集岩石留下多个断点，必须提前判断连吃方向。',
+        blurbEn: 'Dense rocks leave broken bridges. Read the chain direction early.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 3
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 6
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'autumn-broken-bridge',
+        teachingPoint: '把岩石间的断点当作连吃入口，提前判断跳吃方向。',
+        expectedPlies: {
+            min: 60,
+            target: 165,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'autumn-05',
+        chapterId: 'autumn',
+        indexInChapter: 5,
+        ai: 'normal',
+        nameZh: '秋日 · 窄门',
+        nameEn: 'Autumn · Narrow Gate',
+        blurbZh: '两端都要保持通行，任何一只狼走错都会失去窗口。',
+        blurbEn: 'Keep both ends open. One careless wolf can close the window.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 3
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 6
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 5
+                }
+            ]
+        },
+        openingTemplate: 'autumn-narrow-gate',
+        teachingPoint: '规划强制跳吃时，始终保持窄门两端可通行。',
+        expectedPlies: {
+            min: 65,
+            target: 180,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'autumn-06',
+        chapterId: 'autumn',
+        indexInChapter: 6,
+        ai: 'normal',
+        nameZh: '秋日 · 丰收终局',
+        nameEn: 'Autumn · Harvest Finale',
+        blurbZh: '秋日终局，要求在密集岩石中完成干净的连吃。',
+        blurbEn: 'Autumn finale: land a clean chain through the dense rock field.',
+        rocks: [
+            {
+                r: 1,
+                c: 6
+            },
+            {
+                r: 3,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 4
+            },
+            {
+                r: 5,
+                c: 3
+            }
+        ],
+        openingTemplate: 'autumn-harvest-finale',
+        teachingPoint: '在追求长连吃与保持三狼机动之间做出取舍。',
+        expectedPlies: {
+            min: 70,
+            target: 190,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'winter-01',
+        chapterId: 'winter',
+        indexInChapter: 1,
+        nameZh: '冬日 · 空寂',
+        nameEn: 'Winter · Silence',
+        blurbZh: '空盘寂静。没有岩石挡点，完全靠走位撕开合围。',
+        blurbEn: 'Silent empty board. No rocks to lean on — only spacing can tear the surround.',
+        rocks: [],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 5
+                }
+            ]
+        },
+        teachingPoint: '没有岩石可借力时，用三狼间距撕开羊群合围。'
+    }),
+    L({
+        id: 'winter-02',
+        chapterId: 'winter',
+        indexInChapter: 2,
+        nameZh: '冬日 · 合围',
+        nameEn: 'Winter · Encirclement',
+        blurbZh: '高阶羊群合力围狼。先保三狼通路，再找隔空破口。',
+        blurbEn: 'A hard flock closes the ring. Keep all three wolves mobile, then punch a gap-eat hole.',
+        rocks: [],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 2
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        teachingPoint: '先保证三狼都有通路，再从边线制造第一个破口。'
+    }),
+    L({
+        id: 'winter-03',
+        chapterId: 'winter',
+        indexInChapter: 3,
+        nameZh: '冬日 · 绝境',
+        nameEn: 'Winter · Last Stand',
+        blurbZh: '四季终章。在绝境里打出干净的隔空连吃，证明你真正掌控猎场。',
+        blurbEn: 'Season finale. Land clean gap-chains under pressure — prove you own the hunt.',
+        rocks: [],
+        teachingPoint: '在空盘高压下保持覆盖，等待可连续兑现的隔空跳吃。'
+    }),
+    L({
+        id: 'winter-04',
+        chapterId: 'winter',
+        indexInChapter: 4,
+        nameZh: '冬日 · 回环',
+        nameEn: 'Winter · Loop',
+        blurbZh: '空盘中羊群不断回环，保持狼的覆盖范围。',
+        blurbEn: 'The flock loops across the empty board. Keep wolf coverage wide.',
+        rocks: [],
+        opening: {
+            sheep: [
+                {
+                    r: 1,
+                    c: 1
+                },
+                {
+                    r: 1,
+                    c: 2
+                },
+                {
+                    r: 1,
+                    c: 3
+                },
+                {
+                    r: 1,
+                    c: 4
+                },
+                {
+                    r: 2,
+                    c: 1
+                },
+                {
+                    r: 2,
+                    c: 2
+                },
+                {
+                    r: 2,
+                    c: 3
+                },
+                {
+                    r: 2,
+                    c: 4
+                },
+                {
+                    r: 2,
+                    c: 5
+                },
+                {
+                    r: 3,
+                    c: 1
+                },
+                {
+                    r: 3,
+                    c: 2
+                },
+                {
+                    r: 3,
+                    c: 3
+                },
+                {
+                    r: 3,
+                    c: 4
+                },
+                {
+                    r: 3,
+                    c: 5
+                },
+                {
+                    r: 3,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'winter-open-loop',
+        teachingPoint: '不要追逐单只羊，要维持三狼对整盘的覆盖。',
+        expectedPlies: {
+            min: 70,
+            target: 180,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'winter-05',
+        chapterId: 'winter',
+        indexInChapter: 5,
+        nameZh: '冬日 · 合围线',
+        nameEn: 'Winter · Ring Line',
+        blurbZh: '先保持三狼机动，再从边缘撕开第一条吃子线。',
+        blurbEn: 'Keep three wolves mobile, then tear the first capture line from the edge.',
+        rocks: [],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'winter-ring-line',
+        teachingPoint: '先建立合围位置，再投入第一条隔空跳吃路线。',
+        expectedPlies: {
+            min: 75,
+            target: 195,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'winter-06',
+        chapterId: 'winter',
+        indexInChapter: 6,
+        nameZh: '冬日 · 终极狩猎',
+        nameEn: 'Winter · Final Hunt',
+        blurbZh: '四季终章，检验空盘位置计算和连续狩猎能力。',
+        blurbEn: 'The four-season finale: prove open-board calculation and clean chains.',
+        rocks: [],
+        openingTemplate: 'winter-final-hunt',
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        teachingPoint: '在空盘完成合围与连续狩猎，同时不牺牲狼的机动性。',
+        expectedPlies: {
+            min: 80,
+            target: 210,
+            max: 300
+        },
+        difficulty: 5
+    })
+];
+function getLevel(id) {
+    return LEVELS.find((l)=>l.id === id);
+}
+function levelsForChapter(chapterId) {
+    return LEVELS.filter((l)=>l.chapterId === chapterId).sort((a, b)=>a.indexInChapter - b.indexInChapter);
+}
+function validateAllLevels() {
+    return LEVELS.flatMap((l)=>validateLevel(l).map((e)=>`${l.id}: ${e}`));
+}
+function adjacentLevels(id) {
+    const idx = LEVELS.findIndex((l)=>l.id === id);
+    if (idx < 0) return {};
+    return {
+        prev: idx > 0 ? LEVELS[idx - 1] : undefined,
+        next: idx < LEVELS.length - 1 ? LEVELS[idx + 1] : undefined
+    };
+}
+}),
+"[project]/packages/game-core/src/content/quests.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "QUEST_DEFS",
+    ()=>QUEST_DEFS,
+    "claimQuest",
+    ()=>claimQuest,
+    "dailyKey",
+    ()=>dailyKey,
+    "emptyQuestState",
+    ()=>emptyQuestState,
+    "recordQuestMetric",
+    ()=>recordQuestMetric,
+    "refreshQuestPeriod",
+    ()=>refreshQuestPeriod,
+    "weeklyKey",
+    ()=>weeklyKey
+]);
+const QUEST_DEFS = [
+    {
+        id: 'daily-play-1',
+        period: 'daily',
+        title: '今日对局 1 次',
+        target: 1,
+        metric: 'plays',
+        rewardUniversal: 3
+    },
+    {
+        id: 'daily-clear-1',
+        period: 'daily',
+        title: '今日通关 1 关',
+        target: 1,
+        metric: 'clears',
+        rewardUniversal: 5
+    },
+    {
+        id: 'weekly-clear-3',
+        period: 'weekly',
+        title: '本周通关 3 关',
+        target: 3,
+        metric: 'clears',
+        rewardUniversal: 15
+    },
+    {
+        id: 'weekly-frag-20',
+        period: 'weekly',
+        title: '本周获得 20 通用碎片',
+        target: 20,
+        metric: 'fragments_earned',
+        rewardUniversal: 10
+    }
+];
+function dailyKey(d = new Date()) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+function weeklyKey(d = new Date()) {
+    const tmp = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const dayNum = (tmp.getDay() + 6) % 7;
+    tmp.setDate(tmp.getDate() - dayNum + 3);
+    const firstThursday = new Date(tmp.getFullYear(), 0, 4);
+    const week = 1 + Math.round(((tmp.getTime() - firstThursday.getTime()) / 86400000 - 3 + (firstThursday.getDay() + 6) % 7) / 7);
+    return `${tmp.getFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+function emptyQuestState(now = new Date()) {
+    return {
+        daily: {
+            key: dailyKey(now),
+            progress: {},
+            claimed: []
+        },
+        weekly: {
+            key: weeklyKey(now),
+            progress: {},
+            claimed: []
+        }
+    };
+}
+function refreshQuestPeriod(state, now = new Date()) {
+    const dKey = dailyKey(now);
+    const wKey = weeklyKey(now);
+    return {
+        daily: state.daily.key === dKey ? state.daily : {
+            key: dKey,
+            progress: {},
+            claimed: []
+        },
+        weekly: state.weekly.key === wKey ? state.weekly : {
+            key: wKey,
+            progress: {},
+            claimed: []
+        }
+    };
+}
+function recordQuestMetric(quests, period, metric, amount, now = new Date()) {
+    let q = refreshQuestPeriod(quests, now);
+    const apply = (bucket, p)=>{
+        const progress = {
+            ...bucket.progress
+        };
+        for (const def of QUEST_DEFS){
+            if (def.period !== p || def.metric !== metric) continue;
+            progress[def.id] = Math.min(def.target, (progress[def.id] ?? 0) + amount);
+        }
+        return {
+            ...bucket,
+            progress
+        };
+    };
+    if (period === 'daily' || period === 'both') {
+        q = {
+            ...q,
+            daily: apply(q.daily, 'daily')
+        };
+    }
+    if (period === 'weekly' || period === 'both') {
+        q = {
+            ...q,
+            weekly: apply(q.weekly, 'weekly')
+        };
+    }
+    return q;
+}
+function claimQuest(save, questId, now = new Date()) {
+    const def = QUEST_DEFS.find((q)=>q.id === questId);
+    if (!def) return {
+        ok: false,
+        error: 'unknown quest'
+    };
+    const quests = refreshQuestPeriod(save.quests, now);
+    const bucket = def.period === 'daily' ? quests.daily : quests.weekly;
+    if (bucket.claimed.includes(questId)) return {
+        ok: false,
+        error: 'already claimed'
+    };
+    const progress = bucket.progress[questId] ?? 0;
+    if (progress < def.target) return {
+        ok: false,
+        error: 'incomplete'
+    };
+    const nextBucket = {
+        ...bucket,
+        claimed: [
+            ...bucket.claimed,
+            questId
+        ]
+    };
+    const nextQuests = {
+        ...quests,
+        [def.period]: nextBucket
+    };
+    return {
+        ok: true,
+        save: {
+            ...save,
+            quests: nextQuests,
+            fragments: {
+                ...save.fragments,
+                universal: save.fragments.universal + def.rewardUniversal
+            }
+        }
+    };
+}
+}),
+"[project]/packages/game-core/src/content/save.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "SAVE_KEY",
+    ()=>SAVE_KEY,
+    "activateDoubleDrop",
+    ()=>activateDoubleDrop,
+    "applyClearToSave",
+    ()=>applyClearToSave,
+    "defaultSave",
+    ()=>defaultSave,
+    "grantUniversalFragments",
+    ()=>grantUniversalFragments,
+    "isChapterUnlocked",
+    ()=>isChapterUnlocked,
+    "isDoubleDropActive",
+    ()=>isDoubleDropActive,
+    "isLevelCleared",
+    ()=>isLevelCleared,
+    "migrate",
+    ()=>migrate,
+    "recomputeUnlockedChapters",
+    ()=>recomputeUnlockedChapters,
+    "recordPlayStarted",
+    ()=>recordPlayStarted,
+    "rollClearReward",
+    ()=>rollClearReward
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/levels.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/quests.ts [app-rsc] (ecmascript)");
+;
+;
+const SAVE_KEY = 'wolf-sheep-save-v1';
+function defaultSave() {
+    return {
+        schemaVersion: 1,
+        clearedLevels: [],
+        unlockedChapters: [
+            'spring'
+        ],
+        fragments: {
+            universal: 0,
+            season: {
+                spring: 0,
+                summer: 0,
+                autumn: 0,
+                winter: 0
+            }
+        },
+        unlockedSkinIds: [
+            'wolf-default',
+            'board-default',
+            'board-spring'
+        ],
+        equipped: {
+            wolfSetId: 'wolf-default',
+            boardId: 'board-default'
+        },
+        guide: {
+            spring1Done: false
+        },
+        settings: {
+            muted: false
+        },
+        buffs: {
+            doubleDropUntil: null
+        },
+        quests: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["emptyQuestState"])()
+    };
+}
+function emptySeason() {
+    return {
+        spring: 0,
+        summer: 0,
+        autumn: 0,
+        winter: 0
+    };
+}
+function safeAmount(value, fallback = 0) {
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+function parseQuests(raw) {
+    if (!raw || typeof raw !== 'object') return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["emptyQuestState"])();
+    const o = raw;
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["refreshQuestPeriod"])({
+        daily: {
+            key: typeof o.daily?.key === 'string' ? o.daily.key : '',
+            progress: o.daily?.progress && typeof o.daily.progress === 'object' ? o.daily.progress : {},
+            claimed: Array.isArray(o.daily?.claimed) ? o.daily.claimed.filter((x)=>typeof x === 'string') : []
+        },
+        weekly: {
+            key: typeof o.weekly?.key === 'string' ? o.weekly.key : '',
+            progress: o.weekly?.progress && typeof o.weekly.progress === 'object' ? o.weekly.progress : {},
+            claimed: Array.isArray(o.weekly?.claimed) ? o.weekly.claimed.filter((x)=>typeof x === 'string') : []
+        }
+    });
+}
+function migrate(raw) {
+    if (!raw || typeof raw !== 'object') return defaultSave();
+    const o = raw;
+    if (o.schemaVersion !== 1) return defaultSave();
+    const base = defaultSave();
+    const fragments = o.fragments && typeof o.fragments === 'object' ? o.fragments : {};
+    const rawSeason = fragments.season && typeof fragments.season === 'object' ? fragments.season : {};
+    const unlockedChapters = Array.isArray(o.unlockedChapters) ? o.unlockedChapters.filter((x)=>__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["CHAPTER_ORDER"].includes(x)) : [];
+    return {
+        schemaVersion: 1,
+        clearedLevels: Array.isArray(o.clearedLevels) ? o.clearedLevels.filter((x)=>typeof x === 'string') : [],
+        unlockedChapters: unlockedChapters.includes('spring') ? unlockedChapters : [
+            'spring',
+            ...unlockedChapters
+        ],
+        fragments: {
+            universal: safeAmount(fragments.universal),
+            season: {
+                ...emptySeason(),
+                spring: safeAmount(rawSeason.spring),
+                summer: safeAmount(rawSeason.summer),
+                autumn: safeAmount(rawSeason.autumn),
+                winter: safeAmount(rawSeason.winter)
+            }
+        },
+        unlockedSkinIds: Array.isArray(o.unlockedSkinIds) ? o.unlockedSkinIds.filter((x)=>typeof x === 'string') : base.unlockedSkinIds,
+        equipped: {
+            wolfSetId: typeof o.equipped?.wolfSetId === 'string' ? o.equipped.wolfSetId : base.equipped.wolfSetId,
+            boardId: typeof o.equipped?.boardId === 'string' ? o.equipped.boardId : base.equipped.boardId
+        },
+        guide: {
+            spring1Done: Boolean(o.guide?.spring1Done)
+        },
+        settings: {
+            muted: Boolean(o.settings?.muted)
+        },
+        buffs: {
+            doubleDropUntil: typeof o.buffs?.doubleDropUntil === 'number' ? o.buffs.doubleDropUntil : null
+        },
+        quests: parseQuests(o.quests),
+        lastPlayedLevelId: typeof o.lastPlayedLevelId === 'string' ? o.lastPlayedLevelId : undefined
+    };
+}
+function isChapterUnlocked(save, chapterId) {
+    return save.unlockedChapters.includes(chapterId);
+}
+function isLevelCleared(save, levelId) {
+    return save.clearedLevels.includes(levelId);
+}
+function recomputeUnlockedChapters(save) {
+    const unlocked = [
+        'spring'
+    ];
+    for(let i = 0; i < __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["CHAPTER_ORDER"].length - 1; i++){
+        const chapter = __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["CHAPTER_ORDER"][i];
+        const next = __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["CHAPTER_ORDER"][i + 1];
+        const levels = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["levelsForChapter"])(chapter);
+        const allClear = levels.every((l)=>save.clearedLevels.includes(l.id));
+        if (allClear) unlocked.push(next);
+        else break;
+    }
+    return unlocked;
+}
+function isDoubleDropActive(save, now = Date.now()) {
+    return save.buffs.doubleDropUntil != null && save.buffs.doubleDropUntil > now;
+}
+function rollClearReward(level, save, rng, now = Date.now()) {
+    const firstClear = !save.clearedLevels.includes(level.id);
+    const doubled = isDoubleDropActive(save, now);
+    const mult = doubled ? 2 : 1;
+    if (firstClear) {
+        const season = {};
+        for (const [k, v] of Object.entries(level.firstClearReward.season ?? {})){
+            season[k] = (v ?? 0) * mult;
+        }
+        return {
+            universal: (level.firstClearReward.universal ?? 0) * mult,
+            season,
+            firstClear: true,
+            doubled
+        };
+    }
+    const drop = level.repeatDrop;
+    if (!drop || rng.nextFloat() >= drop.chance) {
+        return {
+            universal: 0,
+            season: {},
+            firstClear: false,
+            doubled
+        };
+    }
+    const season = {};
+    for (const [k, v] of Object.entries(drop.season ?? {})){
+        season[k] = (v ?? 0) * mult;
+    }
+    return {
+        universal: (drop.universal ?? 0) * mult,
+        season,
+        firstClear: false,
+        doubled
+    };
+}
+function applyClearToSave(save, level, grant) {
+    const clearedLevels = save.clearedLevels.includes(level.id) ? save.clearedLevels : [
+        ...save.clearedLevels,
+        level.id
+    ];
+    const season = {
+        ...save.fragments.season
+    };
+    for (const [k, v] of Object.entries(grant.season)){
+        const id = k;
+        season[id] = (season[id] ?? 0) + (v ?? 0);
+    }
+    let quests = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["recordQuestMetric"])(save.quests, 'both', 'clears', 1);
+    if (grant.universal > 0) {
+        quests = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["recordQuestMetric"])(quests, 'both', 'fragments_earned', grant.universal);
+    }
+    const next = {
+        ...save,
+        clearedLevels,
+        fragments: {
+            universal: save.fragments.universal + grant.universal,
+            season
+        },
+        lastPlayedLevelId: level.id,
+        quests
+    };
+    next.unlockedChapters = recomputeUnlockedChapters(next);
+    const skins = new Set(next.unlockedSkinIds);
+    for (const ch of next.unlockedChapters){
+        skins.add(`board-${ch}`);
+    }
+    skins.add('wolf-default');
+    skins.add('board-default');
+    next.unlockedSkinIds = [
+        ...skins
+    ];
+    return next;
+}
+function recordPlayStarted(save, levelId) {
+    return {
+        ...save,
+        ...levelId ? {
+            lastPlayedLevelId: levelId
+        } : {},
+        quests: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["recordQuestMetric"])(save.quests, 'both', 'plays', 1)
+    };
+}
+function activateDoubleDrop(save, durationMs = 30 * 60 * 1000, now = Date.now()) {
+    return {
+        ...save,
+        buffs: {
+            doubleDropUntil: now + durationMs
+        }
+    };
+}
+function grantUniversalFragments(save, amount) {
+    let quests = save.quests;
+    if (amount > 0) {
+        quests = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["recordQuestMetric"])(quests, 'both', 'fragments_earned', amount);
+    }
+    return {
+        ...save,
+        quests,
+        fragments: {
+            ...save.fragments,
+            universal: save.fragments.universal + amount
+        }
+    };
+}
+}),
+"[project]/packages/game-core/src/content/skins.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "SKIN_CATALOG",
+    ()=>SKIN_CATALOG,
+    "equipSkin",
+    ()=>equipSkin,
+    "getBoardSkin",
+    ()=>getBoardSkin,
+    "getSkin",
+    ()=>getSkin,
+    "getWolfSet",
+    ()=>getWolfSet,
+    "isSkinUnlocked",
+    ()=>isSkinUnlocked,
+    "resolveSkin",
+    ()=>resolveSkin,
+    "unlockSkinWithCost",
+    ()=>unlockSkinWithCost,
+    "validateSkinCatalog",
+    ()=>validateSkinCatalog
+]);
+const SKIN_CATALOG = [
+    {
+        id: 'wolf-default',
+        kind: 'wolf_set',
+        name: '原野狼',
+        unlock: {
+            type: 'default'
+        },
+        assets: {
+            wolf: '/skins/default/wolf.svg',
+            sheep: '/skins/default/sheep.svg'
+        },
+        wolfFill: '#3d4a3a',
+        sheepFill: '#f4f1ea'
+    },
+    {
+        id: 'wolf-frost',
+        kind: 'wolf_set',
+        name: '霜狼',
+        unlock: {
+            type: 'cost',
+            universal: 50
+        },
+        assets: {
+            wolf: '/skins/frost/wolf.svg',
+            sheep: '/skins/frost/sheep.svg'
+        },
+        wolfFill: '#4a6b7c',
+        sheepFill: '#e8eef2'
+    },
+    {
+        id: 'wolf-night',
+        kind: 'wolf_set',
+        name: 'Night Watch',
+        unlock: {
+            type: 'cost',
+            universal: 80
+        },
+        assets: {
+            wolf: '/skins/night/wolf.svg',
+            sheep: '/skins/night/sheep.svg'
+        },
+        wolfFill: '#26364c',
+        sheepFill: '#dce8f0'
+    },
+    {
+        id: 'board-default',
+        kind: 'board',
+        name: '原野棋盘',
+        unlock: {
+            type: 'default'
+        },
+        assets: {
+            boardBg: '/skins/boards/default.svg'
+        },
+        boardFill: '#e4f0d8',
+        lineStroke: '#4a5c3e'
+    },
+    {
+        id: 'board-spring',
+        kind: 'board',
+        name: '春日棋盘',
+        unlock: {
+            type: 'chapter',
+            chapterId: 'spring'
+        },
+        assets: {
+            boardBg: '/skins/boards/spring.svg'
+        },
+        boardFill: '#e8f6d8',
+        lineStroke: '#4a7a3a'
+    },
+    {
+        id: 'board-summer',
+        kind: 'board',
+        name: '夏日棋盘',
+        unlock: {
+            type: 'chapter',
+            chapterId: 'summer'
+        },
+        assets: {
+            boardBg: '/skins/boards/summer.svg'
+        },
+        boardFill: '#f2e8c0',
+        lineStroke: '#6a5a28'
+    },
+    {
+        id: 'board-autumn',
+        kind: 'board',
+        name: '秋日棋盘',
+        unlock: {
+            type: 'chapter',
+            chapterId: 'autumn'
+        },
+        assets: {
+            boardBg: '/skins/boards/autumn.svg'
+        },
+        boardFill: '#f2dcb8',
+        lineStroke: '#7a4020'
+    },
+    {
+        id: 'board-winter',
+        kind: 'board',
+        name: '冬日棋盘',
+        unlock: {
+            type: 'chapter',
+            chapterId: 'winter'
+        },
+        assets: {
+            boardBg: '/skins/boards/winter.svg'
+        },
+        boardFill: '#e8f0f6',
+        lineStroke: '#3a5566'
+    },
+    {
+        id: 'board-night',
+        kind: 'board',
+        name: 'Moonlit Field',
+        unlock: {
+            type: 'cost',
+            season: 'winter',
+            amount: 30
+        },
+        assets: {
+            boardBg: '/skins/boards/night.svg'
+        },
+        boardFill: '#1c3040',
+        lineStroke: '#b7c8d4'
+    }
+];
+function getSkin(id) {
+    return SKIN_CATALOG.find((s)=>s.id === id);
+}
+function getWolfSet(id) {
+    const s = getSkin(id);
+    return s?.kind === 'wolf_set' ? s : undefined;
+}
+function getBoardSkin(id) {
+    const s = getSkin(id);
+    return s?.kind === 'board' ? s : undefined;
+}
+function resolveSkin(save) {
+    const wolf = getWolfSet(save.equipped.wolfSetId) ?? getWolfSet('wolf-default');
+    const board = getBoardSkin(save.equipped.boardId) ?? getBoardSkin('board-default');
+    return {
+        wolfSet: wolf,
+        board
+    };
+}
+function isSkinUnlocked(save, skin) {
+    if (save.unlockedSkinIds.includes(skin.id)) return true;
+    if (skin.unlock.type === 'default') return true;
+    if (skin.unlock.type === 'chapter') {
+        return save.unlockedChapters.includes(skin.unlock.chapterId);
+    }
+    return false;
+}
+function unlockSkinWithCost(save, skinId) {
+    const skin = getSkin(skinId);
+    if (!skin) return {
+        ok: false,
+        error: 'skin not found'
+    };
+    if (isSkinUnlocked(save, skin)) {
+        return {
+            ok: false,
+            error: 'already unlocked'
+        };
+    }
+    if (skin.unlock.type === 'cost' && skin.kind === 'wolf_set') {
+        const cost = skin.unlock.universal;
+        if (save.fragments.universal < cost) {
+            return {
+                ok: false,
+                error: 'insufficient_universal'
+            };
+        }
+        return {
+            ok: true,
+            save: {
+                ...save,
+                fragments: {
+                    ...save.fragments,
+                    universal: save.fragments.universal - cost
+                },
+                unlockedSkinIds: [
+                    ...save.unlockedSkinIds,
+                    skin.id
+                ]
+            }
+        };
+    }
+    if (skin.unlock.type === 'cost' && skin.kind === 'board') {
+        const { season, amount } = skin.unlock;
+        if ((save.fragments.season[season] ?? 0) < amount) {
+            return {
+                ok: false,
+                error: 'insufficient_season'
+            };
+        }
+        return {
+            ok: true,
+            save: {
+                ...save,
+                fragments: {
+                    ...save.fragments,
+                    season: {
+                        ...save.fragments.season,
+                        [season]: save.fragments.season[season] - amount
+                    }
+                },
+                unlockedSkinIds: [
+                    ...save.unlockedSkinIds,
+                    skin.id
+                ]
+            }
+        };
+    }
+    return {
+        ok: false,
+        error: 'not purchasable'
+    };
+}
+function equipSkin(save, skinId) {
+    const skin = getSkin(skinId);
+    if (!skin) return {
+        ok: false,
+        error: 'not found'
+    };
+    if (!isSkinUnlocked(save, skin)) return {
+        ok: false,
+        error: 'locked'
+    };
+    if (skin.kind === 'wolf_set') {
+        return {
+            ok: true,
+            save: {
+                ...save,
+                equipped: {
+                    ...save.equipped,
+                    wolfSetId: skin.id
+                }
+            }
+        };
+    }
+    return {
+        ok: true,
+        save: {
+            ...save,
+            equipped: {
+                ...save.equipped,
+                boardId: skin.id
+            }
+        }
+    };
+}
+function validateSkinCatalog() {
+    const errors = [];
+    const ids = new Set();
+    let defaultWolf = 0;
+    let defaultBoard = 0;
+    for (const s of SKIN_CATALOG){
+        if (ids.has(s.id)) errors.push(`duplicate id ${s.id}`);
+        ids.add(s.id);
+        if (s.kind === 'wolf_set') {
+            if (!s.assets.wolf || !s.assets.sheep) errors.push(`${s.id} missing wolf/sheep asset`);
+            if (s.unlock.type === 'default') defaultWolf++;
+            if (s.unlock.type === 'cost' && s.unlock.universal < 0) errors.push(`${s.id} bad cost`);
+        } else {
+            if (!s.assets.boardBg) errors.push(`${s.id} missing boardBg`);
+            if (s.unlock.type === 'default') defaultBoard++;
+            if (s.unlock.type === 'cost' && s.unlock.amount < 0) errors.push(`${s.id} bad cost`);
+        }
+    }
+    if (defaultWolf < 1) errors.push('need default wolf_set');
+    if (defaultBoard < 1) errors.push('need default board');
+    return errors;
+}
+}),
+"[project]/packages/game-core/src/serialize.ts [app-rsc] (ecmascript) <locals>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "deserialize",
+    ()=>deserialize,
+    "makeState",
+    ()=>makeState,
+    "serialize",
+    ()=>serialize
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/board.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-rsc] (ecmascript)");
+;
+;
+function serialize(state) {
+    return {
+        pieces: state.pieces.map((p)=>({
+                ...p
+            })),
+        rocks: [
+            ...state.rocks
+        ],
+        eatenSheep: state.eatenSheep,
+        toMove: state.toMove,
+        chain: state.chain ? {
+            ...state.chain
+        } : null,
+        status: state.status,
+        levelId: state.levelId,
+        targetEaten: state.targetEaten,
+        plyCount: state.plyCount,
+        maxPlies: state.maxPlies,
+        repetitionCounts: [
+            ...state.repetitionCounts
+        ]
+    };
+}
+function deserialize(data) {
+    const state = {
+        pieces: data.pieces.map((p)=>({
+                ...p
+            })),
+        rocks: new Set(data.rocks),
+        eatenSheep: data.eatenSheep,
+        toMove: data.toMove,
+        chain: data.chain ? {
+            ...data.chain
+        } : null,
+        status: data.status,
+        levelId: data.levelId,
+        targetEaten: data.targetEaten ?? 8,
+        plyCount: data.plyCount ?? 0,
+        maxPlies: data.maxPlies ?? 300,
+        repetitionCounts: new Map(data.repetitionCounts)
+    };
+    if (data.repetitionCounts) return state;
+    return {
+        ...state,
+        repetitionCounts: new Map([
+            [
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["boardPositionKey"])(state),
+                1
+            ]
+        ])
+    };
+}
+function makeState(partial) {
+    const state = {
+        pieces: partial.pieces.map((p)=>({
+                ...p
+            })),
+        rocks: new Set((partial.rocks ?? []).map(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["keyOf"])),
+        eatenSheep: partial.eatenSheep ?? 0,
+        toMove: partial.toMove ?? 'wolf',
+        chain: partial.chain ?? null,
+        status: partial.status ?? 'playing',
+        levelId: partial.levelId ?? 'test',
+        targetEaten: partial.targetEaten ?? 8,
+        plyCount: partial.plyCount ?? 0,
+        maxPlies: partial.maxPlies ?? 300,
+        repetitionCounts: partial.repetitionCounts ?? new Map()
+    };
+    if (partial.repetitionCounts) return state;
+    return {
+        ...state,
+        repetitionCounts: new Map([
+            [
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["boardPositionKey"])(state),
+                1
+            ]
+        ])
+    };
+}
+;
+}),
+"[project]/packages/game-core/src/ai/evaluate.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "evaluate",
+    ()=>evaluate,
+    "evaluateScore",
+    ()=>evaluateScore
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/board.ts [app-rsc] (ecmascript)");
+;
+;
+const W = {
+    material: 12,
+    wolfMobility: -1.5,
+    cluster: 0.8,
+    advance: 0.4,
+    surround: 2.5,
+    safety: 5,
+    sheepMobility: 0.6
+};
+function sheepPositions(state) {
+    return state.pieces.filter((p)=>p.side === 'sheep');
+}
+function wolfPositions(state) {
+    return state.pieces.filter((p)=>p.side === 'wolf');
+}
+/** Average pairwise Chebyshev proximity among sheep (higher = tighter). */ function clusterScore(state) {
+    const sheep = sheepPositions(state);
+    if (sheep.length < 2) return 0;
+    let sum = 0;
+    let n = 0;
+    for(let i = 0; i < sheep.length; i++){
+        for(let j = i + 1; j < sheep.length; j++){
+            const a = sheep[i];
+            const b = sheep[j];
+            const dist = Math.max(Math.abs(a.r - b.r), Math.abs(a.c - b.c));
+            sum += Math.max(0, 5 - dist);
+            n++;
+        }
+    }
+    return n === 0 ? 0 : sum / n;
+}
+/** Prefer sheep not all stuck on row 1. */ function advanceScore(state) {
+    const sheep = sheepPositions(state);
+    if (sheep.length === 0) return 0;
+    return sheep.reduce((s, p)=>s + p.r, 0) / sheep.length;
+}
+/** Empty ortho neighbors of wolves occupied by sheep or rocks count as pressing. */ function surroundScore(state) {
+    const occ = new Set(state.pieces.map((p)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["posKey"])(p.r, p.c)));
+    let score = 0;
+    for (const w of wolfPositions(state)){
+        const dirs = [
+            [
+                0,
+                1
+            ],
+            [
+                0,
+                -1
+            ],
+            [
+                1,
+                0
+            ],
+            [
+                -1,
+                0
+            ]
+        ];
+        for (const [dr, dc] of dirs){
+            const k = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["posKey"])(w.r + dr, w.c + dc);
+            if (state.rocks.has(k) || occ.has(k)) score += 1;
+        }
+    }
+    return score;
+}
+/** Penalize positions where wolves already have a direct jump capture. */ function safetyScore(wolfJumps) {
+    return -wolfJumps;
+}
+/** Keep sheep from choosing moves that leave the flock with no useful exits. */ function sheepMobilityScore(state) {
+    if (state.status !== 'playing') return 0;
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["listLegalActions"])({
+        ...state,
+        toMove: 'sheep',
+        chain: null
+    }).length;
+}
+function evaluate(state) {
+    const sheepCount = sheepPositions(state).length;
+    const summary = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getWolfLegalSummary"])(state);
+    const wolfMoves = summary.reduce((s, x)=>s + x.steps + x.jumps, 0);
+    const wolfJumps = summary.reduce((s, x)=>s + x.jumps, 0);
+    const material = sheepCount;
+    const cluster = clusterScore(state);
+    const advance = advanceScore(state);
+    const surround = surroundScore(state);
+    const safety = safetyScore(wolfJumps);
+    const sheepMobility = sheepMobilityScore(state);
+    const total = W.material * material + W.wolfMobility * wolfMoves + W.cluster * cluster + W.advance * advance + W.surround * surround + W.safety * safety + W.sheepMobility * sheepMobility;
+    if (state.status === 'won') {
+        return {
+            total: -10_000,
+            material,
+            wolfMobility: wolfMoves,
+            cluster,
+            advance,
+            surround,
+            safety,
+            sheepMobility
+        };
+    }
+    if (state.status === 'lost' || wolfMoves === 0) {
+        return {
+            total: 10_000,
+            material,
+            wolfMobility: wolfMoves,
+            cluster,
+            advance,
+            surround,
+            safety,
+            sheepMobility
+        };
+    }
+    return {
+        total,
+        material,
+        wolfMobility: wolfMoves,
+        cluster,
+        advance,
+        surround,
+        safety,
+        sheepMobility
+    };
+}
+function evaluateScore(state) {
+    return evaluate(state).total;
+}
+}),
+"[project]/packages/game-core/src/ai/rng.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "createSeededRng",
+    ()=>createSeededRng,
+    "pickIndex",
+    ()=>pickIndex
+]);
+function createSeededRng(seed) {
+    let t = seed >>> 0;
+    return {
+        nextFloat () {
+            t += 0x6d2b79f5;
+            let r = Math.imul(t ^ t >>> 15, 1 | t);
+            r ^= r + Math.imul(r ^ r >>> 7, 61 | r);
+            return ((r ^ r >>> 14) >>> 0) / 4294967296;
+        }
+    };
+}
+function pickIndex(rng, length) {
+    if (length <= 0) throw new Error('pickIndex: empty');
+    return Math.min(length - 1, Math.floor(rng.nextFloat() * length));
+}
+}),
+"[project]/packages/game-core/src/ai/easy.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "pickEasy",
+    ()=>pickEasy
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/evaluate.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-rsc] (ecmascript)");
+;
+;
+;
+function pickEasy(state, rng) {
+    const actions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["listLegalActions"])(state);
+    if (actions.length === 0) throw new Error('easy: no legal sheep moves');
+    const scored = actions.map((action)=>{
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        if (!result.ok) return {
+            action,
+            score: -Infinity
+        };
+        return {
+            action,
+            score: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["evaluateScore"])(result.state)
+        };
+    });
+    // Temperature-ish: weight = exp(score / T) with soft floor
+    const T = 8;
+    const max = Math.max(...scored.map((s)=>s.score));
+    const weights = scored.map((s)=>Math.exp((s.score - max) / T) + 0.15);
+    const sum = weights.reduce((a, b)=>a + b, 0);
+    let r = rng.nextFloat() * sum;
+    for(let i = 0; i < scored.length; i++){
+        r -= weights[i];
+        if (r <= 0) return scored[i].action;
+    }
+    return scored[(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pickIndex"])(rng, scored.length)].action;
+}
+}),
+"[project]/packages/game-core/src/ai/normal.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "pickNormal",
+    ()=>pickNormal
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/evaluate.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-rsc] (ecmascript)");
+;
+;
+;
+function pickNormal(state, rng) {
+    const actions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["listLegalActions"])(state);
+    if (actions.length === 0) throw new Error('normal: no legal sheep moves');
+    let best = -Infinity;
+    const tops = [];
+    for (const action of actions){
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        if (!result.ok) continue;
+        const score = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["evaluateScore"])(result.state);
+        if (score > best) {
+            best = score;
+            tops.length = 0;
+            tops.push(action);
+        } else if (score === best) {
+            tops.push(action);
+        }
+    }
+    if (tops.length === 0) throw new Error('normal: no applicable moves');
+    return tops[(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pickIndex"])(rng, tops.length)];
+}
+}),
+"[project]/packages/game-core/src/ai/hard.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "pickHard",
+    ()=>pickHard,
+    "pickHardWithMeta",
+    ()=>pickHardWithMeta
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/evaluate.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$normal$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/normal.ts [app-rsc] (ecmascript)");
+;
+;
+;
+;
+const DEFAULT_BUDGETS = {
+    maxNodes: 4000,
+    maxMs: 12
+};
+function clockNow() {
+    return Date.now();
+}
+function exhausted(nodes, budget, start) {
+    return nodes.n >= budget.maxNodes || budget.maxMs !== undefined && clockNow() - start >= budget.maxMs;
+}
+/**
+ * Resolve the most damaging legal wolf turn, including any continuation of a
+ * capture chain. The result is always a completed wolf turn or a terminal state.
+ */ function worstWolfTurn(state, nodes, budget, start) {
+    if (state.status !== 'playing' || exhausted(nodes, budget, start)) return state;
+    // A wolf step ends the turn. Only a jump with an active chain can recurse.
+    if (state.toMove !== 'wolf') return state;
+    const wolfState = state;
+    if (wolfState.chain) {
+        const ended = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["endWolfTurn"])(wolfState);
+        let worst = ended.ok ? ended.state : wolfState;
+        let worstScore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["evaluateScore"])(worst);
+        for (const action of (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["listLegalActions"])(wolfState)){
+            if (exhausted(nodes, budget, start)) break;
+            nodes.n++;
+            const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["applyAction"])(wolfState, action);
+            if (!result.ok) continue;
+            const candidate = worstWolfTurn(result.state, nodes, budget, start);
+            const score = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["evaluateScore"])(candidate);
+            if (score < worstScore) {
+                worst = candidate;
+                worstScore = score;
+            }
+        }
+        return worst;
+    }
+    const actions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["listLegalActions"])(wolfState);
+    if (actions.length === 0) return wolfState;
+    let worst = wolfState;
+    let worstScore = Infinity;
+    for (const action of actions){
+        if (exhausted(nodes, budget, start)) break;
+        nodes.n++;
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["applyAction"])(wolfState, action);
+        if (!result.ok) continue;
+        const candidate = worstWolfTurn(result.state, nodes, budget, start);
+        const score = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["evaluateScore"])(candidate);
+        if (score < worstScore) {
+            worst = candidate;
+            worstScore = score;
+        }
+    }
+    return worstScore === Infinity ? wolfState : worst;
+}
+/** Evaluate one additional sheep decision after the worst complete wolf turn. */ function bestNextSheepResponse(state, nodes, budget, start) {
+    if (state.status !== 'playing' || state.toMove !== 'sheep' || exhausted(nodes, budget, start)) {
+        return {
+            score: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["evaluateScore"])(state),
+            completed: false
+        };
+    }
+    let best = -Infinity;
+    let completed = false;
+    for (const action of (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["listLegalActions"])(state)){
+        if (exhausted(nodes, budget, start)) break;
+        nodes.n++;
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        if (!result.ok) continue;
+        const afterWolf = worstWolfTurn(result.state, nodes, budget, start);
+        best = Math.max(best, (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["evaluateScore"])(afterWolf));
+        completed = true;
+    }
+    return {
+        score: best === -Infinity ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["evaluateScore"])(state) : best,
+        completed
+    };
+}
+function pickHardWithMeta(state, rng, budgets = DEFAULT_BUDGETS) {
+    const actions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["listLegalActions"])(state);
+    if (actions.length === 0) throw new Error('hard: no legal sheep moves');
+    const start = clockNow();
+    const nodes = {
+        n: 0
+    };
+    let bestScore = -Infinity;
+    let lookaheadCompleted = false;
+    const tops = [];
+    for (const action of actions){
+        if (exhausted(nodes, budgets, start)) break;
+        nodes.n++;
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        if (!result.ok) continue;
+        const afterWolf = worstWolfTurn(result.state, nodes, budgets, start);
+        const immediate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["evaluateScore"])(afterWolf);
+        const next = bestNextSheepResponse(afterWolf, nodes, budgets, start);
+        const score = immediate * 0.35 + next.score * 0.65;
+        lookaheadCompleted ||= next.completed;
+        if (score > bestScore) {
+            bestScore = score;
+            tops.length = 0;
+            tops.push(action);
+        } else if (score === bestScore) {
+            tops.push(action);
+        }
+    }
+    const elapsedMs = clockNow() - start;
+    if (tops.length === 0) {
+        return {
+            action: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$normal$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pickNormal"])(state, rng),
+            meta: {
+                degraded: true,
+                nodes: nodes.n,
+                elapsedMs,
+                lookaheadCompleted: false
+            }
+        };
+    }
+    return {
+        action: tops[(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pickIndex"])(rng, tops.length)],
+        meta: {
+            degraded: false,
+            nodes: nodes.n,
+            elapsedMs,
+            lookaheadCompleted
+        }
+    };
+}
+function pickHard(state, rng, budgets = DEFAULT_BUDGETS) {
+    return pickHardWithMeta(state, rng, budgets).action;
+}
+}),
+"[project]/packages/game-core/src/ai/index.ts [app-rsc] (ecmascript) <locals>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "pickSheepAction",
+    ()=>pickSheepAction,
+    "tierForChapter",
+    ()=>tierForChapter
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$easy$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/easy.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$normal$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/normal.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$hard$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/hard.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-rsc] (ecmascript)");
+;
+;
+;
+;
+function pickSheepAction(state, ctx) {
+    if (state.status !== 'playing') {
+        throw new Error('pickSheepAction: game not playing');
+    }
+    if (state.toMove !== 'sheep') {
+        throw new Error('pickSheepAction: not sheep turn');
+    }
+    switch(ctx.difficulty){
+        case 'easy':
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$easy$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pickEasy"])(state, ctx.rng);
+        case 'normal':
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$normal$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pickNormal"])(state, ctx.rng);
+        case 'hard':
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$hard$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pickHard"])(state, ctx.rng, ctx.budgets);
+        default:
+            {
+                const _exhaustive = ctx.difficulty;
+                return _exhaustive;
+            }
+    }
+}
+function tierForChapter(chapterId) {
+    switch(chapterId){
+        case 'spring':
+            return 'easy';
+        case 'summer':
+        case 'autumn':
+            return 'normal';
+        case 'winter':
+            return 'hard';
+    }
+}
+;
+}),
+"[project]/packages/game-core/src/index.ts [app-rsc] (ecmascript) <locals>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/levels.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/save.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/quests.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$skins$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/skins.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/types.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/board.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$serialize$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/serialize.ts [app-rsc] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$index$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/index.ts [app-rsc] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/evaluate.ts [app-rsc] (ecmascript)");
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+}),
+"[project]/apps/web/src/components/PlayScreen.tsx [app-rsc] (client reference proxy) <module evaluation>", ((__turbopack_context__) => {
+"use strict";
+
+// This file is generated by next-core EcmascriptClientReferenceModule.
+__turbopack_context__.s([
+    "PlayScreen",
+    ()=>PlayScreen
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-server.js [app-rsc] (ecmascript)");
+;
+const PlayScreen = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerClientReference"])(function() {
+    throw new Error("Attempted to call PlayScreen() from the server but PlayScreen is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.");
+}, "[project]/apps/web/src/components/PlayScreen.tsx <module evaluation>", "PlayScreen");
+}),
+"[project]/apps/web/src/components/PlayScreen.tsx [app-rsc] (client reference proxy)", ((__turbopack_context__) => {
+"use strict";
+
+// This file is generated by next-core EcmascriptClientReferenceModule.
+__turbopack_context__.s([
+    "PlayScreen",
+    ()=>PlayScreen
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-turbopack-server.js [app-rsc] (ecmascript)");
+;
+const PlayScreen = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$server$2d$dom$2d$turbopack$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerClientReference"])(function() {
+    throw new Error("Attempted to call PlayScreen() from the server but PlayScreen is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.");
+}, "[project]/apps/web/src/components/PlayScreen.tsx", "PlayScreen");
+}),
+"[project]/apps/web/src/components/PlayScreen.tsx [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$PlayScreen$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__$3c$module__evaluation$3e$__ = __turbopack_context__.i("[project]/apps/web/src/components/PlayScreen.tsx [app-rsc] (client reference proxy) <module evaluation>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$PlayScreen$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__ = __turbopack_context__.i("[project]/apps/web/src/components/PlayScreen.tsx [app-rsc] (client reference proxy)");
+;
+__turbopack_context__.n(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$PlayScreen$2e$tsx__$5b$app$2d$rsc$5d$__$28$client__reference__proxy$29$__);
+}),
+"[project]/apps/web/src/app/play/[levelId]/page.tsx [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>PlayPage,
+    "metadata",
+    ()=>metadata
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$api$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/api/navigation.react-server.js [app-rsc] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/client/components/navigation.react-server.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$index$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/index.ts [app-rsc] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/levels.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$PlayScreen$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/components/PlayScreen.tsx [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$get$2d$locale$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/apps/web/src/i18n/get-locale.ts [app-rsc] (ecmascript) <locals>");
+;
+;
+;
+;
+;
+const metadata = {
+    robots: {
+        index: false,
+        follow: false
+    }
+};
+async function PlayPage({ params }) {
+    const { levelId } = await params;
+    const level = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getLevel"])(levelId);
+    if (!level) (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["notFound"])();
+    const { locale } = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$get$2d$locale$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["getT"])();
+    // Ensure client gets localized title via LevelConfig fields.
+    void (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["levelDisplayName"])(level, locale);
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$PlayScreen$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["PlayScreen"], {
+        level: level
+    }, void 0, false, {
+        fileName: "[project]/apps/web/src/app/play/[levelId]/page.tsx",
+        lineNumber: 22,
+        columnNumber: 10
+    }, this);
+}
+}),
+"[project]/apps/web/src/app/play/[levelId]/page.tsx [app-rsc] (ecmascript, Next.js Server Component)", ((__turbopack_context__) => {
+
+__turbopack_context__.n(__turbopack_context__.i("[project]/apps/web/src/app/play/[levelId]/page.tsx [app-rsc] (ecmascript)"));
+}),
+"[externals]/next/dist/shared/lib/no-fallback-error.external.js [external] (next/dist/shared/lib/no-fallback-error.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/shared/lib/no-fallback-error.external.js", () => require("next/dist/shared/lib/no-fallback-error.external.js"));
+
+module.exports = mod;
+}),
+];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__43475147._.js.map

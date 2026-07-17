@@ -109,6 +109,38 @@ describe('gap capture ??? (T02/T03)', () => {
     expect(jumps).toHaveLength(0)
   })
 
+  it('blocks a normal wolf step onto a rock', () => {
+    const state = makeState({
+      pieces: [{ id: 'wolf-1', side: 'wolf', r: 4, c: 3 }],
+      rocks: [{ r: 4, c: 4 }],
+      eatenSheep: 15,
+    })
+    expect(listLegalActions(state)).not.toContainEqual({
+      type: 'step', pieceId: 'wolf-1', to: { r: 4, c: 4 },
+    })
+  })
+
+  it('ends a capture chain when a rock blocks the next jump through-square', () => {
+    const state = makeState({
+      pieces: [
+        { id: 'wolf-1', side: 'wolf', r: 6, c: 1 },
+        { id: 'sheep-1', side: 'sheep', r: 6, c: 3 },
+        { id: 'sheep-2', side: 'sheep', r: 4, c: 3 },
+      ],
+      rocks: [{ r: 5, c: 3 }],
+      eatenSheep: 13,
+      targetEaten: 15,
+      toMove: 'wolf',
+    })
+    const first = applyAction(state, {
+      type: 'jump', pieceId: 'wolf-1', through: { r: 6, c: 2 }, to: { r: 6, c: 3 },
+    })
+    expect(first.ok).toBe(true)
+    if (!first.ok) return
+    expect(first.state.chain).toBeNull()
+    expect(first.state.toMove).toBe('sheep')
+  })
+
   it('blocks capture when adjacent (no empty mid)', () => {
     const state = makeState({
       pieces: [

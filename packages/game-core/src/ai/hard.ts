@@ -7,7 +7,8 @@ import { pickNormal } from './normal'
 
 export type HardBudgets = {
   maxNodes: number
-  maxMs: number
+  /** Omit for deterministic node-limited analysis; gameplay uses 12ms by default. */
+  maxMs?: number
 }
 
 const DEFAULT_BUDGETS: HardBudgets = { maxNodes: 4000, maxMs: 12 }
@@ -17,7 +18,7 @@ function clockNow() {
 }
 
 function exhausted(nodes: { n: number }, budget: HardBudgets, start: number) {
-  return nodes.n >= budget.maxNodes || clockNow() - start >= budget.maxMs
+  return nodes.n >= budget.maxNodes || (budget.maxMs !== undefined && clockNow() - start >= budget.maxMs)
 }
 
 /**

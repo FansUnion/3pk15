@@ -10,6 +10,8 @@ import {
   rollClearReward,
   validateAllLevels,
   validateLevel,
+  deserialize,
+  serialize,
 } from '../src/index'
 
 describe('level table', () => {
@@ -34,6 +36,15 @@ describe('level table', () => {
     }
   })
 
+  it('keeps production-facing Chinese level content complete', () => {
+    for (const level of LEVELS) {
+      expect(level.nameZh.trim()).not.toBe('')
+      expect(level.blurbZh.trim().length).toBeGreaterThanOrEqual(15)
+      expect(level.teachingPoint!.trim().length).toBeGreaterThanOrEqual(10)
+      expect(level.teachingPoint).toMatch(/[\u3400-\u9fff]/)
+    }
+  })
+
   it('creates each configured opening without falling back to default positions', () => {
     for (const level of LEVELS) {
       const state = createLevelInitialState(level)
@@ -44,6 +55,15 @@ describe('level table', () => {
           level.opening.wolves,
         )
       }
+    }
+  })
+
+  it('rebuilds and serializes every configured opening with its terrain and limits intact', () => {
+    for (const level of LEVELS) {
+      const first = createLevelInitialState(level)
+      const restarted = createLevelInitialState(level)
+      expect(serialize(restarted)).toEqual(serialize(first))
+      expect(serialize(deserialize(serialize(first)))).toEqual(serialize(first))
     }
   })
 

@@ -28,6 +28,8 @@ export function SiteFooter({
         <span className="text-[#7a8574]">© Fangrush</span>
         <a
           href="/admin"
+          target="_blank"
+          rel="noopener noreferrer"
           className="ml-auto text-[10px] tracking-wide text-[#7a8574]/70 hover:text-[#5c6b52]"
         >
           {t.nav.admin}
