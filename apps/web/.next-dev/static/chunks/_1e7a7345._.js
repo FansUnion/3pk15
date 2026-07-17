@@ -1,0 +1,7560 @@
+(globalThis.TURBOPACK || (globalThis.TURBOPACK = [])).push([typeof document === "object" ? document.currentScript : undefined,
+"[project]/packages/game-core/src/types.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "BOARD_MAX",
+    ()=>BOARD_MAX,
+    "BOARD_MIN",
+    ()=>BOARD_MIN,
+    "MAX_CHAIN",
+    ()=>MAX_CHAIN,
+    "OPENING_SHEEP",
+    ()=>OPENING_SHEEP,
+    "WIN_EATEN",
+    ()=>WIN_EATEN
+]);
+const BOARD_MIN = 1;
+const BOARD_MAX = 6;
+const WIN_EATEN = 8;
+const MAX_CHAIN = 5;
+const OPENING_SHEEP = 15;
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/board.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ORTHO",
+    ()=>ORTHO,
+    "cloneRocks",
+    ()=>cloneRocks,
+    "inBounds",
+    ()=>inBounds,
+    "inBoundsPos",
+    ()=>inBoundsPos,
+    "keyOf",
+    ()=>keyOf,
+    "parseKey",
+    ()=>parseKey,
+    "posKey",
+    ()=>posKey
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/types.ts [app-client] (ecmascript)");
+;
+function posKey(r, c) {
+    return "".concat(r, ",").concat(c);
+}
+function keyOf(p) {
+    return posKey(p.r, p.c);
+}
+function parseKey(key) {
+    const [rs, cs] = key.split(',');
+    return {
+        r: Number(rs),
+        c: Number(cs)
+    };
+}
+function inBounds(r, c) {
+    return r >= __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MIN"] && r <= __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"] && c >= __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MIN"] && c <= __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"];
+}
+function inBoundsPos(p) {
+    return inBounds(p.r, p.c);
+}
+const ORTHO = [
+    {
+        r: -1,
+        c: 0
+    },
+    {
+        r: 1,
+        c: 0
+    },
+    {
+        r: 0,
+        c: -1
+    },
+    {
+        r: 0,
+        c: 1
+    }
+];
+function cloneRocks(rocks) {
+    return new Set(rocks);
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "DEFAULT_MAX_PLIES",
+    ()=>DEFAULT_MAX_PLIES,
+    "DEFAULT_SHEEP_OPENING",
+    ()=>DEFAULT_SHEEP_OPENING,
+    "DEFAULT_WOLF_OPENING",
+    ()=>DEFAULT_WOLF_OPENING,
+    "applyAction",
+    ()=>applyAction,
+    "assertInvariants",
+    ()=>assertInvariants,
+    "boardPositionKey",
+    ()=>boardPositionKey,
+    "countSide",
+    ()=>countSide,
+    "createInitialState",
+    ()=>createInitialState,
+    "endWolfTurn",
+    ()=>endWolfTurn,
+    "evaluateTerminal",
+    ()=>evaluateTerminal,
+    "getWolfLegalSummary",
+    ()=>getWolfLegalSummary,
+    "listLegalActions",
+    ()=>listLegalActions,
+    "listWolfActionsAsIfTurn",
+    ()=>listWolfActionsAsIfTurn,
+    "refreshStatus",
+    ()=>refreshStatus
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/board.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/types.ts [app-client] (ecmascript)");
+;
+;
+const DEFAULT_SHEEP_OPENING = [
+    {
+        r: 1,
+        c: 1
+    },
+    {
+        r: 1,
+        c: 2
+    },
+    {
+        r: 1,
+        c: 3
+    },
+    {
+        r: 1,
+        c: 4
+    },
+    {
+        r: 1,
+        c: 5
+    },
+    {
+        r: 2,
+        c: 1
+    },
+    {
+        r: 2,
+        c: 2
+    },
+    {
+        r: 2,
+        c: 3
+    },
+    {
+        r: 2,
+        c: 4
+    },
+    {
+        r: 2,
+        c: 5
+    },
+    {
+        r: 3,
+        c: 1
+    },
+    {
+        r: 3,
+        c: 2
+    },
+    {
+        r: 3,
+        c: 3
+    },
+    {
+        r: 3,
+        c: 4
+    },
+    {
+        r: 3,
+        c: 5
+    }
+];
+const DEFAULT_WOLF_OPENING = [
+    {
+        r: 6,
+        c: 2
+    },
+    {
+        r: 6,
+        c: 3
+    },
+    {
+        r: 6,
+        c: 5
+    }
+];
+const DEFAULT_MAX_PLIES = 300;
+function createInitialState(levelId) {
+    let rocks = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : [], targetEaten = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["WIN_EATEN"], maxPlies = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : DEFAULT_MAX_PLIES, opening = arguments.length > 4 ? arguments[4] : void 0;
+    const rockSet = new Set(rocks.map((p)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["keyOf"])(p)));
+    var _opening_wolves;
+    const wolves = (_opening_wolves = opening === null || opening === void 0 ? void 0 : opening.wolves) !== null && _opening_wolves !== void 0 ? _opening_wolves : DEFAULT_WOLF_OPENING;
+    var _opening_sheep;
+    const sheep = (_opening_sheep = opening === null || opening === void 0 ? void 0 : opening.sheep) !== null && _opening_sheep !== void 0 ? _opening_sheep : DEFAULT_SHEEP_OPENING;
+    if (wolves.length !== 3) throw new Error('Opening must contain exactly 3 wolves');
+    if (sheep.length !== __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["OPENING_SHEEP"]) throw new Error("Opening must contain exactly ".concat(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["OPENING_SHEEP"], " sheep"));
+    const occupied = new Set();
+    for (const p of [
+        ...wolves,
+        ...sheep
+    ]){
+        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["inBounds"])(p.r, p.c)) throw new Error("Opening piece out of bounds at (".concat(p.r, ",").concat(p.c, ")"));
+        const key = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["keyOf"])(p);
+        if (occupied.has(key)) throw new Error("Opening pieces overlap at (".concat(p.r, ",").concat(p.c, ")"));
+        occupied.add(key);
+        if (rockSet.has(key)) {
+            throw new Error("Rock overlaps opening piece at (".concat(p.r, ",").concat(p.c, ")"));
+        }
+    }
+    const pieces = [
+        ...wolves.map((p, i)=>({
+                id: "wolf-".concat(i + 1),
+                side: 'wolf',
+                r: p.r,
+                c: p.c
+            })),
+        ...sheep.map((p, i)=>({
+                id: "sheep-".concat(i + 1),
+                side: 'sheep',
+                r: p.r,
+                c: p.c
+            }))
+    ];
+    const state = {
+        pieces,
+        rocks: rockSet,
+        eatenSheep: 0,
+        toMove: 'wolf',
+        chain: null,
+        status: 'playing',
+        levelId,
+        targetEaten,
+        plyCount: 0,
+        maxPlies,
+        repetitionCounts: new Map()
+    };
+    return refreshStatus({
+        ...state,
+        repetitionCounts: new Map([
+            [
+                boardPositionKey(state),
+                1
+            ]
+        ])
+    });
+}
+function occupancy(state) {
+    const map = new Map();
+    for (const p of state.pieces){
+        map.set((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["posKey"])(p.r, p.c), p);
+    }
+    return map;
+}
+function isBlocked(state, r, c, occ) {
+    if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["inBounds"])(r, c)) return true;
+    const k = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["posKey"])(r, c);
+    if (state.rocks.has(k)) return true;
+    return occ.has(k);
+}
+function listWolfSteps(state, wolf, occ) {
+    const moves = [];
+    for (const d of __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ORTHO"]){
+        const nr = wolf.r + d.r;
+        const nc = wolf.c + d.c;
+        if (!isBlocked(state, nr, nc, occ)) {
+            moves.push({
+                type: 'step',
+                pieceId: wolf.id,
+                to: {
+                    r: nr,
+                    c: nc
+                }
+            });
+        }
+    }
+    return moves;
+}
+/** 隔空吃：狼 — 空 — 羊；落到羊位并移除羊 */ function listWolfJumps(state, wolf, occ) {
+    const moves = [];
+    for (const d of __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ORTHO"]){
+        const tr = wolf.r + d.r;
+        const tc = wolf.c + d.c;
+        const lr = wolf.r + 2 * d.r;
+        const lc = wolf.c + 2 * d.c;
+        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["inBounds"])(tr, tc) || !(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["inBounds"])(lr, lc)) continue;
+        const midKey = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["posKey"])(tr, tc);
+        if (state.rocks.has(midKey) || occ.has(midKey)) continue;
+        const target = occ.get((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["posKey"])(lr, lc));
+        if (!target || target.side !== 'sheep') continue;
+        moves.push({
+            type: 'jump',
+            pieceId: wolf.id,
+            through: {
+                r: tr,
+                c: tc
+            },
+            to: {
+                r: lr,
+                c: lc
+            }
+        });
+    }
+    return moves;
+}
+function listSheepSteps(state, sheep, occ) {
+    const moves = [];
+    for (const d of __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ORTHO"]){
+        const nr = sheep.r + d.r;
+        const nc = sheep.c + d.c;
+        // Cannot retreat toward row 1 (decreasing r)
+        if (nr < sheep.r) continue;
+        if (!isBlocked(state, nr, nc, occ)) {
+            moves.push({
+                type: 'step',
+                pieceId: sheep.id,
+                to: {
+                    r: nr,
+                    c: nc
+                }
+            });
+        }
+    }
+    return moves;
+}
+function listLegalActions(state) {
+    if (state.status !== 'playing') return [];
+    const occ = occupancy(state);
+    if (state.toMove === 'wolf') {
+        if (state.chain) {
+            const wolf = state.pieces.find((p)=>p.id === state.chain.wolfId);
+            if (!wolf || wolf.side !== 'wolf') return [];
+            return listWolfJumps(state, wolf, occ);
+        }
+        const wolves = state.pieces.filter((p)=>p.side === 'wolf');
+        const actions = [];
+        for (const w of wolves){
+            actions.push(...listWolfSteps(state, w, occ), ...listWolfJumps(state, w, occ));
+        }
+        return actions;
+    }
+    // sheep turn
+    const sheep = state.pieces.filter((p)=>p.side === 'sheep');
+    const actions = [];
+    for (const s of sheep){
+        actions.push(...listSheepSteps(state, s, occ));
+    }
+    return actions;
+}
+function listWolfActionsAsIfTurn(state) {
+    const probe = {
+        ...state,
+        toMove: 'wolf',
+        chain: null,
+        status: 'playing'
+    };
+    return listLegalActions(probe);
+}
+function getWolfLegalSummary(state) {
+    const probe = {
+        ...state,
+        toMove: 'wolf',
+        chain: null,
+        status: 'playing'
+    };
+    const occ = occupancy(probe);
+    return probe.pieces.filter((p)=>p.side === 'wolf').map((w)=>({
+            wolfId: w.id,
+            steps: listWolfSteps(probe, w, occ).length,
+            jumps: listWolfJumps(probe, w, occ).length
+        }));
+}
+function boardPositionKey(state) {
+    const pieces = [
+        ...state.pieces
+    ].sort((a, b)=>a.id.localeCompare(b.id)).map((piece)=>"".concat(piece.id, ":").concat(piece.r, ",").concat(piece.c)).join('|');
+    const chain = state.chain ? "".concat(state.chain.wolfId, ":").concat(state.chain.count) : '-';
+    return "".concat(pieces, "::").concat([
+        ...state.rocks
+    ].sort().join(','), "::").concat(state.toMove, "::").concat(chain);
+}
+function recordPosition(state) {
+    if (state.status !== 'playing') return state;
+    const repetitionCounts = new Map(state.repetitionCounts);
+    const key = boardPositionKey(state);
+    var _repetitionCounts_get;
+    const count = ((_repetitionCounts_get = repetitionCounts.get(key)) !== null && _repetitionCounts_get !== void 0 ? _repetitionCounts_get : 0) + 1;
+    repetitionCounts.set(key, count);
+    if (count >= 3) {
+        return {
+            ...state,
+            repetitionCounts,
+            status: 'draw',
+            chain: null
+        };
+    }
+    return {
+        ...state,
+        repetitionCounts
+    };
+}
+function evaluateTerminal(state) {
+    if (state.eatenSheep >= state.targetEaten) return 'won';
+    if (listWolfActionsAsIfTurn(state).length === 0) return 'lost';
+    if (state.plyCount >= state.maxPlies) return 'draw';
+    return 'playing';
+}
+function refreshStatus(state) {
+    const status = evaluateTerminal(state);
+    if (status === state.status) return state;
+    return {
+        ...state,
+        status,
+        chain: status === 'playing' ? state.chain : null
+    };
+}
+function samePos(a, b) {
+    return a.r === b.r && a.c === b.c;
+}
+function actionEquals(a, b) {
+    if (a.type !== b.type || a.pieceId !== b.pieceId) return false;
+    if (a.type === 'step' && b.type === 'step') return samePos(a.to, b.to);
+    if (a.type === 'jump' && b.type === 'jump') {
+        return samePos(a.to, b.to) && samePos(a.through, b.through);
+    }
+    return false;
+}
+function isLegal(state, action) {
+    return listLegalActions(state).some((a)=>actionEquals(a, action));
+}
+function cloneState(state) {
+    return {
+        ...state,
+        pieces: state.pieces.map((p)=>({
+                ...p
+            })),
+        rocks: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cloneRocks"])(state.rocks),
+        chain: state.chain ? {
+            ...state.chain
+        } : null,
+        plyCount: state.plyCount,
+        maxPlies: state.maxPlies,
+        repetitionCounts: new Map(state.repetitionCounts)
+    };
+}
+function applyAction(state, action) {
+    var _state_chain;
+    if (state.status !== 'playing') {
+        return {
+            ok: false,
+            error: 'Game already ended'
+        };
+    }
+    if (!isLegal(state, action)) {
+        return {
+            ok: false,
+            error: 'Illegal action'
+        };
+    }
+    let next = cloneState(state);
+    next.plyCount += 1;
+    const piece = next.pieces.find((p)=>p.id === action.pieceId);
+    if (!piece) return {
+        ok: false,
+        error: 'Piece not found'
+    };
+    if (action.type === 'step') {
+        piece.r = action.to.r;
+        piece.c = action.to.c;
+        next.chain = null;
+        if (next.toMove === 'wolf') {
+            next.toMove = 'sheep';
+        } else {
+            // sheep one step then wolf
+            next.toMove = 'wolf';
+        }
+        return {
+            ok: true,
+            state: recordPosition(refreshStatus(next))
+        };
+    }
+    // jump / 隔空吃 (wolf only): remove sheep at `to`, wolf lands on `to`
+    next.pieces = next.pieces.filter((p)=>!(p.side === 'sheep' && p.r === action.to.r && p.c === action.to.c));
+    const wolf = next.pieces.find((p)=>p.id === action.pieceId);
+    if (!wolf) return {
+        ok: false,
+        error: 'Wolf not found after jump'
+    };
+    wolf.r = action.to.r;
+    wolf.c = action.to.c;
+    next.eatenSheep += 1;
+    if (next.eatenSheep >= next.targetEaten) {
+        next.chain = null;
+        next.status = 'won';
+        return {
+            ok: true,
+            state: next
+        };
+    }
+    var _state_chain_count;
+    const newCount = ((_state_chain_count = (_state_chain = state.chain) === null || _state_chain === void 0 ? void 0 : _state_chain.count) !== null && _state_chain_count !== void 0 ? _state_chain_count : 0) + 1;
+    if (newCount >= __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["MAX_CHAIN"]) {
+        next.chain = null;
+        next.toMove = 'sheep';
+        return {
+            ok: true,
+            state: recordPosition(refreshStatus(next))
+        };
+    }
+    next.chain = {
+        wolfId: action.pieceId,
+        count: newCount
+    };
+    next.toMove = 'wolf';
+    const remainingJumps = listLegalActions(next).filter((a)=>a.type === 'jump');
+    if (remainingJumps.length === 0) {
+        next.chain = null;
+        next.toMove = 'sheep';
+    }
+    return {
+        ok: true,
+        state: recordPosition(refreshStatus(next))
+    };
+}
+function endWolfTurn(state) {
+    if (state.status !== 'playing') {
+        return {
+            ok: false,
+            error: 'Game already ended'
+        };
+    }
+    if (state.toMove !== 'wolf') {
+        return {
+            ok: false,
+            error: 'Not wolf turn'
+        };
+    }
+    const next = cloneState(state);
+    next.chain = null;
+    next.toMove = 'sheep';
+    return {
+        ok: true,
+        state: recordPosition(refreshStatus(next))
+    };
+}
+function assertInvariants(state) {
+    const seen = new Set();
+    let sheep = 0;
+    let wolves = 0;
+    for (const p of state.pieces){
+        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["inBounds"])(p.r, p.c)) throw new Error("Out of bounds ".concat(p.id));
+        const k = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["posKey"])(p.r, p.c);
+        if (seen.has(k)) throw new Error("Overlap at ".concat(k));
+        seen.add(k);
+        if (state.rocks.has(k)) throw new Error("Piece on rock ".concat(k));
+        if (p.side === 'sheep') sheep++;
+        else wolves++;
+    }
+    if (wolves > 3) throw new Error('Too many wolves');
+    if (state.eatenSheep !== __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["OPENING_SHEEP"] - sheep) {
+        throw new Error("eatenSheep mismatch: ".concat(state.eatenSheep, " vs ").concat(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["OPENING_SHEEP"] - sheep));
+    }
+    if (state.chain) {
+        if (state.toMove !== 'wolf') throw new Error('chain while not wolf turn');
+        if (state.chain.count < 1 || state.chain.count > __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["MAX_CHAIN"]) {
+            throw new Error('invalid chain count');
+        }
+    }
+    if (state.status !== 'playing' && state.chain !== null) {
+        throw new Error('chain after terminal');
+    }
+}
+function countSide(state, side) {
+    return state.pieces.filter((p)=>p.side === side).length;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/content/levels.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "CHAPTER_AI",
+    ()=>CHAPTER_AI,
+    "CHAPTER_BLURB_EN",
+    ()=>CHAPTER_BLURB_EN,
+    "CHAPTER_BLURB_ZH",
+    ()=>CHAPTER_BLURB_ZH,
+    "CHAPTER_LABEL",
+    ()=>CHAPTER_LABEL,
+    "CHAPTER_LABEL_EN",
+    ()=>CHAPTER_LABEL_EN,
+    "CHAPTER_ORDER",
+    ()=>CHAPTER_ORDER,
+    "LEVELS",
+    ()=>LEVELS,
+    "adjacentLevels",
+    ()=>adjacentLevels,
+    "createLevelInitialState",
+    ()=>createLevelInitialState,
+    "getLevel",
+    ()=>getLevel,
+    "levelBlurb",
+    ()=>levelBlurb,
+    "levelDisplayName",
+    ()=>levelDisplayName,
+    "levelTeachingPoint",
+    ()=>levelTeachingPoint,
+    "levelsForChapter",
+    ()=>levelsForChapter,
+    "validateAllLevels",
+    ()=>validateAllLevels,
+    "validateLevel",
+    ()=>validateLevel
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/types.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/board.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+;
+;
+;
+const LEVEL_PRODUCT_META = {
+    'spring-01': meta('空野代表干扰最少的基础猎场。', '用一枚边石保留地形概念，集中教学移动和首次跳吃。', '看懂目标并完成第一次有效捕食。', '先移动中狼接近羊群，再寻找清晰跳吃。', '羊群压力较低，主要通过基础占位阻挡。', [
+        '教学'
+    ]),
+    'spring-02': meta('一石强调唯一岩石会阻挡落点。', '在开阔盘面加入单点绕行，建立岩石意识。', '绕开岩石完成短跳吃。', '从岩石另一侧换线，不急于连续跳吃。', '羊群利用边石压缩单侧落点。', [
+        '教学'
+    ]),
+    'spring-03': meta('双石表示两枚中场石共同切出路线。', '用双石形成通道，首次引入短连吃选择。', '找到短连吃并在被困前停止。', '比较左右入口，优先保留退出位置。', '羊群填补通道并封锁后续落点。', [
+        '连吃'
+    ]),
+    'spring-04': meta('回旋表示先换位再回到捕食线路。', '边石改变直线路径，训练安全调整。', '接受准备回合并建立吃口。', '先稳住三狼间距，再从侧面回切。', '羊群通过换线诱导狼无效追逐。', [
+        '走位'
+    ]),
+    'spring-05': meta('双线表示左右都有接近羊群的路线。', '提供两个入口，训练主攻方向选择。', '选择主攻侧并保留另一狼支援。', '一侧施压，另一侧狼控制出口。', '羊群在两线间转移以分散狼群。', [
+        '双路线'
+    ]),
+    'spring-06': meta('收束既是春季终关，也指把优势转成胜势。', '综合短连吃、路线选择和安全退出。', '独立完成基础狩猎并解释停止时机。', '三狼分工后用短链稳定累计捕食。', '羊群综合使用占位、换线和拖延。', [
+        '季末'
+    ]),
+    'summer-01': meta('裂隙指封锁之间留下的突破缝隙。', '从教学盘进入真实防守压力，要求集中突破。', '识别封锁并制造首个吃口。', '选择一条压力线，不同时追逐两侧。', '羊群主动挡线并填补跳吃落点。', [
+        '封锁'
+    ]),
+    'summer-02': meta('横切指岩石横向分割中场路线。', '三石配合 Hard AI，训练耐心布置和接应。', '在高压下保持退路并打开中场。', '保留第二只狼，从侧面横切进入。', 'Hard 羊群会抱团、避吃并把狼推向死角。', [
+        'Hard AI',
+        '死角'
+    ]),
+    'summer-03': meta('拉扯表示双方围绕漏斗反复争夺。', '四石漏斗要求诱开、封口和收割三狼分工。', '执行右侧首吃、左侧封口、中路支援。', '一狼诱开，两狼控制出口与后续吃线。', '羊群利用漏斗封口并诱导狼进入窄区。', [
+        '漏斗',
+        '困狼'
+    ]),
+    'summer-04': meta('分流指羊群沿主线与侧翼分开。', '三石形成两条防守流向，训练压力分配。', '保持两线压力而不失去机动。', '主线逼退、侧翼截断，避免三狼挤在一侧。', '羊群分散换线，迫使狼错误调动。', [
+        '分流'
+    ]),
+    'summer-05': meta('反推表示羊群会反向压缩狼的空间。', 'Hard AI 与底线地形强化反制和退路管理。', '识别陷阱并保留第二出口。', '捕食前先确认另一条退路仍开放。', '羊群通过站位把狼推向边角。', [
+        'Hard AI',
+        '退路'
+    ]),
+    'summer-06': meta('压线指三狼共同压迫中场路线。', '四石与偏右狼位检验夏季协作能力。', '完成协作站位后进入决定性吃线。', '两狼压线，一狼保留换线和收割位置。', '羊群集中封锁中场并拖延突破。', [
+        '季末',
+        '策略敏感'
+    ]),
+    'autumn-01': meta('碎盘表示五石把棋盘切成多个窄道。', '让岩石成为路线边界，训练复杂地形识别。', '快速找到有效窄道并避免困狼。', '两狼控口，一狼沿可退出通道推进。', '羊群填满狭窄落点并制造快速困狼。', [
+        '密岩',
+        '困狼'
+    ]),
+    'autumn-02': meta('通道指胜负围绕唯一主路线展开。', '把复杂地形压力集中到通道两端争夺。', '理解两狼控口、一狼兑现。', '控制两端后把一次跳吃扩展为连续收割。', '羊群争夺通道口并切断狼的接应。', [
+        '主通道'
+    ]),
+    'autumn-03': meta('丰收表示打开路线后可连续捕食。', '高收益窗口同时要求判断何时停止。', '体验长连吃并及时保住机动。', '边线建立首吃，确认出口后再延长链。', '羊群改变落点，引诱狼为贪吃失去退路。', [
+        '连吃',
+        '偏狼风险'
+    ]),
+    'autumn-04': meta('断桥指连吃路线被切成多个断点。', '入口清晰但后续方向变化，训练提前计算。', '进线前检查落点和出口。', '中狼进入断点，边狼维持两端控制。', '羊群在断点两侧切断后续接触。', [
+        '断桥',
+        '困狼'
+    ]),
+    'autumn-05': meta('窄门表示进攻窗口狭窄且需要双端开放。', '通过双端通道考验三狼协作。', '保持两端通行并兑现短暂窗口。', '两狼守门，一狼等待强制跳吃。', '羊群封住任一端即可破坏连吃窗口。', [
+        '窄门'
+    ]),
+    'autumn-06': meta('丰收终局是在高压力下完成秋季体系。', '综合密岩、连吃收益和三狼机动。', '完成干净可控的长连吃。', '先占稳定入口，再由第二狼接管出口。', '羊群分散到多个岩隙，迫使狼跨区。', [
+        '季末',
+        '密岩'
+    ]),
+    'winter-01': meta('空寂表示没有岩石，空间关系完全暴露。', '移除地形支点，只考验三狼间距与覆盖。', '从地形解题过渡到纯站位对抗。', '保持三狼横向覆盖，等待羊群出现破口。', 'Hard 羊群在空盘抱团并主动合围。', [
+        '空盘',
+        'Hard AI'
+    ]),
+    'winter-02': meta('合围表示高阶羊群主动压缩狼的空间。', '用 Hard AI 形成真实封锁压力。', '在高压下找到可解释的边线突破。', '先保三狼通路，再从边线制造首吃。', '羊群协同封锁、抱团并反复换线。', [
+        '空盘',
+        '高压'
+    ]),
+    'winter-03': meta('绝境表示容错极低，需要连续精确计算。', '不靠岩石变化，以空盘站位精度构成挑战。', '识别一次可连续兑现的决定性机会。', '耐心扩大覆盖，避免无支援的单狼突入。', '羊群最大化合围和拖延，等待狼失位。', [
+        '空盘',
+        '高难'
+    ]),
+    'winter-04': meta('回环指羊群反复换线诱导狼追逐。', '前置羊阵扩大横向流动，考验整体覆盖。', '不追单羊，维持三狼控制区域。', '用宽覆盖限制羊群回环路线。', '羊群横向循环并制造重复局面。', [
+        '空盘',
+        '重复'
+    ]),
+    'winter-05': meta('合围线指先包围再撕出捕食路线。', '不对称狼位训练从边缘建立首吃。', '建立合围后再投入进攻。', '边狼制造破口，中狼保持接应。', '羊群压缩边线并封锁孤立狼。', [
+        '空盘',
+        '策略敏感'
+    ]),
+    'winter-06': meta('终极狩猎是四季能力的综合考验。', '用空盘检验计算、协作、连吃控制和耐心。', '综合全部能力完成最终狩猎。', '维持机动与覆盖，等待干净连续吃线。', 'Hard 羊群综合合围、避吃、拖延和反重复。', [
+        '终局',
+        '高难'
+    ])
+};
+function meta(nameMeaningZh, designConceptZh, playerGoalZh, wolfStrategyZh, sheepDefenseZh, riskTags) {
+    return {
+        nameMeaningZh,
+        designConceptZh,
+        playerGoalZh,
+        wolfStrategyZh,
+        sheepDefenseZh,
+        riskTags,
+        productionStatus: 'approved'
+    };
+}
+function openingPositions(level) {
+    var _level_opening, _level_opening1;
+    var _level_opening_wolves, _level_opening_sheep;
+    return {
+        wolves: (_level_opening_wolves = (_level_opening = level.opening) === null || _level_opening === void 0 ? void 0 : _level_opening.wolves) !== null && _level_opening_wolves !== void 0 ? _level_opening_wolves : __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DEFAULT_WOLF_OPENING"],
+        sheep: (_level_opening_sheep = (_level_opening1 = level.opening) === null || _level_opening1 === void 0 ? void 0 : _level_opening1.sheep) !== null && _level_opening_sheep !== void 0 ? _level_opening_sheep : __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DEFAULT_SHEEP_OPENING"]
+    };
+}
+function createLevelInitialState(level) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createInitialState"])(level.id, level.rocks, level.targetEaten, level.maxPlies, level.opening);
+}
+const CHAPTER_AI = {
+    spring: 'normal',
+    summer: 'normal',
+    autumn: 'normal',
+    winter: 'hard'
+};
+const CHAPTER_ORDER = [
+    'spring',
+    'summer',
+    'autumn',
+    'winter'
+];
+const CHAPTER_LABEL = {
+    spring: '春日',
+    summer: '夏日',
+    autumn: '秋日',
+    winter: '冬日'
+};
+const CHAPTER_LABEL_EN = {
+    spring: 'Spring',
+    summer: 'Summer',
+    autumn: 'Autumn',
+    winter: 'Winter'
+};
+const CHAPTER_BLURB_EN = {
+    spring: 'Learn gap-eat and short chains on a gentle flock — rocks stay scarce.',
+    summer: 'The flock blocks for real. Midfield rocks start to matter.',
+    autumn: 'Same AI tier as summer, but dense rocks crack your lines and create lanes.',
+    winter: 'Empty-board master duel — the hard AI surrounds without rock crutches.'
+};
+const CHAPTER_BLURB_ZH = {
+    spring: '在温和羊群上学会隔空吃与短连吃；岩石很少，专注规则。',
+    summer: '羊群开始认真挡线，中场岩石开始影响路线。',
+    autumn: 'AI 档位与夏同级，但密岩撕开通道、逼出隔空连吃。',
+    winter: '空盘硬仗：高阶合围，不再靠岩石挡点。'
+};
+const LEVEL_TEACHING_EN = {
+    'spring-01': 'Select a wolf, step to an empty point, then find your first gap capture.',
+    'spring-02': 'Treat the rock as a blocked landing point and route around it to create a capture.',
+    'spring-03': 'Choose a short capture chain and stop before the wolf becomes trapped.',
+    'spring-04': 'Make a safe repositioning move before committing to a capture route.',
+    'spring-05': 'Compare the left and right capture routes before moving the second wolf.',
+    'spring-06': 'Combine short chains and route choice while keeping every wolf mobile.',
+    'summer-01': 'Read the flock block and concentrate pressure on one breakthrough line.',
+    'summer-02': 'Keep a second wolf available to cut across midfield instead of rushing in.',
+    'summer-03': 'Give the three wolves separate roles: draw out, seal the exit, and support.',
+    'summer-04': 'Pressure both flock routes without crowding all three wolves onto one side.',
+    'summer-05': 'Check that a second exit remains open before starting a capture.',
+    'summer-06': 'Coordinate all three wolves before entering the decisive capture line.',
+    'autumn-01': 'Use two wolves to control a corridor while the third advances with an exit.',
+    'autumn-02': 'Control both ends of the main corridor, then extend one capture into a chain.',
+    'autumn-03': 'Balance chain value against the exit, and stop early when mobility is at risk.',
+    'autumn-04': 'Treat gaps between rocks as chain entries and calculate the next direction first.',
+    'autumn-05': 'Keep both ends of the narrow gate open while preparing the forced capture.',
+    'autumn-06': 'Choose between a long chain and keeping all three wolves mobile.',
+    'winter-01': 'Without rocks, use the spacing between all three wolves to open the flock.',
+    'winter-02': 'Keep a route for every wolf, then create the first opening from an edge.',
+    'winter-03': 'Maintain open-board coverage and wait for a capture opportunity you can fully convert.',
+    'winter-04': 'Do not chase one sheep; preserve broad three-wolf control of the board.',
+    'winter-05': 'Build the surround before committing the first wolf to a capture route.',
+    'winter-06': 'Complete the open-board surround and chain hunt without sacrificing mobility.'
+};
+const ROCK_COUNT_RANGE = {
+    spring: {
+        min: 0,
+        max: 2
+    },
+    summer: {
+        min: 2,
+        max: 4
+    },
+    autumn: {
+        min: 5,
+        max: 6
+    },
+    winter: {
+        min: 0,
+        max: 0
+    }
+};
+function validateLevel(level) {
+    const errors = [];
+    const allowedAi = {
+        spring: [
+            'easy',
+            'normal'
+        ],
+        summer: [
+            'normal',
+            'hard'
+        ],
+        autumn: [
+            'normal',
+            'hard'
+        ],
+        winter: [
+            'hard'
+        ]
+    };
+    if (!allowedAi[level.chapterId].includes(level.ai)) {
+        errors.push("ai ".concat(level.ai, " is not allowed for ").concat(level.chapterId));
+    }
+    if (level.targetEaten !== undefined && (!Number.isInteger(level.targetEaten) || level.targetEaten < 1 || level.targetEaten > 15)) {
+        errors.push('targetEaten must be an integer between 1 and 15');
+    }
+    if (level.maxPlies !== undefined && (!Number.isInteger(level.maxPlies) || level.maxPlies < 20)) {
+        errors.push('maxPlies must be an integer of at least 20');
+    }
+    if (level.expectedPlies) {
+        const { min, target, max } = level.expectedPlies;
+        if (!(min > 0 && min <= target && target <= max)) {
+            errors.push('expectedPlies must satisfy 0 < min <= target <= max');
+        }
+    }
+    const range = ROCK_COUNT_RANGE[level.chapterId];
+    if (level.rocks.length < range.min || level.rocks.length > range.max) {
+        errors.push("rocks count ".concat(level.rocks.length, " out of range [").concat(range.min, ",").concat(range.max, "] for ").concat(level.chapterId));
+    }
+    const opening = openingPositions(level);
+    if (opening.wolves.length !== 3) errors.push('opening wolves must contain exactly 3 positions');
+    if (opening.sheep.length !== 15) errors.push('opening sheep must contain exactly 15 positions');
+    const openingKeys = new Set();
+    for (const p of [
+        ...opening.wolves,
+        ...opening.sheep
+    ]){
+        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["inBounds"])(p.r, p.c)) {
+            errors.push("opening piece out of bounds (".concat(p.r, ",").concat(p.c, ")"));
+            continue;
+        }
+        const key = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["keyOf"])(p);
+        if (openingKeys.has(key)) errors.push("opening pieces overlap at ".concat(key));
+        openingKeys.add(key);
+    }
+    const seen = new Set();
+    for (const p of level.rocks){
+        if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["inBounds"])(p.r, p.c)) {
+            errors.push("rock out of bounds (".concat(p.r, ",").concat(p.c, ")"));
+            continue;
+        }
+        const k = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["keyOf"])(p);
+        if (seen.has(k)) errors.push("duplicate rock ".concat(k));
+        seen.add(k);
+        if (openingKeys.has(k)) errors.push("rock on opening piece ".concat(k));
+    }
+    const adj = new Set();
+    for (const a of level.rocks){
+        for (const d of __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ORTHO"]){
+            const nr = a.r + d.r;
+            const nc = a.c + d.c;
+            if (nr < __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MIN"] || nr > __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"] || nc < __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MIN"] || nc > __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"]) continue;
+            if (seen.has((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["posKey"])(nr, nc))) {
+                const pair = [
+                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["keyOf"])(a),
+                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["posKey"])(nr, nc)
+                ].sort().join('|');
+                adj.add("adjacent rocks ".concat(pair));
+            }
+        }
+    }
+    errors.push(...adj);
+    if (errors.length === 0) {
+        try {
+            if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])(createLevelInitialState(level)).length === 0) {
+                errors.push('opening must provide at least one wolf legal action');
+            }
+        } catch (error) {
+            errors.push(error instanceof Error ? error.message : 'invalid opening');
+        }
+    }
+    return errors;
+}
+function L(partial) {
+    const seasonTeaching = {
+        spring: 'Learn one clear movement or capture idea before adding pressure.',
+        summer: 'Read flock blocking and plan a route through midfield pressure.',
+        autumn: 'Use dense rock corridors to plan the order of a short chain.',
+        winter: 'Keep all wolves mobile and solve the open-board surround.'
+    };
+    const seasonDifficulty = {
+        spring: 1,
+        summer: 3,
+        autumn: 4,
+        winter: 5
+    };
+    const baseExpected = {
+        spring: {
+            min: 30,
+            target: 100,
+            max: 260
+        },
+        summer: {
+            min: 40,
+            target: 130,
+            max: 290
+        },
+        autumn: {
+            min: 45,
+            target: 145,
+            max: 300
+        },
+        winter: {
+            min: 50,
+            target: 160,
+            max: 300
+        }
+    };
+    var _partial_ai, _partial_targetEaten, _partial_maxPlies, _partial_openingTemplate, _partial_teachingPoint, _partial_expectedPlies, _partial_difficulty, _partial_firstClearReward, _partial_repeatDrop;
+    return {
+        ...partial,
+        ...LEVEL_PRODUCT_META[partial.id],
+        name: partial.nameZh,
+        ai: (_partial_ai = partial.ai) !== null && _partial_ai !== void 0 ? _partial_ai : CHAPTER_AI[partial.chapterId],
+        targetEaten: (_partial_targetEaten = partial.targetEaten) !== null && _partial_targetEaten !== void 0 ? _partial_targetEaten : 8,
+        maxPlies: (_partial_maxPlies = partial.maxPlies) !== null && _partial_maxPlies !== void 0 ? _partial_maxPlies : 300,
+        openingTemplate: (_partial_openingTemplate = partial.openingTemplate) !== null && _partial_openingTemplate !== void 0 ? _partial_openingTemplate : "".concat(partial.chapterId, "-standard-").concat(partial.indexInChapter),
+        teachingPoint: (_partial_teachingPoint = partial.teachingPoint) !== null && _partial_teachingPoint !== void 0 ? _partial_teachingPoint : seasonTeaching[partial.chapterId],
+        expectedPlies: (_partial_expectedPlies = partial.expectedPlies) !== null && _partial_expectedPlies !== void 0 ? _partial_expectedPlies : baseExpected[partial.chapterId],
+        difficulty: (_partial_difficulty = partial.difficulty) !== null && _partial_difficulty !== void 0 ? _partial_difficulty : Math.min(5, seasonDifficulty[partial.chapterId] + Math.max(0, partial.indexInChapter - 1)),
+        firstClearReward: (_partial_firstClearReward = partial.firstClearReward) !== null && _partial_firstClearReward !== void 0 ? _partial_firstClearReward : {
+            universal: 10,
+            season: {
+                [partial.chapterId]: 2
+            }
+        },
+        repeatDrop: (_partial_repeatDrop = partial.repeatDrop) !== null && _partial_repeatDrop !== void 0 ? _partial_repeatDrop : {
+            chance: 0.3,
+            universal: 2
+        }
+    };
+}
+_c = L;
+function levelDisplayName(level, locale) {
+    return locale === 'zh' ? level.nameZh : level.nameEn;
+}
+function levelBlurb(level, locale) {
+    return locale === 'zh' ? level.blurbZh : level.blurbEn;
+}
+function levelTeachingPoint(level, locale) {
+    var _level_teachingPoint;
+    if (locale === 'zh') return (_level_teachingPoint = level.teachingPoint) !== null && _level_teachingPoint !== void 0 ? _level_teachingPoint : '';
+    var _LEVEL_TEACHING_EN_level_id, _ref;
+    return (_ref = (_LEVEL_TEACHING_EN_level_id = LEVEL_TEACHING_EN[level.id]) !== null && _LEVEL_TEACHING_EN_level_id !== void 0 ? _LEVEL_TEACHING_EN_level_id : level.teachingPoint) !== null && _ref !== void 0 ? _ref : '';
+}
+const LEVELS = [
+    L({
+        id: 'spring-01',
+        chapterId: 'spring',
+        indexInChapter: 1,
+        nameZh: '春日 · 空野',
+        nameEn: 'Spring · Open Meadow',
+        blurbZh: '带一枚边缘岩石的开阔草地。先学会点选狼、走空格，再试一次隔空吃。',
+        blurbEn: 'An open meadow with one safe edge rock. Learn to select a wolf, step to empty points, then try one gap-eat.',
+        rocks: [
+            {
+                r: 4,
+                c: 6
+            }
+        ],
+        openingTemplate: 'spring-gentle-edge-rock',
+        teachingPoint: '先点选一只狼走到空位，再寻找第一次隔空跳吃。',
+        expectedPlies: {
+            min: 20,
+            target: 90,
+            max: 220
+        },
+        difficulty: 1
+    }),
+    L({
+        id: 'spring-02',
+        chapterId: 'spring',
+        indexInChapter: 2,
+        nameZh: '春日 · 一石',
+        nameEn: 'Spring · Single Stone',
+        blurbZh: '一枚边石轻轻挡路。绕开它，把隔空吃练顺，别急着连吃。',
+        blurbEn: 'One edge rock nudges your path. Slip around it, clean a gap-eat, and keep chains short.',
+        rocks: [
+            {
+                r: 4,
+                c: 4
+            }
+        ],
+        openingTemplate: 'spring-single-edge-rock',
+        teachingPoint: '把岩石视为不可落脚的位置，绕开它建立跳吃路线。',
+        expectedPlies: {
+            min: 25,
+            target: 100,
+            max: 240
+        },
+        difficulty: 2
+    }),
+    L({
+        id: 'spring-03',
+        chapterId: 'spring',
+        indexInChapter: 3,
+        nameZh: '春日 · 双石',
+        nameEn: 'Spring · Twin Stones',
+        blurbZh: '两枚中场石切开通道。用它们当支点，完成春日的第一次短连吃。',
+        blurbEn: 'Two midfield stones split the lanes. Use them as pivots for your first short spring chain.',
+        rocks: [
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 5
+            }
+        ],
+        openingTemplate: 'spring-twin-midfield-rocks',
+        teachingPoint: '选择一条短连吃路线，并在狼被困前主动结束。',
+        expectedPlies: {
+            min: 30,
+            target: 110,
+            max: 260
+        },
+        difficulty: 3
+    }),
+    L({
+        id: 'spring-04',
+        chapterId: 'spring',
+        indexInChapter: 4,
+        ai: 'normal',
+        nameZh: '春日 · 回旋',
+        nameEn: 'Spring · Turnaround',
+        blurbZh: '边缘岩石改变回路，学会先稳住位置再找吃口。',
+        blurbEn: 'An edge rock bends the route. Hold position before opening the next gap.',
+        rocks: [
+            {
+                r: 4,
+                c: 1
+            }
+        ],
+        openingTemplate: 'spring-edge-turnaround',
+        teachingPoint: '先安全换位稳住阵形，再投入吃子路线。',
+        expectedPlies: {
+            min: 35,
+            target: 120,
+            max: 280
+        },
+        difficulty: 3
+    }),
+    L({
+        id: 'spring-05',
+        chapterId: 'spring',
+        indexInChapter: 5,
+        ai: 'normal',
+        nameZh: '春日 · 双线',
+        nameEn: 'Spring · Two Lanes',
+        blurbZh: '两条路线都能接近羊群，选择先处理哪一侧。',
+        blurbEn: 'Two lanes reach the flock. Choose which side to pressure first.',
+        rocks: [
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 4
+            }
+        ],
+        openingTemplate: 'spring-two-lanes',
+        teachingPoint: '移动第二只狼前，先比较左右两条吃子路线。',
+        expectedPlies: {
+            min: 40,
+            target: 130,
+            max: 290
+        },
+        difficulty: 3
+    }),
+    L({
+        id: 'spring-06',
+        chapterId: 'spring',
+        indexInChapter: 6,
+        ai: 'normal',
+        nameZh: '春日 · 收束',
+        nameEn: 'Spring · Close',
+        blurbZh: '春日终局，综合短连吃、路线选择和提前收束。',
+        blurbEn: 'Spring finale: combine short chains, route choice, and clean exits.',
+        rocks: [
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 4
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 5
+                }
+            ]
+        },
+        openingTemplate: 'spring-finale',
+        teachingPoint: '综合短连吃与路线选择，在不困狼的前提下完成春季狩猎。',
+        expectedPlies: {
+            min: 45,
+            target: 140,
+            max: 300
+        },
+        difficulty: 4
+    }),
+    L({
+        id: 'summer-01',
+        chapterId: 'summer',
+        indexInChapter: 1,
+        nameZh: '夏日 · 裂隙',
+        nameEn: 'Summer · Fissure',
+        blurbZh: '羊群开始认真挡线。两枚岩石撕开裂隙，逼你选择冲吃方向。',
+        blurbEn: 'The flock blocks for real. Two rocks tear a fissure — pick which gap-rush line to force.',
+        rocks: [
+            {
+                r: 3,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 3
+            }
+        ],
+        openingTemplate: 'summer-midfield-fissure',
+        teachingPoint: '观察羊群封锁，选择一条压力线集中突破。',
+        expectedPlies: {
+            min: 35,
+            target: 120,
+            max: 280
+        },
+        difficulty: 3
+    }),
+    L({
+        id: 'summer-02',
+        chapterId: 'summer',
+        indexInChapter: 2,
+        ai: 'hard',
+        nameZh: '夏日 · 横切',
+        nameEn: 'Summer · Crosscut',
+        blurbZh: '三石横切中场。耐心摆位，再隔空切入，别被羊群拖进死角。',
+        blurbEn: 'Three rocks crosscut the midfield. Set up patiently, then gap-cut in — don’t get herded into a dead corner.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 4
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 5
+                }
+            ]
+        },
+        openingTemplate: 'summer-crosscut-rocks',
+        teachingPoint: '不要急冲，保留第二只狼用于中场横切。',
+        expectedPlies: {
+            min: 40,
+            target: 135,
+            max: 290
+        },
+        difficulty: 4
+    }),
+    L({
+        id: 'summer-03',
+        chapterId: 'summer',
+        indexInChapter: 3,
+        nameZh: '夏日 · 拉扯',
+        nameEn: 'Summer · Tug',
+        blurbZh: '四石拉扯战线。三狼要分工：一狼诱开，另两狼冲吃收割。',
+        blurbEn: 'Four rocks tug the front. Split duties: one wolf baits, the other two gap-rush the harvest.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 1
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'summer-tug-of-war',
+        teachingPoint: '让三狼分工，避免过早进入无法退出的死角。',
+        expectedPlies: {
+            min: 45,
+            target: 145,
+            max: 300
+        },
+        difficulty: 4
+    }),
+    L({
+        id: 'summer-04',
+        chapterId: 'summer',
+        indexInChapter: 4,
+        nameZh: '夏日 · 分流',
+        nameEn: 'Summer · Split Flow',
+        blurbZh: '羊群分流后，狼需要决定追击主线还是侧翼。',
+        blurbEn: 'The flock splits the flow. Choose the main lane or the flank.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 5
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 5
+                }
+            ]
+        },
+        openingTemplate: 'summer-split-flow',
+        teachingPoint: '分配狼压制两条羊群路线，同时保持彼此机动。',
+        expectedPlies: {
+            min: 50,
+            target: 150,
+            max: 300
+        },
+        difficulty: 4
+    }),
+    L({
+        id: 'summer-05',
+        chapterId: 'summer',
+        indexInChapter: 5,
+        ai: 'hard',
+        nameZh: '夏日 · 反推',
+        nameEn: 'Summer · Counterpush',
+        blurbZh: '羊群会把狼推向边角，提前保留第二条退路。',
+        blurbEn: 'The flock pushes back toward the edge. Keep a second exit open.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 4
+            },
+            {
+                r: 6,
+                c: 1
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 2
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'summer-counterpush',
+        teachingPoint: '开始连续跳吃前，先为狼保留一条退路。',
+        expectedPlies: {
+            min: 55,
+            target: 160,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'summer-06',
+        chapterId: 'summer',
+        indexInChapter: 6,
+        nameZh: '夏日 · 压线',
+        nameEn: 'Summer · Pressure Line',
+        blurbZh: '夏日终局，综合阻挡、分工和中场路线压力。',
+        blurbEn: 'Summer finale: combine blocking, wolf roles, and midfield pressure.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 1
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 2
+                },
+                {
+                    r: 6,
+                    c: 5
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'summer-pressure-line',
+        teachingPoint: '先让三狼形成协作位置，再进入决定性的吃子线。',
+        expectedPlies: {
+            min: 60,
+            target: 170,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'autumn-01',
+        chapterId: 'autumn',
+        indexInChapter: 1,
+        ai: 'normal',
+        nameZh: '秋日 · 碎盘',
+        nameEn: 'Autumn · Shattered Board',
+        blurbZh: '五枚岩石把盘面切成窄道。找准通道连吃，岩石就是你的跳板。',
+        blurbEn: 'Five rocks cut the board into narrow lanes. Hunt the corridor — the stones become your springboards.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 3
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 6
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 2
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        teachingPoint: '识别被岩石切开的窄道，用两狼控口、一狼寻找连吃。'
+    }),
+    L({
+        id: 'autumn-02',
+        chapterId: 'autumn',
+        indexInChapter: 2,
+        ai: 'normal',
+        nameZh: '秋日 · 通道',
+        nameEn: 'Autumn · Corridor',
+        blurbZh: '六石挤出一条主通道。控制通道两端，连吃会像潮水一样涌出。',
+        blurbEn: 'Six rocks squeeze one main corridor. Own both ends and chains will surge like a tide.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 3
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 6
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 2
+                },
+                {
+                    r: 6,
+                    c: 5
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        teachingPoint: '控制主通道两端，再把一次跳吃扩展成连续收割。'
+    }),
+    L({
+        id: 'autumn-03',
+        chapterId: 'autumn',
+        indexInChapter: 3,
+        ai: 'normal',
+        nameZh: '秋日 · 丰收',
+        nameEn: 'Autumn · Harvest',
+        blurbZh: '五石密布的丰收盘。敢冲敢停：连吃满档前记得主动结束，保住胜势。',
+        blurbEn: 'A five-rock harvest board. Rush hard, stop clean — end the chain before you strand a wolf.',
+        rocks: [
+            {
+                r: 1,
+                c: 6
+            },
+            {
+                r: 3,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 4
+            },
+            {
+                r: 5,
+                c: 1
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        teachingPoint: '连吃时同时计算收益与退路，必要时主动收手。'
+    }),
+    L({
+        id: 'autumn-04',
+        chapterId: 'autumn',
+        indexInChapter: 4,
+        ai: 'normal',
+        nameZh: '秋日 · 断桥',
+        nameEn: 'Autumn · Broken Bridge',
+        blurbZh: '密集岩石留下多个断点，必须提前判断连吃方向。',
+        blurbEn: 'Dense rocks leave broken bridges. Read the chain direction early.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 3
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 6
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'autumn-broken-bridge',
+        teachingPoint: '把岩石间的断点当作连吃入口，提前判断跳吃方向。',
+        expectedPlies: {
+            min: 60,
+            target: 165,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'autumn-05',
+        chapterId: 'autumn',
+        indexInChapter: 5,
+        ai: 'normal',
+        nameZh: '秋日 · 窄门',
+        nameEn: 'Autumn · Narrow Gate',
+        blurbZh: '两端都要保持通行，任何一只狼走错都会失去窗口。',
+        blurbEn: 'Keep both ends open. One careless wolf can close the window.',
+        rocks: [
+            {
+                r: 2,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 1
+            },
+            {
+                r: 4,
+                c: 3
+            },
+            {
+                r: 4,
+                c: 5
+            },
+            {
+                r: 5,
+                c: 6
+            }
+        ],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 5
+                }
+            ]
+        },
+        openingTemplate: 'autumn-narrow-gate',
+        teachingPoint: '规划强制跳吃时，始终保持窄门两端可通行。',
+        expectedPlies: {
+            min: 65,
+            target: 180,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'autumn-06',
+        chapterId: 'autumn',
+        indexInChapter: 6,
+        ai: 'normal',
+        nameZh: '秋日 · 丰收终局',
+        nameEn: 'Autumn · Harvest Finale',
+        blurbZh: '秋日终局，要求在密集岩石中完成干净的连吃。',
+        blurbEn: 'Autumn finale: land a clean chain through the dense rock field.',
+        rocks: [
+            {
+                r: 1,
+                c: 6
+            },
+            {
+                r: 3,
+                c: 6
+            },
+            {
+                r: 4,
+                c: 2
+            },
+            {
+                r: 4,
+                c: 4
+            },
+            {
+                r: 5,
+                c: 3
+            }
+        ],
+        openingTemplate: 'autumn-harvest-finale',
+        teachingPoint: '在追求长连吃与保持三狼机动之间做出取舍。',
+        expectedPlies: {
+            min: 70,
+            target: 190,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'winter-01',
+        chapterId: 'winter',
+        indexInChapter: 1,
+        nameZh: '冬日 · 空寂',
+        nameEn: 'Winter · Silence',
+        blurbZh: '空盘寂静。没有岩石挡点，完全靠走位撕开合围。',
+        blurbEn: 'Silent empty board. No rocks to lean on — only spacing can tear the surround.',
+        rocks: [],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 5
+                }
+            ],
+            sheep: [
+                {
+                    r: 1,
+                    c: 1
+                },
+                {
+                    r: 1,
+                    c: 2
+                },
+                {
+                    r: 1,
+                    c: 3
+                },
+                {
+                    r: 1,
+                    c: 4
+                },
+                {
+                    r: 2,
+                    c: 1
+                },
+                {
+                    r: 2,
+                    c: 2
+                },
+                {
+                    r: 2,
+                    c: 3
+                },
+                {
+                    r: 2,
+                    c: 4
+                },
+                {
+                    r: 2,
+                    c: 5
+                },
+                {
+                    r: 3,
+                    c: 1
+                },
+                {
+                    r: 3,
+                    c: 2
+                },
+                {
+                    r: 3,
+                    c: 3
+                },
+                {
+                    r: 3,
+                    c: 4
+                },
+                {
+                    r: 3,
+                    c: 5
+                },
+                {
+                    r: 3,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'winter-silence-edge',
+        teachingPoint: '没有岩石可借力时，用三狼间距撕开羊群合围。'
+    }),
+    L({
+        id: 'winter-02',
+        chapterId: 'winter',
+        indexInChapter: 2,
+        nameZh: '冬日 · 合围',
+        nameEn: 'Winter · Encirclement',
+        blurbZh: '高阶羊群合力围狼。先保三狼通路，再找隔空破口。',
+        blurbEn: 'A hard flock closes the ring. Keep all three wolves mobile, then punch a gap-eat hole.',
+        rocks: [],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 2
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        teachingPoint: '先保证三狼都有通路，再从边线制造第一个破口。'
+    }),
+    L({
+        id: 'winter-03',
+        chapterId: 'winter',
+        indexInChapter: 3,
+        nameZh: '冬日 · 绝境',
+        nameEn: 'Winter · Last Stand',
+        blurbZh: '四季终章。在绝境里打出干净的隔空连吃，证明你真正掌控猎场。',
+        blurbEn: 'Season finale. Land clean gap-chains under pressure — prove you own the hunt.',
+        rocks: [],
+        opening: {
+            sheep: [
+                {
+                    r: 1,
+                    c: 2
+                },
+                {
+                    r: 1,
+                    c: 3
+                },
+                {
+                    r: 1,
+                    c: 4
+                },
+                {
+                    r: 1,
+                    c: 5
+                },
+                {
+                    r: 1,
+                    c: 6
+                },
+                {
+                    r: 2,
+                    c: 2
+                },
+                {
+                    r: 2,
+                    c: 3
+                },
+                {
+                    r: 2,
+                    c: 4
+                },
+                {
+                    r: 2,
+                    c: 5
+                },
+                {
+                    r: 2,
+                    c: 6
+                },
+                {
+                    r: 3,
+                    c: 2
+                },
+                {
+                    r: 3,
+                    c: 3
+                },
+                {
+                    r: 3,
+                    c: 4
+                },
+                {
+                    r: 3,
+                    c: 5
+                },
+                {
+                    r: 3,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'winter-last-stand-right',
+        teachingPoint: '在空盘高压下保持覆盖，等待可连续兑现的隔空跳吃。'
+    }),
+    L({
+        id: 'winter-04',
+        chapterId: 'winter',
+        indexInChapter: 4,
+        nameZh: '冬日 · 回环',
+        nameEn: 'Winter · Loop',
+        blurbZh: '空盘中羊群不断回环，保持狼的覆盖范围。',
+        blurbEn: 'The flock loops across the empty board. Keep wolf coverage wide.',
+        rocks: [],
+        opening: {
+            sheep: [
+                {
+                    r: 1,
+                    c: 1
+                },
+                {
+                    r: 1,
+                    c: 2
+                },
+                {
+                    r: 1,
+                    c: 3
+                },
+                {
+                    r: 1,
+                    c: 4
+                },
+                {
+                    r: 2,
+                    c: 1
+                },
+                {
+                    r: 2,
+                    c: 2
+                },
+                {
+                    r: 2,
+                    c: 3
+                },
+                {
+                    r: 2,
+                    c: 4
+                },
+                {
+                    r: 2,
+                    c: 5
+                },
+                {
+                    r: 3,
+                    c: 1
+                },
+                {
+                    r: 3,
+                    c: 2
+                },
+                {
+                    r: 3,
+                    c: 3
+                },
+                {
+                    r: 3,
+                    c: 4
+                },
+                {
+                    r: 3,
+                    c: 5
+                },
+                {
+                    r: 3,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'winter-open-loop',
+        teachingPoint: '不要追逐单只羊，要维持三狼对整盘的覆盖。',
+        expectedPlies: {
+            min: 70,
+            target: 180,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'winter-05',
+        chapterId: 'winter',
+        indexInChapter: 5,
+        nameZh: '冬日 · 合围线',
+        nameEn: 'Winter · Ring Line',
+        blurbZh: '先保持三狼机动，再从边缘撕开第一条吃子线。',
+        blurbEn: 'Keep three wolves mobile, then tear the first capture line from the edge.',
+        rocks: [],
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 3
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ],
+            sheep: [
+                {
+                    r: 1,
+                    c: 2
+                },
+                {
+                    r: 1,
+                    c: 3
+                },
+                {
+                    r: 1,
+                    c: 4
+                },
+                {
+                    r: 1,
+                    c: 5
+                },
+                {
+                    r: 1,
+                    c: 6
+                },
+                {
+                    r: 2,
+                    c: 2
+                },
+                {
+                    r: 2,
+                    c: 3
+                },
+                {
+                    r: 2,
+                    c: 4
+                },
+                {
+                    r: 2,
+                    c: 5
+                },
+                {
+                    r: 2,
+                    c: 6
+                },
+                {
+                    r: 3,
+                    c: 2
+                },
+                {
+                    r: 3,
+                    c: 3
+                },
+                {
+                    r: 3,
+                    c: 4
+                },
+                {
+                    r: 3,
+                    c: 5
+                },
+                {
+                    r: 3,
+                    c: 6
+                }
+            ]
+        },
+        openingTemplate: 'winter-ring-line',
+        teachingPoint: '先建立合围位置，再投入第一条隔空跳吃路线。',
+        expectedPlies: {
+            min: 75,
+            target: 195,
+            max: 300
+        },
+        difficulty: 5
+    }),
+    L({
+        id: 'winter-06',
+        chapterId: 'winter',
+        indexInChapter: 6,
+        nameZh: '冬日 · 终极狩猎',
+        nameEn: 'Winter · Final Hunt',
+        blurbZh: '四季终章，检验空盘位置计算和连续狩猎能力。',
+        blurbEn: 'The four-season finale: prove open-board calculation and clean chains.',
+        rocks: [],
+        openingTemplate: 'winter-final-hunt',
+        opening: {
+            wolves: [
+                {
+                    r: 6,
+                    c: 1
+                },
+                {
+                    r: 6,
+                    c: 4
+                },
+                {
+                    r: 6,
+                    c: 6
+                }
+            ]
+        },
+        teachingPoint: '在空盘完成合围与连续狩猎，同时不牺牲狼的机动性。',
+        expectedPlies: {
+            min: 80,
+            target: 210,
+            max: 300
+        },
+        difficulty: 5
+    })
+];
+function getLevel(id) {
+    return LEVELS.find((l)=>l.id === id);
+}
+function levelsForChapter(chapterId) {
+    return LEVELS.filter((l)=>l.chapterId === chapterId).sort((a, b)=>a.indexInChapter - b.indexInChapter);
+}
+function validateAllLevels() {
+    return LEVELS.flatMap((l)=>validateLevel(l).map((e)=>"".concat(l.id, ": ").concat(e)));
+}
+function adjacentLevels(id) {
+    const idx = LEVELS.findIndex((l)=>l.id === id);
+    if (idx < 0) return {};
+    return {
+        prev: idx > 0 ? LEVELS[idx - 1] : undefined,
+        next: idx < LEVELS.length - 1 ? LEVELS[idx + 1] : undefined
+    };
+}
+var _c;
+__turbopack_context__.k.register(_c, "L");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/content/quests.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "QUEST_DEFS",
+    ()=>QUEST_DEFS,
+    "claimQuest",
+    ()=>claimQuest,
+    "dailyKey",
+    ()=>dailyKey,
+    "emptyQuestState",
+    ()=>emptyQuestState,
+    "questDisplayTitle",
+    ()=>questDisplayTitle,
+    "recordQuestMetric",
+    ()=>recordQuestMetric,
+    "refreshQuestPeriod",
+    ()=>refreshQuestPeriod,
+    "weeklyKey",
+    ()=>weeklyKey
+]);
+const QUEST_DEFS = [
+    {
+        id: 'daily-play-1',
+        period: 'daily',
+        title: '今日对局 1 次',
+        titleEn: 'Play 1 hunt today',
+        titleZh: '今日对局 1 次',
+        target: 1,
+        metric: 'plays',
+        rewardUniversal: 3
+    },
+    {
+        id: 'daily-clear-1',
+        period: 'daily',
+        title: '今日通关 1 关',
+        titleEn: 'Clear 1 hunt today',
+        titleZh: '今日通关 1 关',
+        target: 1,
+        metric: 'clears',
+        rewardUniversal: 5
+    },
+    {
+        id: 'weekly-clear-3',
+        period: 'weekly',
+        title: '本周通关 3 关',
+        titleEn: 'Clear 3 hunts this week',
+        titleZh: '本周通关 3 关',
+        target: 3,
+        metric: 'clears',
+        rewardUniversal: 15
+    },
+    {
+        id: 'weekly-frag-20',
+        period: 'weekly',
+        title: '本周获得 20 通用碎片',
+        titleEn: 'Earn 20 universal shards this week',
+        titleZh: '本周获得 20 通用碎片',
+        target: 20,
+        metric: 'fragments_earned',
+        rewardUniversal: 10
+    }
+];
+function questDisplayTitle(quest, locale) {
+    return locale === 'zh' ? quest.titleZh : quest.titleEn;
+}
+function dailyKey() {
+    let d = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return "".concat(y, "-").concat(m, "-").concat(day);
+}
+function weeklyKey() {
+    let d = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : new Date();
+    const tmp = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const dayNum = (tmp.getDay() + 6) % 7;
+    tmp.setDate(tmp.getDate() - dayNum + 3);
+    const firstThursday = new Date(tmp.getFullYear(), 0, 4);
+    const week = 1 + Math.round(((tmp.getTime() - firstThursday.getTime()) / 86400000 - 3 + (firstThursday.getDay() + 6) % 7) / 7);
+    return "".concat(tmp.getFullYear(), "-W").concat(String(week).padStart(2, '0'));
+}
+function emptyQuestState() {
+    let now = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : new Date();
+    return {
+        daily: {
+            key: dailyKey(now),
+            progress: {},
+            claimed: []
+        },
+        weekly: {
+            key: weeklyKey(now),
+            progress: {},
+            claimed: []
+        }
+    };
+}
+function refreshQuestPeriod(state) {
+    let now = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : new Date();
+    const dKey = dailyKey(now);
+    const wKey = weeklyKey(now);
+    return {
+        daily: state.daily.key === dKey ? state.daily : {
+            key: dKey,
+            progress: {},
+            claimed: []
+        },
+        weekly: state.weekly.key === wKey ? state.weekly : {
+            key: wKey,
+            progress: {},
+            claimed: []
+        }
+    };
+}
+function recordQuestMetric(quests, period, metric, amount) {
+    let now = arguments.length > 4 && arguments[4] !== void 0 ? arguments[4] : new Date();
+    let q = refreshQuestPeriod(quests, now);
+    const apply = (bucket, p)=>{
+        const progress = {
+            ...bucket.progress
+        };
+        for (const def of QUEST_DEFS){
+            if (def.period !== p || def.metric !== metric) continue;
+            var _progress_def_id;
+            progress[def.id] = Math.min(def.target, ((_progress_def_id = progress[def.id]) !== null && _progress_def_id !== void 0 ? _progress_def_id : 0) + amount);
+        }
+        return {
+            ...bucket,
+            progress
+        };
+    };
+    if (period === 'daily' || period === 'both') {
+        q = {
+            ...q,
+            daily: apply(q.daily, 'daily')
+        };
+    }
+    if (period === 'weekly' || period === 'both') {
+        q = {
+            ...q,
+            weekly: apply(q.weekly, 'weekly')
+        };
+    }
+    return q;
+}
+function claimQuest(save, questId) {
+    let now = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : new Date();
+    const def = QUEST_DEFS.find((q)=>q.id === questId);
+    if (!def) return {
+        ok: false,
+        error: 'unknown quest'
+    };
+    const quests = refreshQuestPeriod(save.quests, now);
+    const bucket = def.period === 'daily' ? quests.daily : quests.weekly;
+    if (bucket.claimed.includes(questId)) return {
+        ok: false,
+        error: 'already claimed'
+    };
+    var _bucket_progress_questId;
+    const progress = (_bucket_progress_questId = bucket.progress[questId]) !== null && _bucket_progress_questId !== void 0 ? _bucket_progress_questId : 0;
+    if (progress < def.target) return {
+        ok: false,
+        error: 'incomplete'
+    };
+    const nextBucket = {
+        ...bucket,
+        claimed: [
+            ...bucket.claimed,
+            questId
+        ]
+    };
+    const nextQuests = {
+        ...quests,
+        [def.period]: nextBucket
+    };
+    return {
+        ok: true,
+        save: {
+            ...save,
+            quests: nextQuests,
+            fragments: {
+                ...save.fragments,
+                universal: save.fragments.universal + def.rewardUniversal
+            }
+        }
+    };
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/content/save.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "SAVE_KEY",
+    ()=>SAVE_KEY,
+    "activateDoubleDrop",
+    ()=>activateDoubleDrop,
+    "applyClearToSave",
+    ()=>applyClearToSave,
+    "defaultSave",
+    ()=>defaultSave,
+    "grantUniversalFragments",
+    ()=>grantUniversalFragments,
+    "isChapterUnlocked",
+    ()=>isChapterUnlocked,
+    "isDoubleDropActive",
+    ()=>isDoubleDropActive,
+    "isLevelCleared",
+    ()=>isLevelCleared,
+    "migrate",
+    ()=>migrate,
+    "recomputeUnlockedChapters",
+    ()=>recomputeUnlockedChapters,
+    "recordGuideHint",
+    ()=>recordGuideHint,
+    "recordGuideResult",
+    ()=>recordGuideResult,
+    "recordPlayStarted",
+    ()=>recordPlayStarted,
+    "rollClearReward",
+    ()=>rollClearReward
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/levels.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/quests.ts [app-client] (ecmascript)");
+;
+;
+const SAVE_KEY = 'wolf-sheep-save-v1';
+function defaultSave() {
+    return {
+        schemaVersion: 1,
+        clearedLevels: [],
+        unlockedChapters: [
+            'spring'
+        ],
+        fragments: {
+            universal: 0,
+            season: {
+                spring: 0,
+                summer: 0,
+                autumn: 0,
+                winter: 0
+            }
+        },
+        unlockedSkinIds: [
+            'wolf-default',
+            'board-default',
+            'board-spring'
+        ],
+        equipped: {
+            wolfSetId: 'wolf-default',
+            boardId: 'board-default'
+        },
+        guide: {
+            spring1Done: false,
+            hintUsage: {},
+            failureStreak: {}
+        },
+        settings: {
+            muted: false
+        },
+        buffs: {
+            doubleDropUntil: null
+        },
+        quests: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["emptyQuestState"])()
+    };
+}
+function emptySeason() {
+    return {
+        spring: 0,
+        summer: 0,
+        autumn: 0,
+        winter: 0
+    };
+}
+function safeAmount(value) {
+    let fallback = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 0;
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+function parseQuests(raw) {
+    var _o_daily, _o_daily1, _o_daily2, _o_weekly, _o_weekly1, _o_weekly2;
+    if (!raw || typeof raw !== 'object') return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["emptyQuestState"])();
+    const o = raw;
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["refreshQuestPeriod"])({
+        daily: {
+            key: typeof ((_o_daily = o.daily) === null || _o_daily === void 0 ? void 0 : _o_daily.key) === 'string' ? o.daily.key : '',
+            progress: ((_o_daily1 = o.daily) === null || _o_daily1 === void 0 ? void 0 : _o_daily1.progress) && typeof o.daily.progress === 'object' ? o.daily.progress : {},
+            claimed: Array.isArray((_o_daily2 = o.daily) === null || _o_daily2 === void 0 ? void 0 : _o_daily2.claimed) ? o.daily.claimed.filter((x)=>typeof x === 'string') : []
+        },
+        weekly: {
+            key: typeof ((_o_weekly = o.weekly) === null || _o_weekly === void 0 ? void 0 : _o_weekly.key) === 'string' ? o.weekly.key : '',
+            progress: ((_o_weekly1 = o.weekly) === null || _o_weekly1 === void 0 ? void 0 : _o_weekly1.progress) && typeof o.weekly.progress === 'object' ? o.weekly.progress : {},
+            claimed: Array.isArray((_o_weekly2 = o.weekly) === null || _o_weekly2 === void 0 ? void 0 : _o_weekly2.claimed) ? o.weekly.claimed.filter((x)=>typeof x === 'string') : []
+        }
+    });
+}
+function migrate(raw) {
+    var _this, _this1, _this2, _this3, _this4, _this5, _this6;
+    if (!raw || typeof raw !== 'object') return defaultSave();
+    const o = raw;
+    if (o.schemaVersion !== 1) return defaultSave();
+    const base = defaultSave();
+    const fragments = o.fragments && typeof o.fragments === 'object' ? o.fragments : {};
+    const rawSeason = fragments.season && typeof fragments.season === 'object' ? fragments.season : {};
+    const unlockedChapters = Array.isArray(o.unlockedChapters) ? o.unlockedChapters.filter((x)=>__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CHAPTER_ORDER"].includes(x)) : [];
+    return {
+        schemaVersion: 1,
+        clearedLevels: Array.isArray(o.clearedLevels) ? o.clearedLevels.filter((x)=>typeof x === 'string') : [],
+        unlockedChapters: unlockedChapters.includes('spring') ? unlockedChapters : [
+            'spring',
+            ...unlockedChapters
+        ],
+        fragments: {
+            universal: safeAmount(fragments.universal),
+            season: {
+                ...emptySeason(),
+                spring: safeAmount(rawSeason.spring),
+                summer: safeAmount(rawSeason.summer),
+                autumn: safeAmount(rawSeason.autumn),
+                winter: safeAmount(rawSeason.winter)
+            }
+        },
+        unlockedSkinIds: Array.isArray(o.unlockedSkinIds) ? o.unlockedSkinIds.filter((x)=>typeof x === 'string') : base.unlockedSkinIds,
+        equipped: {
+            wolfSetId: typeof ((_this = o.equipped) === null || _this === void 0 ? void 0 : _this.wolfSetId) === 'string' ? o.equipped.wolfSetId : base.equipped.wolfSetId,
+            boardId: typeof ((_this1 = o.equipped) === null || _this1 === void 0 ? void 0 : _this1.boardId) === 'string' ? o.equipped.boardId : base.equipped.boardId
+        },
+        guide: {
+            spring1Done: Boolean((_this2 = o.guide) === null || _this2 === void 0 ? void 0 : _this2.spring1Done),
+            hintUsage: parseNonNegativeRecord((_this3 = o.guide) === null || _this3 === void 0 ? void 0 : _this3.hintUsage),
+            failureStreak: parseNonNegativeRecord((_this4 = o.guide) === null || _this4 === void 0 ? void 0 : _this4.failureStreak)
+        },
+        settings: {
+            muted: Boolean((_this5 = o.settings) === null || _this5 === void 0 ? void 0 : _this5.muted)
+        },
+        buffs: {
+            doubleDropUntil: typeof ((_this6 = o.buffs) === null || _this6 === void 0 ? void 0 : _this6.doubleDropUntil) === 'number' ? o.buffs.doubleDropUntil : null
+        },
+        quests: parseQuests(o.quests),
+        lastPlayedLevelId: typeof o.lastPlayedLevelId === 'string' ? o.lastPlayedLevelId : undefined
+    };
+}
+function parseNonNegativeRecord(raw) {
+    if (!raw || typeof raw !== 'object') return {};
+    return Object.fromEntries(Object.entries(raw).filter((entry)=>typeof entry[1] === 'number' && Number.isInteger(entry[1]) && entry[1] >= 0));
+}
+function recordGuideHint(save, levelId) {
+    var _save_guide_hintUsage_levelId;
+    return {
+        ...save,
+        guide: {
+            ...save.guide,
+            hintUsage: {
+                ...save.guide.hintUsage,
+                [levelId]: ((_save_guide_hintUsage_levelId = save.guide.hintUsage[levelId]) !== null && _save_guide_hintUsage_levelId !== void 0 ? _save_guide_hintUsage_levelId : 0) + 1
+            }
+        }
+    };
+}
+function recordGuideResult(save, levelId, won) {
+    var _save_guide_failureStreak_levelId;
+    return {
+        ...save,
+        guide: {
+            ...save.guide,
+            failureStreak: {
+                ...save.guide.failureStreak,
+                [levelId]: won ? 0 : ((_save_guide_failureStreak_levelId = save.guide.failureStreak[levelId]) !== null && _save_guide_failureStreak_levelId !== void 0 ? _save_guide_failureStreak_levelId : 0) + 1
+            }
+        }
+    };
+}
+function isChapterUnlocked(save, chapterId) {
+    return save.unlockedChapters.includes(chapterId);
+}
+function isLevelCleared(save, levelId) {
+    return save.clearedLevels.includes(levelId);
+}
+function recomputeUnlockedChapters(save) {
+    const unlocked = [
+        'spring'
+    ];
+    for(let i = 0; i < __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CHAPTER_ORDER"].length - 1; i++){
+        const chapter = __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CHAPTER_ORDER"][i];
+        const next = __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CHAPTER_ORDER"][i + 1];
+        const levels = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["levelsForChapter"])(chapter);
+        const allClear = levels.every((l)=>save.clearedLevels.includes(l.id));
+        if (allClear) unlocked.push(next);
+        else break;
+    }
+    return unlocked;
+}
+function isDoubleDropActive(save) {
+    let now = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : Date.now();
+    return save.buffs.doubleDropUntil != null && save.buffs.doubleDropUntil > now;
+}
+function rollClearReward(level, save, rng) {
+    let now = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : Date.now();
+    const firstClear = !save.clearedLevels.includes(level.id);
+    const doubled = isDoubleDropActive(save, now);
+    const mult = doubled ? 2 : 1;
+    if (firstClear) {
+        const season = {};
+        var _level_firstClearReward_season;
+        for (const [k, v] of Object.entries((_level_firstClearReward_season = level.firstClearReward.season) !== null && _level_firstClearReward_season !== void 0 ? _level_firstClearReward_season : {})){
+            season[k] = (v !== null && v !== void 0 ? v : 0) * mult;
+        }
+        var _level_firstClearReward_universal;
+        return {
+            universal: ((_level_firstClearReward_universal = level.firstClearReward.universal) !== null && _level_firstClearReward_universal !== void 0 ? _level_firstClearReward_universal : 0) * mult,
+            season,
+            firstClear: true,
+            doubled
+        };
+    }
+    const drop = level.repeatDrop;
+    if (!drop || rng.nextFloat() >= drop.chance) {
+        return {
+            universal: 0,
+            season: {},
+            firstClear: false,
+            doubled
+        };
+    }
+    const season = {};
+    var _drop_season;
+    for (const [k, v] of Object.entries((_drop_season = drop.season) !== null && _drop_season !== void 0 ? _drop_season : {})){
+        season[k] = (v !== null && v !== void 0 ? v : 0) * mult;
+    }
+    var _drop_universal;
+    return {
+        universal: ((_drop_universal = drop.universal) !== null && _drop_universal !== void 0 ? _drop_universal : 0) * mult,
+        season,
+        firstClear: false,
+        doubled
+    };
+}
+function applyClearToSave(save, level, grant) {
+    const alreadyCleared = save.clearedLevels.includes(level.id);
+    const effectiveGrant = alreadyCleared && grant.firstClear ? {
+        universal: 0,
+        season: {},
+        firstClear: false,
+        doubled: grant.doubled
+    } : grant;
+    const clearedLevels = alreadyCleared ? save.clearedLevels : [
+        ...save.clearedLevels,
+        level.id
+    ];
+    const season = {
+        ...save.fragments.season
+    };
+    for (const [k, v] of Object.entries(effectiveGrant.season)){
+        const id = k;
+        var _season_id;
+        season[id] = ((_season_id = season[id]) !== null && _season_id !== void 0 ? _season_id : 0) + (v !== null && v !== void 0 ? v : 0);
+    }
+    let quests = alreadyCleared && grant.firstClear ? save.quests : (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["recordQuestMetric"])(save.quests, 'both', 'clears', 1);
+    if (effectiveGrant.universal > 0) {
+        quests = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["recordQuestMetric"])(quests, 'both', 'fragments_earned', effectiveGrant.universal);
+    }
+    const next = {
+        ...save,
+        clearedLevels,
+        fragments: {
+            universal: save.fragments.universal + effectiveGrant.universal,
+            season
+        },
+        lastPlayedLevelId: level.id,
+        quests
+    };
+    next.unlockedChapters = recomputeUnlockedChapters(next);
+    const skins = new Set(next.unlockedSkinIds);
+    for (const ch of next.unlockedChapters){
+        skins.add("board-".concat(ch));
+    }
+    skins.add('wolf-default');
+    skins.add('board-default');
+    next.unlockedSkinIds = [
+        ...skins
+    ];
+    return next;
+}
+function recordPlayStarted(save, levelId) {
+    return {
+        ...save,
+        ...levelId ? {
+            lastPlayedLevelId: levelId
+        } : {},
+        quests: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["recordQuestMetric"])(save.quests, 'both', 'plays', 1)
+    };
+}
+function activateDoubleDrop(save) {
+    let durationMs = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 30 * 60 * 1000, now = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : Date.now();
+    return {
+        ...save,
+        buffs: {
+            doubleDropUntil: now + durationMs
+        }
+    };
+}
+function grantUniversalFragments(save, amount) {
+    let quests = save.quests;
+    if (amount > 0) {
+        quests = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["recordQuestMetric"])(quests, 'both', 'fragments_earned', amount);
+    }
+    return {
+        ...save,
+        quests,
+        fragments: {
+            ...save.fragments,
+            universal: save.fragments.universal + amount
+        }
+    };
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/content/skins.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "SKIN_CATALOG",
+    ()=>SKIN_CATALOG,
+    "equipSkin",
+    ()=>equipSkin,
+    "getBoardSkin",
+    ()=>getBoardSkin,
+    "getSkin",
+    ()=>getSkin,
+    "getWolfSet",
+    ()=>getWolfSet,
+    "isSkinUnlocked",
+    ()=>isSkinUnlocked,
+    "resolveSkin",
+    ()=>resolveSkin,
+    "skinDisplayName",
+    ()=>skinDisplayName,
+    "unlockSkinWithCost",
+    ()=>unlockSkinWithCost,
+    "validateSkinCatalog",
+    ()=>validateSkinCatalog
+]);
+const SKIN_CATALOG = [
+    {
+        id: 'wolf-default',
+        kind: 'wolf_set',
+        name: '原野狼',
+        nameEn: 'Meadow Wolves',
+        nameZh: '原野狼',
+        unlock: {
+            type: 'default'
+        },
+        assets: {
+            wolf: '/skins/default/wolf.svg',
+            sheep: '/skins/default/sheep.svg'
+        },
+        wolfFill: '#3d4a3a',
+        sheepFill: '#f4f1ea'
+    },
+    {
+        id: 'wolf-frost',
+        kind: 'wolf_set',
+        name: '霜狼',
+        nameEn: 'Frost Wolves',
+        nameZh: '霜狼',
+        unlock: {
+            type: 'cost',
+            universal: 50
+        },
+        assets: {
+            wolf: '/skins/frost/wolf.svg',
+            sheep: '/skins/frost/sheep.svg'
+        },
+        wolfFill: '#4a6b7c',
+        sheepFill: '#e8eef2'
+    },
+    {
+        id: 'wolf-night',
+        kind: 'wolf_set',
+        name: 'Night Watch',
+        nameEn: 'Night Watch',
+        nameZh: '夜巡狼群',
+        unlock: {
+            type: 'cost',
+            universal: 80
+        },
+        assets: {
+            wolf: '/skins/night/wolf.svg',
+            sheep: '/skins/night/sheep.svg'
+        },
+        wolfFill: '#26364c',
+        sheepFill: '#dce8f0'
+    },
+    {
+        id: 'board-default',
+        kind: 'board',
+        name: '原野棋盘',
+        nameEn: 'Meadow Field',
+        nameZh: '原野棋盘',
+        unlock: {
+            type: 'default'
+        },
+        assets: {
+            boardBg: '/skins/boards/default.svg'
+        },
+        boardFill: '#e4f0d8',
+        lineStroke: '#4a5c3e'
+    },
+    {
+        id: 'board-spring',
+        kind: 'board',
+        name: '春日棋盘',
+        nameEn: 'Spring Field',
+        nameZh: '春日棋盘',
+        unlock: {
+            type: 'chapter',
+            chapterId: 'spring'
+        },
+        assets: {
+            boardBg: '/skins/boards/spring.svg'
+        },
+        boardFill: '#e8f6d8',
+        lineStroke: '#4a7a3a'
+    },
+    {
+        id: 'board-summer',
+        kind: 'board',
+        name: '夏日棋盘',
+        nameEn: 'Summer Field',
+        nameZh: '夏日棋盘',
+        unlock: {
+            type: 'chapter',
+            chapterId: 'summer'
+        },
+        assets: {
+            boardBg: '/skins/boards/summer.svg'
+        },
+        boardFill: '#f2e8c0',
+        lineStroke: '#6a5a28'
+    },
+    {
+        id: 'board-autumn',
+        kind: 'board',
+        name: '秋日棋盘',
+        nameEn: 'Autumn Field',
+        nameZh: '秋日棋盘',
+        unlock: {
+            type: 'chapter',
+            chapterId: 'autumn'
+        },
+        assets: {
+            boardBg: '/skins/boards/autumn.svg'
+        },
+        boardFill: '#f2dcb8',
+        lineStroke: '#7a4020'
+    },
+    {
+        id: 'board-winter',
+        kind: 'board',
+        name: '冬日棋盘',
+        nameEn: 'Winter Field',
+        nameZh: '冬日棋盘',
+        unlock: {
+            type: 'chapter',
+            chapterId: 'winter'
+        },
+        assets: {
+            boardBg: '/skins/boards/winter.svg'
+        },
+        boardFill: '#e8f0f6',
+        lineStroke: '#3a5566'
+    },
+    {
+        id: 'board-night',
+        kind: 'board',
+        name: 'Moonlit Field',
+        nameEn: 'Moonlit Field',
+        nameZh: '月夜猎场',
+        unlock: {
+            type: 'cost',
+            season: 'winter',
+            amount: 30
+        },
+        assets: {
+            boardBg: '/skins/boards/night.svg'
+        },
+        boardFill: '#1c3040',
+        lineStroke: '#b7c8d4'
+    }
+];
+function getSkin(id) {
+    return SKIN_CATALOG.find((s)=>s.id === id);
+}
+function skinDisplayName(skin, locale) {
+    return locale === 'zh' ? skin.nameZh : skin.nameEn;
+}
+function getWolfSet(id) {
+    const s = getSkin(id);
+    return (s === null || s === void 0 ? void 0 : s.kind) === 'wolf_set' ? s : undefined;
+}
+function getBoardSkin(id) {
+    const s = getSkin(id);
+    return (s === null || s === void 0 ? void 0 : s.kind) === 'board' ? s : undefined;
+}
+function resolveSkin(save) {
+    var _getWolfSet;
+    const wolf = (_getWolfSet = getWolfSet(save.equipped.wolfSetId)) !== null && _getWolfSet !== void 0 ? _getWolfSet : getWolfSet('wolf-default');
+    var _getBoardSkin;
+    const board = (_getBoardSkin = getBoardSkin(save.equipped.boardId)) !== null && _getBoardSkin !== void 0 ? _getBoardSkin : getBoardSkin('board-default');
+    return {
+        wolfSet: wolf,
+        board
+    };
+}
+function isSkinUnlocked(save, skin) {
+    if (save.unlockedSkinIds.includes(skin.id)) return true;
+    if (skin.unlock.type === 'default') return true;
+    if (skin.unlock.type === 'chapter') {
+        return save.unlockedChapters.includes(skin.unlock.chapterId);
+    }
+    return false;
+}
+function unlockSkinWithCost(save, skinId) {
+    const skin = getSkin(skinId);
+    if (!skin) return {
+        ok: false,
+        error: 'skin not found'
+    };
+    if (isSkinUnlocked(save, skin)) {
+        return {
+            ok: false,
+            error: 'already unlocked'
+        };
+    }
+    if (skin.unlock.type === 'cost' && skin.kind === 'wolf_set') {
+        const cost = skin.unlock.universal;
+        if (save.fragments.universal < cost) {
+            return {
+                ok: false,
+                error: 'insufficient_universal'
+            };
+        }
+        return {
+            ok: true,
+            save: {
+                ...save,
+                fragments: {
+                    ...save.fragments,
+                    universal: save.fragments.universal - cost
+                },
+                unlockedSkinIds: [
+                    ...save.unlockedSkinIds,
+                    skin.id
+                ]
+            }
+        };
+    }
+    if (skin.unlock.type === 'cost' && skin.kind === 'board') {
+        const { season, amount } = skin.unlock;
+        var _save_fragments_season_season;
+        if (((_save_fragments_season_season = save.fragments.season[season]) !== null && _save_fragments_season_season !== void 0 ? _save_fragments_season_season : 0) < amount) {
+            return {
+                ok: false,
+                error: 'insufficient_season'
+            };
+        }
+        return {
+            ok: true,
+            save: {
+                ...save,
+                fragments: {
+                    ...save.fragments,
+                    season: {
+                        ...save.fragments.season,
+                        [season]: save.fragments.season[season] - amount
+                    }
+                },
+                unlockedSkinIds: [
+                    ...save.unlockedSkinIds,
+                    skin.id
+                ]
+            }
+        };
+    }
+    return {
+        ok: false,
+        error: 'not purchasable'
+    };
+}
+function equipSkin(save, skinId) {
+    const skin = getSkin(skinId);
+    if (!skin) return {
+        ok: false,
+        error: 'not found'
+    };
+    if (!isSkinUnlocked(save, skin)) return {
+        ok: false,
+        error: 'locked'
+    };
+    if (skin.kind === 'wolf_set') {
+        return {
+            ok: true,
+            save: {
+                ...save,
+                equipped: {
+                    ...save.equipped,
+                    wolfSetId: skin.id
+                }
+            }
+        };
+    }
+    return {
+        ok: true,
+        save: {
+            ...save,
+            equipped: {
+                ...save.equipped,
+                boardId: skin.id
+            }
+        }
+    };
+}
+function validateSkinCatalog() {
+    const errors = [];
+    const ids = new Set();
+    let defaultWolf = 0;
+    let defaultBoard = 0;
+    for (const s of SKIN_CATALOG){
+        if (ids.has(s.id)) errors.push("duplicate id ".concat(s.id));
+        ids.add(s.id);
+        if (!s.nameEn.trim() || !s.nameZh.trim()) errors.push("".concat(s.id, " missing localized name"));
+        if (s.kind === 'wolf_set') {
+            if (!s.assets.wolf || !s.assets.sheep) errors.push("".concat(s.id, " missing wolf/sheep asset"));
+            if (s.unlock.type === 'default') defaultWolf++;
+            if (s.unlock.type === 'cost' && s.unlock.universal < 0) errors.push("".concat(s.id, " bad cost"));
+        } else {
+            if (!s.assets.boardBg) errors.push("".concat(s.id, " missing boardBg"));
+            if (s.unlock.type === 'default') defaultBoard++;
+            if (s.unlock.type === 'cost' && s.unlock.amount < 0) errors.push("".concat(s.id, " bad cost"));
+        }
+    }
+    if (defaultWolf < 1) errors.push('need default wolf_set');
+    if (defaultBoard < 1) errors.push('need default board');
+    return errors;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/serialize.ts [app-client] (ecmascript) <locals>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "deserialize",
+    ()=>deserialize,
+    "makeState",
+    ()=>makeState,
+    "serialize",
+    ()=>serialize
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/board.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+;
+;
+function serialize(state) {
+    return {
+        pieces: state.pieces.map((p)=>({
+                ...p
+            })),
+        rocks: [
+            ...state.rocks
+        ],
+        eatenSheep: state.eatenSheep,
+        toMove: state.toMove,
+        chain: state.chain ? {
+            ...state.chain
+        } : null,
+        status: state.status,
+        levelId: state.levelId,
+        targetEaten: state.targetEaten,
+        plyCount: state.plyCount,
+        maxPlies: state.maxPlies,
+        repetitionCounts: [
+            ...state.repetitionCounts
+        ]
+    };
+}
+function deserialize(data) {
+    var _data_targetEaten, _data_plyCount, _data_maxPlies;
+    const state = {
+        pieces: data.pieces.map((p)=>({
+                ...p
+            })),
+        rocks: new Set(data.rocks),
+        eatenSheep: data.eatenSheep,
+        toMove: data.toMove,
+        chain: data.chain ? {
+            ...data.chain
+        } : null,
+        status: data.status,
+        levelId: data.levelId,
+        targetEaten: (_data_targetEaten = data.targetEaten) !== null && _data_targetEaten !== void 0 ? _data_targetEaten : 8,
+        plyCount: (_data_plyCount = data.plyCount) !== null && _data_plyCount !== void 0 ? _data_plyCount : 0,
+        maxPlies: (_data_maxPlies = data.maxPlies) !== null && _data_maxPlies !== void 0 ? _data_maxPlies : 300,
+        repetitionCounts: new Map(data.repetitionCounts)
+    };
+    if (data.repetitionCounts) return state;
+    return {
+        ...state,
+        repetitionCounts: new Map([
+            [
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["boardPositionKey"])(state),
+                1
+            ]
+        ])
+    };
+}
+function makeState(partial) {
+    var _partial_rocks, _partial_eatenSheep, _partial_toMove, _partial_chain, _partial_status, _partial_levelId, _partial_targetEaten, _partial_plyCount, _partial_maxPlies, _partial_repetitionCounts;
+    const state = {
+        pieces: partial.pieces.map((p)=>({
+                ...p
+            })),
+        rocks: new Set(((_partial_rocks = partial.rocks) !== null && _partial_rocks !== void 0 ? _partial_rocks : []).map(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["keyOf"])),
+        eatenSheep: (_partial_eatenSheep = partial.eatenSheep) !== null && _partial_eatenSheep !== void 0 ? _partial_eatenSheep : 0,
+        toMove: (_partial_toMove = partial.toMove) !== null && _partial_toMove !== void 0 ? _partial_toMove : 'wolf',
+        chain: (_partial_chain = partial.chain) !== null && _partial_chain !== void 0 ? _partial_chain : null,
+        status: (_partial_status = partial.status) !== null && _partial_status !== void 0 ? _partial_status : 'playing',
+        levelId: (_partial_levelId = partial.levelId) !== null && _partial_levelId !== void 0 ? _partial_levelId : 'test',
+        targetEaten: (_partial_targetEaten = partial.targetEaten) !== null && _partial_targetEaten !== void 0 ? _partial_targetEaten : 8,
+        plyCount: (_partial_plyCount = partial.plyCount) !== null && _partial_plyCount !== void 0 ? _partial_plyCount : 0,
+        maxPlies: (_partial_maxPlies = partial.maxPlies) !== null && _partial_maxPlies !== void 0 ? _partial_maxPlies : 300,
+        repetitionCounts: (_partial_repetitionCounts = partial.repetitionCounts) !== null && _partial_repetitionCounts !== void 0 ? _partial_repetitionCounts : new Map()
+    };
+    if (partial.repetitionCounts) return state;
+    return {
+        ...state,
+        repetitionCounts: new Map([
+            [
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["boardPositionKey"])(state),
+                1
+            ]
+        ])
+    };
+}
+;
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/ai/evaluate.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "evaluate",
+    ()=>evaluate,
+    "evaluateScore",
+    ()=>evaluateScore
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/board.ts [app-client] (ecmascript)");
+;
+;
+const W = {
+    material: 12,
+    wolfMobility: -1.5,
+    cluster: 0.8,
+    advance: 0.4,
+    surround: 2.5,
+    safety: 5,
+    sheepMobility: 0.6
+};
+function sheepPositions(state) {
+    return state.pieces.filter((p)=>p.side === 'sheep');
+}
+function wolfPositions(state) {
+    return state.pieces.filter((p)=>p.side === 'wolf');
+}
+/** Average pairwise Chebyshev proximity among sheep (higher = tighter). */ function clusterScore(state) {
+    const sheep = sheepPositions(state);
+    if (sheep.length < 2) return 0;
+    let sum = 0;
+    let n = 0;
+    for(let i = 0; i < sheep.length; i++){
+        for(let j = i + 1; j < sheep.length; j++){
+            const a = sheep[i];
+            const b = sheep[j];
+            const dist = Math.max(Math.abs(a.r - b.r), Math.abs(a.c - b.c));
+            sum += Math.max(0, 5 - dist);
+            n++;
+        }
+    }
+    return n === 0 ? 0 : sum / n;
+}
+/** Prefer sheep not all stuck on row 1. */ function advanceScore(state) {
+    const sheep = sheepPositions(state);
+    if (sheep.length === 0) return 0;
+    return sheep.reduce((s, p)=>s + p.r, 0) / sheep.length;
+}
+/** Empty ortho neighbors of wolves occupied by sheep or rocks count as pressing. */ function surroundScore(state) {
+    const occ = new Set(state.pieces.map((p)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["posKey"])(p.r, p.c)));
+    let score = 0;
+    for (const w of wolfPositions(state)){
+        const dirs = [
+            [
+                0,
+                1
+            ],
+            [
+                0,
+                -1
+            ],
+            [
+                1,
+                0
+            ],
+            [
+                -1,
+                0
+            ]
+        ];
+        for (const [dr, dc] of dirs){
+            const k = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["posKey"])(w.r + dr, w.c + dc);
+            if (state.rocks.has(k) || occ.has(k)) score += 1;
+        }
+    }
+    return score;
+}
+/** Penalize positions where wolves already have a direct jump capture. */ function safetyScore(wolfJumps) {
+    return -wolfJumps;
+}
+/** Keep sheep from choosing moves that leave the flock with no useful exits. */ function sheepMobilityScore(state) {
+    if (state.status !== 'playing') return 0;
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])({
+        ...state,
+        toMove: 'sheep',
+        chain: null
+    }).length;
+}
+function evaluate(state) {
+    const sheepCount = sheepPositions(state).length;
+    const summary = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getWolfLegalSummary"])(state);
+    const wolfMoves = summary.reduce((s, x)=>s + x.steps + x.jumps, 0);
+    const wolfJumps = summary.reduce((s, x)=>s + x.jumps, 0);
+    const material = sheepCount;
+    const cluster = clusterScore(state);
+    const advance = advanceScore(state);
+    const surround = surroundScore(state);
+    const safety = safetyScore(wolfJumps);
+    const sheepMobility = sheepMobilityScore(state);
+    const total = W.material * material + W.wolfMobility * wolfMoves + W.cluster * cluster + W.advance * advance + W.surround * surround + W.safety * safety + W.sheepMobility * sheepMobility;
+    if (state.status === 'won') {
+        return {
+            total: -10_000,
+            material,
+            wolfMobility: wolfMoves,
+            cluster,
+            advance,
+            surround,
+            safety,
+            sheepMobility
+        };
+    }
+    if (state.status === 'lost' || wolfMoves === 0) {
+        return {
+            total: 10_000,
+            material,
+            wolfMobility: wolfMoves,
+            cluster,
+            advance,
+            surround,
+            safety,
+            sheepMobility
+        };
+    }
+    return {
+        total,
+        material,
+        wolfMobility: wolfMoves,
+        cluster,
+        advance,
+        surround,
+        safety,
+        sheepMobility
+    };
+}
+function evaluateScore(state) {
+    return evaluate(state).total;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/ai/rng.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "createSeededRng",
+    ()=>createSeededRng,
+    "pickIndex",
+    ()=>pickIndex
+]);
+function createSeededRng(seed) {
+    let t = seed >>> 0;
+    return {
+        nextFloat () {
+            t += 0x6d2b79f5;
+            let r = Math.imul(t ^ t >>> 15, 1 | t);
+            r ^= r + Math.imul(r ^ r >>> 7, 61 | r);
+            return ((r ^ r >>> 14) >>> 0) / 4294967296;
+        }
+    };
+}
+function pickIndex(rng, length) {
+    if (length <= 0) throw new Error('pickIndex: empty');
+    return Math.min(length - 1, Math.floor(rng.nextFloat() * length));
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/ai/easy.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "pickEasy",
+    ()=>pickEasy
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/evaluate.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-client] (ecmascript)");
+;
+;
+;
+function pickEasy(state, rng) {
+    const actions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])(state);
+    if (actions.length === 0) throw new Error('easy: no legal sheep moves');
+    const scored = actions.map((action)=>{
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        if (!result.ok) return {
+            action,
+            score: -Infinity
+        };
+        return {
+            action,
+            score: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(result.state)
+        };
+    });
+    // Temperature-ish: weight = exp(score / T) with soft floor
+    const T = 8;
+    const max = Math.max(...scored.map((s)=>s.score));
+    const weights = scored.map((s)=>Math.exp((s.score - max) / T) + 0.15);
+    const sum = weights.reduce((a, b)=>a + b, 0);
+    let r = rng.nextFloat() * sum;
+    for(let i = 0; i < scored.length; i++){
+        r -= weights[i];
+        if (r <= 0) return scored[i].action;
+    }
+    return scored[(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["pickIndex"])(rng, scored.length)].action;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/ai/normal.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "pickNormal",
+    ()=>pickNormal
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/evaluate.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-client] (ecmascript)");
+;
+;
+;
+function pickNormal(state, rng) {
+    const actions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])(state);
+    if (actions.length === 0) throw new Error('normal: no legal sheep moves');
+    let best = -Infinity;
+    const tops = [];
+    for (const action of actions){
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        if (!result.ok) continue;
+        const score = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(result.state);
+        if (score > best) {
+            best = score;
+            tops.length = 0;
+            tops.push(action);
+        } else if (score === best) {
+            tops.push(action);
+        }
+    }
+    if (tops.length === 0) throw new Error('normal: no applicable moves');
+    return tops[(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["pickIndex"])(rng, tops.length)];
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/ai/hard.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "pickHard",
+    ()=>pickHard,
+    "pickHardWithMeta",
+    ()=>pickHardWithMeta
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/evaluate.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$normal$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/normal.ts [app-client] (ecmascript)");
+;
+;
+;
+;
+const DEFAULT_BUDGETS = {
+    maxNodes: 4000,
+    maxMs: 12
+};
+function clockNow() {
+    return Date.now();
+}
+function exhausted(nodes, budget, start) {
+    return nodes.n >= budget.maxNodes || budget.maxMs !== undefined && clockNow() - start >= budget.maxMs;
+}
+/**
+ * Resolve the most damaging legal wolf turn, including any continuation of a
+ * capture chain. The result is always a completed wolf turn or a terminal state.
+ */ function worstWolfTurn(state, nodes, budget, start) {
+    if (state.status !== 'playing' || exhausted(nodes, budget, start)) return state;
+    // A wolf step ends the turn. Only a jump with an active chain can recurse.
+    if (state.toMove !== 'wolf') return state;
+    const wolfState = state;
+    if (wolfState.chain) {
+        const ended = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endWolfTurn"])(wolfState);
+        let worst = ended.ok ? ended.state : wolfState;
+        let worstScore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(worst);
+        for (const action of (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])(wolfState)){
+            if (exhausted(nodes, budget, start)) break;
+            nodes.n++;
+            const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyAction"])(wolfState, action);
+            if (!result.ok) continue;
+            const candidate = worstWolfTurn(result.state, nodes, budget, start);
+            const score = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(candidate);
+            if (score < worstScore) {
+                worst = candidate;
+                worstScore = score;
+            }
+        }
+        return worst;
+    }
+    const actions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])(wolfState);
+    if (actions.length === 0) return wolfState;
+    let worst = wolfState;
+    let worstScore = Infinity;
+    for (const action of actions){
+        if (exhausted(nodes, budget, start)) break;
+        nodes.n++;
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyAction"])(wolfState, action);
+        if (!result.ok) continue;
+        const candidate = worstWolfTurn(result.state, nodes, budget, start);
+        const score = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(candidate);
+        if (score < worstScore) {
+            worst = candidate;
+            worstScore = score;
+        }
+    }
+    return worstScore === Infinity ? wolfState : worst;
+}
+/** Evaluate one additional sheep decision after the worst complete wolf turn. */ function bestNextSheepResponse(state, nodes, budget, start) {
+    if (state.status !== 'playing' || state.toMove !== 'sheep' || exhausted(nodes, budget, start)) {
+        return {
+            score: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(state),
+            completed: false
+        };
+    }
+    let best = -Infinity;
+    let completed = false;
+    for (const action of (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])(state)){
+        if (exhausted(nodes, budget, start)) break;
+        nodes.n++;
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        if (!result.ok) continue;
+        const afterWolf = worstWolfTurn(result.state, nodes, budget, start);
+        best = Math.max(best, (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(afterWolf));
+        completed = true;
+    }
+    return {
+        score: best === -Infinity ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(state) : best,
+        completed
+    };
+}
+function pickHardWithMeta(state, rng) {
+    let budgets = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : DEFAULT_BUDGETS;
+    const actions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])(state);
+    if (actions.length === 0) throw new Error('hard: no legal sheep moves');
+    const start = clockNow();
+    const nodes = {
+        n: 0
+    };
+    let bestScore = -Infinity;
+    let lookaheadCompleted = false;
+    const tops = [];
+    const applicable = actions.flatMap((action)=>{
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        return result.ok ? [
+            {
+                action,
+                result,
+                immediateSheepScore: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(result.state)
+            }
+        ] : [];
+    });
+    const normalBest = Math.max(...applicable.map((item)=>item.immediateSheepScore));
+    for (const { action, result, immediateSheepScore } of applicable){
+        // Hard refines Normal's safest immediate choices; bounded lookahead must not
+        // justify an immediately inferior move through a horizon artifact.
+        if (immediateSheepScore < normalBest) continue;
+        if (exhausted(nodes, budgets, start)) break;
+        nodes.n++;
+        const afterWolf = worstWolfTurn(result.state, nodes, budgets, start);
+        const immediate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(afterWolf);
+        const next = bestNextSheepResponse(afterWolf, nodes, budgets, start);
+        const score = immediate * 0.35 + next.score * 0.65;
+        lookaheadCompleted || (lookaheadCompleted = next.completed);
+        if (score > bestScore) {
+            bestScore = score;
+            tops.length = 0;
+            tops.push(action);
+        } else if (score === bestScore) {
+            tops.push(action);
+        }
+    }
+    const elapsedMs = clockNow() - start;
+    if (tops.length === 0) {
+        return {
+            action: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$normal$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["pickNormal"])(state, rng),
+            meta: {
+                degraded: true,
+                nodes: nodes.n,
+                elapsedMs,
+                lookaheadCompleted: false
+            }
+        };
+    }
+    return {
+        action: tops[(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["pickIndex"])(rng, tops.length)],
+        meta: {
+            degraded: false,
+            nodes: nodes.n,
+            elapsedMs,
+            lookaheadCompleted
+        }
+    };
+}
+function pickHard(state, rng) {
+    let budgets = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : DEFAULT_BUDGETS;
+    return pickHardWithMeta(state, rng, budgets).action;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/ai/index.ts [app-client] (ecmascript) <locals>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "pickSheepAction",
+    ()=>pickSheepAction,
+    "tierForChapter",
+    ()=>tierForChapter
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$easy$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/easy.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$normal$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/normal.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$hard$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/hard.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-client] (ecmascript)");
+;
+;
+;
+;
+function pickSheepAction(state, ctx) {
+    if (state.status !== 'playing') {
+        throw new Error('pickSheepAction: game not playing');
+    }
+    if (state.toMove !== 'sheep') {
+        throw new Error('pickSheepAction: not sheep turn');
+    }
+    switch(ctx.difficulty){
+        case 'easy':
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$easy$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["pickEasy"])(state, ctx.rng);
+        case 'normal':
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$normal$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["pickNormal"])(state, ctx.rng);
+        case 'hard':
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$hard$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["pickHard"])(state, ctx.rng, ctx.budgets);
+        default:
+            {
+                const _exhaustive = ctx.difficulty;
+                return _exhaustive;
+            }
+    }
+}
+function tierForChapter(chapterId) {
+    switch(chapterId){
+        case 'spring':
+            return 'easy';
+        case 'summer':
+        case 'autumn':
+            return 'normal';
+        case 'winter':
+            return 'hard';
+    }
+}
+;
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/analysis/diagnosticWolf.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "chooseDiagnosticWolfAction",
+    ()=>chooseDiagnosticWolfAction
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/evaluate.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+;
+;
+function entersRepeatedPosition(state) {
+    var _state_repetitionCounts_get;
+    return ((_state_repetitionCounts_get = state.repetitionCounts.get((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["boardPositionKey"])(state))) !== null && _state_repetitionCounts_get !== void 0 ? _state_repetitionCounts_get : 0) >= 2;
+}
+function chooseDiagnosticWolfAction(state, actions, random, strategy) {
+    if (strategy === 'random') return actions[Math.floor(random.nextFloat() * actions.length)];
+    const evaluated = actions.map((action)=>{
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        return {
+            action,
+            score: result.ok ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["evaluateScore"])(result.state) : Infinity,
+            repeats: result.ok && entersRepeatedPosition(result.state)
+        };
+    });
+    const nonRepeating = evaluated.filter((item)=>!item.repeats);
+    const pool = nonRepeating.length > 0 ? nonRepeating : evaluated;
+    if (random.nextFloat() < 0.35) return pool[Math.floor(random.nextFloat() * pool.length)].action;
+    const best = Math.min(...pool.map((item)=>item.score));
+    const candidates = pool.filter((item)=>item.score === best);
+    return candidates[Math.floor(random.nextFloat() * candidates.length)].action;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/analysis/candidateAcceptance.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "assessLevelCandidate",
+    ()=>assessLevelCandidate
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$analysis$2f$diagnosticWolf$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/analysis/diagnosticWolf.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/levels.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+;
+;
+;
+;
+const DEFAULT_SEEDS = Array.from({
+    length: 10
+}, (_, index)=>20260717 + index);
+function percentile(values, ratio) {
+    const sorted = [
+        ...values
+    ].sort((left, right)=>left - right);
+    var _sorted_Math_max;
+    return (_sorted_Math_max = sorted[Math.max(0, Math.ceil(sorted.length * ratio) - 1)]) !== null && _sorted_Math_max !== void 0 ? _sorted_Math_max : 0;
+}
+function actionLabel(action) {
+    const through = action.type === 'jump' ? " via ".concat(action.through.r, ",").concat(action.through.c) : '';
+    return "".concat(action.type, ":").concat(action.pieceId, ">").concat(action.to.r, ",").concat(action.to.c).concat(through);
+}
+function terminalReason(state) {
+    if (state.eatenSheep >= state.targetEaten) return 'targetEaten';
+    if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listWolfActionsAsIfTurn"])(state).length === 0) return 'wolvesTrapped';
+    if (state.plyCount >= state.maxPlies) return 'maxPlies';
+    var _state_repetitionCounts_get;
+    if (((_state_repetitionCounts_get = state.repetitionCounts.get((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["boardPositionKey"])(state))) !== null && _state_repetitionCounts_get !== void 0 ? _state_repetitionCounts_get : 0) >= 3) return 'repetition';
+    return 'unexpected';
+}
+function runCandidateGame(level, strategy, seed, hardMaxNodes) {
+    let state = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createLevelInitialState"])(level);
+    const wolfRandom = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createSeededRng"])(seed);
+    const sheepRandom = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createSeededRng"])(seed ^ 0x5f3759df);
+    const trace = [];
+    const seenPositions = new Map();
+    let firstCapturePly = null;
+    let repetitionCycle;
+    const observePosition = ()=>{
+        const key = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["boardPositionKey"])(state);
+        var _seenPositions_get;
+        const occurrences = (_seenPositions_get = seenPositions.get(key)) !== null && _seenPositions_get !== void 0 ? _seenPositions_get : [];
+        occurrences.push({
+            ply: state.plyCount,
+            traceIndex: trace.length
+        });
+        seenPositions.set(key, occurrences);
+        if (occurrences.length >= 3 && !repetitionCycle) {
+            repetitionCycle = {
+                firstSeenPly: occurrences[0].ply,
+                secondSeenPly: occurrences[1].ply,
+                terminalPly: state.plyCount,
+                actions: trace.slice(occurrences[1].traceIndex)
+            };
+        }
+    };
+    observePosition();
+    while(state.status === 'playing'){
+        const actions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])(state);
+        if (actions.length === 0) break;
+        const action = state.toMove === 'wolf' ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$analysis$2f$diagnosticWolf$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["chooseDiagnosticWolfAction"])(state, actions, wolfRandom, strategy) : (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["pickSheepAction"])(state, {
+            difficulty: level.ai,
+            rng: sheepRandom,
+            budgets: level.ai === 'hard' ? {
+                maxNodes: hardMaxNodes
+            } : undefined
+        });
+        const eatenBefore = state.eatenSheep;
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        if (!result.ok) throw new Error(result.error);
+        state = result.state;
+        trace.push("".concat(state.plyCount, ":").concat(actionLabel(action)));
+        observePosition();
+        if (firstCapturePly === null && state.eatenSheep > eatenBefore) firstCapturePly = state.plyCount;
+        if (state.status === 'playing' && state.chain) {
+            const ended = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endWolfTurn"])(state);
+            if (!ended.ok) throw new Error(ended.error);
+            state = ended.state;
+            trace.push("".concat(state.plyCount, ":end-chain"));
+            observePosition();
+        }
+    }
+    return {
+        seed,
+        strategy,
+        winner: state.status === 'won' ? 'wolf' : state.status === 'lost' ? 'sheep' : 'draw',
+        reason: terminalReason(state),
+        plies: state.plyCount,
+        eaten: state.eatenSheep,
+        firstCapturePly,
+        trace,
+        repetitionCycle
+    };
+}
+function assessLevelCandidate(level) {
+    let options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+    const structuralErrors = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["validateLevel"])(level);
+    var _options_seeds;
+    const seeds = (_options_seeds = options.seeds) !== null && _options_seeds !== void 0 ? _options_seeds : DEFAULT_SEEDS;
+    var _options_hardMaxNodes;
+    const hardMaxNodes = (_options_hardMaxNodes = options.hardMaxNodes) !== null && _options_hardMaxNodes !== void 0 ? _options_hardMaxNodes : 80;
+    const games = structuralErrors.length === 0 ? [
+        'random',
+        'mixed'
+    ].flatMap((strategy)=>seeds.map((seed)=>runCandidateGame(level, strategy, seed, hardMaxNodes))) : [];
+    const byStrategy = (strategy)=>games.filter((game)=>game.strategy === strategy);
+    const summarize = (strategy)=>{
+        const selected = byStrategy(strategy);
+        return {
+            wolfWins: selected.filter((game)=>game.winner === 'wolf').length,
+            sheepWins: selected.filter((game)=>game.winner === 'sheep').length,
+            draws: selected.filter((game)=>game.winner === 'draw').length,
+            averagePlies: selected.reduce((sum, game)=>sum + game.plies, 0) / Math.max(1, selected.length),
+            p95Plies: percentile(selected.map((game)=>game.plies), 0.95),
+            averageEaten: selected.reduce((sum, game)=>sum + game.eaten, 0) / Math.max(1, selected.length),
+            firstCaptureCoverage: selected.filter((game)=>game.firstCapturePly !== null).length / Math.max(1, selected.length)
+        };
+    };
+    const summaries = {
+        random: summarize('random'),
+        mixed: summarize('mixed')
+    };
+    const findings = [];
+    const mixed = byStrategy('mixed');
+    const evidence = (predicate)=>mixed.filter(predicate).map((game)=>game.seed);
+    const rate = (count)=>count / Math.max(1, seeds.length);
+    if (structuralErrors.length > 0) {
+        findings.push({
+            severity: 'reject',
+            code: 'STRUCTURE_INVALID',
+            message: structuralErrors.join('; '),
+            evidenceSeeds: []
+        });
+    } else {
+        if (rate(summaries.mixed.wolfWins) >= 0.9 && summaries.mixed.sheepWins === 0) {
+            findings.push({
+                severity: 'reject',
+                code: 'WOLF_FORCED_WIN_RISK',
+                message: 'mixed wolf strategy wins at least 90% with no sheep wins',
+                evidenceSeeds: evidence((game)=>game.winner === 'wolf')
+            });
+        }
+        if (summaries.mixed.firstCaptureCoverage < 0.8) {
+            findings.push({
+                severity: 'reject',
+                code: 'FIRST_CAPTURE_BLOCKED',
+                message: 'mixed strategy fails to capture in more than 20% of games',
+                evidenceSeeds: evidence((game)=>game.firstCapturePly === null)
+            });
+        }
+        if (rate(summaries.mixed.draws) >= 0.4) {
+            findings.push({
+                severity: 'review',
+                code: 'DRAW_RATE_HIGH',
+                message: 'mixed strategy draw rate is at least 40%',
+                evidenceSeeds: evidence((game)=>game.winner === 'draw')
+            });
+        }
+        var _level_maxPlies;
+        if (summaries.mixed.p95Plies >= ((_level_maxPlies = level.maxPlies) !== null && _level_maxPlies !== void 0 ? _level_maxPlies : 300) * 0.75) {
+            findings.push({
+                severity: 'review',
+                code: 'LONG_TAIL',
+                message: 'mixed strategy P95 reaches at least 75% of maxPlies',
+                evidenceSeeds: evidence((game)=>{
+                    var _level_maxPlies;
+                    return game.plies >= ((_level_maxPlies = level.maxPlies) !== null && _level_maxPlies !== void 0 ? _level_maxPlies : 300) * 0.75;
+                })
+            });
+        }
+        if (summaries.mixed.wolfWins - summaries.random.wolfWins >= seeds.length * 0.6) {
+            findings.push({
+                severity: 'review',
+                code: 'STRATEGY_SENSITIVE',
+                message: 'mixed strategy gains at least 60 percentage points over random',
+                evidenceSeeds: evidence((game)=>game.winner === 'wolf')
+            });
+        }
+        const unexpected = games.filter((game)=>game.reason === 'unexpected');
+        if (unexpected.length > 0) {
+            findings.push({
+                severity: 'reject',
+                code: 'UNEXPECTED_TERMINAL',
+                message: 'simulation reached an unclassified terminal state',
+                evidenceSeeds: unexpected.map((game)=>game.seed)
+            });
+        }
+    }
+    const verdict = findings.some((finding)=>finding.severity === 'reject') ? 'reject' : findings.some((finding)=>finding.severity === 'review') ? 'review' : 'pass';
+    return {
+        levelId: level.id,
+        verdict,
+        structuralErrors,
+        findings,
+        games,
+        summaries
+    };
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/packages/game-core/src/index.ts [app-client] (ecmascript) <locals>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/levels.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/save.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$quests$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/quests.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$skins$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/skins.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/types.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$board$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/board.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$serialize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/serialize.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$evaluate$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/evaluate.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$analysis$2f$candidateAcceptance$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/analysis/candidateAcceptance.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$analysis$2f$diagnosticWolf$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/analysis/diagnosticWolf.ts [app-client] (ecmascript)");
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/components/BoardSvg.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "BoardSvg",
+    ()=>BoardSvg
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/types.ts [app-client] (ecmascript)");
+'use client';
+;
+;
+const PAD = 28;
+const CELL = 56;
+const SIZE = PAD * 2 + CELL * (__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"] - 1);
+const PIECE = 46;
+function xy(r, c) {
+    return {
+        x: PAD + (c - 1) * CELL,
+        y: PAD + (r - 1) * CELL
+    };
+}
+function hasPos(list, r, c) {
+    return list.some((p)=>p.r === r && p.c === c);
+}
+function RockShape(param) {
+    let { x, y, variant, warm = 0 } = param;
+    const shapes = [
+        "".concat(x - 13, ",").concat(y + 2, " ").concat(x - 8, ",").concat(y - 12, " ").concat(x + 4, ",").concat(y - 14, " ").concat(x + 13, ",").concat(y - 4, " ").concat(x + 10, ",").concat(y + 10, " ").concat(x - 4, ",").concat(y + 13),
+        "".concat(x - 12, ",").concat(y - 4, " ").concat(x - 2, ",").concat(y - 14, " ").concat(x + 11, ",").concat(y - 10, " ").concat(x + 14, ",").concat(y + 2, " ").concat(x + 6, ",").concat(y + 12, " ").concat(x - 10, ",").concat(y + 10),
+        "".concat(x - 14, ",").concat(y + 4, " ").concat(x - 10, ",").concat(y - 10, " ").concat(x + 2, ",").concat(y - 13, " ").concat(x + 12, ",").concat(y - 6, " ").concat(x + 12, ",").concat(y + 8, " ").concat(x - 2, ",").concat(y + 13)
+    ];
+    const pts = shapes[variant % shapes.length];
+    const base = warm > 0.3 ? '#7a6a58' : warm < -0.2 ? '#5a6270' : '#6e665c';
+    const lite = warm > 0.3 ? '#a09078' : warm < -0.2 ? '#8a949e' : '#8a8278';
+    const dark = warm > 0.3 ? '#4a3a28' : warm < -0.2 ? '#2a3440' : '#3f3a34';
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("g", {
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ellipse", {
+                cx: x + 1,
+                cy: y + 12,
+                rx: 12,
+                ry: 3.5,
+                fill: "#1a1f18",
+                opacity: 0.28
+            }, void 0, false, {
+                fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                lineNumber: 68,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("polygon", {
+                points: pts,
+                fill: base,
+                stroke: dark,
+                strokeWidth: 1.4,
+                strokeLinejoin: "round"
+            }, void 0, false, {
+                fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                lineNumber: 69,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("polygon", {
+                points: pts.split(' ').slice(0, 3).join(' '),
+                fill: lite,
+                opacity: 0.65
+            }, void 0, false, {
+                fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                lineNumber: 70,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
+                d: "M".concat(x - 5, " ").concat(y - 1, " L").concat(x + 1, " ").concat(y + 5, " M").concat(x + 1, " ").concat(y - 7, " L").concat(x + 7, " ").concat(y - 1),
+                stroke: dark,
+                strokeWidth: 1.1,
+                opacity: 0.5,
+                strokeLinecap: "round"
+            }, void 0, false, {
+                fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                lineNumber: 71,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+        lineNumber: 67,
+        columnNumber: 5
+    }, this);
+}
+_c = RockShape;
+function BoardSvg(param) {
+    let { state, selectedWolfId, stepHighlights, jumpHighlights, jumpThroughs, juice, interactive, onSelectWolf, onClickCell, theme = {
+        boardFill: '#e8f0e4',
+        lineStroke: '#5c6b52',
+        wolfFill: '#3d4a3a',
+        sheepFill: '#f4f1ea'
+    } } = param;
+    const rocks = [
+        ...state.rocks
+    ].map((k)=>{
+        const [r, c] = k.split(',').map(Number);
+        return {
+            r: r,
+            c: c
+        };
+    });
+    const selectedWolf = selectedWolfId ? state.pieces.find((p)=>p.id === selectedWolfId && p.side === 'wolf') : undefined;
+    const fromXy = juice ? xy(juice.from.r, juice.from.c) : null;
+    const toXy = juice ? xy(juice.to.r, juice.to.c) : null;
+    const dx = fromXy && toXy ? fromXy.x - toXy.x : 0;
+    const dy = fromXy && toXy ? fromXy.y - toXy.y : 0;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "game-board-frame w-full max-w-[min(92vw,420px)]",
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+            viewBox: "0 0 ".concat(SIZE, " ").concat(SIZE),
+            className: "h-auto w-full touch-manipulation",
+            role: "img",
+            "aria-label": "Fangrush board",
+            children: [
+                theme.boardBgSrc ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("image", {
+                    href: theme.boardBgSrc,
+                    x: 0,
+                    y: 0,
+                    width: SIZE,
+                    height: SIZE,
+                    preserveAspectRatio: "none"
+                }, void 0, false, {
+                    fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                    lineNumber: 122,
+                    columnNumber: 9
+                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("rect", {
+                    x: 0,
+                    y: 0,
+                    width: SIZE,
+                    height: SIZE,
+                    fill: theme.boardFill,
+                    rx: 12
+                }, void 0, false, {
+                    fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                    lineNumber: 124,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("rect", {
+                    x: 0,
+                    y: 0,
+                    width: SIZE,
+                    height: SIZE,
+                    fill: theme.boardBgSrc ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    rx: 12
+                }, void 0, false, {
+                    fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                    lineNumber: 127,
+                    columnNumber: 7
+                }, this),
+                Array.from({
+                    length: __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"]
+                }, (_, i)=>{
+                    const v = PAD + i * CELL;
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("g", {
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("line", {
+                                x1: PAD,
+                                y1: v,
+                                x2: PAD + CELL * (__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"] - 1),
+                                y2: v,
+                                stroke: theme.lineStroke,
+                                strokeWidth: 2.25,
+                                opacity: 0.9
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                                lineNumber: 140,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("line", {
+                                x1: v,
+                                y1: PAD,
+                                x2: v,
+                                y2: PAD + CELL * (__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"] - 1),
+                                stroke: theme.lineStroke,
+                                strokeWidth: 2.25,
+                                opacity: 0.9
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                                lineNumber: 149,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, "line-".concat(i), true, {
+                        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                        lineNumber: 139,
+                        columnNumber: 11
+                    }, this);
+                }),
+                Array.from({
+                    length: __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"]
+                }, (_, ri)=>Array.from({
+                        length: __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"]
+                    }, (_, ci)=>{
+                        const { x, y } = xy(ri + 1, ci + 1);
+                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                            cx: x,
+                            cy: y,
+                            r: 3.6,
+                            fill: theme.lineStroke,
+                            opacity: 0.7
+                        }, "dot-".concat(ri, "-").concat(ci), false, {
+                            fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                            lineNumber: 166,
+                            columnNumber: 13
+                        }, this);
+                    })),
+                selectedWolf && jumpThroughs.map((mid, i)=>{
+                    const to = jumpHighlights[i];
+                    if (!to) return null;
+                    const a = xy(selectedWolf.r, selectedWolf.c);
+                    const b = xy(mid.r, mid.c);
+                    const c = xy(to.r, to.c);
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("polyline", {
+                        points: "".concat(a.x, ",").concat(a.y, " ").concat(b.x, ",").concat(b.y, " ").concat(c.x, ",").concat(c.y),
+                        fill: "none",
+                        stroke: "rgba(196, 72, 54, 0.55)",
+                        strokeWidth: 3,
+                        strokeLinecap: "round",
+                        strokeLinejoin: "round",
+                        pointerEvents: "none"
+                    }, "path-".concat(mid.r, "-").concat(mid.c, "-").concat(to.r, "-").concat(to.c), false, {
+                        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                        lineNumber: 186,
+                        columnNumber: 13
+                    }, this);
+                }),
+                Array.from({
+                    length: __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"]
+                }, (_, ri)=>Array.from({
+                        length: __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"]
+                    }, (_, ci)=>{
+                        const r = ri + 1;
+                        const c = ci + 1;
+                        const { x, y } = xy(r, c);
+                        const isStep = hasPos(stepHighlights, r, c);
+                        const isThrough = hasPos(jumpThroughs, r, c);
+                        if (!isStep && !isThrough) return null;
+                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                            cx: x,
+                            cy: y,
+                            r: 14,
+                            className: "juice-pulse",
+                            fill: isThrough ? 'rgba(196, 72, 54, 0.28)' : 'rgba(70, 130, 90, 0.4)'
+                        }, "hl-".concat(r, "-").concat(c), false, {
+                            fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                            lineNumber: 208,
+                            columnNumber: 13
+                        }, this);
+                    })),
+                rocks.map((p, i)=>{
+                    const { x, y } = xy(p.r, p.c);
+                    var _theme_rockWarm;
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(RockShape, {
+                        x: x,
+                        y: y,
+                        variant: i + p.r + p.c,
+                        warm: (_theme_rockWarm = theme.rockWarm) !== null && _theme_rockWarm !== void 0 ? _theme_rockWarm : 0
+                    }, "rock-".concat(p.r, "-").concat(p.c), false, {
+                        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                        lineNumber: 223,
+                        columnNumber: 11
+                    }, this);
+                }),
+                (juice === null || juice === void 0 ? void 0 : juice.kind) === 'jump' && toXy && theme.sheepSrc && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("image", {
+                    href: theme.sheepSrc,
+                    x: toXy.x - PIECE / 2,
+                    y: toXy.y - PIECE / 2,
+                    width: PIECE,
+                    height: PIECE,
+                    className: "piece-capture-fade",
+                    style: {
+                        pointerEvents: 'none'
+                    }
+                }, void 0, false, {
+                    fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                    lineNumber: 235,
+                    columnNumber: 9
+                }, this),
+                state.pieces.map((p)=>{
+                    const { x, y } = xy(p.r, p.c);
+                    const selected = p.side === 'wolf' && p.id === selectedWolfId;
+                    const src = p.side === 'sheep' ? theme.sheepSrc : theme.wolfSrc;
+                    const isMover = Boolean(juice) && juice.to.r === p.r && juice.to.c === p.c;
+                    const scale = selected ? 1.1 : 1;
+                    const body = src ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("image", {
+                        href: src,
+                        x: x - PIECE * scale / 2,
+                        y: y - PIECE * scale / 2 - (selected ? 2 : 0),
+                        width: PIECE * scale,
+                        height: PIECE * scale,
+                        style: {
+                            pointerEvents: 'none',
+                            filter: selected ? 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' : undefined
+                        }
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                        lineNumber: 255,
+                        columnNumber: 11
+                    }, this) : p.side === 'sheep' ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                        cx: x,
+                        cy: y,
+                        r: 13,
+                        fill: theme.sheepFill,
+                        stroke: "#8a8478",
+                        strokeWidth: 1.5
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                        lineNumber: 267,
+                        columnNumber: 11
+                    }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                        cx: x,
+                        cy: y,
+                        r: 15,
+                        fill: theme.wolfFill,
+                        stroke: selected ? '#c9a227' : '#1e261c',
+                        strokeWidth: selected ? 3 : 1.5
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                        lineNumber: 269,
+                        columnNumber: 11
+                    }, this);
+                    const moveStyle = isMover ? {
+                        cursor: interactive && p.side === 'wolf' ? 'pointer' : 'default',
+                        ['--slide-x']: "".concat(dx, "px"),
+                        ['--slide-y']: "".concat(dy, "px")
+                    } : {
+                        cursor: interactive && p.side === 'wolf' ? 'pointer' : 'default'
+                    };
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("g", {
+                        onClick: (e)=>{
+                            e.stopPropagation();
+                            if (interactive && p.side === 'wolf') onSelectWolf(p.id);
+                        },
+                        style: moveStyle,
+                        className: isMover ? 'piece-slide' : 'piece-idle',
+                        children: [
+                            p.side === 'sheep' && !selected && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("title", {
+                                children: "Sheep"
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                                lineNumber: 299,
+                                columnNumber: 49
+                            }, this),
+                            p.side === 'wolf' && !selected && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("title", {
+                                children: "Wolf"
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                                lineNumber: 300,
+                                columnNumber: 48
+                            }, this),
+                            selected && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                                        cx: x,
+                                        cy: y + 2,
+                                        r: PIECE / 2 + 4,
+                                        fill: "#c9a227",
+                                        opacity: 0.2,
+                                        className: "juice-pulse"
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                                        lineNumber: 303,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                                        cx: x,
+                                        cy: y,
+                                        r: PIECE / 2 + 3,
+                                        fill: "none",
+                                        stroke: "#c9a227",
+                                        strokeWidth: 3,
+                                        pointerEvents: "none"
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                                        lineNumber: 311,
+                                        columnNumber: 17
+                                    }, this)
+                                ]
+                            }, void 0, true),
+                            body
+                        ]
+                    }, p.id, true, {
+                        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                        lineNumber: 290,
+                        columnNumber: 11
+                    }, this);
+                }),
+                jumpHighlights.map((p)=>{
+                    const { x, y } = xy(p.r, p.c);
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                        cx: x,
+                        cy: y,
+                        r: 18,
+                        fill: "none",
+                        stroke: "#c44836",
+                        strokeWidth: 3,
+                        className: "juice-pulse danger-ring",
+                        pointerEvents: "none"
+                    }, "sheep-hl-".concat(p.r, "-").concat(p.c), false, {
+                        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                        lineNumber: 330,
+                        columnNumber: 11
+                    }, this);
+                }),
+                juice && toXy && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("g", {
+                    pointerEvents: "none",
+                    className: "juice-flash",
+                    children: [
+                        juice.kind === 'jump' && juice.through && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                            cx: xy(juice.through.r, juice.through.c).x,
+                            cy: xy(juice.through.r, juice.through.c).y,
+                            r: 16,
+                            fill: "rgba(196,72,54,0.3)"
+                        }, void 0, false, {
+                            fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                            lineNumber: 347,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                            cx: toXy.x,
+                            cy: toXy.y,
+                            r: juice.kind === 'jump' ? 22 : 18,
+                            fill: juice.kind === 'jump' ? 'none' : 'rgba(70,130,90,0.35)',
+                            stroke: juice.kind === 'jump' ? '#c44836' : undefined,
+                            strokeWidth: juice.kind === 'jump' ? 4 : undefined
+                        }, void 0, false, {
+                            fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                            lineNumber: 354,
+                            columnNumber: 11
+                        }, this),
+                        juice.kind === 'jump' && [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5
+                        ].map((i)=>{
+                            const angle = i * 60;
+                            const radius = 26;
+                            const x = toXy.x + Math.cos(angle * Math.PI / 180) * radius;
+                            const y = toXy.y + Math.sin(angle * Math.PI / 180) * radius;
+                            return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                                cx: x,
+                                cy: y,
+                                r: 2.5,
+                                fill: "#f4d37b",
+                                className: "impact-spark"
+                            }, "spark-".concat(i), false, {
+                                fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                                lineNumber: 367,
+                                columnNumber: 20
+                            }, this);
+                        })
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                    lineNumber: 345,
+                    columnNumber: 9
+                }, this),
+                Array.from({
+                    length: __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"]
+                }, (_, ri)=>Array.from({
+                        length: __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BOARD_MAX"]
+                    }, (_, ci)=>{
+                        const r = ri + 1;
+                        const c = ci + 1;
+                        const { x, y } = xy(r, c);
+                        const piece = state.pieces.find((item)=>item.r === r && item.c === c);
+                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                            cx: x,
+                            cy: y,
+                            r: 23,
+                            fill: "transparent",
+                            style: {
+                                cursor: interactive ? 'pointer' : 'default'
+                            },
+                            role: "button",
+                            tabIndex: interactive && ((piece === null || piece === void 0 ? void 0 : piece.side) === 'wolf' || isBoardTarget(stepHighlights, jumpHighlights, r, c)) ? 0 : -1,
+                            "aria-label": (piece === null || piece === void 0 ? void 0 : piece.side) === 'wolf' ? "Wolf at row ".concat(r, ", column ").concat(c) : "Board position row ".concat(r, ", column ").concat(c),
+                            onClick: ()=>{
+                                if (!interactive) return;
+                                const piece = state.pieces.find((p)=>p.r === r && p.c === c);
+                                if ((piece === null || piece === void 0 ? void 0 : piece.side) === 'wolf') {
+                                    onSelectWolf(piece.id);
+                                    return;
+                                }
+                                onClickCell({
+                                    r,
+                                    c
+                                });
+                            },
+                            onKeyDown: (event)=>{
+                                if (event.key !== 'Enter' && event.key !== ' ') return;
+                                event.preventDefault();
+                                const currentPiece = state.pieces.find((piece)=>piece.r === r && piece.c === c);
+                                if ((currentPiece === null || currentPiece === void 0 ? void 0 : currentPiece.side) === 'wolf') onSelectWolf(currentPiece.id);
+                                else onClickCell({
+                                    r,
+                                    c
+                                });
+                            }
+                        }, "hit-".concat(r, "-").concat(c), false, {
+                            fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+                            lineNumber: 379,
+                            columnNumber: 13
+                        }, this);
+                    }))
+            ]
+        }, void 0, true, {
+            fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+            lineNumber: 115,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "[project]/apps/web/src/components/BoardSvg.tsx",
+        lineNumber: 114,
+        columnNumber: 5
+    }, this);
+}
+_c1 = BoardSvg;
+function isBoardTarget(steps, jumps, r, c) {
+    return hasPos(steps, r, c) || hasPos(jumps, r, c);
+}
+var _c, _c1;
+__turbopack_context__.k.register(_c, "RockShape");
+__turbopack_context__.k.register(_c1, "BoardSvg");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/components/HelpContent.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "HelpContent",
+    ()=>HelpContent
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+;
+function HelpContent(param) {
+    let { h, compact = false } = param;
+    const ruleSections = [
+        [
+            h.winTitle,
+            h.winBody
+        ],
+        [
+            h.moveTitle,
+            h.moveBody
+        ],
+        [
+            h.chainTitle,
+            h.chainBody
+        ],
+        [
+            h.sheepTitle,
+            h.sheepBody
+        ],
+        [
+            h.rocksTitle,
+            h.rocksBody
+        ]
+    ];
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "grid gap-6",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                        className: "font-serif text-xl text-[var(--ink)]",
+                        children: h.basicsTitle
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                        lineNumber: 15,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mt-3 grid gap-3",
+                        children: ruleSections.map((param)=>{
+                            let [title, body] = param;
+                            return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "border-l-2 border-[var(--line)] pl-3",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                        className: "font-medium text-[var(--ink)]",
+                                        children: title
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                                        lineNumber: 19,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "mt-1 text-sm leading-relaxed text-[var(--muted)]",
+                                        children: body
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                                        lineNumber: 20,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, title, true, {
+                                fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                                lineNumber: 18,
+                                columnNumber: 13
+                            }, this);
+                        })
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                        lineNumber: 16,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                lineNumber: 14,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                        className: "font-serif text-xl text-[var(--ink)]",
+                        children: h.diagramTitle
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                        lineNumber: 27,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "mt-2 text-xs text-[var(--muted)]",
+                        children: h.diagramLegend
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                        lineNumber: 28,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mt-3 grid gap-3 sm:grid-cols-2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Diagram, {
+                                art: 'W . .\n. . .',
+                                label: h.diagramMove
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                                lineNumber: 30,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Diagram, {
+                                art: 'W . S\n. # .',
+                                label: h.diagramCapture
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                                lineNumber: 31,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                        lineNumber: 29,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                lineNumber: 26,
+                columnNumber: 7
+            }, this),
+            !compact && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                        className: "font-serif text-xl text-[var(--ink)]",
+                        children: h.strategyTitle
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                        lineNumber: 37,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
+                        className: "mt-3 grid gap-2 text-sm leading-relaxed text-[var(--muted)]",
+                        children: h.strategyBody.map((item)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
+                                className: "border-l-2 border-[var(--line)] pl-3",
+                                children: item
+                            }, item, false, {
+                                fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                                lineNumber: 39,
+                                columnNumber: 43
+                            }, this))
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                        lineNumber: 38,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                lineNumber: 36,
+                columnNumber: 9
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+        lineNumber: 13,
+        columnNumber: 5
+    }, this);
+}
+_c = HelpContent;
+function Diagram(param) {
+    let { art, label } = param;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("figure", {
+        className: "rounded-lg border border-[var(--line)] bg-[var(--paper)] p-3",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
+                className: "font-mono text-base leading-7 text-[var(--ink)]",
+                "aria-hidden": true,
+                children: art
+            }, void 0, false, {
+                fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                lineNumber: 50,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("figcaption", {
+                className: "mt-2 text-xs leading-relaxed text-[var(--muted)]",
+                children: label
+            }, void 0, false, {
+                fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+                lineNumber: 51,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/apps/web/src/components/HelpContent.tsx",
+        lineNumber: 49,
+        columnNumber: 5
+    }, this);
+}
+_c1 = Diagram;
+var _c, _c1;
+__turbopack_context__.k.register(_c, "HelpContent");
+__turbopack_context__.k.register(_c1, "Diagram");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/config/locales.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/**
+ * Locale SSOT — aligned with Levelmere as-needed (en unprefixed, zh under /zh).
+ */ __turbopack_context__.s([
+    "LOCALE_COOKIE",
+    ()=>LOCALE_COOKIE,
+    "defaultLocale",
+    ()=>defaultLocale,
+    "getLocaleFromHeaders",
+    ()=>getLocaleFromHeaders,
+    "isSupportedLocale",
+    ()=>isSupportedLocale,
+    "localeLabels",
+    ()=>localeLabels,
+    "localeNavbarLabels",
+    ()=>localeNavbarLabels,
+    "setLocaleCookie",
+    ()=>setLocaleCookie,
+    "stripLocalePrefix",
+    ()=>stripLocalePrefix,
+    "supportedLocales",
+    ()=>supportedLocales,
+    "withLocalePath",
+    ()=>withLocalePath
+]);
+const supportedLocales = [
+    'en',
+    'zh'
+];
+const defaultLocale = 'en';
+const localeLabels = {
+    en: 'English',
+    zh: '简体中文'
+};
+const localeNavbarLabels = {
+    en: 'English',
+    zh: '中文'
+};
+const LOCALE_COOKIE = 'NEXT_LOCALE';
+function isSupportedLocale(value) {
+    return supportedLocales.includes(value);
+}
+function stripLocalePrefix(path) {
+    const normalized = path.startsWith('/') ? path : "/".concat(path);
+    const segments = normalized.split('/').filter(Boolean);
+    if (segments[0] === 'zh') {
+        const rest = segments.slice(1).join('/');
+        return rest ? "/".concat(rest) : '/';
+    }
+    return normalized;
+}
+function withLocalePath(path) {
+    let locale = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : defaultLocale;
+    const stripped = stripLocalePrefix(path);
+    const normalized = stripped.startsWith('/') ? stripped : "/".concat(stripped);
+    if (locale === defaultLocale) return normalized;
+    if (normalized === '/') return '/zh';
+    return "/zh".concat(normalized);
+}
+function localePrefix2(tag) {
+    var _tag_split_;
+    var _tag_split__toLowerCase;
+    return (_tag_split__toLowerCase = (_tag_split_ = tag.split('-')[0]) === null || _tag_split_ === void 0 ? void 0 : _tag_split_.toLowerCase()) !== null && _tag_split__toLowerCase !== void 0 ? _tag_split__toLowerCase : '';
+}
+function getLocaleFromHeaders(cookie, acceptLanguage) {
+    if (cookie && isSupportedLocale(cookie.trim())) {
+        return cookie.trim();
+    }
+    if (acceptLanguage) {
+        const tags = acceptLanguage.split(',').map((t)=>{
+            var _t_split_;
+            var _t_split__trim;
+            return (_t_split__trim = (_t_split_ = t.split(';')[0]) === null || _t_split_ === void 0 ? void 0 : _t_split_.trim()) !== null && _t_split__trim !== void 0 ? _t_split__trim : '';
+        });
+        for (const tag of tags){
+            if (localePrefix2(tag) === 'zh') return 'zh';
+        }
+    }
+    return defaultLocale;
+}
+function setLocaleCookie(locale) {
+    if (typeof document === 'undefined') return;
+    const maxAge = 60 * 60 * 24 * 365;
+    if (locale === defaultLocale) {
+        document.cookie = "".concat(LOCALE_COOKIE, "=en;path=/;max-age=").concat(maxAge, ";SameSite=Lax");
+        return;
+    }
+    document.cookie = "".concat(LOCALE_COOKIE, "=").concat(locale, ";path=/;max-age=").concat(maxAge, ";SameSite=Lax");
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/components/LocaleSwitcher.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "LocaleLink",
+    ()=>LocaleLink,
+    "LocaleSwitcher",
+    ()=>LocaleSwitcher
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/client/app-dir/link.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/navigation.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$config$2f$locales$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/config/locales.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
+'use client';
+;
+;
+;
+;
+function LocaleSwitcher(param) {
+    let { locale, variant = 'navbar' } = param;
+    _s();
+    const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])() || '/';
+    const [open, setOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const rootRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "LocaleSwitcher.useEffect": ()=>{
+            const onDoc = {
+                "LocaleSwitcher.useEffect.onDoc": (e)=>{
+                    var _rootRef_current;
+                    if (!((_rootRef_current = rootRef.current) === null || _rootRef_current === void 0 ? void 0 : _rootRef_current.contains(e.target))) setOpen(false);
+                }
+            }["LocaleSwitcher.useEffect.onDoc"];
+            document.addEventListener('mousedown', onDoc);
+            return ({
+                "LocaleSwitcher.useEffect": ()=>document.removeEventListener('mousedown', onDoc)
+            })["LocaleSwitcher.useEffect"];
+        }
+    }["LocaleSwitcher.useEffect"], []);
+    const switchTo = (next)=>{
+        if (next === locale) {
+            setOpen(false);
+            return;
+        }
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$config$2f$locales$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["setLocaleCookie"])(next);
+        const stripped = ("TURBOPACK compile-time truthy", 1) ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$config$2f$locales$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["stripLocalePrefix"])(window.location.pathname) : "TURBOPACK unreachable";
+        const target = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$config$2f$locales$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["withLocalePath"])(stripped, next);
+        const qs = ("TURBOPACK compile-time truthy", 1) ? window.location.search : "TURBOPACK unreachable";
+        window.location.assign("".concat(target).concat(qs));
+    };
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        ref: rootRef,
+        className: "relative inline-block text-left",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                type: "button",
+                "aria-haspopup": "menu",
+                "aria-expanded": open,
+                "aria-label": "Language",
+                onClick: ()=>setOpen((v)=>!v),
+                className: variant === 'navbar' ? 'inline-flex min-h-9 w-[6.5rem] items-center gap-1 rounded-md px-2 py-1.5 text-sm text-[#2c3328] hover:bg-[#dfe8d8]/80 sm:w-[7rem]' : 'inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-[#5c6b52] hover:bg-[#dfe8d8]/60',
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        "aria-hidden": true,
+                        className: "text-sm",
+                        children: "🌐"
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+                        lineNumber: 63,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        className: "min-w-0 flex-1 truncate text-left",
+                        children: __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$config$2f$locales$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["localeNavbarLabels"][locale]
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+                        lineNumber: 66,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        "aria-hidden": true,
+                        className: "text-[10px] text-[#5c6b52]",
+                        children: "▾"
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+                        lineNumber: 67,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+                lineNumber: 51,
+                columnNumber: 7
+            }, this),
+            open ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
+                role: "menu",
+                className: "absolute right-0 z-50 mt-1 min-w-[10rem] overflow-hidden rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] py-1 shadow-md",
+                children: [
+                    'en',
+                    'zh'
+                ].map((loc)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
+                        role: "none",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                            type: "button",
+                            role: "menuitem",
+                            className: "flex w-full items-center justify-between gap-4 px-3 py-2 text-left text-sm text-[#2c3328] hover:bg-[#dfe8d8]",
+                            onClick: ()=>switchTo(loc),
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    children: __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$config$2f$locales$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["localeLabels"][loc]
+                                }, void 0, false, {
+                                    fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+                                    lineNumber: 84,
+                                    columnNumber: 17
+                                }, this),
+                                loc === locale ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    className: "text-[#3d4a3a]",
+                                    children: "✓"
+                                }, void 0, false, {
+                                    fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+                                    lineNumber: 85,
+                                    columnNumber: 35
+                                }, this) : null
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+                            lineNumber: 78,
+                            columnNumber: 15
+                        }, this)
+                    }, loc, false, {
+                        fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+                        lineNumber: 77,
+                        columnNumber: 13
+                    }, this))
+            }, void 0, false, {
+                fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+                lineNumber: 72,
+                columnNumber: 9
+            }, this) : null
+        ]
+    }, void 0, true, {
+        fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+        lineNumber: 50,
+        columnNumber: 5
+    }, this);
+}
+_s(LocaleSwitcher, "+8nLIuw9EilJZDpAnVsCyKGWsSE=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"]
+    ];
+});
+_c = LocaleSwitcher;
+function LocaleLink(param) {
+    let { href, locale, className, children } = param;
+    _s1();
+    const target = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "LocaleLink.useMemo[target]": ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$config$2f$locales$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["withLocalePath"])(href, locale)
+    }["LocaleLink.useMemo[target]"], [
+        href,
+        locale
+    ]);
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+        href: target,
+        className: className,
+        children: children
+    }, void 0, false, {
+        fileName: "[project]/apps/web/src/components/LocaleSwitcher.tsx",
+        lineNumber: 108,
+        columnNumber: 5
+    }, this);
+}
+_s1(LocaleLink, "/Y53zmcOwVOBObCXp70vfrJ991U=");
+_c1 = LocaleLink;
+var _c, _c1;
+__turbopack_context__.k.register(_c, "LocaleSwitcher");
+__turbopack_context__.k.register(_c1, "LocaleLink");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/lib/ads.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "AdsenseAds",
+    ()=>AdsenseAds,
+    "MockAds",
+    ()=>MockAds,
+    "PortalAds",
+    ()=>PortalAds,
+    "getAds",
+    ()=>getAds
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
+function failEnv() {
+    return typeof __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"] !== 'undefined' && __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_FAIL_ADS === '1';
+}
+function delay(ms) {
+    return new Promise((r)=>setTimeout(r, ms));
+}
+class MockAds {
+    async showInterstitial() {
+        if (failEnv()) return {
+            ok: false,
+            reason: 'failed'
+        };
+        await delay(200);
+        return {
+            ok: true
+        };
+    }
+    async showRewarded(placement) {
+        void placement;
+        if (failEnv()) return {
+            ok: false,
+            reason: 'failed'
+        };
+        await delay(300);
+        return {
+            ok: true
+        };
+    }
+}
+class PortalAds {
+    async showInterstitial() {
+        // TODO: call portal SDK interstitial
+        return new MockAds().showInterstitial();
+    }
+    async showRewarded(placement) {
+        void placement;
+        // TODO: call portal SDK rewarded
+        return new MockAds().showRewarded(placement);
+    }
+}
+class AdsenseAds {
+    async showInterstitial() {
+        // TODO: integrate real web interstitial when account ready
+        return {
+            ok: false,
+            reason: 'unavailable'
+        };
+    }
+    async showRewarded(placement) {
+        void placement;
+        return {
+            ok: false,
+            reason: 'unavailable'
+        };
+    }
+}
+let adsSingleton = null;
+function getAds() {
+    if (adsSingleton) return adsSingleton;
+    var _process_env_NEXT_PUBLIC_ADS_PROVIDER;
+    const provider = (_process_env_NEXT_PUBLIC_ADS_PROVIDER = ("TURBOPACK compile-time value", "mock")) !== null && _process_env_NEXT_PUBLIC_ADS_PROVIDER !== void 0 ? _process_env_NEXT_PUBLIC_ADS_PROVIDER : 'mock';
+    if (provider === 'portal_sdk') adsSingleton = new PortalAds();
+    else if (provider === 'adsense') adsSingleton = new AdsenseAds();
+    else adsSingleton = new MockAds();
+    return adsSingleton;
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/lib/active-game.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "clearActiveGame",
+    ()=>clearActiveGame,
+    "loadActiveGame",
+    ()=>loadActiveGame,
+    "saveActiveGame",
+    ()=>saveActiveGame
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$serialize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/serialize.ts [app-client] (ecmascript) <locals>");
+'use client';
+;
+const ACTIVE_GAME_KEY = 'wolf-sheep:active-game:v1';
+function loadActiveGame(config) {
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+    try {
+        var _window_localStorage_getItem;
+        const parsed = JSON.parse((_window_localStorage_getItem = window.localStorage.getItem(ACTIVE_GAME_KEY)) !== null && _window_localStorage_getItem !== void 0 ? _window_localStorage_getItem : 'null');
+        if (!(parsed === null || parsed === void 0 ? void 0 : parsed.board) || parsed.signature !== activeGameSignature(config)) return null;
+        const state = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$serialize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["deserialize"])(parsed.board);
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["assertInvariants"])(state);
+        return state.status === 'playing' && state.levelId === config.levelId ? state : null;
+    } catch (e) {
+        clearActiveGame();
+        return null;
+    }
+}
+function saveActiveGame(config, state) {
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+    try {
+        window.localStorage.setItem(ACTIVE_GAME_KEY, JSON.stringify({
+            signature: activeGameSignature(config),
+            board: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$serialize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["serialize"])(state)
+        }));
+    } catch (e) {
+    // A failed activity snapshot must never interrupt the match.
+    }
+}
+function clearActiveGame() {
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+    try {
+        window.localStorage.removeItem(ACTIVE_GAME_KEY);
+    } catch (e) {
+    // Storage may be unavailable in privacy modes.
+    }
+}
+function activeGameSignature(config) {
+    const rocks = [
+        ...config.rocks
+    ].sort((a, b)=>a.r - b.r || a.c - b.c);
+    var _config_targetEaten, _config_maxPlies, _config_opening;
+    return JSON.stringify([
+        config.levelId,
+        rocks,
+        (_config_targetEaten = config.targetEaten) !== null && _config_targetEaten !== void 0 ? _config_targetEaten : 8,
+        (_config_maxPlies = config.maxPlies) !== null && _config_maxPlies !== void 0 ? _config_maxPlies : 300,
+        (_config_opening = config.opening) !== null && _config_opening !== void 0 ? _config_opening : null
+    ]);
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/lib/play-store.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "FEEDBACK_MS",
+    ()=>FEEDBACK_MS,
+    "THINK_MS",
+    ()=>THINK_MS,
+    "usePlayStore",
+    ()=>usePlayStore
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zustand$40$5$2e$0$2e$14_$40$types$2b$react$40$19$2e$2$2e$17_react$40$19$2e$2$2e$7$2f$node_modules$2f$zustand$2f$esm$2f$react$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/zustand@5.0.14_@types+react@19.2.17_react@19.2.7/node_modules/zustand/esm/react.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$active$2d$game$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/active-game.ts [app-client] (ecmascript)");
+;
+;
+;
+const FEEDBACK_MS = 200;
+const THINK_MS = 600;
+const EMPTY_HIGHLIGHTS = {
+    steps: [],
+    jumps: [],
+    throughs: []
+};
+function highlightsFor(state, wolfId) {
+    if (!wolfId || state.toMove !== 'wolf' || state.status !== 'playing') {
+        return EMPTY_HIGHLIGHTS;
+    }
+    const legal = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])(state).filter((a)=>a.pieceId === wolfId);
+    return {
+        steps: legal.filter((a)=>a.type === 'step').map((a)=>a.to),
+        jumps: legal.filter((a)=>a.type === 'jump').map((a)=>a.to),
+        throughs: legal.filter((a)=>a.type === 'jump').map((a)=>a.through)
+    };
+}
+function findAction(state, wolfId, pos) {
+    const legal = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listLegalActions"])(state).filter((a)=>a.pieceId === wolfId);
+    for (const a of legal){
+        if (a.type === 'jump') {
+            if (a.to.r === pos.r && a.to.c === pos.c) return a;
+            if (a.through.r === pos.r && a.through.c === pos.c) return a;
+        }
+    }
+    for (const a of legal){
+        if (a.type === 'step' && a.to.r === pos.r && a.to.c === pos.c) return a;
+    }
+    return null;
+}
+function delay(ms) {
+    return new Promise((resolve)=>{
+        setTimeout(resolve, ms);
+    });
+}
+function juiceFromAction(state, action) {
+    const piece = state.pieces.find((p)=>p.id === action.pieceId);
+    if (!piece) return null;
+    if (action.type === 'jump') {
+        return {
+            kind: 'jump',
+            from: {
+                r: piece.r,
+                c: piece.c
+            },
+            through: action.through,
+            to: action.to
+        };
+    }
+    return {
+        kind: 'step',
+        from: {
+            r: piece.r,
+            c: piece.c
+        },
+        to: action.to
+    };
+}
+let levelMeta = {
+    levelId: 'spring-01',
+    rocks: [],
+    difficulty: 'easy',
+    targetEaten: undefined,
+    maxPlies: undefined,
+    opening: undefined,
+    resume: true
+};
+let turnSeq = 0;
+function activeConfig() {
+    return {
+        levelId: levelMeta.levelId,
+        rocks: levelMeta.rocks,
+        targetEaten: levelMeta.targetEaten,
+        maxPlies: levelMeta.maxPlies,
+        opening: levelMeta.opening
+    };
+}
+function syncActiveGame(state) {
+    if (!levelMeta.resume) return;
+    if (state.status === 'playing') (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$active$2d$game$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["saveActiveGame"])(activeConfig(), state);
+    else (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$active$2d$game$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["clearActiveGame"])();
+}
+const usePlayStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zustand$40$5$2e$0$2e$14_$40$types$2b$react$40$19$2e$2$2e$17_react$40$19$2e$2$2e$7$2f$node_modules$2f$zustand$2f$esm$2f$react$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["create"])((set, get)=>({
+        state: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createInitialState"])('spring-01'),
+        selectedWolfId: null,
+        highlights: EMPTY_HIGHLIGHTS,
+        uiPhase: 'playing',
+        juice: null,
+        difficulty: 'easy',
+        seed: 1,
+        resumed: false,
+        aiError: null,
+        init (levelId, rocks, difficulty, targetEaten, maxPlies, opening) {
+            let resume = arguments.length > 6 && arguments[6] !== void 0 ? arguments[6] : true;
+            var _state_chain;
+            levelMeta = {
+                levelId,
+                rocks,
+                difficulty,
+                targetEaten,
+                maxPlies,
+                opening,
+                resume
+            };
+            turnSeq += 1;
+            const config = activeConfig();
+            const restored = resume ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$active$2d$game$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["loadActiveGame"])(config) : null;
+            const state = restored !== null && restored !== void 0 ? restored : (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createInitialState"])(levelId, rocks, targetEaten, maxPlies, opening);
+            syncActiveGame(state);
+            var _state_chain_wolfId;
+            const selectedWolfId = (_state_chain_wolfId = (_state_chain = state.chain) === null || _state_chain === void 0 ? void 0 : _state_chain.wolfId) !== null && _state_chain_wolfId !== void 0 ? _state_chain_wolfId : null;
+            const seq = turnSeq;
+            set({
+                state,
+                selectedWolfId,
+                highlights: highlightsFor(state, selectedWolfId),
+                uiPhase: state.status !== 'playing' ? 'terminal' : state.toMove === 'sheep' ? 'aiThinking' : 'playing',
+                juice: null,
+                difficulty,
+                seed: Date.now() % 1_000_000,
+                resumed: Boolean(restored),
+                aiError: null
+            });
+            if (state.status === 'playing' && state.toMove === 'sheep') {
+                void (async ()=>{
+                    await delay(THINK_MS);
+                    if (seq !== turnSeq) return;
+                    await runAiTurn(get, set, seq);
+                })();
+            }
+        },
+        selectWolf (wolfId) {
+            const { state, uiPhase } = get();
+            if (uiPhase !== 'playing' || state.toMove !== 'wolf') return;
+            if (state.chain && wolfId && wolfId !== state.chain.wolfId) return;
+            set({
+                selectedWolfId: wolfId,
+                highlights: highlightsFor(state, wolfId)
+            });
+        },
+        clickCell (pos) {
+            const { state, selectedWolfId, uiPhase } = get();
+            if (uiPhase !== 'playing' || state.toMove !== 'wolf' || !selectedWolfId) return;
+            const action = findAction(state, selectedWolfId, pos);
+            if (!action) {
+                const piece = state.pieces.find((p)=>p.r === pos.r && p.c === pos.c && p.side === 'wolf');
+                if (piece && !state.chain) {
+                    get().selectWolf(piece.id);
+                }
+                return;
+            }
+            const juice = juiceFromAction(state, action);
+            const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+            if (!result.ok) return;
+            const next = result.state;
+            syncActiveGame(next);
+            const seq = ++turnSeq;
+            void (async ()=>{
+                set({
+                    state: next,
+                    selectedWolfId: next.chain ? next.chain.wolfId : null,
+                    highlights: EMPTY_HIGHLIGHTS,
+                    uiPhase: 'animating',
+                    juice,
+                    aiError: null
+                });
+                await delay(FEEDBACK_MS);
+                if (seq !== turnSeq) return;
+                if (next.status !== 'playing') {
+                    set({
+                        selectedWolfId: null,
+                        highlights: EMPTY_HIGHLIGHTS,
+                        uiPhase: 'terminal',
+                        juice: null
+                    });
+                    return;
+                }
+                if (next.toMove === 'sheep') {
+                    set({
+                        selectedWolfId: null,
+                        highlights: EMPTY_HIGHLIGHTS,
+                        uiPhase: 'aiThinking',
+                        juice: null
+                    });
+                    await delay(THINK_MS);
+                    if (seq !== turnSeq) return;
+                    await runAiTurn(get, set, seq);
+                    return;
+                }
+                const selected = next.chain ? next.chain.wolfId : null;
+                set({
+                    selectedWolfId: selected,
+                    highlights: highlightsFor(next, selected),
+                    uiPhase: 'playing',
+                    juice: null,
+                    aiError: null
+                });
+            })();
+        },
+        endChain () {
+            const { state, uiPhase } = get();
+            if (uiPhase !== 'playing' || state.toMove !== 'wolf') return;
+            const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endWolfTurn"])(state);
+            if (!result.ok) return;
+            const next = result.state;
+            syncActiveGame(next);
+            const seq = ++turnSeq;
+            void (async ()=>{
+                if (next.status !== 'playing') {
+                    set({
+                        state: next,
+                        selectedWolfId: null,
+                        highlights: EMPTY_HIGHLIGHTS,
+                        uiPhase: 'terminal',
+                        juice: null
+                    });
+                    return;
+                }
+                set({
+                    state: next,
+                    selectedWolfId: null,
+                    highlights: EMPTY_HIGHLIGHTS,
+                    uiPhase: 'aiThinking',
+                    juice: null
+                });
+                await delay(THINK_MS);
+                if (seq !== turnSeq) return;
+                await runAiTurn(get, set, seq);
+            })();
+        },
+        reset () {
+            turnSeq += 1;
+            if (levelMeta.resume) (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$active$2d$game$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["clearActiveGame"])();
+            get().init(levelMeta.levelId, levelMeta.rocks, levelMeta.difficulty, levelMeta.targetEaten, levelMeta.maxPlies, levelMeta.opening, levelMeta.resume);
+        },
+        retryAi () {
+            const { state } = get();
+            if (state.status !== 'playing' || state.toMove !== 'sheep') return;
+            const seq = ++turnSeq;
+            set({
+                uiPhase: 'aiThinking',
+                aiError: null,
+                juice: null
+            });
+            void (async ()=>{
+                await delay(THINK_MS);
+                if (seq !== turnSeq) return;
+                await runAiTurn(get, set, seq);
+            })();
+        }
+    }));
+async function runAiTurn(get, set, seq) {
+    const { state, difficulty, seed } = get();
+    if (seq !== turnSeq) return;
+    if (state.status !== 'playing' || state.toMove !== 'sheep') {
+        set({
+            uiPhase: state.status === 'playing' ? 'playing' : 'terminal',
+            juice: null
+        });
+        return;
+    }
+    try {
+        const action = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["pickSheepAction"])(state, {
+            difficulty,
+            rng: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createSeededRng"])(seed + state.eatenSheep * 17 + state.pieces.length)
+        });
+        const juice = juiceFromAction(state, action);
+        const result = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyAction"])(state, action);
+        if (!result.ok) {
+            set({
+                uiPhase: 'playing',
+                juice: null
+            });
+            return;
+        }
+        const next = result.state;
+        syncActiveGame(next);
+        set({
+            state: next,
+            selectedWolfId: null,
+            highlights: EMPTY_HIGHLIGHTS,
+            uiPhase: 'animating',
+            juice,
+            seed: seed + 1,
+            aiError: null
+        });
+        await delay(FEEDBACK_MS);
+        if (seq !== turnSeq) return;
+        set({
+            uiPhase: next.status === 'playing' ? 'playing' : 'terminal',
+            juice: null
+        });
+    } catch (error) {
+        if (seq === turnSeq) {
+            set({
+                uiPhase: 'error',
+                juice: null,
+                aiError: error instanceof Error ? error.message : 'AI turn failed'
+            });
+        }
+    }
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/lib/storage.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "browserStorage",
+    ()=>browserStorage,
+    "loadSave",
+    ()=>loadSave,
+    "persistSave",
+    ()=>persistSave
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/save.ts [app-client] (ecmascript)");
+;
+const browserStorage = {
+    getItem (key) {
+        if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+        ;
+        try {
+            return window.localStorage.getItem(key);
+        } catch (e) {
+            return null;
+        }
+    },
+    setItem (key, value) {
+        if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+        ;
+        try {
+            window.localStorage.setItem(key, value);
+        } catch (e) {
+            console.warn('storage set failed', e);
+        }
+    },
+    removeItem (key) {
+        if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+        ;
+        try {
+            window.localStorage.removeItem(key);
+        } catch (e) {
+        /* ignore */ }
+    }
+};
+function loadSave() {
+    let storage = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : browserStorage;
+    try {
+        const raw = storage.getItem(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SAVE_KEY"]);
+        if (!raw) return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultSave"])();
+        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["migrate"])(JSON.parse(raw));
+    } catch (e) {
+        console.warn('save load failed, using default', e);
+        return (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultSave"])();
+    }
+}
+function persistSave(save) {
+    let storage = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : browserStorage;
+    try {
+        storage.setItem(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SAVE_KEY"], JSON.stringify(save));
+    } catch (e) {
+        console.warn('save persist failed', e);
+    }
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/lib/save-store.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useSaveStore",
+    ()=>useSaveStore
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zustand$40$5$2e$0$2e$14_$40$types$2b$react$40$19$2e$2$2e$17_react$40$19$2e$2$2e$7$2f$node_modules$2f$zustand$2f$esm$2f$react$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/zustand@5.0.14_@types+react@19.2.17_react@19.2.7/node_modules/zustand/esm/react.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/save.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$storage$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/storage.ts [app-client] (ecmascript)");
+'use client';
+;
+;
+;
+const useSaveStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zustand$40$5$2e$0$2e$14_$40$types$2b$react$40$19$2e$2$2e$17_react$40$19$2e$2$2e$7$2f$node_modules$2f$zustand$2f$esm$2f$react$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["create"])((set)=>({
+        save: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["defaultSave"])(),
+        hydrated: false,
+        lastGrant: null,
+        hydrate () {
+            set({
+                save: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$storage$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["loadSave"])(),
+                hydrated: true
+            });
+        },
+        replace (save) {
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$storage$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["persistSave"])(save);
+            set({
+                save,
+                hydrated: true
+            });
+        },
+        setLastGrant (g) {
+            set({
+                lastGrant: g
+            });
+        }
+    }));
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/lib/sfx.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/** Prefer short sample buffers; fall back to richer procedural tones. */ __turbopack_context__.s([
+    "playSfx",
+    ()=>playSfx
+]);
+let ctx = null;
+const bufferCache = new Map();
+function getCtx() {
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+    if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC();
+    }
+    return ctx;
+}
+async function loadBuffer(kind) {
+    const audio = getCtx();
+    if (!audio) return null;
+    if (bufferCache.has(kind)) return bufferCache.get(kind);
+    const map = {
+        step: '/sfx/step.wav',
+        jump: '/sfx/capture.wav',
+        chain: '/sfx/chain.wav',
+        win: '/sfx/win.wav',
+        lose: '/sfx/lose.wav',
+        select: null,
+        invalid: null,
+        ai: null
+    };
+    const source = map[kind];
+    if (!source) return null;
+    try {
+        const res = await fetch(source);
+        if (!res.ok) return null;
+        const arr = await res.arrayBuffer();
+        const buf = await audio.decodeAudioData(arr.slice(0));
+        bufferCache.set(kind, buf);
+        return buf;
+    } catch (e) {
+        return null;
+    }
+}
+function beep(frequency, durationMs) {
+    let type = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : 'sine', gain = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : 0.08, when = arguments.length > 4 && arguments[4] !== void 0 ? arguments[4] : 0;
+    const audio = getCtx();
+    if (!audio) return;
+    void audio.resume();
+    const t0 = audio.currentTime + when;
+    const osc = audio.createOscillator();
+    const g = audio.createGain();
+    const filter = audio.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 2200;
+    osc.type = type;
+    osc.frequency.value = frequency;
+    g.gain.setValueAtTime(gain, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + durationMs / 1000);
+    osc.connect(filter);
+    filter.connect(g);
+    g.connect(audio.destination);
+    osc.start(t0);
+    osc.stop(t0 + durationMs / 1000 + 0.02);
+}
+function playFallback(kind) {
+    switch(kind){
+        case 'step':
+            beep(380, 55, 'triangle', 0.05);
+            beep(220, 40, 'sine', 0.03, 0.02);
+            break;
+        case 'jump':
+            beep(480, 70, 'square', 0.04);
+            beep(720, 110, 'sine', 0.06, 0.04);
+            break;
+        case 'chain':
+            beep(560, 50, 'square', 0.04);
+            beep(700, 60, 'sine', 0.05, 0.04);
+            beep(880, 90, 'sine', 0.05, 0.09);
+            break;
+        case 'win':
+            beep(523, 100, 'sine', 0.06);
+            beep(659, 120, 'sine', 0.06, 0.1);
+            beep(784, 160, 'sine', 0.07, 0.22);
+            break;
+        case 'lose':
+            beep(280, 140, 'triangle', 0.05);
+            beep(200, 200, 'triangle', 0.045, 0.12);
+            break;
+        case 'select':
+            beep(460, 45, 'sine', 0.035);
+            break;
+        case 'invalid':
+            beep(170, 65, 'triangle', 0.025);
+            break;
+        case 'ai':
+            beep(190, 90, 'sine', 0.018);
+            beep(260, 120, 'sine', 0.014, 0.08);
+            break;
+    }
+}
+function playBuffer(buf) {
+    const audio = getCtx();
+    if (!audio) return;
+    void audio.resume();
+    const src = audio.createBufferSource();
+    const g = audio.createGain();
+    g.gain.value = 0.7;
+    src.buffer = buf;
+    src.connect(g);
+    g.connect(audio.destination);
+    src.start();
+}
+function playSfx(kind) {
+    void (async ()=>{
+        const buf = await loadBuffer(kind);
+        if (buf) playBuffer(buf);
+        else playFallback(kind);
+    })();
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/lib/play-metrics.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "PLAY_METRICS_KEY",
+    ()=>PLAY_METRICS_KEY,
+    "beginPlayAttempt",
+    ()=>beginPlayAttempt,
+    "finishPlayAttempt",
+    ()=>finishPlayAttempt,
+    "loadPlayMetrics",
+    ()=>loadPlayMetrics,
+    "resumePlayAttempt",
+    ()=>resumePlayAttempt
+]);
+'use client';
+const PLAY_METRICS_KEY = 'wolf-sheep:play-metrics:v1';
+function beginPlayAttempt(levelId) {
+    const records = loadPlayMetrics();
+    const attemptNumber = records.filter((record)=>record.levelId === levelId).length + 1;
+    const startedAt = new Date();
+    const record = {
+        id: "".concat(startedAt.getTime(), "-").concat(Math.random().toString(36).slice(2, 8)),
+        levelId,
+        attemptNumber,
+        startedAt: startedAt.toISOString(),
+        result: 'playing'
+    };
+    savePlayMetrics([
+        ...records,
+        record
+    ]);
+    return record;
+}
+function resumePlayAttempt(levelId) {
+    const records = loadPlayMetrics();
+    var _reverse_find;
+    return (_reverse_find = [
+        ...records
+    ].reverse().find((record)=>record.levelId === levelId && record.result === 'playing')) !== null && _reverse_find !== void 0 ? _reverse_find : null;
+}
+function finishPlayAttempt(id, result) {
+    const records = loadPlayMetrics();
+    savePlayMetrics(records.map((record)=>record.id === id ? {
+            ...record,
+            ...result
+        } : record));
+}
+function loadPlayMetrics() {
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+    try {
+        var _window_localStorage_getItem;
+        const parsed = JSON.parse((_window_localStorage_getItem = window.localStorage.getItem(PLAY_METRICS_KEY)) !== null && _window_localStorage_getItem !== void 0 ? _window_localStorage_getItem : '[]');
+        return Array.isArray(parsed) ? parsed.filter(isPlayAttemptMetric) : [];
+    } catch (e) {
+        return [];
+    }
+}
+function savePlayMetrics(records) {
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+    window.localStorage.setItem(PLAY_METRICS_KEY, JSON.stringify(records.slice(-500)));
+}
+function isPlayAttemptMetric(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+    const record = value;
+    var _record_result;
+    return typeof record.id === 'string' && typeof record.levelId === 'string' && typeof record.attemptNumber === 'number' && typeof record.startedAt === 'string' && [
+        'playing',
+        'wolf',
+        'sheep',
+        'draw'
+    ].includes((_record_result = record.result) !== null && _record_result !== void 0 ? _record_result : '');
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/i18n/messages.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "en",
+    ()=>en,
+    "fmt",
+    ()=>fmt,
+    "getMessages",
+    ()=>getMessages,
+    "messages",
+    ()=>messages,
+    "zh",
+    ()=>zh
+]);
+const en = {
+    meta: {
+        title: 'Fangrush — Combo board hunt with 3 wolves',
+        description: 'Command 3 wolves. Gap-rush sheep on a 6×6 board, chain eats, crack lines with rocks across four seasons.',
+        og: 'Fangrush: gap-rush the flock. Chain hunts. Seasonal boards.'
+    },
+    brand: {
+        name: 'Fangrush',
+        subtitle: '',
+        tagline: 'Command 3 wolves. Gap-rush the flock in chains — break lines with rocks.',
+        support: '6×6 point board · chain up to 5 · seasonal hunts'
+    },
+    nav: {
+        play: 'Play now',
+        continue: 'Continue',
+        continueNamed: 'Continue · {name}',
+        skins: 'Skins',
+        quests: 'Quests',
+        settings: 'Settings',
+        home: 'Home',
+        chapters: 'Hunts',
+        privacy: 'Privacy',
+        admin: 'Admin',
+        language: 'Language',
+        howToPlay: 'How to play'
+    },
+    home: {
+        howTitle: 'How to play',
+        how: [
+            'Select a wolf and step to an empty adjacent point.',
+            'Gap-eat: wolf — empty — sheep on a line; land on the sheep.',
+            'Chain up to 5 eats per turn — or end the chain early.',
+            'Eat 8 sheep to clear; lose if all three wolves have no moves.'
+        ],
+        howMore: 'Full rules',
+        seasonsTitle: 'Seasons',
+        seasons: {
+            spring: 'Learn the hunt · gentle flock',
+            summer: 'Real blocking · real pressure',
+            autumn: 'Same AI tier · rocks crack the line',
+            winter: 'Master surround · empty-board duel'
+        },
+        trust: 'Progress stays in this browser · no account',
+        faqTitle: 'FAQ',
+        faq: [
+            {
+                q: 'Download required?',
+                a: 'No. Play in the browser.'
+            },
+            {
+                q: 'Will I lose progress?',
+                a: 'Saved locally. Clearing site data or switching devices resets it.'
+            },
+            {
+                q: 'Mobile?',
+                a: 'Yes. Portrait-first; the board stays square.'
+            },
+            {
+                q: 'Account?',
+                a: 'No accounts or cloud saves in this version.'
+            }
+        ],
+        secondary: 'Quick links'
+    },
+    chapters: {
+        title: 'Choose a hunt',
+        locked: 'Locked',
+        unlocked: 'Open',
+        howLink: 'How to play Fangrush'
+    },
+    howTo: {
+        title: 'How to play Fangrush',
+        metaDescription: 'Learn Fangrush rules: gap-eat, chain captures up to 5, rocks, and seasonal hunts. Play free in the browser.',
+        intro: 'Fangrush is an asymmetric board hunt: you command three wolves against fifteen sheep on a 6×6 point grid.',
+        winTitle: 'Win and lose',
+        winBody: 'Eat 8 sheep to clear the level. You lose if all three wolves have no legal moves.',
+        moveTitle: 'Move and gap-eat',
+        moveBody: 'Wolves step orthogonally to an empty adjacent point. Gap-eat when wolf — empty — sheep share a line: land on the sheep and remove it.',
+        chainTitle: 'Chain captures',
+        chainBody: 'After a gap-eat you may chain further eats up to 5 times in one turn, or end the chain early to keep position.',
+        sheepTitle: 'Sheep AI',
+        sheepBody: 'Sheep move by AI, never capture, and cannot retreat toward row 1. Wait for their turn before you move again.',
+        rocksTitle: 'Rocks and seasons',
+        rocksBody: 'Rocks block landing points. Spring teaches rules; summer adds pressure; autumn packs rocks; winter is an empty-board hard duel.',
+        saveTitle: 'Local progress',
+        saveBody: 'Clears, shards, and skins stay in this browser. No account. Clearing site data resets everything.',
+        basicsTitle: 'Rules at a glance',
+        controlsTitle: 'Controls and feedback',
+        strategyTitle: 'Wolf strategy',
+        strategyBody: [
+            'Keep all three wolves mobile. One wolf creates contact while the other two cover exits.',
+            'Control a route before chasing a single sheep. A capture that traps a wolf can lose the hunt.',
+            'Before extending a chain, compare the next landing point with the exits you will leave open.',
+            'Rocks are blocked points. Use the corridors around them to split and contain the flock.'
+        ],
+        diagramTitle: 'Board examples',
+        diagramMove: 'Step: wolf moves one point orthogonally into an empty point.',
+        diagramCapture: 'Gap-capture: wolf, one empty point, then sheep on the same line; land on the sheep.',
+        diagramLegend: 'W = wolf · S = sheep · # = rock · . = empty point',
+        ctaSpring: 'Play Spring · Open Meadow',
+        ctaChapters: 'Browse seasonal hunts',
+        faqTitle: 'FAQ'
+    },
+    hunt: {
+        playCta: 'Play this hunt',
+        seasonLine: '{season} · {rocks} rocks',
+        goalLine: 'Goal: eat {n} sheep · target {target} moves',
+        teachingLabel: 'This hunt teaches',
+        levelsLink: 'All levels in this season',
+        howLink: 'How to play',
+        prev: 'Previous',
+        next: 'Next',
+        rocksLabel: '{n} rocks',
+        guideLink: 'Guide'
+    },
+    play: {
+        back: 'Back',
+        eaten: 'Eaten {n}/8',
+        sheepLeft: 'Sheep {n}',
+        turnWolf: 'Wolf turn',
+        turnSheep: 'Sheep turn',
+        chain: 'Chain {n}/5',
+        doubleLeft: 'Double drop {t}',
+        endChain: 'End chain',
+        endChainCount: 'End chain · {n}/5 captured',
+        chainDecision: 'Red rings continue this chain. End now to keep this position and let the sheep respond.',
+        win: 'Victory',
+        lose: 'Defeat',
+        winSub: 'Eight sheep taken',
+        loseSub: 'No moves for the wolves',
+        draw: 'Stalemate',
+        drawSub: 'The hunt reached its move limit.',
+        winAdvice: 'Your route worked. Continue while the three-wolf coordination is fresh.',
+        loseAdvice: 'On the retry, keep two wolves mobile while the third creates contact.',
+        firstLoseAdvice: 'Retry with three roles: the center wolf approaches while both side wolves keep exits covered.',
+        drawAdvice: 'Retry with a different approach line; repeated waiting will not open the flock.',
+        preparing: 'Preparing…',
+        again: 'Play again',
+        doubleAd: 'Watch ad · double shards 30 min',
+        adFailed: 'The reward video is unavailable. Your clear is still safe.',
+        levelList: 'Level list',
+        nextLevel: 'Next hunt',
+        resultMetrics: 'Attempt {attempt} · {plies} plies · {eaten} eaten · first {first} · {time} · {reason}',
+        none: 'none',
+        terminalReasons: {
+            targetEaten: 'capture target',
+            wolvesTrapped: 'wolves trapped',
+            maxPlies: 'move limit',
+            repetition: 'threefold repetition',
+            unexpected: 'unexpected ending'
+        },
+        tip: 'Green = step · Red ring on sheep = gap-eat',
+        reset: 'Reset',
+        resetConfirm: 'Tap again',
+        mute: 'Mute',
+        unmute: 'Unmute',
+        exit: 'Exit',
+        guideTitle: 'Spring lesson',
+        guideStep1: 'Select a dark wolf, then tap a green empty point to step.',
+        guideStep2: 'Gap-eat: on a line wolf — empty — sheep, tap the red-ringed sheep or the empty middle. Chain up to 5.',
+        guideSkip: 'Skip',
+        guideNext: 'Next',
+        guideStart: 'Start hunt',
+        guideSelectWolf: 'First: select a dark wolf.',
+        guideMoveGreen: 'Now tap a green point to move that wolf.',
+        guideWaitSheep: 'The sheep are responding. Wait for your turn.',
+        guideFindCapture: 'Keep the side wolves mobile. Look for a red-ringed sheep to make your first capture.',
+        wolfSelected: 'Wolf selected. Green steps; red marks a capture.',
+        selectWolfFirst: 'Select a wolf before choosing a destination.',
+        invalidTarget: 'That point is not legal. Choose a green step or red capture.',
+        aiError: 'The sheep turn was interrupted.',
+        aiErrorFallback: 'The board is safe. Retry the same sheep turn.',
+        retryAi: 'Retry sheep turn',
+        noDrop: 'No shards this clear',
+        firstClear: 'First clear',
+        repeatClear: 'Repeat clear',
+        doubled: '(doubled)',
+        universal: 'Universal shards {n}',
+        help: 'Help',
+        hint: 'Hint',
+        hintTitle: 'Hunt guidance',
+        hintLevels: [
+            'Observe',
+            'Objective',
+            'Strategy'
+        ],
+        hintObserve: 'Watch for this pattern: {point}',
+        hintGoal: 'Your objective: {point}',
+        hintStrategy: 'Plan before moving: {point}',
+        hintNext: 'Show next level',
+        hintClose: 'Return to hunt',
+        hintAvailable: 'You have failed this hunt twice. A free strategy hint is available.',
+        helpTitle: 'Field guide'
+    },
+    settings: {
+        title: 'Settings',
+        mute: 'Mute sound',
+        help: 'How to play',
+        privacy: 'Privacy',
+        close: 'Close',
+        quickTips: 'Quick tips',
+        helpBody: [
+            'Command 3 wolves. Gap-eat sheep; eat 8 to win.',
+            'Move orthogonally one step. Gap-eat is wolf — empty — sheep; land on the sheep.',
+            'Chain up to 5 eats; you may end the chain early.',
+            'Sheep move by AI, cannot retreat toward row 1, never capture.',
+            'Lose if all three wolves have no moves. Rocks are blocked.'
+        ]
+    },
+    privacy: {
+        title: 'Privacy',
+        p1: 'Fangrush stores progress in your browser (localStorage). There is no account login in this version.',
+        p2: 'We do not upload your game saves or move lists to our own servers.',
+        p3: 'Ads (when enabled) follow the ad provider’s privacy policy. Analytics may use anonymous page views.',
+        p4: 'Clearing site data resets progress. Contact: via the domain WHOIS / site operator email when published.'
+    },
+    skins: {
+        title: 'Skins',
+        equip: 'Equip',
+        equipped: 'Equipped',
+        unlocked: 'Unlocked',
+        unlock: 'Unlock',
+        universalCost: '{n} universal shards',
+        seasonCost: '{n} {season} shards',
+        chapterUnlock: 'Clear its season to unlock',
+        intro: 'The field preview updates immediately. Wolf, sheep, and board belong to one theme.',
+        wolfSets: 'Wolf sets',
+        boards: 'Field boards',
+        preview: 'Field preview',
+        previewActive: 'Changes apply immediately',
+        unlockSuccess: 'Unlocked and ready to equip.',
+        insufficient: 'Not enough shards. Clear more hunts first.'
+    },
+    quests: {
+        title: 'Quests',
+        claim: 'Claim',
+        claimed: 'Claimed',
+        empty: 'No quests yet.',
+        daily: 'Daily',
+        weekly: 'Weekly',
+        reward: '+{n} universal shards',
+        claimSuccess: 'Claimed +{n} universal shards'
+    },
+    common: {
+        back: 'Back',
+        loading: '…'
+    },
+    locale: {
+        switchLabel: 'Language'
+    }
+};
+const zh = {
+    meta: {
+        title: '三狼连猎 · Fangrush',
+        description: '操控三狼，隔空连吃破阵，借岩石闯关四季猎场。网页免费玩。',
+        og: '三狼连猎：隔空连吃，四季闯关。'
+    },
+    brand: {
+        name: 'Fangrush',
+        subtitle: '三狼连猎',
+        tagline: '操控三狼，隔空连吃破阵，借岩石通关四季猎场。',
+        support: '6×6 交点棋盘 · 连吃最多 5 次 · 四季闯关'
+    },
+    nav: {
+        play: '开始冒险',
+        continue: '继续狩猎',
+        continueNamed: '继续 · {name}',
+        skins: '图鉴',
+        quests: '任务',
+        settings: '设置',
+        home: '首页',
+        chapters: '猎场',
+        privacy: '隐私',
+        admin: 'Admin',
+        language: '语言',
+        howToPlay: '怎么玩'
+    },
+    home: {
+        howTitle: '怎么玩',
+        how: [
+            '点选一只狼，走到相邻空点。',
+            '隔空吃：同线「狼—空—羊」，狼冲到羊位。',
+            '同回合可连吃最多 5 次；也可主动结束。',
+            '吃满 8 只羊过关；三狼无着则败。'
+        ],
+        howMore: '完整规则',
+        seasonsTitle: '四季猎场',
+        seasons: {
+            spring: '学规则 · 简易羊群',
+            summer: '标准合围 · 开始吃力',
+            autumn: '同档 AI · 岩石破阵爽感',
+            winter: '大师合围 · 空板硬仗'
+        },
+        trust: '进度保存在本机浏览器 · 无需登录',
+        faqTitle: '常见问题',
+        faq: [
+            {
+                q: '要下载吗？',
+                a: '不用。浏览器打开即可玩。'
+            },
+            {
+                q: '进度会丢吗？',
+                a: '存在本机。清站点数据或换设备会丢。'
+            },
+            {
+                q: '手机能玩吗？',
+                a: '可以。竖屏为主，棋盘等比缩放。'
+            },
+            {
+                q: '有没有账号？',
+                a: '一期无账号、无云存档。'
+            }
+        ],
+        secondary: '快捷入口'
+    },
+    chapters: {
+        title: '选择猎场',
+        locked: '未解锁',
+        unlocked: '可进入',
+        howLink: 'Fangrush 怎么玩'
+    },
+    howTo: {
+        title: '三狼连猎怎么玩',
+        metaDescription: 'Fangrush（三狼连猎）规则：隔空吃、连吃最多 5 次、岩石与四季猎场。浏览器免费玩。',
+        intro: 'Fangrush 是不对称猎杀棋：你操控三狼，对阵十五羊，棋盘为 6×6 交点。',
+        winTitle: '胜负',
+        winBody: '吃满 8 只羊过关；三狼皆无合法着法即败。',
+        moveTitle: '移动与隔空吃',
+        moveBody: '狼横竖走一格至空点。同线「狼—空—羊」时可隔空吃：狼落到羊位并移除该羊。',
+        chainTitle: '连吃',
+        chainBody: '隔空吃后可同回合继续连吃，最多 5 次；也可主动结束连吃以保全站位。',
+        sheepTitle: '羊群 AI',
+        sheepBody: '羊由电脑移动，不吃子，不能向第 1 行后退。等羊走完你才能再操作。',
+        rocksTitle: '岩石与四季',
+        rocksBody: '岩石不可落子。春学规则、夏承压、秋密岩破阵、冬空盘硬仗。',
+        saveTitle: '本地进度',
+        saveBody: '通关、碎片与皮肤存在本机浏览器；无账号。清除站点数据会清空进度。',
+        basicsTitle: '基础规则',
+        controlsTitle: '操作与反馈',
+        strategyTitle: '狼方基础策略',
+        strategyBody: [
+            '保持三只狼都有行动空间：一狼建立接触，另外两狼控制出口。',
+            '先控制路线再追单羊。一次捕食如果让狼失去退路，可能直接输掉本局。',
+            '继续连吃前，比较下一个落点与仍然开放的出口。',
+            '岩石是不可落脚点。利用岩石之间的通道分割并限制羊群。'
+        ],
+        diagramTitle: '棋盘图例',
+        diagramMove: '普通移动：狼横向或纵向走一格，落到相邻空点。',
+        diagramCapture: '隔空吃：同线「狼—空—羊」，狼落到羊位并移除羊。',
+        diagramLegend: 'W = 狼 · S = 羊 · # = 岩石 · . = 空点',
+        ctaSpring: '去春日 · 空野',
+        ctaChapters: '浏览四季猎场',
+        faqTitle: '常见问题'
+    },
+    hunt: {
+        playCta: '开始本关',
+        seasonLine: '{season} · {rocks} 枚岩石',
+        goalLine: '目标：吃掉 {n} 只羊 · 预计 {target} 步',
+        teachingLabel: '本关学习',
+        levelsLink: '本章全部关卡',
+        howLink: '怎么玩',
+        prev: '上一关',
+        next: '下一关',
+        rocksLabel: '{n} 石',
+        guideLink: '说明'
+    },
+    play: {
+        back: '返回',
+        eaten: '已吃 {n}/8',
+        sheepLeft: '剩羊 {n}',
+        turnWolf: '狼回合',
+        turnSheep: '羊回合',
+        chain: '连吃 {n}/5',
+        doubleLeft: '双倍掉落 {t}',
+        endChain: '结束连吃',
+        endChainCount: '结束连吃 · 已连吃 {n}/5',
+        chainDecision: '点红圈可继续连吃；现在收手会保留当前位置，并交给羊方行动。',
+        win: '胜利',
+        lose: '失败',
+        winSub: '吃羊达到 8 只',
+        loseSub: '三狼无路可走',
+        draw: '和局',
+        drawSub: '对局达到步数上限，请重新挑战。',
+        winAdvice: '这条狩猎路线有效。趁三狼分工还清楚，继续下一关。',
+        loseAdvice: '重试时保留两狼机动，让第三只狼负责建立接触。',
+        firstLoseAdvice: '重试时让中狼接近羊群，两侧狼保留出口，不要三狼追向同一处。',
+        drawAdvice: '换一侧建立接触；原地往返和等待不会自动打开羊阵。',
+        preparing: '准备中…',
+        again: '再来一局',
+        doubleAd: '看广告 · 碎片双倍 30 分钟',
+        adFailed: '广告暂时不可用，本关进度和碎片不受影响。',
+        levelList: '关卡列表',
+        nextLevel: '进入下一关',
+        resultMetrics: '第 {attempt} 次 · {plies} plies · 吃 {eaten} · 首吃 {first} · 用时 {time} · {reason}',
+        none: '无',
+        terminalReasons: {
+            targetEaten: '达到捕食目标',
+            wolvesTrapped: '三狼无合法行动',
+            maxPlies: '达到行动上限',
+            repetition: '三次重复局面',
+            unexpected: '异常终局'
+        },
+        tip: '绿点走空格 · 红圈在羊上即隔空吃',
+        reset: '重置',
+        resetConfirm: '再点确认',
+        mute: '静音',
+        unmute: '取消静音',
+        exit: '退出',
+        guideTitle: '春日第一课',
+        guideStep1: '点选深色狼，再点绿色高亮空格，即可走一格。',
+        guideStep2: '隔空吃：同线「狼—空—羊」时，点红圈羊或中间空即可冲吃。连吃可继续，最多 5 次。',
+        guideSkip: '跳过',
+        guideNext: '下一步',
+        guideStart: '开始猎食',
+        guideSelectWolf: '第一步：点选一只深色狼。',
+        guideMoveGreen: '现在点绿色空点，让这只狼走一步。',
+        guideWaitSheep: '羊群正在回应，等它走完再操作。',
+        guideFindCapture: '保持两侧狼能走，寻找带红圈的羊，完成第一次隔空吃。',
+        wolfSelected: '已选中狼：绿点可走，红圈可吃。',
+        selectWolfFirst: '请先点选一只狼，再选择落点。',
+        invalidTarget: '这里不能走，请选择绿点或红圈位置。',
+        aiError: '羊方行动中断。',
+        aiErrorFallback: '当前棋盘已保留，可以重试同一个羊回合。',
+        retryAi: '重试羊回合',
+        noDrop: '本次无碎片掉落',
+        firstClear: '首次通关',
+        repeatClear: '重复通关',
+        doubled: '（双倍）',
+        universal: '通用碎片 {n}',
+        help: '帮助',
+        hint: '提示',
+        hintTitle: '本关指导',
+        hintLevels: [
+            '观察',
+            '目标',
+            '策略'
+        ],
+        hintObserve: '先观察：{point}',
+        hintGoal: '本关目标：{point}',
+        hintStrategy: '行动前规划：{point}',
+        hintNext: '查看下一层',
+        hintClose: '返回对局',
+        hintAvailable: '本关已连续失败两次，可以免费查看策略提示。',
+        helpTitle: '猎场帮助'
+    },
+    settings: {
+        title: '设置',
+        mute: '静音',
+        help: '玩法说明',
+        privacy: '隐私说明',
+        close: '关闭',
+        quickTips: '快速提示',
+        helpBody: [
+            '操控 3 狼，隔空吃绵羊；吃满 8 只获胜。',
+            '横竖走一格；隔空吃为「狼—空—羊」同线，狼移到羊位。',
+            '连吃最多 5 次，可主动结束连吃。',
+            '羊由电脑走，不能往第 1 行退，不吃子。',
+            '三狼皆无合法步则失败。岩石不可落子。'
+        ]
+    },
+    privacy: {
+        title: '隐私说明',
+        p1: '三狼连猎（Fangrush）将进度保存在本机浏览器（localStorage）。本期无账号登录。',
+        p2: '我们不会把你的存档或棋谱上传到自建服务器。',
+        p3: '启用广告时适用广告商隐私政策。统计可能使用匿名页面浏览。',
+        p4: '清除站点数据会重置进度。联系方式见站点运营方公示邮箱。'
+    },
+    skins: {
+        title: '图鉴',
+        equip: '穿戴',
+        equipped: '已穿戴',
+        unlocked: '已解锁',
+        unlock: '兑换',
+        universalCost: '{n} 通用碎片',
+        seasonCost: '{n} {season}碎片',
+        chapterUnlock: '通关对应季节解锁',
+        intro: '选择皮肤后，猎场预览会立即更新。狼、羊与棋盘应属于同一个主题。',
+        wolfSets: '狼群套装',
+        boards: '猎场棋盘',
+        preview: '猎场预览',
+        previewActive: '装备后立即生效',
+        unlockSuccess: '已解锁，可立即装备。',
+        insufficient: '碎片不足，先完成更多猎场。'
+    },
+    quests: {
+        title: '任务',
+        claim: '领取',
+        claimed: '已领',
+        empty: '暂无任务',
+        daily: '每日',
+        weekly: '每周',
+        reward: '+{n} 通用碎片',
+        claimSuccess: '领取 +{n} 通用碎片'
+    },
+    common: {
+        back: '返回',
+        loading: '…'
+    },
+    locale: {
+        switchLabel: '语言'
+    }
+};
+const messages = {
+    en,
+    zh
+};
+function getMessages(locale) {
+    var _messages_locale;
+    return (_messages_locale = messages[locale]) !== null && _messages_locale !== void 0 ? _messages_locale : en;
+}
+function fmt(template, vars) {
+    return template.replace(/\{(\w+)\}/g, (_, key)=>{
+        var _vars_key;
+        return String((_vars_key = vars[key]) !== null && _vars_key !== void 0 ? _vars_key : '');
+    });
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/i18n/use-client-locale.ts [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useClientLocale",
+    ()=>useClientLocale,
+    "useClientMessages",
+    ()=>useClientMessages
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/navigation.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/i18n/messages.ts [app-client] (ecmascript)");
+var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
+'use client';
+;
+;
+function useClientLocale() {
+    _s();
+    const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])() || '/';
+    return pathname === '/zh' || pathname.startsWith('/zh/') ? 'zh' : 'en';
+}
+_s(useClientLocale, "wVXOWZKWdId76kQQO0KX6Oz3JDA=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"]
+    ];
+});
+function useClientMessages() {
+    _s1();
+    const locale = useClientLocale();
+    return {
+        locale,
+        t: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getMessages"])(locale)
+    };
+}
+_s1(useClientMessages, "FMi+88uxQ/TyzQ7JaFajfeJc5TY=", false, function() {
+    return [
+        useClientLocale
+    ];
+});
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/apps/web/src/components/PlayScreen.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "PlayScreen",
+    ()=>PlayScreen
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@15.5.18_react-dom@19.2.7_react@19.2.7__react@19.2.7/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/game-core/src/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/save.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/levels.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/ai/rng.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/rules.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$skins$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/game-core/src/content/skins.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$BoardSvg$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/components/BoardSvg.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$HelpContent$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/components/HelpContent.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$LocaleSwitcher$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/components/LocaleSwitcher.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$ads$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/ads.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/play-store.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/save-store.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$sfx$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/sfx.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$metrics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/play-metrics.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/i18n/messages.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$use$2d$client$2d$locale$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/i18n/use-client-locale.ts [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+'use client';
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+function PlayScreen(param) {
+    let { level, adminMode = false, onAdminAttempt, onAdminTerminal, localeOverride } = param;
+    var _save_settings;
+    _s();
+    const state = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[state]": (s)=>s.state
+    }["PlayScreen.usePlayStore[state]"]);
+    const selectedWolfId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[selectedWolfId]": (s)=>s.selectedWolfId
+    }["PlayScreen.usePlayStore[selectedWolfId]"]);
+    const highlights = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[highlights]": (s)=>s.highlights
+    }["PlayScreen.usePlayStore[highlights]"]);
+    const uiPhase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[uiPhase]": (s)=>s.uiPhase
+    }["PlayScreen.usePlayStore[uiPhase]"]);
+    const juice = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[juice]": (s)=>s.juice
+    }["PlayScreen.usePlayStore[juice]"]);
+    const init = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[init]": (s)=>s.init
+    }["PlayScreen.usePlayStore[init]"]);
+    const selectWolf = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[selectWolf]": (s)=>s.selectWolf
+    }["PlayScreen.usePlayStore[selectWolf]"]);
+    const clickCell = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[clickCell]": (s)=>s.clickCell
+    }["PlayScreen.usePlayStore[clickCell]"]);
+    const endChain = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[endChain]": (s)=>s.endChain
+    }["PlayScreen.usePlayStore[endChain]"]);
+    const reset = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[reset]": (s)=>s.reset
+    }["PlayScreen.usePlayStore[reset]"]);
+    const resumed = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[resumed]": (s)=>s.resumed
+    }["PlayScreen.usePlayStore[resumed]"]);
+    const aiError = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[aiError]": (s)=>s.aiError
+    }["PlayScreen.usePlayStore[aiError]"]);
+    const retryAi = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"])({
+        "PlayScreen.usePlayStore[retryAi]": (s)=>s.retryAi
+    }["PlayScreen.usePlayStore[retryAi]"]);
+    const save = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"])({
+        "PlayScreen.useSaveStore[save]": (s)=>s.save
+    }["PlayScreen.useSaveStore[save]"]);
+    const hydrated = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"])({
+        "PlayScreen.useSaveStore[hydrated]": (s)=>s.hydrated
+    }["PlayScreen.useSaveStore[hydrated]"]);
+    const replace = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"])({
+        "PlayScreen.useSaveStore[replace]": (s)=>s.replace
+    }["PlayScreen.useSaveStore[replace]"]);
+    const hydrate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"])({
+        "PlayScreen.useSaveStore[hydrate]": (s)=>s.hydrate
+    }["PlayScreen.useSaveStore[hydrate]"]);
+    const lastGrant = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"])({
+        "PlayScreen.useSaveStore[lastGrant]": (s)=>s.lastGrant
+    }["PlayScreen.useSaveStore[lastGrant]"]);
+    const setLastGrant = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"])({
+        "PlayScreen.useSaveStore[setLastGrant]": (s)=>s.setLastGrant
+    }["PlayScreen.useSaveStore[setLastGrant]"]);
+    const rewardedRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(false);
+    const playCountedRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(false);
+    const [adBusy, setAdBusy] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [adError, setAdError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [guideOpen, setGuideOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [guideStep, setGuideStep] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(0);
+    const [helpOpen, setHelpOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [hintOpen, setHintOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [hintLevel, setHintLevel] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(0);
+    const [resetArmed, setResetArmed] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const resetArmTimer = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const noticeTimer = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const [interactionNotice, setInteractionNotice] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [, setTick] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(0);
+    const prevEaten = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(0);
+    const terminalSfxDone = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(false);
+    const terminalReportedRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(false);
+    const guidanceReportedRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(false);
+    const attemptRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const attemptStartedAtRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(Date.now());
+    const firstCapturePlyRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const [terminalDetails, setTerminalDetails] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [adminMuted, setAdminMuted] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    var _save_settings_muted;
+    const muted = adminMode ? adminMuted : (_save_settings_muted = (_save_settings = save.settings) === null || _save_settings === void 0 ? void 0 : _save_settings.muted) !== null && _save_settings_muted !== void 0 ? _save_settings_muted : false;
+    const clientMessages = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$use$2d$client$2d$locale$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useClientMessages"])();
+    const locale = localeOverride !== null && localeOverride !== void 0 ? localeOverride : clientMessages.locale;
+    const t = localeOverride ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getMessages"])(localeOverride) : clientMessages.t;
+    const p = t.play;
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            hydrate();
+        }
+    }["PlayScreen.useEffect"], [
+        hydrate
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            if (muted || !juice) return;
+            if (juice.kind === 'jump') {
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$sfx$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["playSfx"])(state.chain && state.chain.count >= 2 ? 'chain' : 'jump');
+            } else {
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$sfx$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["playSfx"])('step');
+            }
+        }
+    }["PlayScreen.useEffect"], [
+        juice,
+        muted,
+        state.chain
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            if (!muted && uiPhase === 'aiThinking') (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$sfx$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["playSfx"])('ai');
+        }
+    }["PlayScreen.useEffect"], [
+        muted,
+        uiPhase
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            if (uiPhase !== 'terminal' || muted || terminalSfxDone.current) return;
+            terminalSfxDone.current = true;
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$sfx$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["playSfx"])(state.status === 'won' ? 'win' : 'lose');
+        }
+    }["PlayScreen.useEffect"], [
+        uiPhase,
+        state.status,
+        muted
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            rewardedRef.current = false;
+            playCountedRef.current = false;
+            terminalReportedRef.current = false;
+            guidanceReportedRef.current = false;
+            terminalSfxDone.current = false;
+            attemptStartedAtRef.current = Date.now();
+            firstCapturePlyRef.current = null;
+            prevEaten.current = 0;
+            setTerminalDetails(null);
+            setLastGrant(null);
+            init(level.id, level.rocks, level.ai, level.targetEaten, level.maxPlies, level.opening, !adminMode);
+        }
+    }["PlayScreen.useEffect"], [
+        adminMode,
+        level.id,
+        level.ai,
+        level.rocks,
+        level.targetEaten,
+        level.maxPlies,
+        level.opening,
+        init,
+        setLastGrant
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            if (adminMode) {
+                onAdminAttempt === null || onAdminAttempt === void 0 ? void 0 : onAdminAttempt();
+                return;
+            }
+            if (__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"].getState().resumed) return;
+            if (playCountedRef.current) return;
+            playCountedRef.current = true;
+            const current = __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save;
+            replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["recordPlayStarted"])(current, level.id));
+        }
+    }["PlayScreen.useEffect"], [
+        adminMode,
+        level.id,
+        onAdminAttempt,
+        replace,
+        resumed
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            var _attemptRef_current;
+            if (adminMode || !hydrated || ((_attemptRef_current = attemptRef.current) === null || _attemptRef_current === void 0 ? void 0 : _attemptRef_current.levelId) === level.id) return;
+            const currentResumed = __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"].getState().resumed;
+            var _resumePlayAttempt;
+            attemptRef.current = currentResumed ? (_resumePlayAttempt = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$metrics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["resumePlayAttempt"])(level.id)) !== null && _resumePlayAttempt !== void 0 ? _resumePlayAttempt : (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$metrics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["beginPlayAttempt"])(level.id) : (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$metrics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["beginPlayAttempt"])(level.id);
+            attemptStartedAtRef.current = Date.now();
+        }
+    }["PlayScreen.useEffect"], [
+        adminMode,
+        hydrated,
+        level.id,
+        resumed
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            return ({
+                "PlayScreen.useEffect": ()=>{
+                    if (resetArmTimer.current) clearTimeout(resetArmTimer.current);
+                    if (noticeTimer.current) clearTimeout(noticeTimer.current);
+                }
+            })["PlayScreen.useEffect"];
+        }
+    }["PlayScreen.useEffect"], []);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            if (adminMode || !hydrated || level.id !== 'spring-01') return;
+            if (save.guide.spring1Done) return;
+            setGuideOpen(true);
+            setGuideStep(0);
+        }
+    }["PlayScreen.useEffect"], [
+        adminMode,
+        hydrated,
+        level.id,
+        save.guide.spring1Done
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            if (state.eatenSheep > prevEaten.current) {
+                if (firstCapturePlyRef.current === null) firstCapturePlyRef.current = state.plyCount;
+                if (!adminMode && level.id === 'spring-01' && !save.guide.spring1Done) completeGuide();
+            }
+            prevEaten.current = state.eatenSheep;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }
+    }["PlayScreen.useEffect"], [
+        adminMode,
+        level.id,
+        state.eatenSheep,
+        state.plyCount,
+        save.guide.spring1Done
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            if (!guideOpen) return;
+            function onKeyDown(event) {
+                if (event.key === 'Escape') skipGuide();
+            }
+            window.addEventListener('keydown', onKeyDown);
+            return ({
+                "PlayScreen.useEffect": ()=>window.removeEventListener('keydown', onKeyDown)
+            })["PlayScreen.useEffect"];
+        // finishGuide is stable for this mounted screen; the listener only tracks the modal state.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }
+    }["PlayScreen.useEffect"], [
+        guideOpen
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            if (adminMode) return;
+            if (uiPhase !== 'terminal' || rewardedRef.current) return;
+            rewardedRef.current = true;
+            if (state.status === 'won') {
+                const current = __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save;
+                const grant = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["rollClearReward"])(level, current, (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$ai$2f$rng$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createSeededRng"])(Date.now()));
+                const next = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["applyClearToSave"])(current, level, grant);
+                replace(next);
+                setLastGrant(grant);
+            }
+        }
+    }["PlayScreen.useEffect"], [
+        adminMode,
+        uiPhase,
+        state.status,
+        level,
+        replace,
+        setLastGrant
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            var _attemptRef_current;
+            if (uiPhase !== 'terminal' || terminalReportedRef.current) return;
+            terminalReportedRef.current = true;
+            var _attemptRef_current_attemptNumber;
+            const details = {
+                durationMs: Math.max(0, Date.now() - attemptStartedAtRef.current),
+                firstCapturePly: firstCapturePlyRef.current,
+                attemptNumber: (_attemptRef_current_attemptNumber = (_attemptRef_current = attemptRef.current) === null || _attemptRef_current === void 0 ? void 0 : _attemptRef_current.attemptNumber) !== null && _attemptRef_current_attemptNumber !== void 0 ? _attemptRef_current_attemptNumber : 1
+            };
+            setTerminalDetails(details);
+            if (adminMode) {
+                onAdminTerminal === null || onAdminTerminal === void 0 ? void 0 : onAdminTerminal(state, details);
+                return;
+            }
+            if (attemptRef.current) {
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$metrics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["finishPlayAttempt"])(attemptRef.current.id, {
+                    endedAt: new Date().toISOString(),
+                    durationMs: details.durationMs,
+                    result: state.status === 'won' ? 'wolf' : state.status === 'lost' ? 'sheep' : 'draw',
+                    terminalReason: terminalReason(state),
+                    plies: state.plyCount,
+                    eatenSheep: state.eatenSheep,
+                    firstCapturePly: details.firstCapturePly
+                });
+            }
+        }
+    }["PlayScreen.useEffect"], [
+        adminMode,
+        onAdminTerminal,
+        state,
+        uiPhase
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            if (adminMode || uiPhase !== 'terminal' || guidanceReportedRef.current) return;
+            guidanceReportedRef.current = true;
+            replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["recordGuideResult"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save, level.id, state.status === 'won'));
+        }
+    }["PlayScreen.useEffect"], [
+        adminMode,
+        level.id,
+        replace,
+        state.status,
+        uiPhase
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PlayScreen.useEffect": ()=>{
+            if (!(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isDoubleDropActive"])(save)) return;
+            const id = setInterval({
+                "PlayScreen.useEffect.id": ()=>setTick({
+                        "PlayScreen.useEffect.id": (n)=>n + 1
+                    }["PlayScreen.useEffect.id"])
+            }["PlayScreen.useEffect.id"], 1000);
+            return ({
+                "PlayScreen.useEffect": ()=>clearInterval(id)
+            })["PlayScreen.useEffect"];
+        }
+    }["PlayScreen.useEffect"], [
+        save
+    ]);
+    const theme = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "PlayScreen.useMemo[theme]": ()=>{
+            const { wolfSet, board } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$skins$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["resolveSkin"])(save);
+            const rockWarm = board.id === 'board-autumn' ? 0.55 : board.id === 'board-winter' ? -0.45 : board.id === 'board-summer' ? 0.25 : 0;
+            return {
+                boardFill: board.boardFill,
+                lineStroke: board.lineStroke,
+                wolfFill: wolfSet.wolfFill,
+                sheepFill: wolfSet.sheepFill,
+                wolfSrc: wolfSet.assets.wolf,
+                sheepSrc: wolfSet.assets.sheep,
+                boardBgSrc: board.assets.boardBg,
+                rockWarm
+            };
+        }
+    }["PlayScreen.useMemo[theme]"], [
+        save
+    ]);
+    const sheepLeft = state.pieces.filter((piece)=>piece.side === 'sheep').length;
+    const interactive = uiPhase === 'playing' && state.toMove === 'wolf';
+    const backHref = adminMode ? '/admin/levels' : "/levels/".concat(level.chapterId);
+    const doubleLeft = doubleDropLabel(save.buffs.doubleDropUntil);
+    const thinking = uiPhase === 'aiThinking';
+    const chainFlash = Boolean(state.chain && uiPhase === 'playing');
+    const title = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["levelDisplayName"])(level, locale);
+    const nextLevel = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["adjacentLevels"])(level.id).next;
+    const firstLessonActive = !adminMode && level.id === 'spring-01' && !save.guide.spring1Done;
+    const lessonTip = firstLessonActive ? thinking || state.toMove === 'sheep' ? p.guideWaitSheep : state.plyCount === 0 && !selectedWolfId ? p.guideSelectWolf : state.plyCount === 0 ? p.guideMoveGreen : p.guideFindCapture : p.tip;
+    var _save_guide_failureStreak_level_id;
+    const failureStreak = (_save_guide_failureStreak_level_id = save.guide.failureStreak[level.id]) !== null && _save_guide_failureStreak_level_id !== void 0 ? _save_guide_failureStreak_level_id : 0;
+    const guidancePoints = [
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["levelTeachingPoint"])(level, locale),
+        locale === 'zh' ? level.playerGoalZh : (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["levelTeachingPoint"])(level, locale),
+        locale === 'zh' ? level.wolfStrategyZh : (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$levels$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["levelTeachingPoint"])(level, locale)
+    ];
+    const hintTemplates = [
+        p.hintObserve,
+        p.hintGoal,
+        p.hintStrategy
+    ];
+    function openHint() {
+        setHintLevel(0);
+        setHintOpen(true);
+        if (!adminMode) replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["recordGuideHint"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save, level.id));
+    }
+    function completeGuide() {
+        setGuideOpen(false);
+        if (adminMode) return;
+        const current = __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save;
+        if (!current.guide.spring1Done) {
+            replace({
+                ...current,
+                guide: {
+                    ...current.guide,
+                    spring1Done: true
+                }
+            });
+        }
+    }
+    function skipGuide() {
+        completeGuide();
+    }
+    async function watchDouble() {
+        setAdError(false);
+        setAdBusy(true);
+        const res = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$ads$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getAds"])().showRewarded('double_drop');
+        setAdBusy(false);
+        if (!res.ok) {
+            setAdError(true);
+            return;
+        }
+        replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["activateDoubleDrop"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save));
+    }
+    function confirmReset() {
+        if (!resetArmed) {
+            setResetArmed(true);
+            if (resetArmTimer.current) clearTimeout(resetArmTimer.current);
+            resetArmTimer.current = setTimeout(()=>setResetArmed(false), 2000);
+            return;
+        }
+        if (resetArmTimer.current) clearTimeout(resetArmTimer.current);
+        setResetArmed(false);
+        rewardedRef.current = false;
+        playCountedRef.current = false;
+        terminalReportedRef.current = false;
+        guidanceReportedRef.current = false;
+        attemptRef.current = adminMode ? null : (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$metrics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["beginPlayAttempt"])(level.id);
+        attemptStartedAtRef.current = Date.now();
+        firstCapturePlyRef.current = null;
+        setTerminalDetails(null);
+        setLastGrant(null);
+        reset();
+        if (adminMode) onAdminAttempt === null || onAdminAttempt === void 0 ? void 0 : onAdminAttempt();
+        else replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["recordPlayStarted"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save, level.id));
+        playCountedRef.current = true;
+    }
+    function toggleMute() {
+        var _current_settings;
+        if (adminMode) {
+            setAdminMuted((value)=>!value);
+            return;
+        }
+        const current = __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save;
+        var _current_settings_muted;
+        replace({
+            ...current,
+            settings: {
+                ...current.settings,
+                muted: !((_current_settings_muted = (_current_settings = current.settings) === null || _current_settings === void 0 ? void 0 : _current_settings.muted) !== null && _current_settings_muted !== void 0 ? _current_settings_muted : false)
+            }
+        });
+    }
+    function handleSelectWolf(wolfId) {
+        if (interactive && wolfId !== selectedWolfId) (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$sfx$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["playSfx"])('select');
+        selectWolf(wolfId);
+        if (interactive) showNotice(p.wolfSelected);
+    }
+    function handleClickCell(pos) {
+        if (!interactive) return;
+        if (!selectedWolfId) {
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$sfx$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["playSfx"])('invalid');
+            showNotice(p.selectWolfFirst);
+            return;
+        }
+        const legalTarget = [
+            ...highlights.steps,
+            ...highlights.jumps,
+            ...highlights.throughs
+        ].some((target)=>target.r === pos.r && target.c === pos.c);
+        const wolfAtTarget = state.pieces.some((piece)=>piece.side === 'wolf' && piece.r === pos.r && piece.c === pos.c);
+        if (!legalTarget && !wolfAtTarget) {
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$sfx$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["playSfx"])('invalid');
+            showNotice(p.invalidTarget);
+            return;
+        }
+        clickCell(pos);
+    }
+    function showNotice(message) {
+        setInteractionNotice(message);
+        if (noticeTimer.current) clearTimeout(noticeTimer.current);
+        noticeTimer.current = setTimeout(()=>setInteractionNotice(null), 1600);
+    }
+    var _terminalDetails_firstCapturePly;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "mx-auto flex min-h-dvh max-w-lg flex-col gap-3 px-4 pb-4 pt-5",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
+                className: "flex items-center justify-between gap-3",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$LocaleSwitcher$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LocaleLink"], {
+                        href: backHref,
+                        locale: locale,
+                        className: "text-sm text-[var(--muted)] underline-offset-2 hover:underline",
+                        children: [
+                            "← ",
+                            p.back
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 383,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                        className: "font-serif text-lg tracking-wide text-[var(--ink)]",
+                        children: title
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 390,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        className: "w-10"
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 391,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 382,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "game-panel flex flex-wrap items-center justify-between gap-2 px-3 py-3 text-sm tabular-nums ".concat(chainFlash ? 'bg-[#e8c4b8] font-semibold text-[#8b2e22] ring-2 ring-[var(--danger)]/40' : 'text-[var(--ink)]'),
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        className: "game-stat flex-1 text-center sm:flex-none",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                            children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fmt"])(p.eaten, {
+                                n: state.eatenSheep
+                            })
+                        }, void 0, false, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 401,
+                            columnNumber: 69
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 401,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        className: "game-stat flex-1 text-center sm:flex-none",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                            children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fmt"])(p.sheepLeft, {
+                                n: sheepLeft
+                            })
+                        }, void 0, false, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 402,
+                            columnNumber: 69
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 402,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        className: "inline-flex w-full items-center justify-center gap-1.5 sm:w-auto ".concat(thinking ? 'font-medium text-[var(--muted)]' : ''),
+                        "aria-live": "polite",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "inline-block h-2 w-2 rounded-full ".concat(thinking || state.toMove === 'sheep' ? 'bg-[var(--muted)]' : 'bg-[var(--accent)]')
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                lineNumber: 407,
+                                columnNumber: 11
+                            }, this),
+                            turnLabel(uiPhase, state, p)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 403,
+                        columnNumber: 9
+                    }, this),
+                    !adminMode && doubleLeft && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        className: "w-full text-xs text-[var(--muted)]",
+                        children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fmt"])(p.doubleLeft, {
+                            t: doubleLeft
+                        })
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 415,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 394,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "relative flex flex-1 flex-col items-center justify-center py-2",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$BoardSvg$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BoardSvg"], {
+                        state: state,
+                        selectedWolfId: selectedWolfId,
+                        stepHighlights: highlights.steps,
+                        jumpHighlights: highlights.jumps,
+                        jumpThroughs: highlights.throughs,
+                        juice: juice,
+                        interactive: interactive,
+                        onSelectWolf: handleSelectWolf,
+                        onClickCell: handleClickCell,
+                        theme: theme
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 420,
+                        columnNumber: 9
+                    }, this),
+                    thinking && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "absolute inset-0 z-10 cursor-default rounded-xl bg-black/[0.03]",
+                        "aria-hidden": true
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 433,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 419,
+                columnNumber: 7
+            }, this),
+            state.chain && uiPhase === 'playing' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "grid gap-2 rounded-lg border border-[var(--accent)]/35 bg-[var(--paper)] p-3",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-center text-sm leading-relaxed text-[var(--ink)]",
+                        children: p.chainDecision
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 439,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: endChain,
+                        className: "rounded-lg bg-[var(--accent)] px-4 py-3 text-center text-sm font-medium text-[#f4f1ea] active:scale-[0.97]",
+                        children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fmt"])(p.endChainCount, {
+                            n: state.chain.count
+                        })
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 440,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 438,
+                columnNumber: 9
+            }, this),
+            uiPhase === 'error' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                role: "alert",
+                className: "grid gap-2 rounded-lg border border-[var(--danger)]/40 bg-[#fff8f5] p-3 text-center",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-sm font-medium text-[#8b2e22]",
+                        children: p.aiError
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 452,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-xs text-[var(--muted)]",
+                        children: aiError !== null && aiError !== void 0 ? aiError : p.aiErrorFallback
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 453,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: retryAi,
+                        className: "rounded-lg bg-[var(--accent)] px-4 py-3 text-sm font-medium text-[#f4f1ea]",
+                        children: p.retryAi
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 454,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 451,
+                columnNumber: 9
+            }, this),
+            uiPhase === 'terminal' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "game-panel victory-pop p-5 text-center",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "eyebrow",
+                        children: state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 460,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "font-serif text-2xl text-[var(--ink)]",
+                        children: state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 461,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "mt-1 text-sm text-[var(--muted)]",
+                        children: state.status === 'won' ? p.winSub : state.status === 'draw' ? p.drawSub : p.loseSub
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 464,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "mt-2 text-sm leading-relaxed text-[var(--ink)]",
+                        children: state.status === 'won' ? p.winAdvice : state.status === 'draw' ? p.drawAdvice : level.id === 'spring-01' ? p.firstLoseAdvice : p.loseAdvice
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 467,
+                        columnNumber: 11
+                    }, this),
+                    terminalDetails && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "mt-3 text-xs tabular-nums text-[var(--muted)]",
+                        children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fmt"])(p.resultMetrics, {
+                            attempt: terminalDetails.attemptNumber,
+                            plies: state.plyCount,
+                            eaten: state.eatenSheep,
+                            first: (_terminalDetails_firstCapturePly = terminalDetails.firstCapturePly) !== null && _terminalDetails_firstCapturePly !== void 0 ? _terminalDetails_firstCapturePly : p.none,
+                            time: formatDuration(terminalDetails.durationMs),
+                            reason: terminalReasonLabel(terminalReason(state), p)
+                        })
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 477,
+                        columnNumber: 13
+                    }, this),
+                    adBusy && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "mt-1 text-xs text-[#7a8574]",
+                        children: p.preparing
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 488,
+                        columnNumber: 22
+                    }, this),
+                    adError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        role: "status",
+                        className: "mt-1 text-xs text-[#8b2e22]",
+                        children: p.adFailed
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 489,
+                        columnNumber: 23
+                    }, this),
+                    !adminMode && state.status === 'won' && lastGrant && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(GrantLine, {
+                        grant: lastGrant,
+                        labels: p,
+                        locale: locale
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 491,
+                        columnNumber: 13
+                    }, this),
+                    !adminMode && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "mt-2 text-xs text-[#7a8574]",
+                        children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fmt"])(p.universal, {
+                            n: save.fragments.universal
+                        })
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 493,
+                        columnNumber: 26
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mt-4 flex flex-col items-center gap-2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                type: "button",
+                                disabled: adBusy,
+                                onClick: ()=>{
+                                    rewardedRef.current = false;
+                                    playCountedRef.current = false;
+                                    terminalReportedRef.current = false;
+                                    guidanceReportedRef.current = false;
+                                    attemptRef.current = adminMode ? null : (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$metrics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["beginPlayAttempt"])(level.id);
+                                    attemptStartedAtRef.current = Date.now();
+                                    firstCapturePlyRef.current = null;
+                                    setTerminalDetails(null);
+                                    setLastGrant(null);
+                                    reset();
+                                    if (adminMode) onAdminAttempt === null || onAdminAttempt === void 0 ? void 0 : onAdminAttempt();
+                                    else replace((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["recordPlayStarted"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"].getState().save, level.id));
+                                    playCountedRef.current = true;
+                                },
+                                className: "primary-action w-full max-w-xs disabled:opacity-50",
+                                children: p.again
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                lineNumber: 495,
+                                columnNumber: 13
+                            }, this),
+                            !adminMode && state.status === 'won' && !(0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$content$2f$save$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isDoubleDropActive"])(save) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                type: "button",
+                                disabled: adBusy,
+                                onClick: ()=>void watchDouble(),
+                                className: "text-sm text-[var(--muted)] underline-offset-2 hover:underline disabled:opacity-50",
+                                children: p.doubleAd
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                lineNumber: 518,
+                                columnNumber: 15
+                            }, this),
+                            !adminMode && state.status === 'won' && nextLevel && nextLevel.chapterId === level.chapterId && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$LocaleSwitcher$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LocaleLink"], {
+                                href: "/play/".concat(nextLevel.id),
+                                locale: locale,
+                                className: "primary-action w-full max-w-xs text-center",
+                                children: p.nextLevel
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                lineNumber: 528,
+                                columnNumber: 15
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$LocaleSwitcher$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LocaleLink"], {
+                                href: backHref,
+                                locale: locale,
+                                className: "px-4 py-2 text-sm text-[var(--ink)] underline-offset-2 hover:underline",
+                                children: p.levelList
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                lineNumber: 536,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 494,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 459,
+                columnNumber: 9
+            }, this),
+            uiPhase !== 'terminal' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "grid gap-2",
+                "aria-live": "polite",
+                children: [
+                    failureStreak >= 2 && !interactionNotice && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: openHint,
+                        className: "rounded-lg border border-[var(--accent)]/35 bg-[var(--paper)] px-3 py-2 text-center text-xs font-medium text-[var(--ink)]",
+                        children: p.hintAvailable
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 550,
+                        columnNumber: 13
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "status-chip justify-center text-center text-xs ".concat(firstLessonActive ? 'font-medium text-[var(--ink)]' : 'text-[var(--muted)]'),
+                        children: interactionNotice !== null && interactionNotice !== void 0 ? interactionNotice : lessonTip
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 554,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 548,
+                columnNumber: 9
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
+                className: "mt-auto grid grid-cols-5 items-center rounded-2xl border border-[var(--line)] bg-[var(--paper)]/75 pt-1 shadow-sm",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: ()=>setHelpOpen(true),
+                        className: "min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm",
+                        children: p.help
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 561,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: openHint,
+                        className: "min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm",
+                        children: p.hint
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 562,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: confirmReset,
+                        className: "min-h-11 rounded-lg px-1 py-2 text-xs active:scale-[0.97] sm:text-sm ".concat(resetArmed ? 'bg-[#e8c4b8]/50 font-medium text-[#8b2e22]' : 'text-[var(--ink)]'),
+                        children: resetArmed ? p.resetConfirm : p.reset
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 563,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        onClick: toggleMute,
+                        className: "min-h-11 rounded-lg px-1 py-2 text-xs text-[var(--ink)] active:scale-[0.97] sm:text-sm",
+                        "aria-pressed": muted,
+                        children: muted ? p.unmute : p.mute
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 572,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$LocaleSwitcher$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LocaleLink"], {
+                        href: adminMode ? '/admin/levels' : '/',
+                        locale: locale,
+                        className: "inline-flex min-h-11 items-center justify-center rounded-lg px-1 py-2 text-xs text-[var(--ink)] sm:text-sm",
+                        children: p.exit
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                        lineNumber: 580,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 560,
+                columnNumber: 7
+            }, this),
+            helpOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    role: "dialog",
+                    "aria-modal": "true",
+                    "aria-labelledby": "field-help-title",
+                    className: "max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-xl bg-[var(--panel)] p-5 shadow-lg",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "mb-4 flex items-center justify-between gap-3",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                    id: "field-help-title",
+                                    className: "font-serif text-xl text-[var(--ink)]",
+                                    children: p.helpTitle
+                                }, void 0, false, {
+                                    fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                    lineNumber: 593,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    type: "button",
+                                    onClick: ()=>setHelpOpen(false),
+                                    className: "quiet-action min-h-10 px-3 text-sm",
+                                    children: p.hintClose
+                                }, void 0, false, {
+                                    fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                    lineNumber: 594,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 592,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$HelpContent$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["HelpContent"], {
+                            h: t.howTo,
+                            compact: true
+                        }, void 0, false, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 596,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                    lineNumber: 591,
+                    columnNumber: 11
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 590,
+                columnNumber: 9
+            }, this),
+            hintOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    role: "dialog",
+                    "aria-modal": "true",
+                    "aria-labelledby": "hunt-hint-title",
+                    className: "w-full max-w-sm rounded-xl bg-[var(--panel)] p-5 shadow-lg",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "eyebrow",
+                            children: p.hintLevels[hintLevel]
+                        }, void 0, false, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 604,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                            id: "hunt-hint-title",
+                            className: "mt-1 font-serif text-xl text-[var(--ink)]",
+                            children: p.hintTitle
+                        }, void 0, false, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 605,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "mt-3 text-sm leading-relaxed text-[var(--muted)]",
+                            children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fmt"])(hintTemplates[hintLevel], {
+                                point: guidancePoints[hintLevel]
+                            })
+                        }, void 0, false, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 606,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "mt-5 flex justify-between gap-2",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    type: "button",
+                                    onClick: ()=>setHintOpen(false),
+                                    className: "quiet-action min-h-10 px-3 text-sm",
+                                    children: p.hintClose
+                                }, void 0, false, {
+                                    fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                    lineNumber: 608,
+                                    columnNumber: 15
+                                }, this),
+                                hintLevel < 2 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    type: "button",
+                                    onClick: ()=>setHintLevel((value)=>value + 1),
+                                    className: "primary-action min-h-10 px-4 text-sm",
+                                    children: p.hintNext
+                                }, void 0, false, {
+                                    fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                    lineNumber: 609,
+                                    columnNumber: 33
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 607,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                    lineNumber: 603,
+                    columnNumber: 11
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 602,
+                columnNumber: 9
+            }, this),
+            guideOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    role: "dialog",
+                    "aria-modal": "true",
+                    "aria-labelledby": "guide-title",
+                    className: "w-full max-w-sm rounded-xl bg-[var(--panel)] p-5 shadow-lg",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                            id: "guide-title",
+                            className: "font-serif text-lg text-[var(--ink)]",
+                            children: p.guideTitle
+                        }, void 0, false, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 618,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "mt-2 text-sm leading-relaxed text-[var(--muted)]",
+                            children: guideStep === 0 ? p.guideStep1 : p.guideStep2
+                        }, void 0, false, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 619,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "mt-4 flex justify-between gap-2",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    type: "button",
+                                    className: "text-sm text-[#7a8574] underline-offset-2 hover:underline",
+                                    onClick: skipGuide,
+                                    children: p.guideSkip
+                                }, void 0, false, {
+                                    fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                    lineNumber: 623,
+                                    columnNumber: 15
+                                }, this),
+                                guideStep === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    type: "button",
+                                    className: "rounded-full bg-[var(--accent)] px-4 py-2 text-sm text-[#f4f1ea]",
+                                    onClick: ()=>setGuideStep(1),
+                                    children: p.guideNext
+                                }, void 0, false, {
+                                    fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                    lineNumber: 631,
+                                    columnNumber: 17
+                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    type: "button",
+                                    className: "rounded-full bg-[var(--accent)] px-4 py-2 text-sm text-[#f4f1ea]",
+                                    onClick: ()=>setGuideOpen(false),
+                                    children: p.guideStart
+                                }, void 0, false, {
+                                    fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                                    lineNumber: 639,
+                                    columnNumber: 17
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                            lineNumber: 622,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                    lineNumber: 617,
+                    columnNumber: 11
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+                lineNumber: 616,
+                columnNumber: 9
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+        lineNumber: 381,
+        columnNumber: 5
+    }, this);
+}
+_s(PlayScreen, "q0/aKlaWHOwO64JILdkMAY8Ly4E=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$play$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePlayStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$save$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSaveStore"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$use$2d$client$2d$locale$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useClientMessages"]
+    ];
+});
+_c = PlayScreen;
+function turnLabel(uiPhase, state, p) {
+    if (uiPhase === 'aiThinking') return p.turnSheep;
+    if (state.toMove === 'wolf') {
+        return state.chain ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$i18n$2f$messages$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fmt"])(p.chain, {
+            n: state.chain.count
+        }) : p.turnWolf;
+    }
+    return p.turnSheep;
+}
+function GrantLine(param) {
+    let { grant, labels, locale } = param;
+    const seasonName = {
+        spring: {
+            en: 'Spring',
+            zh: '春'
+        },
+        summer: {
+            en: 'Summer',
+            zh: '夏'
+        },
+        autumn: {
+            en: 'Autumn',
+            zh: '秋'
+        },
+        winter: {
+            en: 'Winter',
+            zh: '冬'
+        }
+    };
+    const seasonBits = Object.entries(grant.season).filter((param)=>{
+        let [, v] = param;
+        return (v !== null && v !== void 0 ? v : 0) > 0;
+    }).map((param)=>{
+        let [k, v] = param;
+        var _seasonName_k;
+        var _seasonName_k_locale;
+        return "".concat((_seasonName_k_locale = (_seasonName_k = seasonName[k]) === null || _seasonName_k === void 0 ? void 0 : _seasonName_k[locale]) !== null && _seasonName_k_locale !== void 0 ? _seasonName_k_locale : k, "+").concat(v);
+    }).join(' ');
+    if (grant.universal === 0 && !seasonBits) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            className: "mt-2 text-sm text-[var(--muted)]",
+            children: labels.noDrop
+        }, void 0, false, {
+            fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+            lineNumber: 687,
+            columnNumber: 12
+        }, this);
+    }
+    const sep = locale === 'zh' ? '：' : ': ';
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$5$2e$18_react$2d$dom$40$19$2e$2$2e$7_react$40$19$2e$2$2e$7_$5f$react$40$19$2e$2$2e$7$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+        className: "mt-2 text-sm text-[var(--ink)]",
+        children: [
+            grant.firstClear ? labels.firstClear : labels.repeatClear,
+            grant.doubled ? labels.doubled : '',
+            sep,
+            "+",
+            grant.universal,
+            seasonBits ? " · ".concat(seasonBits) : ''
+        ]
+    }, void 0, true, {
+        fileName: "[project]/apps/web/src/components/PlayScreen.tsx",
+        lineNumber: 691,
+        columnNumber: 5
+    }, this);
+}
+_c1 = GrantLine;
+function doubleDropLabel(until) {
+    if (until == null || until <= Date.now()) return null;
+    const sec = Math.ceil((until - Date.now()) / 1000);
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return "".concat(m, ":").concat(String(s).padStart(2, '0'));
+}
+function terminalReason(state) {
+    if (state.eatenSheep >= state.targetEaten) return 'targetEaten';
+    if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["listWolfActionsAsIfTurn"])(state).length === 0) return 'wolvesTrapped';
+    if (state.plyCount >= state.maxPlies) return 'maxPlies';
+    var _state_repetitionCounts_get;
+    if (((_state_repetitionCounts_get = state.repetitionCounts.get((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$game$2d$core$2f$src$2f$rules$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["boardPositionKey"])(state))) !== null && _state_repetitionCounts_get !== void 0 ? _state_repetitionCounts_get : 0) >= 3) return 'repetition';
+    return 'unexpected';
+}
+function terminalReasonLabel(reason, p) {
+    return p.terminalReasons[reason];
+}
+function formatDuration(durationMs) {
+    const seconds = Math.max(0, Math.round(durationMs / 1000));
+    const minutes = Math.floor(seconds / 60);
+    return "".concat(minutes, ":").concat(String(seconds % 60).padStart(2, '0'));
+}
+var _c, _c1;
+__turbopack_context__.k.register(_c, "PlayScreen");
+__turbopack_context__.k.register(_c1, "GrantLine");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+]);
+
+//# sourceMappingURL=_1e7a7345._.js.map

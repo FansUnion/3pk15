@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/fansu/git/3pk15/apps/web/src/app/settings/layout.tsx"],"sourcesContent":["import type { Metadata } from 'next'\n\nexport const metadata: Metadata = {\n  robots: { index: false, follow: false },\n}\n\nexport default function SettingsLayout({ children }: { children: React.ReactNode }) {\n  return children\n}\n"],"names":[],"mappings":";;;;;;AAEO,MAAM,WAAqB;IAChC,QAAQ;QAAE,OAAO;QAAO,QAAQ;IAAM;AACxC;AAEe,SAAS,eAAe,EAAE,QAAQ,EAAiC;IAChF,OAAO;AACT","debugId":null}}]
+}

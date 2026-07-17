@@ -1,0 +1,47 @@
+{
+  "app": {
+    "[project]/apps/web/src/app/_not-found/page": [
+      "static/media/30bdb5bb2b173ee1-s.p.5eca26fe.woff2",
+      "static/media/f141b5b7abe57afc-s.p.0de3c900.woff2"
+    ],
+    "[project]/apps/web/src/app/admin/ai/page": [
+      "static/media/30bdb5bb2b173ee1-s.p.5eca26fe.woff2",
+      "static/media/f141b5b7abe57afc-s.p.0de3c900.woff2"
+    ],
+    "[project]/apps/web/src/app/admin/levels/page": [
+      "static/media/30bdb5bb2b173ee1-s.p.5eca26fe.woff2",
+      "static/media/f141b5b7abe57afc-s.p.0de3c900.woff2"
+    ],
+    "[project]/apps/web/src/app/admin/page": [
+      "static/media/30bdb5bb2b173ee1-s.p.5eca26fe.woff2",
+      "static/media/f141b5b7abe57afc-s.p.0de3c900.woff2"
+    ],
+    "[project]/apps/web/src/app/admin/play/[levelId]/page": [
+      "static/media/30bdb5bb2b173ee1-s.p.5eca26fe.woff2",
+      "static/media/f141b5b7abe57afc-s.p.0de3c900.woff2"
+    ],
+    "[project]/apps/web/src/app/chapters/page": [
+      "static/media/30bdb5bb2b173ee1-s.p.5eca26fe.woff2",
+      "static/media/f141b5b7abe57afc-s.p.0de3c900.woff2"
+    ],
+    "[project]/apps/web/src/app/hunt/[levelId]/page": [
+      "static/media/30bdb5bb2b173ee1-s.p.5eca26fe.woff2",
+      "static/media/f141b5b7abe57afc-s.p.0de3c900.woff2"
+    ],
+    "[project]/apps/web/src/app/levels/[chapterId]/page": [
+      "static/media/30bdb5bb2b173ee1-s.p.5eca26fe.woff2",
+      "static/media/f141b5b7abe57afc-s.p.0de3c900.woff2"
+    ],
+    "[project]/apps/web/src/app/page": [
+      "static/media/30bdb5bb2b173ee1-s.p.5eca26fe.woff2",
+      "static/media/f141b5b7abe57afc-s.p.0de3c900.woff2"
+    ],
+    "[project]/apps/web/src/app/play/[levelId]/page": [
+      "static/media/30bdb5bb2b173ee1-s.p.5eca26fe.woff2",
+      "static/media/f141b5b7abe57afc-s.p.0de3c900.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}
