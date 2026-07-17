@@ -15,7 +15,7 @@ import {
 } from '@wolf-sheep/game-core'
 import { BoardSvg } from '@/components/BoardSvg'
 import { themeForChapter } from '@/components/admin/adminBoardTheme'
-import { levelVersion, loadLevelReviews, type LevelReview } from '@/lib/admin-level-reviews'
+import { levelVersion, loadLevelReviews, reviewCompletion, type LevelReview } from '@/lib/admin-level-reviews'
 import {
   loadCandidateReports,
   parseCandidateReports,
@@ -36,6 +36,7 @@ import {
 type ChapterFilter = 'all' | ChapterId
 type AiFilter = 'all' | Difficulty
 type VerdictFilter = 'all' | CandidateVerdict | 'missing'
+type ReviewFilter = 'all' | 'unreviewed' | 'passed' | 'needs_changes' | 'incomplete'
 
 const AI_LABEL: Record<Difficulty, string> = { easy: '简单', normal: '普通', hard: '困难' }
 
@@ -45,6 +46,7 @@ export function AdminLevelWorkbench() {
   const [difficulty, setDifficulty] = useState('all')
   const [riskOnly, setRiskOnly] = useState(false)
   const [verdict, setVerdict] = useState<VerdictFilter>('all')
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>('all')
   const [selectedId, setSelectedId] = useState(LEVELS[0]?.id ?? '')
   const [reviews, setReviews] = useState<Record<string, LevelReview>>({})
   const [reports, setReports] = useState<CandidateReportMap>({})
@@ -67,9 +69,17 @@ export function AdminLevelWorkbench() {
     && (difficulty === 'all' || String(level.difficulty) === difficulty)
     && (!riskOnly || level.riskTags.length > 0)
     && (verdict === 'all' || (verdict === 'missing' ? !reports[level.id] : (reports[level.id]?.verdict ?? CANDIDATE_BASELINE[level.id]?.verdict) === verdict))
-  )), [ai, chapter, difficulty, reports, riskOnly, verdict])
+    && (reviewFilter === 'all'
+      || (reviewFilter === 'unreviewed' && (!reviews[level.id] || reviews[level.id]?.status === 'unreviewed'))
+      || (reviewFilter === 'incomplete' && !reviewCompletion(reviews[level.id]).complete)
+      || reviews[level.id]?.status === reviewFilter)
+  )).sort((a, b) => validationPriority(a, reports) - validationPriority(b, reports)), [ai, chapter, difficulty, reports, reviewFilter, reviews, riskOnly, verdict])
   const selected = LEVELS.find((level) => level.id === selectedId) ?? filtered[0]
-  const passedCount = Object.values(reviews).filter((review) => review.status === 'passed').length
+  const passedCount = LEVELS.filter((level) => {
+    const review = reviews[level.id]
+    return review?.status === 'passed' && review.levelVersion === levelVersion(level) && reviewCompletion(review).complete
+  }).length
+  const evidenceCount = LEVELS.filter((level) => reviewCompletion(reviews[level.id]).complete && reviews[level.id]?.levelVersion === levelVersion(level)).length
   const needsChangesCount = Object.values(reviews).filter((review) => review.status === 'needs_changes').length
   const verdictCounts = LEVELS.reduce((counts, level) => {
     const current = reports[level.id]?.verdict ?? CANDIDATE_BASELINE[level.id]?.verdict
@@ -155,6 +165,7 @@ export function AdminLevelWorkbench() {
         <div className="flex gap-2 text-sm">
           <span className="border border-[#5c6b52]/25 bg-[#f7f5ef] px-3 py-2">生产通过 {LEVELS.filter((l) => l.productionStatus === 'approved').length}/24</span>
           <span className="border border-green-300 bg-green-50 px-3 py-2 text-green-800">试玩通过 {passedCount}/24</span>
+          <span className="border border-[#5c6b52]/25 bg-[#f7f5ef] px-3 py-2">证据完整 {evidenceCount}/24</span>
           <span className="border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900">待修订 {needsChangesCount}</span>
           <span className="border border-[#5c6b52]/25 bg-[#f7f5ef] px-3 py-2">候选 {verdictCounts.pass}/{verdictCounts.review}/{verdictCounts.reject}</span>
           <span className={`border px-3 py-2 ${allErrors.length ? 'border-red-300 bg-red-50 text-red-800' : 'border-green-300 bg-green-50 text-green-800'}`}>
@@ -176,11 +187,14 @@ export function AdminLevelWorkbench() {
         <Filter label="候选门禁" value={verdict} onChange={(value) => setVerdict(value as VerdictFilter)} options={[
           ['all', '全部状态'], ['pass', 'pass'], ['review', 'review'], ['reject', 'reject'], ['missing', '无报告'],
         ]} />
+        <Filter label="人工验收" value={reviewFilter} onChange={(value) => setReviewFilter(value as ReviewFilter)} options={[
+          ['all', '全部状态'], ['incomplete', '证据未完整'], ['unreviewed', '尚未记录'], ['passed', '标记通过'], ['needs_changes', '待修订'],
+        ]} />
         <label className="flex h-10 items-center gap-2 border border-[#5c6b52]/25 bg-[#f7f5ef] px-3">
           <input type="checkbox" checked={riskOnly} onChange={(event) => setRiskOnly(event.target.checked)} />
           只看风险关
         </label>
-        <button type="button" onClick={() => { setChapter('all'); setAi('all'); setDifficulty('all'); setVerdict('all'); setRiskOnly(false) }} className="h-10 px-3 text-[#3d4a3a] underline">
+        <button type="button" onClick={() => { setChapter('all'); setAi('all'); setDifficulty('all'); setVerdict('all'); setReviewFilter('all'); setRiskOnly(false) }} className="h-10 px-3 text-[#3d4a3a] underline">
           重置筛选
         </button>
         <span className="ml-auto text-[#5c6b52]">显示 {filtered.length}/24</span>
@@ -251,11 +265,21 @@ function LevelCard({ level, review, report, baselineVerdict, selected, onSelect 
           {review?.status === 'passed' && !stale && <span className="bg-green-100 px-1.5 py-0.5 text-green-800">试玩通过</span>}
           {review?.status === 'needs_changes' && !stale && <span className="bg-red-100 px-1.5 py-0.5 text-red-800">待修订</span>}
           {stale && <span className="bg-amber-100 px-1.5 py-0.5 text-amber-900">需复核</span>}
+          {review && !reviewCompletion(review).complete && <span className="bg-amber-100 px-1.5 py-0.5 text-amber-900">证据 {reviewCompletion(review).completed}/{reviewCompletion(review).total}</span>}
           {(report?.verdict ?? baselineVerdict) && <VerdictBadge verdict={(report?.verdict ?? baselineVerdict)!} />}
         </div>
       </button>
     </article>
   )
+}
+
+function validationPriority(level: LevelConfig, reports: CandidateReportMap) {
+  const verdict = reports[level.id]?.verdict ?? CANDIDATE_BASELINE[level.id]?.verdict
+  const findings = reports[level.id]?.findings.map((finding) => finding.code) ?? CANDIDATE_BASELINE[level.id]?.findingCodes ?? []
+  if (verdict === 'reject') return 0
+  if (findings.includes('LONG_TAIL')) return 1
+  if (verdict === 'review') return 2
+  return 3
 }
 
 function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?: CandidateAcceptanceReport; baseline?: { verdict: CandidateVerdict; findingCodes: string[] } }) {

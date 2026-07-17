@@ -9,9 +9,15 @@ import {
   levelVersion,
   loadLevelReviews,
   parseLevelReviewsJson,
+  reviewCompletion,
   saveLevelReviews,
   type LevelReview,
   type LevelReviewMap,
+  type PlayerExperience,
+  type ReviewDevice,
+  type ReviewIssueCategory,
+  type ReviewSeverity,
+  type ReviewUnderstanding,
   type LevelReviewStatus,
 } from '@/lib/admin-level-reviews'
 
@@ -23,6 +29,7 @@ export function AdminPlayScreen({ level }: { level: LevelConfig }) {
   const [importError, setImportError] = useState(false)
   const current = reviews[level.id] ?? emptyReview(level.id, version)
   const stale = current.levelVersion !== version
+  const completion = reviewCompletion(current)
   const { prev, next } = adjacentLevels(level.id)
 
   useEffect(() => {
@@ -114,6 +121,9 @@ export function AdminPlayScreen({ level }: { level: LevelConfig }) {
           <section className="border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
             <h2 className="font-medium text-[#2c3328]">本关试玩反馈</h2>
             {stale && <p className="mt-2 bg-amber-100 p-2 text-xs text-amber-900">关卡配置已变化，旧反馈需要重新确认。</p>}
+            <p className={`mt-2 p-2 text-xs ${completion.complete ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-900'}`}>
+              验收证据 {completion.completed}/{completion.total} {completion.complete ? '· 字段完整' : '· 尚不能计入正式试玩通过'}
+            </p>
             <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
               <div><dt className="text-[#7a8574]">尝试次数</dt><dd>{current.attempts}</dd></div>
               <div><dt className="text-[#7a8574]">最近结果</dt><dd>{resultLabel(current)}</dd></div>
@@ -131,6 +141,19 @@ export function AdminPlayScreen({ level }: { level: LevelConfig }) {
               <select value={current.difficultyRating ?? ''} onChange={(event) => updateReview({ difficultyRating: event.target.value ? Number(event.target.value) as 1 | 2 | 3 | 4 | 5 : undefined })} className="h-10 border border-[#5c6b52]/25 bg-white px-3 text-sm text-[#2c3328]">
                 <option value="">未评分</option>{[1, 2, 3, 4, 5].map((value) => <option key={value} value={value}>{value}/5</option>)}
               </select>
+            </label>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <ReviewSelect label="验证设备" value={current.device ?? ''} onChange={(value) => updateReview({ device: value as ReviewDevice })} options={DEVICE_OPTIONS} />
+              <ReviewSelect label="玩家经验" value={current.playerExperience ?? ''} onChange={(value) => updateReview({ playerExperience: value as PlayerExperience })} options={EXPERIENCE_OPTIONS} />
+              <ReviewSelect label="策略理解" value={current.strategyUnderstanding ?? ''} onChange={(value) => updateReview({ strategyUnderstanding: value as ReviewUnderstanding })} options={UNDERSTANDING_OPTIONS} />
+              <ReviewSelect label="教学理解" value={current.teachingUnderstanding ?? ''} onChange={(value) => updateReview({ teachingUnderstanding: value as ReviewUnderstanding })} options={UNDERSTANDING_OPTIONS} />
+              <ReviewSelect label="棋盘识别" value={current.boardReadability ?? ''} onChange={(value) => updateReview({ boardReadability: value as ReviewUnderstanding })} options={UNDERSTANDING_OPTIONS} />
+              <ReviewSelect label="奖励理解" value={current.rewardUnderstanding ?? ''} onChange={(value) => updateReview({ rewardUnderstanding: value as ReviewUnderstanding })} options={UNDERSTANDING_OPTIONS} />
+              <ReviewSelect label="问题归因" value={current.issueCategory ?? ''} onChange={(value) => updateReview({ issueCategory: value as ReviewIssueCategory })} options={ISSUE_OPTIONS} />
+              <ReviewSelect label="严重性" value={current.severity ?? ''} onChange={(value) => updateReview({ severity: value as ReviewSeverity })} options={SEVERITY_OPTIONS} />
+            </div>
+            <label className="mt-3 grid gap-1 text-xs text-[#5c6b52]">复现步骤
+              <textarea value={current.reproduction ?? ''} onChange={(event) => updateReview({ reproduction: event.target.value })} rows={3} placeholder="有问题时记录：第几次尝试、关键走法、发生位置和预期结果。" className="border border-[#5c6b52]/25 bg-white p-3 text-sm text-[#2c3328]" />
             </label>
             <label className="mt-3 grid gap-1 text-xs text-[#5c6b52]">备注
               <textarea value={current.notes} onChange={(event) => updateReview({ notes: event.target.value })} rows={5} placeholder="记录策略是否看懂、卡住的位置和建议修改。" className="border border-[#5c6b52]/25 bg-white p-3 text-sm text-[#2c3328]" />
@@ -150,7 +173,21 @@ export function AdminPlayScreen({ level }: { level: LevelConfig }) {
 }
 
 function emptyReview(levelId: string, version: string): LevelReview {
-  return { levelId, levelVersion: version, status: 'unreviewed', attempts: 0, notes: '', reviewedAt: new Date().toISOString() }
+  return { levelId, levelVersion: version, status: 'unreviewed', attempts: 0, notes: '', reproduction: '', reviewedAt: new Date().toISOString() }
+}
+
+const UNDERSTANDING_OPTIONS = [['', '未记录'], ['clear', '清楚'], ['partial', '部分理解'], ['unclear', '不理解']]
+const DEVICE_OPTIONS = [['', '未记录'], ['mobile', '手机'], ['tablet', '平板'], ['desktop', '桌面']]
+const EXPERIENCE_OPTIONS = [['', '未记录'], ['new', '首次接触'], ['casual', '休闲玩家'], ['strategy', '策略游戏玩家']]
+const ISSUE_OPTIONS = [['', '未记录'], ['none', '无问题'], ['rule', '规则'], ['map_opening', '地图/开局'], ['sheep_ai', '羊 AI'], ['ui_guidance', '界面/教学'], ['reward', '奖励表达'], ['technical', '技术异常']]
+const SEVERITY_OPTIONS = [['', '未记录'], ['none', '无问题'], ['p0', 'P0 阻塞'], ['p1', 'P1 重要'], ['p2', 'P2 一般']]
+
+function ReviewSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: string[][] }) {
+  return <label className="grid gap-1 text-xs text-[#5c6b52]">{label}
+    <select value={value} onChange={(event) => onChange(event.target.value)} className="h-10 border border-[#5c6b52]/25 bg-white px-3 text-sm text-[#2c3328]">
+      {options.map(([id, text]) => <option key={id} value={id}>{text}</option>)}
+    </select>
+  </label>
 }
 
 function terminalReason(state: BoardState) {
