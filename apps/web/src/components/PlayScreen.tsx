@@ -53,6 +53,8 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const endChain = usePlayStore((s) => s.endChain)
   const reset = usePlayStore((s) => s.reset)
   const resumed = usePlayStore((s) => s.resumed)
+  const aiError = usePlayStore((s) => s.aiError)
+  const retryAi = usePlayStore((s) => s.retryAi)
 
   const save = useSaveStore((s) => s.save)
   const hydrated = useSaveStore((s) => s.hydrated)
@@ -367,10 +369,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
             : 'text-[var(--ink)]'
         }`}
       >
-        <span className="game-stat"><strong>{fmt(p.eaten, { n: state.eatenSheep })}</strong></span>
-        <span className="game-stat"><strong>{fmt(p.sheepLeft, { n: sheepLeft })}</strong></span>
+        <span className="game-stat flex-1 text-center sm:flex-none"><strong>{fmt(p.eaten, { n: state.eatenSheep })}</strong></span>
+        <span className="game-stat flex-1 text-center sm:flex-none"><strong>{fmt(p.sheepLeft, { n: sheepLeft })}</strong></span>
         <span
-          className={`inline-flex items-center gap-1.5 ${thinking ? 'font-medium text-[var(--muted)]' : ''}`}
+          className={`inline-flex w-full items-center justify-center gap-1.5 sm:w-auto ${thinking ? 'font-medium text-[var(--muted)]' : ''}`}
           aria-live="polite"
         >
           <span
@@ -413,6 +415,14 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           >
             {fmt(p.endChainCount, { n: state.chain.count })}
           </button>
+        </div>
+      )}
+
+      {uiPhase === 'error' && (
+        <div role="alert" className="grid gap-2 rounded-lg border border-[var(--danger)]/40 bg-[#fff8f5] p-3 text-center">
+          <p className="text-sm font-medium text-[#8b2e22]">{p.aiError}</p>
+          <p className="text-xs text-[var(--muted)]">{aiError ?? p.aiErrorFallback}</p>
+          <button type="button" onClick={retryAi} className="rounded-lg bg-[var(--accent)] px-4 py-3 text-sm font-medium text-[#f4f1ea]">{p.retryAi}</button>
         </div>
       )}
 

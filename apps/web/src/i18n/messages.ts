@@ -110,6 +110,9 @@ export type MessageTree = {
     wolfSelected: string
     selectWolfFirst: string
     invalidTarget: string
+    aiError: string
+    aiErrorFallback: string
+    retryAi: string
     noDrop: string
     firstClear: string
     repeatClear: string
@@ -293,6 +296,9 @@ export const en: MessageTree = {
     wolfSelected: 'Wolf selected. Green steps; red marks a capture.',
     selectWolfFirst: 'Select a wolf before choosing a destination.',
     invalidTarget: 'That point is not legal. Choose a green step or red capture.',
+    aiError: 'The sheep turn was interrupted.',
+    aiErrorFallback: 'The board is safe. Retry the same sheep turn.',
+    retryAi: 'Retry sheep turn',
     noDrop: 'No shards this clear',
     firstClear: 'First clear',
     repeatClear: 'Repeat clear',
@@ -481,6 +487,9 @@ export const zh: MessageTree = {
     wolfSelected: '已选中狼：绿点可走，红圈可吃。',
     selectWolfFirst: '请先点选一只狼，再选择落点。',
     invalidTarget: '这里不能走，请选择绿点或红圈位置。',
+    aiError: '羊方行动中断。',
+    aiErrorFallback: '当前棋盘已保留，可以重试同一个羊回合。',
+    retryAi: '重试羊回合',
     noDrop: '本次无碎片掉落',
     firstClear: '首次通关',
     repeatClear: '重复通关',

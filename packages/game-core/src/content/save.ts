@@ -213,26 +213,32 @@ export function applyClearToSave(
   level: LevelConfig,
   grant: DropGrant,
 ): SaveGame {
-  const clearedLevels = save.clearedLevels.includes(level.id)
+  const alreadyCleared = save.clearedLevels.includes(level.id)
+  const effectiveGrant: DropGrant = alreadyCleared && grant.firstClear
+    ? { universal: 0, season: {}, firstClear: false, doubled: grant.doubled }
+    : grant
+  const clearedLevels = alreadyCleared
     ? save.clearedLevels
     : [...save.clearedLevels, level.id]
 
   const season = { ...save.fragments.season }
-  for (const [k, v] of Object.entries(grant.season)) {
+  for (const [k, v] of Object.entries(effectiveGrant.season)) {
     const id = k as ChapterId
     season[id] = (season[id] ?? 0) + (v ?? 0)
   }
 
-  let quests = recordQuestMetric(save.quests, 'both', 'clears', 1)
-  if (grant.universal > 0) {
-    quests = recordQuestMetric(quests, 'both', 'fragments_earned', grant.universal)
+  let quests = alreadyCleared && grant.firstClear
+    ? save.quests
+    : recordQuestMetric(save.quests, 'both', 'clears', 1)
+  if (effectiveGrant.universal > 0) {
+    quests = recordQuestMetric(quests, 'both', 'fragments_earned', effectiveGrant.universal)
   }
 
   const next: SaveGame = {
     ...save,
     clearedLevels,
     fragments: {
-      universal: save.fragments.universal + grant.universal,
+      universal: save.fragments.universal + effectiveGrant.universal,
       season,
     },
     lastPlayedLevelId: level.id,

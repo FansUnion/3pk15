@@ -128,4 +128,20 @@ describe('save clear flow', () => {
     expect(grant.firstClear).toBe(false)
     expect(grant.universal).toBe(0)
   })
+
+  it('does not apply the same first-clear grant twice', () => {
+    const level = LEVELS[0]!
+    const grant = {
+      universal: 10,
+      season: { spring: 2 },
+      firstClear: true,
+      doubled: false,
+    } as const
+    const once = applyClearToSave(defaultSave(), level, grant)
+    const twice = applyClearToSave(once, level, grant)
+
+    expect(twice.fragments).toEqual(once.fragments)
+    expect(twice.clearedLevels).toEqual(once.clearedLevels)
+    expect(twice.quests).toEqual(once.quests)
+  })
 })

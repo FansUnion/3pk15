@@ -18,7 +18,7 @@ import { clearActiveGame, loadActiveGame, saveActiveGame, type ActiveGameConfig 
 export const FEEDBACK_MS = 200
 export const THINK_MS = 600
 
-export type UiPhase = 'playing' | 'animating' | 'aiThinking' | 'terminal'
+export type UiPhase = 'playing' | 'animating' | 'aiThinking' | 'terminal' | 'error'
 
 export type MoveHighlights = {
   steps: Pos[]
@@ -45,11 +45,13 @@ type PlayStore = {
   difficulty: Difficulty
   seed: number
   resumed: boolean
+  aiError: string | null
   init: (levelId: string, rocks: Pos[], difficulty: Difficulty, targetEaten?: number, maxPlies?: number, opening?: OpeningLayout, resume?: boolean) => void
   selectWolf: (wolfId: string | null) => void
   clickCell: (pos: Pos) => void
   endChain: () => void
   reset: () => void
+  retryAi: () => void
 }
 
 function highlightsFor(state: BoardState, wolfId: string | null): MoveHighlights {
@@ -124,6 +126,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
   difficulty: 'easy',
   seed: 1,
   resumed: false,
+  aiError: null,
 
   init(levelId, rocks, difficulty, targetEaten, maxPlies, opening, resume = true) {
     levelMeta = { levelId, rocks, difficulty, targetEaten, maxPlies, opening, resume }
@@ -143,6 +146,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
       difficulty,
       seed: Date.now() % 1_000_000,
       resumed: Boolean(restored),
+      aiError: null,
     })
     if (state.status === 'playing' && state.toMove === 'sheep') {
       void (async () => {
@@ -191,6 +195,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
         highlights: EMPTY_HIGHLIGHTS,
         uiPhase: 'animating',
         juice,
+        aiError: null,
       })
 
       await delay(FEEDBACK_MS)
@@ -225,6 +230,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
         highlights: highlightsFor(next, selected),
         uiPhase: 'playing',
         juice: null,
+        aiError: null,
       })
     })()
   },
@@ -267,6 +273,18 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     if (levelMeta.resume) clearActiveGame()
     get().init(levelMeta.levelId, levelMeta.rocks, levelMeta.difficulty, levelMeta.targetEaten, levelMeta.maxPlies, levelMeta.opening, levelMeta.resume)
   },
+
+  retryAi() {
+    const { state } = get()
+    if (state.status !== 'playing' || state.toMove !== 'sheep') return
+    const seq = ++turnSeq
+    set({ uiPhase: 'aiThinking', aiError: null, juice: null })
+    void (async () => {
+      await delay(THINK_MS)
+      if (seq !== turnSeq) return
+      await runAiTurn(get, set, seq)
+    })()
+  },
 }))
 
 async function runAiTurn(
@@ -301,6 +319,7 @@ async function runAiTurn(
       uiPhase: 'animating',
       juice,
       seed: seed + 1,
+      aiError: null,
     })
     await delay(FEEDBACK_MS)
     if (seq !== turnSeq) return
@@ -308,7 +327,9 @@ async function runAiTurn(
       uiPhase: next.status === 'playing' ? 'playing' : 'terminal',
       juice: null,
     })
-  } catch {
-    if (seq === turnSeq) set({ uiPhase: 'playing', juice: null })
+  } catch (error) {
+    if (seq === turnSeq) {
+      set({ uiPhase: 'error', juice: null, aiError: error instanceof Error ? error.message : 'AI turn failed' })
+    }
   }
 }
