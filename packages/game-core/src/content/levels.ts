@@ -575,7 +575,15 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '空盘寂静。没有岩石挡点，完全靠走位撕开合围。',
     blurbEn: 'Silent empty board. No rocks to lean on — only spacing can tear the surround.',
     rocks: [],
-    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 5 }] },
+    opening: {
+      wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 5 }],
+      sheep: [
+        { r: 1, c: 1 }, { r: 1, c: 2 }, { r: 1, c: 3 }, { r: 1, c: 4 },
+        { r: 2, c: 1 }, { r: 2, c: 2 }, { r: 2, c: 3 }, { r: 2, c: 4 }, { r: 2, c: 5 },
+        { r: 3, c: 1 }, { r: 3, c: 2 }, { r: 3, c: 3 }, { r: 3, c: 4 }, { r: 3, c: 5 }, { r: 3, c: 6 },
+      ],
+    },
+    openingTemplate: 'winter-silence-edge',
     teachingPoint: '没有岩石可借力时，用三狼间距撕开羊群合围。',
   }),
   L({
@@ -599,6 +607,14 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '四季终章。在绝境里打出干净的隔空连吃，证明你真正掌控猎场。',
     blurbEn: 'Season finale. Land clean gap-chains under pressure — prove you own the hunt.',
     rocks: [],
+    opening: {
+      sheep: [
+        { r: 1, c: 2 }, { r: 1, c: 3 }, { r: 1, c: 4 }, { r: 1, c: 5 }, { r: 1, c: 6 },
+        { r: 2, c: 2 }, { r: 2, c: 3 }, { r: 2, c: 4 }, { r: 2, c: 5 }, { r: 2, c: 6 },
+        { r: 3, c: 2 }, { r: 3, c: 3 }, { r: 3, c: 4 }, { r: 3, c: 5 }, { r: 3, c: 6 },
+      ],
+    },
+    openingTemplate: 'winter-last-stand-right',
     teachingPoint: '在空盘高压下保持覆盖，等待可连续兑现的隔空跳吃。',
   }),
   L({
@@ -624,7 +640,14 @@ export const LEVELS: LevelConfig[] = [
     blurbZh: '先保持三狼机动，再从边缘撕开第一条吃子线。',
     blurbEn: 'Keep three wolves mobile, then tear the first capture line from the edge.',
     rocks: [],
-    opening: { wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 6 }] },
+    opening: {
+      wolves: [{ r: 6, c: 1 }, { r: 6, c: 3 }, { r: 6, c: 6 }],
+      sheep: [
+        { r: 1, c: 2 }, { r: 1, c: 3 }, { r: 1, c: 4 }, { r: 1, c: 5 }, { r: 1, c: 6 },
+        { r: 2, c: 2 }, { r: 2, c: 3 }, { r: 2, c: 4 }, { r: 2, c: 5 }, { r: 2, c: 6 },
+        { r: 3, c: 2 }, { r: 3, c: 3 }, { r: 3, c: 4 }, { r: 3, c: 5 }, { r: 3, c: 6 },
+      ],
+    },
     openingTemplate: 'winter-ring-line',
     teachingPoint: '先建立合围位置，再投入第一条隔空跳吃路线。',
     expectedPlies: { min: 75, target: 195, max: 300 }, difficulty: 5,
