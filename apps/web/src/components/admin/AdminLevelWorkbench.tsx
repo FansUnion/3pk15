@@ -25,6 +25,12 @@ import type { CandidateAcceptanceReport, CandidateVerdict } from '@wolf-sheep/ga
 import { CANDIDATE_BASELINE, CANDIDATE_BASELINE_DATE } from '@/lib/candidate-baseline'
 import { buildCandidateReplay } from '@/lib/candidate-replay'
 import { saveCandidateHandoff } from '@/lib/candidate-handoff'
+import {
+  archiveCandidateCounterexample,
+  loadCandidateCounterexamples,
+  saveCandidateCounterexamples,
+  type CandidateCounterexample,
+} from '@/lib/candidate-counterexamples'
 
 type ChapterFilter = 'all' | ChapterId
 type AiFilter = 'all' | Difficulty
@@ -43,9 +49,15 @@ export function AdminLevelWorkbench() {
   const [reports, setReports] = useState<CandidateReportMap>({})
   const [reportText, setReportText] = useState('')
   const [reportError, setReportError] = useState(false)
+  const [candidateText, setCandidateText] = useState('')
+  const [candidateBusy, setCandidateBusy] = useState(false)
+  const [candidateError, setCandidateError] = useState('')
+  const [lastCandidateReport, setLastCandidateReport] = useState<CandidateAcceptanceReport | null>(null)
+  const [counterexamples, setCounterexamples] = useState<CandidateCounterexample[]>([])
   useEffect(() => {
     setReviews(loadLevelReviews())
     setReports(loadCandidateReports())
+    setCounterexamples(loadCandidateCounterexamples())
   }, [])
   const allErrors = useMemo(() => validateAllLevels(), [])
   const filtered = useMemo(() => LEVELS.filter((level) => (
@@ -81,6 +93,53 @@ export function AdminLevelWorkbench() {
     const anchor = document.createElement('a')
     anchor.href = href
     anchor.download = `fangrush-candidate-reports-${new Date().toISOString().slice(0, 10)}.json`
+    anchor.click()
+    URL.revokeObjectURL(href)
+  }
+
+  function loadSelectedCandidate() {
+    if (!selected) return
+    setCandidateText(JSON.stringify(selected, null, 2))
+    setCandidateError('')
+  }
+
+  async function runCandidate() {
+    if (!selected) return
+    setCandidateBusy(true)
+    setCandidateError('')
+    try {
+      const candidate = JSON.parse(candidateText)
+      const response = await fetch('/api/admin/candidate', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ baseLevelId: selected.id, candidate }),
+      })
+      const payload = await response.json()
+      if (!response.ok || !payload.ok) throw new Error(payload.error ?? '验收失败')
+      const report = payload.report as CandidateAcceptanceReport
+      setLastCandidateReport(report)
+      if (LEVELS.some((level) => level.id === report.levelId)) {
+        const nextReports = { ...reports, [report.levelId]: report }
+        setReports(nextReports)
+        saveCandidateReports(nextReports)
+      }
+      if (report.verdict !== 'pass') {
+        setCounterexamples(archiveCandidateCounterexample(payload.candidate as LevelConfig, report))
+      }
+    } catch (error) {
+      setCandidateError(error instanceof Error ? error.message : '候选 JSON 或验收请求失败')
+    } finally {
+      setCandidateBusy(false)
+    }
+  }
+
+  function exportCounterexamples() {
+    const blob = new Blob([JSON.stringify(counterexamples, null, 2)], { type: 'application/json' })
+    const href = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = href
+    anchor.download = `fangrush-counterexamples-${new Date().toISOString().slice(0, 10)}.json`
     anchor.click()
     URL.revokeObjectURL(href)
   }
@@ -132,6 +191,20 @@ export function AdminLevelWorkbench() {
         <textarea value={reportText} onChange={(event) => setReportText(event.target.value)} rows={5} className="mt-3 w-full border border-[#5c6b52]/25 bg-white p-3 font-mono text-xs" placeholder="粘贴候选验收 JSON" />
         {reportError && <p className="mt-2 text-xs text-red-700">报告格式无效，现有数据未改变。</p>}
         <div className="mt-2 flex gap-2"><button type="button" onClick={importReports} className="bg-[#3d4a3a] px-3 py-2 text-[#f4f1ea]">导入并替换</button><button type="button" onClick={exportReports} className="border border-[#3d4a3a] px-3 py-2 text-[#3d4a3a]">导出报告</button></div>
+      </details>
+
+      <details className="mt-4 border border-[#5c6b52]/20 bg-[#f7f5ef] p-4 text-sm">
+        <summary className="cursor-pointer font-medium text-[#2c3328]">候选配置运行与反例库 · {counterexamples.length} 条</summary>
+        <p className="mt-2 text-xs text-[#5c6b52]">以当前选中关卡为基线。建议每次只改一个主要变量；验收在服务端运行，不阻塞浏览器主线程。</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={loadSelectedCandidate} className="border border-[#3d4a3a] px-3 py-2 text-[#3d4a3a]">载入当前配置</button>
+          <button type="button" disabled={candidateBusy || !candidateText.trim()} onClick={() => void runCandidate()} className="bg-[#3d4a3a] px-3 py-2 text-[#f4f1ea] disabled:opacity-40">{candidateBusy ? '验收运行中...' : '运行候选验收'}</button>
+          <button type="button" disabled={counterexamples.length === 0} onClick={exportCounterexamples} className="border border-[#3d4a3a] px-3 py-2 text-[#3d4a3a] disabled:opacity-40">导出反例库</button>
+        </div>
+        <textarea value={candidateText} onChange={(event) => setCandidateText(event.target.value)} rows={10} className="mt-3 w-full border border-[#5c6b52]/25 bg-white p-3 font-mono text-xs" placeholder="先载入当前配置，再只修改一个变量" />
+        {candidateError && <p className="mt-2 bg-red-50 p-2 text-xs text-red-800">{candidateError}</p>}
+        {lastCandidateReport && <p className="mt-2 text-xs text-[#2c3328]">最近结果：<VerdictBadge verdict={lastCandidateReport.verdict} /> · findings {lastCandidateReport.findings.map((finding) => finding.code).join(', ') || 'none'}</p>}
+        {counterexamples.slice(-5).reverse().map((record) => <div key={record.id} className="mt-2 flex items-center justify-between gap-3 border-t border-[#5c6b52]/15 pt-2 text-xs"><span>{record.candidate.id} · {record.report.verdict} · {record.report.findings.map((finding) => finding.code).join(', ')}</span><button type="button" onClick={() => { const next = counterexamples.filter((item) => item.id !== record.id); setCounterexamples(next); saveCandidateCounterexamples(next) }} className="underline">删除</button></div>)}
       </details>
 
       <div className="mt-5 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_390px]">
