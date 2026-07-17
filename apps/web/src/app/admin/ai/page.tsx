@@ -1,7 +1,7 @@
 import { AiSimConsole } from '@/components/admin/AiSimConsole'
 
 type Props = {
-  searchParams: Promise<{ level?: string; diff?: string }>
+  searchParams: Promise<{ level?: string; diff?: string; seed?: string }>
 }
 
 export default async function AdminAiPage({ searchParams }: Props) {
@@ -14,7 +14,7 @@ export default async function AdminAiPage({ searchParams }: Props) {
         <code className="rounded bg-[#dfe8d8] px-1">pickSheepAction</code>
         ，结果默认不写存档。
       </p>
-      <AiSimConsole initialLevel={sp.level} initialDiff={sp.diff} />
+      <AiSimConsole initialLevel={sp.level} initialDiff={sp.diff} initialSeed={sp.seed} />
     </main>
   )
 }

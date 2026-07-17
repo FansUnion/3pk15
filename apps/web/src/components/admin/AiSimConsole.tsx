@@ -70,9 +70,10 @@ type ReplayData = {
 type Props = {
   initialLevel?: string
   initialDiff?: string
+  initialSeed?: string
 }
 
-export function AiSimConsole({ initialLevel, initialDiff }: Props) {
+export function AiSimConsole({ initialLevel, initialDiff, initialSeed }: Props) {
   const [state, setState] = useState(() => {
     const level = initialLevel ? getLevel(initialLevel) : undefined
     if (level) return createLevelInitialState(level)
@@ -85,7 +86,10 @@ export function AiSimConsole({ initialLevel, initialDiff }: Props) {
     const level = initialLevel ? getLevel(initialLevel) : undefined
     return level?.ai ?? 'easy'
   })
-  const [seed, setSeed] = useState(42)
+  const [seed, setSeed] = useState(() => {
+    const parsed = Number(initialSeed)
+    return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : 42
+  })
   const [placeMode, setPlaceMode] = useState<PlaceMode>('cycle')
   const [strict, setStrict] = useState(true)
   const [logs, setLogs] = useState<string[]>([])
