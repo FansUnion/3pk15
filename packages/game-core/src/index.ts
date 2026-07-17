@@ -58,6 +58,8 @@ export {
   validateSkinCatalog,
 } from './content/skins'
 export type { BoardSkin, SkinCatalogItem, WolfSetSkin } from './content/skins'
+export { getWolfStrategy, LEVEL_STRATEGIES, strategyName, WOLF_STRATEGIES } from './content/strategies'
+export type { LevelStrategyProfile, WolfStrategy, WolfStrategyId } from './content/strategies'
 export type {
   Action,
   ApplyResult,

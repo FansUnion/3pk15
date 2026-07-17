@@ -13,6 +13,7 @@ import {
   rollClearReward,
   validateAllLevels,
   validateLevel,
+  WOLF_STRATEGIES,
   deserialize,
   serialize,
 } from '../src/index'
@@ -59,6 +60,23 @@ describe('level table', () => {
       expect(levelTeachingPoint(level, 'zh')).toMatch(/[\u3400-\u9fff]/)
       expect(levelTeachingPoint(level, 'en')).toMatch(/[A-Za-z]/)
       expect(levelTeachingPoint(level, 'en')).not.toMatch(/[\u3400-\u9fff]/)
+    }
+  })
+
+  it('binds every level to two distinct documented strategies', () => {
+    expect(WOLF_STRATEGIES).toHaveLength(6)
+    for (const strategy of WOLF_STRATEGIES) {
+      expect(strategy.nameEn).toBeTruthy()
+      expect(strategy.nameZh).toBeTruthy()
+      expect(strategy.signalEn).toBeTruthy()
+      expect(strategy.signalZh).toBeTruthy()
+      expect(strategy.mistakeEn).toBeTruthy()
+      expect(strategy.mistakeZh).toBeTruthy()
+    }
+    for (const level of LEVELS) {
+      expect(level.strategy.primary).not.toBe(level.strategy.secondary)
+      expect(WOLF_STRATEGIES.some((item) => item.id === level.strategy.primary)).toBe(true)
+      expect(WOLF_STRATEGIES.some((item) => item.id === level.strategy.secondary)).toBe(true)
     }
   })
 

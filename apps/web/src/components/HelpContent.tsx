@@ -1,6 +1,7 @@
 import type { MessageTree } from '@/i18n/messages'
+import { WOLF_STRATEGIES } from '@wolf-sheep/game-core'
 
-export function HelpContent({ h, compact = false }: { h: MessageTree['howTo']; compact?: boolean }) {
+export function HelpContent({ h, locale, compact = false }: { h: MessageTree['howTo']; locale: 'en' | 'zh'; compact?: boolean }) {
   const ruleSections = [
     [h.winTitle, h.winBody],
     [h.moveTitle, h.moveBody],
@@ -35,9 +36,14 @@ export function HelpContent({ h, compact = false }: { h: MessageTree['howTo']; c
       {!compact && (
         <section>
           <h2 className="font-serif text-xl text-[var(--ink)]">{h.strategyTitle}</h2>
-          <ul className="mt-3 grid gap-2 text-sm leading-relaxed text-[var(--muted)]">
-            {h.strategyBody.map((item) => <li key={item} className="border-l-2 border-[var(--line)] pl-3">{item}</li>)}
-          </ul>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {WOLF_STRATEGIES.map((item) => (
+              <article key={item.id} className="border-l-2 border-[var(--line)] pl-3">
+                <h3 className="font-medium text-[var(--ink)]">{locale === 'zh' ? item.nameZh : item.nameEn}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">{locale === 'zh' ? item.summaryZh : item.summaryEn}</p>
+              </article>
+            ))}
+          </div>
         </section>
       )}
     </div>

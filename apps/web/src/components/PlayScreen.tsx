@@ -9,6 +9,7 @@ import {
   isDoubleDropActive,
   levelDisplayName,
   levelTeachingPoint,
+  getWolfStrategy,
   boardPositionKey,
   listWolfActionsAsIfTurn,
   recordPlayStarted,
@@ -284,10 +285,14 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           : p.guideFindCapture
     : p.tip
   const failureStreak = save.guide.failureStreak[level.id] ?? 0
+  const primaryStrategy = getWolfStrategy(level.strategy.primary)
+  const secondaryStrategy = getWolfStrategy(level.strategy.secondary)
   const guidancePoints = [
-    levelTeachingPoint(level, locale),
-    locale === 'zh' ? level.playerGoalZh : levelTeachingPoint(level, locale),
-    locale === 'zh' ? level.wolfStrategyZh : levelTeachingPoint(level, locale),
+    `${levelTeachingPoint(level, locale)} ${locale === 'zh' ? primaryStrategy.signalZh : primaryStrategy.signalEn}`,
+    locale === 'zh' ? level.playerGoalZh : primaryStrategy.objectiveEn,
+    locale === 'zh'
+      ? `${level.wolfStrategyZh} 辅助原则：${secondaryStrategy.summaryZh}`
+      : `${primaryStrategy.summaryEn} Support principle: ${secondaryStrategy.summaryEn}`,
   ]
   const hintTemplates = [p.hintObserve, p.hintGoal, p.hintStrategy]
 
@@ -604,7 +609,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               <h2 id="field-help-title" className="font-serif text-xl text-[var(--ink)]">{p.helpTitle}</h2>
               <button type="button" onClick={() => setHelpOpen(false)} className="quiet-action min-h-10 px-3 text-sm">{p.hintClose}</button>
             </div>
-            <HelpContent h={t.howTo} compact />
+            <HelpContent h={t.howTo} locale={locale} compact />
           </div>
         </div>
       )}

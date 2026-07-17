@@ -7,6 +7,7 @@ import {
   DEFAULT_WOLF_OPENING,
   listLegalActions,
 } from '../rules'
+import { LEVEL_STRATEGIES, type LevelStrategyProfile } from './strategies'
 
 export type ChapterId = 'spring' | 'summer' | 'autumn' | 'winter'
 
@@ -39,6 +40,7 @@ export type LevelConfig = {
   sheepDefenseZh: string
   riskTags: string[]
   productionStatus: 'approved' | 'needs_changes'
+  strategy: LevelStrategyProfile
   firstClearReward: {
     universal?: number
     season?: Partial<Record<ChapterId, number>>
@@ -193,6 +195,9 @@ export function validateLevel(level: LevelConfig): string[] {
   if (!allowedAi[level.chapterId].includes(level.ai)) {
     errors.push(`ai ${level.ai} is not allowed for ${level.chapterId}`)
   }
+  if (!level.strategy || level.strategy.primary === level.strategy.secondary) {
+    errors.push('level must have distinct primary and secondary strategies')
+  }
 
   if (level.targetEaten !== undefined && (!Number.isInteger(level.targetEaten) || level.targetEaten < 1 || level.targetEaten > 15)) {
     errors.push('targetEaten must be an integer between 1 and 15')
@@ -268,7 +273,7 @@ export function validateLevel(level: LevelConfig): string[] {
 }
 
 function L(
-  partial: Omit<LevelConfig, 'ai' | 'firstClearReward' | 'repeatDrop' | 'name' | keyof LevelProductMeta> & {
+  partial: Omit<LevelConfig, 'ai' | 'firstClearReward' | 'repeatDrop' | 'name' | 'strategy' | keyof LevelProductMeta> & {
     ai?: Difficulty
     firstClearReward?: LevelConfig['firstClearReward']
     repeatDrop?: LevelConfig['repeatDrop']
@@ -295,6 +300,7 @@ function L(
   return {
     ...partial,
     ...LEVEL_PRODUCT_META[partial.id]!,
+    strategy: LEVEL_STRATEGIES[partial.id]!,
     name: partial.nameZh,
     ai: partial.ai ?? CHAPTER_AI[partial.chapterId],
     targetEaten: partial.targetEaten ?? 8,

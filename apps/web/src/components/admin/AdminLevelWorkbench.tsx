@@ -6,6 +6,7 @@ import {
   CHAPTER_LABEL,
   CHAPTER_ORDER,
   createLevelInitialState,
+  getWolfStrategy,
   LEVELS,
   validateAllLevels,
   type ChapterId,
@@ -262,6 +263,8 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
   const replayGame = report?.games.find((game) => game.strategy === 'mixed' && game.seed === replaySeed)
   const replay = useMemo(() => replayGame ? buildCandidateReplay(level, replayGame.trace) : null, [level, replayGame])
   const [replayIndex, setReplayIndex] = useState(0)
+  const primaryStrategy = getWolfStrategy(level.strategy.primary)
+  const secondaryStrategy = getWolfStrategy(level.strategy.secondary)
 
   useEffect(() => setReplayIndex(0), [replaySeed])
 
@@ -280,6 +283,10 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
       <DetailText label="设计理念" text={level.designConceptZh} />
       <DetailText label="玩家体验目标" text={level.playerGoalZh} />
       <DetailText label="狼方策略" text={level.wolfStrategyZh} />
+      <DetailText label="主策略" text={`${primaryStrategy.nameZh}：${primaryStrategy.summaryZh}`} />
+      <DetailText label="辅助策略" text={`${secondaryStrategy.nameZh}：${secondaryStrategy.summaryZh}`} />
+      <DetailText label="盘面信号" text={primaryStrategy.signalZh} />
+      <DetailText label="常见错误" text={primaryStrategy.mistakeZh} />
       <DetailText label="羊方防守" text={level.sheepDefenseZh} />
       <DetailText label="前台教学说明" text={level.teachingPoint ?? ''} />
       {report && (

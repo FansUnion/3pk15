@@ -37,7 +37,7 @@ export default async function HowToPlayPage() {
           <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{h.intro}</p>
         </header>
 
-        <HelpContent h={h} />
+        <HelpContent h={h} locale={locale} />
 
         <section className="border-t border-[var(--line)] pt-5">
           <h2 className="font-serif text-xl text-[var(--ink)]">{h.saveTitle}</h2>
