@@ -151,6 +151,10 @@ export default function AdminChecklistPage() {
       <p className="mt-2 text-sm text-[#2c3328]">
         进度 {done}/{ITEMS.length}
       </p>
+      <section className="mt-4 border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
+        <h2 className="font-medium text-[#2c3328]">自动发布门禁</h2>
+        <p className="mt-1 text-xs leading-relaxed text-[#5c6b52]">运行 <code className="bg-[#dfe8d8] px-1">pnpm release:check</code>，依次检查核心规则与24关、Web故障恢复、公共资源和生产构建；任一失败立即停止。</p>
+      </section>
 
       <div className="mt-6 space-y-6">
         {groups.map((g) => (
