@@ -98,3 +98,12 @@ export type { AiContext, HardBudgets, HardPickMeta, Rng } from './ai/index'
 export { pickHardWithMeta } from './ai/index'
 export { evaluate, evaluateScore } from './ai/evaluate'
 export type { EvalBreakdown } from './ai/evaluate'
+export { assessLevelCandidate } from './analysis/candidateAcceptance'
+export type {
+  CandidateAcceptanceOptions,
+  CandidateAcceptanceReport,
+  CandidateFinding,
+  CandidateGameEvidence,
+  CandidateVerdict,
+  CandidateWolfStrategy,
+} from './analysis/candidateAcceptance'
