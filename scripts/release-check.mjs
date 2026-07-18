@@ -11,6 +11,8 @@ const gates = [
   ['player boundaries', ['check:player-boundaries']],
   ['public assets', ['--filter', '@wolf-sheep/web', 'check:assets']],
   ['production build', ['build:standalone']],
+  ['player artifact', ['audit:player-artifact']],
+  ['player external boundary', ['audit:player-portal']],
 ]
 const results = []
 

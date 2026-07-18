@@ -2,15 +2,17 @@
 
 ## 1. 目标
 
-`apps/web` 生成三类 Web 构建：
+正式玩家构建由 `apps/player-web` 生成。`apps/web` 保留为完整开发入口和 Admin 工具。
+
+玩家构建命令：
 
 | 命令 | 目标 | 广告 | Admin |
 |---|---|---|---|
-| `pnpm build:standalone` | 独立站生产 Demo | 关闭 | 关闭 |
-| `pnpm build:poki` | Poki 平台构建边界 | 仅保留平台适配入口 | 关闭 |
-| `pnpm build:crazygames` | CrazyGames 平台构建边界 | 仅保留平台适配入口 | 关闭 |
+| `pnpm build:standalone` | 独立站生产 Demo | 关闭 | 物理排除 |
+| `pnpm build:poki` | Poki 平台构建边界 | 仅保留平台适配入口 | 物理排除 |
+| `pnpm build:crazygames` | CrazyGames 平台构建边界 | 仅保留平台适配入口 | 物理排除 |
 
-`build:poki` 和 `build:crazygames` 当前只是平台构建变体，不代表真实 SDK 已接入。
+真实 SDK 仍未接入；平台构建只表示玩家入口和包体边界已经独立。
 
 ## 2. 本地开发
 
