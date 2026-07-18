@@ -9,6 +9,7 @@ import {
 } from './config/locales'
 
 export function middleware(request: NextRequest) {
+  if (process.env.NEXT_PUBLIC_APP_SHELL === 'portal') return NextResponse.next()
   const { pathname } = request.nextUrl
   if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.includes('.')) {
     return NextResponse.next()

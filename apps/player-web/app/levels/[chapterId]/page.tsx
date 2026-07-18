@@ -13,6 +13,10 @@ import {
 import { LevelList } from '@/components/LevelList'
 import { getT } from '@/i18n/get-locale'
 
+export function generateStaticParams() {
+  return CHAPTER_ORDER.map((chapterId) => ({ chapterId }))
+}
+
 export async function generateMetadata({
   params,
 }: {

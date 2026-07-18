@@ -8,6 +8,7 @@ import {
 import { getMessages, type MessageTree } from '@/i18n/messages'
 
 export async function getRequestLocale(): Promise<SupportedLocale> {
+  if (process.env.NEXT_PUBLIC_APP_SHELL === 'portal') return 'en'
   const h = await headers()
   const fromMw = h.get('x-locale')
   if (fromMw === 'en' || fromMw === 'zh') return fromMw
