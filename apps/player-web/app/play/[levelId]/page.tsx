@@ -1,11 +1,15 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { getLevel, levelDisplayName } from '@wolf-sheep/game-core'
+import { getLevel, levelDisplayName, LEVELS } from '@wolf-sheep/game-core'
 import { PlayScreen } from '@/components/PlayScreen'
 import { getT } from '@/i18n/get-locale'
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
+}
+
+export function generateStaticParams() {
+  return LEVELS.map((level) => ({ levelId: level.id }))
 }
 
 export default async function PlayPage({
