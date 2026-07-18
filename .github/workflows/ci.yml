@@ -24,5 +24,32 @@ jobs:
           cache: pnpm
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
-      - name: Run the canonical release gate
-        run: pnpm release:check
+      - name: Core tests
+        run: pnpm release:check -- --only=core-tests
+      - name: Core typecheck
+        run: pnpm release:check -- --only=core-types
+      - name: Player tests
+        run: pnpm release:check -- --only=player-tests
+      - name: Admin tests
+        run: pnpm release:check -- --only=admin-tests
+      - name: Architecture and deployment boundaries
+        run: |
+          pnpm release:check -- --only=platform-boundaries
+          pnpm release:check -- --only=player-boundaries
+          pnpm release:check -- --only=source-boundaries
+          pnpm release:check -- --only=deployment-contract
+      - name: Public assets and skins
+        run: |
+          pnpm release:check -- --only=assets
+          pnpm release:check -- --only=skins
+      - name: Player production build
+        run: pnpm release:check -- --only=player-build
+      - name: Player artifact gates
+        run: |
+          pnpm release:check -- --only=player-report
+          pnpm release:check -- --only=player-artifact
+          pnpm release:check -- --only=external-boundary
+      - name: Admin production build
+        run: pnpm release:check -- --only=admin-build
+      - name: Admin artifact gate
+        run: pnpm release:check -- --only=admin-artifact

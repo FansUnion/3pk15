@@ -4,27 +4,33 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const gates = [
-  ['game-core tests', ['--filter', '@wolf-sheep/game-core', 'test']],
-  ['game-core typecheck', ['--filter', '@wolf-sheep/game-core', 'lint']],
-  ['player tests', ['--filter', '@wolf-sheep/player-web', 'test', '--', '--reporter=verbose']],
-  ['admin tests', ['--filter', '@wolf-sheep/admin', 'test', '--', '--reporter=verbose']],
-  ['platform boundaries', ['check:platform-boundaries']],
-  ['player boundaries', ['check:player-boundaries']],
-  ['application source boundaries', ['check:app-source-boundaries']],
-  ['deployment contract', ['check:deployment-contract']],
-  ['public assets', ['--filter', '@wolf-sheep/web-assets', 'check']],
-  ['skin catalog', ['check:skins']],
-  ['production build', ['build:standalone']],
-  ['player build report', ['report:player-build', '--', '--expect=standalone']],
-  ['player artifact', ['audit:player-artifact']],
-  ['player external boundary', ['audit:player-portal']],
-  ['admin production build', ['build:admin']],
-  ['admin artifact', ['audit:admin-artifact']],
+const allGates = [
+  ['core-tests', 'game-core tests', ['--filter', '@wolf-sheep/game-core', 'test']],
+  ['core-types', 'game-core typecheck', ['--filter', '@wolf-sheep/game-core', 'lint']],
+  ['player-tests', 'player tests', ['--filter', '@wolf-sheep/player-web', 'test', '--', '--reporter=verbose']],
+  ['admin-tests', 'admin tests', ['--filter', '@wolf-sheep/admin', 'test', '--', '--reporter=verbose']],
+  ['platform-boundaries', 'platform boundaries', ['check:platform-boundaries']],
+  ['player-boundaries', 'player boundaries', ['check:player-boundaries']],
+  ['source-boundaries', 'application source boundaries', ['check:app-source-boundaries']],
+  ['deployment-contract', 'deployment contract', ['check:deployment-contract']],
+  ['assets', 'public assets', ['--filter', '@wolf-sheep/web-assets', 'check']],
+  ['skins', 'skin catalog', ['check:skins']],
+  ['player-build', 'production build', ['build:standalone']],
+  ['player-report', 'player build report', ['report:player-build', '--', '--expect=standalone']],
+  ['player-artifact', 'player artifact', ['audit:player-artifact']],
+  ['external-boundary', 'player external boundary', ['audit:player-portal']],
+  ['admin-build', 'admin production build', ['build:admin']],
+  ['admin-artifact', 'admin artifact', ['audit:admin-artifact']],
 ]
+const only = process.argv.find((arg) => arg.startsWith('--only='))?.slice('--only='.length)
+const gates = only ? allGates.filter(([id]) => id === only) : allGates
+if (only && gates.length === 0) {
+  console.error(`Unknown release gate: ${only}`)
+  process.exit(2)
+}
 const results = []
 
-for (const [name, args] of gates) {
+for (const [, name, args] of gates) {
   const started = Date.now()
   console.log(`\n=== ${name} ===`)
   const command = process.platform === 'win32' ? (process.env.ComSpec ?? 'cmd.exe') : 'pnpm'
