@@ -111,6 +111,11 @@ export type MessageTree = {
     mute: string
     unmute: string
     exit: string
+    more: string
+    moreTitle: string
+    restart: string
+    nextPreview: string
+    difficulty: string
     guideTitle: string
     guideStep1: string
     guideStep2: string
@@ -183,15 +188,15 @@ export type MessageTree = {
 
 export const en: MessageTree = {
   meta: {
-    title: 'Fangrush — Combo board hunt with 3 wolves',
+    title: 'Fangrush | A 3-wolf strategy board game',
     description:
-      'Command 3 wolves. Gap-rush sheep on a 6×6 board, chain eats, crack lines with rocks across four seasons.',
-    og: 'Fangrush: gap-rush the flock. Chain hunts. Seasonal boards.',
+      'Command three wolves against fifteen AI sheep. Leap across one empty point to capture and master 24 seasonal hunts.',
+    og: 'Command three wolves, outmaneuver the flock, and master 24 seasonal hunts.',
   },
   brand: {
     name: 'Fangrush',
     subtitle: '',
-    tagline: 'Command 3 wolves. Gap-rush the flock in chains — break lines with rocks.',
+    tagline: 'Command three wolves. Outmaneuver the flock. Chain the hunt.',
     support: '6×6 point board · chain up to 5 · seasonal hunts',
   },
   nav: {
@@ -212,7 +217,7 @@ export const en: MessageTree = {
     howTitle: 'How to play',
     how: [
       'Select a wolf and step to an empty adjacent point.',
-      'Gap-eat: wolf — empty — sheep on a line; land on the sheep.',
+      'Leap-capture: wolf — empty — sheep on a line; land on the sheep.',
       'Chain up to 5 eats per turn — or end the chain early.',
       'Eat 8 sheep to clear; lose if all three wolves have no moves.',
     ],
@@ -246,17 +251,17 @@ export const en: MessageTree = {
   howTo: {
     title: 'How to play Fangrush',
     metaDescription:
-      'Learn Fangrush rules: gap-eat, chain captures up to 5, rocks, and seasonal hunts. Play free in the browser.',
+      'Learn Fangrush rules: leap across one empty point to capture, chain up to 5 times, and navigate rock-blocked seasonal boards.',
     intro:
       'Fangrush is an asymmetric board hunt: you command three wolves against fifteen sheep on a 6×6 point grid.',
     winTitle: 'Win and lose',
     winBody: 'Eat 8 sheep to clear the level. You lose if all three wolves have no legal moves.',
-    moveTitle: 'Move and gap-eat',
+    moveTitle: 'Move and leap-capture',
     moveBody:
-      'Wolves step orthogonally to an empty adjacent point. Gap-eat when wolf — empty — sheep share a line: land on the sheep and remove it.',
+      'Wolves step orthogonally to an empty adjacent point. Leap-capture when wolf — empty — sheep share a line: land on the sheep and remove it.',
     chainTitle: 'Chain captures',
     chainBody:
-      'After a gap-eat you may chain further eats up to 5 times in one turn, or end the chain early to keep position.',
+      'After a leap-capture you may capture again, up to 5 times in one turn, or stop early to keep a safer position.',
     sheepTitle: 'Sheep AI',
     sheepBody:
       'Sheep move by AI, never capture, and cannot retreat toward row 1. Wait for their turn before you move again.',
@@ -276,8 +281,8 @@ export const en: MessageTree = {
     ],
     diagramTitle: 'Board examples',
     diagramMove: 'Step: wolf moves one point orthogonally into an empty point.',
-    diagramCapture: 'Gap-capture: wolf, one empty point, then sheep on the same line; land on the sheep.',
-    diagramLegend: 'W = wolf · S = sheep · # = rock · . = empty point',
+    diagramCapture: 'Leap-capture: when wolf, empty point, and sheep share a line, tap the sheep to land there and capture it.',
+    diagramLegend: 'The examples use the same wolves, sheep, rocks, and action highlights as the live board.',
     ctaSpring: 'Play Spring · Open Meadow',
     ctaChapters: 'Browse seasonal hunts',
     faqTitle: 'FAQ',
@@ -336,12 +341,17 @@ export const en: MessageTree = {
       repetition: 'threefold repetition',
       unexpected: 'unexpected ending',
     },
-    tip: 'Green = step · Red ring on sheep = gap-eat',
-    reset: 'Reset',
+    tip: 'Select a wolf. Tap a green empty point to move, or a red-ringed sheep to capture.',
+    reset: 'Restart',
     resetConfirm: 'Tap again',
     mute: 'Mute',
     unmute: 'Unmute',
-    exit: 'Exit',
+    exit: 'Leave hunt',
+    more: 'More',
+    moreTitle: 'Hunt options',
+    restart: 'Restart hunt',
+    nextPreview: 'Up next',
+    difficulty: 'Difficulty {n}/5',
     guideTitle: 'Spring lesson',
     guideStep1: 'Select a dark wolf, then tap a green empty point to step.',
     guideStep2:
@@ -353,9 +363,9 @@ export const en: MessageTree = {
     guideMoveGreen: 'Now tap a green point to move that wolf.',
     guideWaitSheep: 'The sheep are responding. Wait for your turn.',
     guideFindCapture: 'Keep the side wolves mobile. Look for a red-ringed sheep to make your first capture.',
-    wolfSelected: 'Wolf selected. Green steps; red marks a capture.',
+    wolfSelected: 'Wolf selected. Tap a green empty point to move, or a red-ringed sheep to capture.',
     selectWolfFirst: 'Select a wolf before choosing a destination.',
-    invalidTarget: 'That point is not legal. Choose a green step or red capture.',
+    invalidTarget: 'That point is not legal. Tap a green empty point or a red-ringed sheep.',
     aiError: 'The sheep turn was interrupted.',
     aiErrorFallback: 'The board is safe. Retry the same sheep turn.',
     retryAi: 'Retry sheep turn',
@@ -443,13 +453,13 @@ export const en: MessageTree = {
 export const zh: MessageTree = {
   meta: {
     title: '三狼连猎 · Fangrush',
-    description: '操控三狼，隔空连吃破阵，借岩石闯关四季猎场。网页免费玩。',
+    description: '操控三狼对阵十五只 AI 羊，隔空连吃，挑战四季 24 关。网页免费玩。',
     og: '三狼连猎：隔空连吃，四季闯关。',
   },
   brand: {
     name: 'Fangrush',
     subtitle: '三狼连猎',
-    tagline: '操控三狼，隔空连吃破阵，借岩石通关四季猎场。',
+    tagline: '操控三狼，隔空连吃破阵，闯过四季猎场。',
     support: '6×6 交点棋盘 · 连吃最多 5 次 · 四季闯关',
   },
   nav: {
@@ -527,7 +537,7 @@ export const zh: MessageTree = {
     diagramMove: '普通移动：狼横向或纵向走一格，落到相邻空点。',
     diagramCapture: '隔空吃：同线「狼—空—羊」，狼落到羊位并移除羊。',
     diagramLegend: 'W = 狼 · S = 羊 · # = 岩石 · . = 空点',
-    ctaSpring: '去春日 · 空野',
+    ctaSpring: '去春日 01 · 初猎之野',
     ctaChapters: '浏览四季猎场',
     faqTitle: '常见问题',
   },
@@ -585,12 +595,17 @@ export const zh: MessageTree = {
       repetition: '三次重复局面',
       unexpected: '异常终局',
     },
-    tip: '绿点走空格 · 红圈在羊上即隔空吃',
-    reset: '重置',
+    tip: '先选一只狼。点绿色空位移动；点红圈中的羊捕食。',
+    reset: '重新开始',
     resetConfirm: '再点确认',
     mute: '静音',
     unmute: '取消静音',
-    exit: '退出',
+    exit: '退出本局',
+    more: '更多',
+    moreTitle: '本局选项',
+    restart: '重新开始本局',
+    nextPreview: '下一关',
+    difficulty: '难度 {n}/5',
     guideTitle: '春日第一课',
     guideStep1: '点选深色狼，再点绿色高亮空格，即可走一格。',
     guideStep2: '隔空吃：同线「狼—空—羊」时，点红圈羊或中间空即可冲吃。连吃可继续，最多 5 次。',
@@ -601,9 +616,9 @@ export const zh: MessageTree = {
     guideMoveGreen: '现在点绿色空点，让这只狼走一步。',
     guideWaitSheep: '羊群正在回应，等它走完再操作。',
     guideFindCapture: '保持两侧狼能走，寻找带红圈的羊，完成第一次隔空吃。',
-    wolfSelected: '已选中狼：绿点可走，红圈可吃。',
+    wolfSelected: '已选中狼：点绿色空位移动；点红圈中的羊捕食。',
     selectWolfFirst: '请先点选一只狼，再选择落点。',
-    invalidTarget: '这里不能走，请选择绿点或红圈位置。',
+    invalidTarget: '这里不能走。请点绿色空位，或点红圈中的羊。',
     aiError: '羊方行动中断。',
     aiErrorFallback: '当前棋盘已保留，可以重试同一个羊回合。',
     retryAi: '重试羊回合',

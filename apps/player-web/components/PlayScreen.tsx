@@ -26,7 +26,7 @@ import {
 } from '@wolf-sheep/game-core'
 import { BoardSvg } from '@/components/BoardSvg'
 import { HelpContent } from '@/components/HelpContent'
-import { LocaleLink } from '@/components/LocaleSwitcher'
+import { LocaleLink, LocaleSwitcher } from '@/components/LocaleSwitcher'
 import { getPlatform } from '@/lib/platform'
 import { shareResult, type ShareOutcome } from '@/lib/share-result'
 import { usePlayStore } from '@/lib/play-store'
@@ -83,6 +83,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const [guideStep, setGuideStep] = useState(0)
   const [helpOpen, setHelpOpen] = useState(false)
   const [hintOpen, setHintOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
   const [hintLevel, setHintLevel] = useState(0)
   const [resetArmed, setResetArmed] = useState(false)
   const resetArmTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -430,6 +431,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     if (!adminMode) getPlatform().gameplayStop()
     gameplayStartedRef.current = false
     setResetArmed(false)
+    setMoreOpen(false)
     rewardedRef.current = false
     playCountedRef.current = false
     terminalReportedRef.current = false
@@ -640,13 +642,19 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           {!adminMode && <p className="mt-2 text-xs text-[#7a8574]">{fmt(p.universal, { n: save.fragments.universal })}</p>}
           <div className="mt-4 flex flex-col items-center gap-2">
             {!adminMode && state.status === 'won' && nextLevel && nextLevel.chapterId === level.chapterId && (
-              <LocaleLink
-                href={`/play/${nextLevel.id}`}
-                locale={locale}
-                className="primary-action w-full max-w-xs justify-center text-center"
-              >
-                {p.nextLevel}
-              </LocaleLink>
+              <div className="w-full max-w-xs rounded-lg border border-[var(--line)] bg-[var(--paper)] p-3 text-left">
+                <p className="eyebrow">{p.nextPreview}</p>
+                <p className="mt-1 font-serif text-lg text-[var(--ink)]">{levelDisplayName(nextLevel, locale)}</p>
+                <p className="mt-1 text-xs leading-relaxed text-[var(--muted)]">{levelTeachingPoint(nextLevel, locale)}</p>
+                <p className="mt-2 text-xs font-medium text-[var(--ink)]">{fmt(p.difficulty, { n: nextLevel.difficulty ?? 3 })}</p>
+                <LocaleLink
+                  href={`/play/${nextLevel.id}`}
+                  locale={locale}
+                  className="primary-action mt-3 w-full justify-center text-center"
+                >
+                  {p.nextLevel}
+                </LocaleLink>
+              </div>
             )}
             <button
               type="button"
@@ -713,34 +721,46 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
         </div>
       )}
 
-      <footer className="mt-auto grid grid-cols-5 items-center rounded-2xl border border-[var(--line)] bg-[var(--paper)]/75 pt-1 shadow-sm">
-        <button type="button" onClick={() => setHelpOpen(true)} className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm">{p.help}</button>
+      <footer className="mt-auto grid grid-cols-3 items-center rounded-xl border border-[var(--line)] bg-[var(--paper)]/90 p-1 shadow-sm">
         <button type="button" onClick={openHint} className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm">{p.hint}</button>
         <button
           type="button"
-          onClick={confirmReset}
-          className={`min-h-11 rounded-lg px-1 py-2 text-xs active:scale-[0.97] sm:text-sm ${
-            resetArmed ? 'bg-[#e8c4b8]/50 font-medium text-[#8b2e22]' : 'text-[var(--ink)]'
-          }`}
+          onClick={() => setHelpOpen(true)}
+          className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm"
         >
-          {resetArmed ? p.resetConfirm : p.reset}
+          {p.help}
         </button>
-        <button
-          type="button"
-          onClick={toggleMute}
-          className="min-h-11 rounded-lg px-1 py-2 text-xs text-[var(--ink)] active:scale-[0.97] sm:text-sm"
-          aria-pressed={muted}
-        >
-          {muted ? p.unmute : p.mute}
-        </button>
-        <LocaleLink
-          href={adminMode ? '/admin/levels' : '/'}
-          locale={locale}
-          className="inline-flex min-h-11 items-center justify-center rounded-lg px-1 py-2 text-xs text-[var(--ink)] sm:text-sm"
-        >
-          {p.exit}
-        </LocaleLink>
+        <button type="button" onClick={() => setMoreOpen(true)} className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm">{p.more}</button>
       </footer>
+
+      {moreOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center">
+          <div role="dialog" aria-modal="true" aria-labelledby="hunt-more-title" className="w-full max-w-sm rounded-xl bg-[var(--panel)] p-5 shadow-lg">
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="hunt-more-title" className="font-serif text-xl text-[var(--ink)]">{p.moreTitle}</h2>
+              <button type="button" onClick={() => setMoreOpen(false)} className="quiet-action min-h-10 px-3 text-sm">{p.hintClose}</button>
+            </div>
+            <div className="mt-4 grid gap-2">
+              <button
+                type="button"
+                onClick={confirmReset}
+                className={`min-h-11 rounded-lg border px-3 py-2 text-left text-sm ${
+                  resetArmed ? 'border-[var(--danger)] bg-[#e8c4b8]/50 font-medium text-[#8b2e22]' : 'border-[var(--line)] text-[var(--ink)]'
+                }`}
+              >
+                {resetArmed ? p.resetConfirm : p.restart}
+              </button>
+              <button type="button" onClick={toggleMute} className="min-h-11 rounded-lg border border-[var(--line)] px-3 py-2 text-left text-sm text-[var(--ink)]" aria-pressed={muted}>
+                {muted ? p.unmute : p.mute}
+              </button>
+              {!adminMode && <div className="rounded-lg border border-[var(--line)] px-2 py-1"><LocaleSwitcher locale={locale} /></div>}
+              <LocaleLink href={adminMode ? '/admin/levels' : '/'} locale={locale} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--danger)]/35 px-3 py-2 text-sm text-[#8b2e22]">
+                {p.exit}
+              </LocaleLink>
+            </div>
+          </div>
+        </div>
+      )}
 
       {helpOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center">

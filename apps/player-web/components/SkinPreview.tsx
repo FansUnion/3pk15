@@ -1,10 +1,16 @@
 'use client'
 
-import { createInitialState, resolveSkin, type SaveGame } from '@wolf-sheep/game-core'
+import { createInitialState, getSkin, resolveSkin, type SaveGame } from '@wolf-sheep/game-core'
 import { BoardSvg } from '@/components/BoardSvg'
 
-export function SkinPreview({ save, previewLabel, activeLabel }: { save: SaveGame; previewLabel: string; activeLabel: string }) {
-  const skin = resolveSkin(save)
+export function SkinPreview({ save, previewLabel, activeLabel, previewSkinId }: { save: SaveGame; previewLabel: string; activeLabel: string; previewSkinId?: string }) {
+  const preview = previewSkinId ? getSkin(previewSkinId) : undefined
+  const previewSave = preview?.kind === 'wolf_set'
+    ? { ...save, equipped: { ...save.equipped, wolfSetId: preview.id } }
+    : preview?.kind === 'board'
+      ? { ...save, equipped: { ...save.equipped, boardId: preview.id } }
+      : save
+  const skin = resolveSkin(previewSave)
   return (
     <div className="paper-card overflow-hidden p-3">
       <div className="mb-2 flex items-center justify-between px-1">
