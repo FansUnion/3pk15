@@ -13,7 +13,7 @@ const gates = [
   ['deployment contract', ['check:deployment-contract']],
   ['public assets', ['--filter', '@wolf-sheep/web', 'check:assets']],
   ['production build', ['build:standalone']],
-  ['player build report', ['report:player-build']],
+  ['player build report', ['report:player-build', '--', '--expect=standalone']],
   ['player artifact', ['audit:player-artifact']],
   ['player external boundary', ['audit:player-portal']],
   ['admin production build', ['build:admin']],
