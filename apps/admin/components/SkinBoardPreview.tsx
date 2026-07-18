@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { createInitialState, getBoardSkin, getWolfSet, type BoardSkin, type WolfSetSkin } from '@wolf-sheep/game-core'
-import { BoardSvg } from '../../web/src/components/BoardSvg'
+import { BoardSvg } from '../../player-web/components/BoardSvg'
 
 const DEFAULT_WOLF = 'wolf-default'
 const DEFAULT_BOARD = 'board-default'

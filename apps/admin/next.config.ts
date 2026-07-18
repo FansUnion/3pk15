@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     config.resolve.alias['@/components/admin/AiSimConsole'] = join(process.cwd(), 'components/AiSimConsole.tsx')
     config.resolve.alias['@/components/admin/AdminLevelWorkbench'] = join(process.cwd(), 'components/AdminLevelWorkbench.tsx')
     config.resolve.alias['@/components/PlayScreen'] = join(process.cwd(), '../player-web/components/PlayScreen.tsx')
+    config.resolve.alias['@/components/BoardSvg'] = join(process.cwd(), '../player-web/components/BoardSvg.tsx')
     config.resolve.alias['@/lib/admin-level-reviews'] = join(process.cwd(), 'lib/admin-level-reviews.ts')
     config.resolve.alias['@/lib/play-metrics'] = join(process.cwd(), 'lib/play-metrics.ts')
     return config
