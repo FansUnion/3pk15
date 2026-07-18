@@ -2,7 +2,7 @@
 
 ## 1. 目标
 
-正式玩家构建由 `apps/player-web` 生成。`apps/web` 保留为完整开发入口和 Admin 工具。
+正式玩家构建由 `apps/player-web` 生成。`apps/web` 保留为兼容站入口，Admin 已由 `apps/admin` 独立构建。
 
 玩家构建命令：
 
@@ -57,9 +57,7 @@ pnpm build:crazygames
 - 平台广告适配边界保留。
 - 独立站统计关闭。
 
-当前限制：Next.js仍会在构建清单中编译Admin页面和API，但portal运行时会统一阻断访问。平台正式提交前还需要建立物理剔除或独立导出流程，并检查最终包中不含Admin代码；当前不能把“运行时关闭”表述成“已从包体移除”。
-
-构建后可执行 `pnpm audit:web-artifact` 查看残留；`pnpm audit:portal-artifact` 是平台提交前的严格门槛，当前预期失败，直到玩家入口与Admin构建被物理拆分。`pnpm audit:portal-external` 扫描服务端和客户端构建产物，当前也预期失败：portal运行时不加载GA4，但独立站统计域名仍被编译进共享客户端代码。只有两个严格审计都通过，才能声明平台包物理排除了Admin和独立站统计。
+玩家平台构建由 `apps/player-web` 独立生成。构建后执行 `pnpm audit:player-portal`，确认 Admin/API 和独立站统计边界；Admin 构建执行 `pnpm audit:admin-artifact`。
 
 真实平台 SDK、广告回调、平台生命周期和提交包必须等官方接入条件明确后再开发和验收。
 
@@ -76,7 +74,7 @@ pnpm build:standalone
 pnpm release:check
 ```
 
-`release:check` 会依次检查核心测试、Web测试、平台边界、资源引用和生产构建。任何一项失败都不能把构建标记为发布通过。
+`release:check` 会依次检查核心测试、Web测试、平台边界、源码边界、资源引用、玩家构建、玩家产物、外部统计边界、Admin构建和Admin产物。任何一项失败都不能把构建标记为发布通过。
 
 ## 6. 环境变量原则
 
@@ -93,8 +91,9 @@ pnpm release:check
 ## 8. 代码边界
 
 - 规则、AI、关卡和奖励：`packages/game-core`。
-- 页面和 Web 交互：`apps/web/src`。
-- 平台生命周期：`apps/web/src/lib/platform.ts`。
-- 广告接口与 Mock：`apps/web/src/lib/ads.ts`。
+- 玩家页面和 Web 交互：`apps/player-web`。
+- Admin 页面、API 和验收工具：`apps/admin`。
+- 平台生命周期：`apps/player-web/lib/platform.ts`。
+- 广告接口与 Mock：`apps/player-web/lib/ads.ts`。
 - 平台提交资料：`distribution/`。
 - 总体架构：[工程边界与最终架构准备](../../docs/普通文档ing/工程边界总览.md)。
