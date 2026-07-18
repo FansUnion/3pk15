@@ -29,6 +29,62 @@ pnpm --filter @wolf-sheep/player-web start
 
 玩家项目和 Admin 项目必须分别配置环境变量、部署权限和回滚版本。玩家项目不能配置 Admin 的公开客户端变量，也不能把 Admin/API 路由纳入产物。
 
+## Vercel 控制台维护方式
+
+以下配置以 Vercel 控制台当前字段为准；仓库脚本和构建审计是项目内的事实来源，控制台配置不能替代它们。
+
+### 1. 建立两个 Project
+
+在同一个 Git 仓库中建立两个 Vercel Project，分别设置 Root Directory：
+
+| 项目 | Root Directory | 构建命令 | 部署用途 |
+|---|---|---|---|
+| `fangrush-player` | `apps/player-web` | `pnpm build:standalone` | 公开独立站 |
+| `fangrush-admin` | `apps/admin` | `pnpm build:admin` | 内部 Admin，按需启用 |
+
+建议先连接 Git 仓库，再在每个 Project 的 General/Build & Development Settings 中确认 Root Directory。不要把仓库根目录作为两个项目的 Root Directory，也不要用 `apps/web` 创建新项目。
+
+Install Command 使用仓库现有的 `pnpm install --frozen-lockfile`（若 Vercel 自动识别 pnpm，可保留自动值，但首次部署后要查看构建日志确认）。Output Directory 对 Next.js 项目通常保持默认，不手工填写 `dist`；不要把 `.next` 当作静态上传目录。
+
+### 2. 环境变量按项目隔离
+
+变量分别在对应 Project 的 Environment Variables 中维护，并区分 Preview 与 Production：
+
+| Project | Production 必要口径 | Preview 口径 |
+|---|---|---|
+| Player | `NEXT_PUBLIC_APP_SHELL=standalone`、`NEXT_PUBLIC_PLATFORM=standalone`、`NEXT_PUBLIC_ADS_PROVIDER=none`、`ADMIN_ENABLED=false`、正式 `NEXT_PUBLIC_SITE_URL` | 使用预览域名或测试域名；仍关闭 Admin 和广告 |
+| Admin | `ADMIN_ENABLED=true`、强随机 `ADMIN_ACCESS_KEY`、Admin 正式 URL | 使用独立测试密钥；不得复用 Production 密钥 |
+
+`ADMIN_ACCESS_KEY` 只能作为 Vercel Secret 配置在 Admin Project，不能出现在 `NEXT_PUBLIC_*`、玩家 Project、Git、构建日志或截图中。Player Project 不配置 Admin 密钥。
+
+### 3. 分支和部署顺序
+
+推荐维护一条 `main` 主线：
+
+1. Pull Request 先由两个 Project 的 Preview 部署检查构建是否成功。
+2. 先发布 Player Production，检查首页、24 个关卡、隐私页、robots/sitemap 和 `/admin` 不可用。
+3. Player 稳定后，再按需要发布 Admin Production；Admin 不作为公开站首页或 SEO 入口。
+4. 规则、AI 或共享包变化时，两个 Project 都必须重新部署并分别查看构建日志。
+
+不要为 Player/Admin 建长期代码分支；两个 Vercel Project 的分开部署不是两个代码分支。
+
+### 4. 域名、保护和回滚
+
+- Player 绑定正式公开域名；`NEXT_PUBLIC_SITE_URL` 必须与最终规范域名一致，另一个域名只做明确的重定向。
+- Admin 使用独立子域名；生产启用 Admin gate，并优先叠加 Vercel 的访问保护或团队访问控制。
+- 每次 Production 发布后记录 Vercel Deployment URL、Git commit、构建命令和验收结果。
+- 发现线上 P0 时，优先在 Vercel Deployments 中把对应 Project 回滚到上一个已验收 Deployment；修复合并后再重新部署，不直接改线上文件。
+- Player 和 Admin 分别回滚，不要因为 Admin 有问题回滚玩家端，反之亦然。
+
+### 5. 每次发布后的最小检查
+
+```bash
+pnpm release:check
+pnpm check:runtime-routes
+```
+
+线上还需分别检查 Player 的公开路由和 Admin 的 gate/关卡/AI 路由。`check:runtime-routes` 默认检查本地 `5003`/`5002`；线上检查时使用 `PLAYER_URL` 和 `ADMIN_URL` 环境变量覆盖地址。
+
 ## 生产配置
 
 | 配置 | 要求 |
