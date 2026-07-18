@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   applyAction,
   boardPositionKey,
+  chooseDiagnosticWolfAction,
   createLevelInitialState,
   createInitialState,
   createSeededRng,
@@ -23,6 +24,7 @@ import {
   type BoardState,
   type Action,
   type Difficulty,
+  type DiagnosticWolfStrategy,
   type HardBudgets,
   type LevelConfig,
   type Piece,
@@ -48,18 +50,23 @@ type BatchResult = {
   lastSerialize: string | null
   csv: string
   records: BatchGameRecord[]
+  wolfStrategy: DiagnosticWolfStrategy
+  sheepDifficulty: Difficulty
 }
 
 type TerminalReason = 'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition' | 'stepLimit' | 'unexpected'
 
 type BatchGameRecord = {
   index: number
+  levelId: string
   seed: number
   outcome: 'wolf_win' | 'sheep_win' | 'timeout'
   reason: TerminalReason
   plies: number
   eatenSheep: number
   firstCapturePly: number | null
+  wolfStrategy: DiagnosticWolfStrategy
+  sheepDifficulty: Difficulty
 }
 
 type ReplayData = {
@@ -102,6 +109,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     initialLevel && getLevel(initialLevel) ? initialLevel : 'spring-01',
   )
   const [batchDiff, setBatchDiff] = useState<Difficulty>(difficulty)
+  const [batchWolfStrategy, setBatchWolfStrategy] = useState<DiagnosticWolfStrategy>('mixed')
   const [batchResult, setBatchResult] = useState<BatchResult | null>(null)
   const [batchProgress, setBatchProgress] = useState(0)
   const [reasonFilter, setReasonFilter] = useState<'all' | TerminalReason>('all')
@@ -348,7 +356,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     setBatchProgress(0)
     setBatchResult(null)
     pushLog(
-      `batch start n=${n} level=${level.id} sheep=${batchDiff} wolf=random-legal (非狼AI粗校准)`,
+      `batch start n=${n} level=${level.id} sheep=${batchDiff} wolf=${batchWolfStrategy}`,
     )
 
     const t0 = performance.now()
@@ -366,14 +374,14 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
         break
       }
       const gameSeed = localSeed
-      const sim = simulateOneGame(level, batchDiff, gameSeed, 400, hardBudgets)
+      const sim = simulateOneGame(level, batchDiff, batchWolfStrategy, gameSeed, 400, hardBudgets)
       localSeed += 10007
       pliesSum += sim.plies
       if (sim.outcome === 'wolf_win') wolfWins++
       else if (sim.outcome === 'sheep_win') sheepWins++
       else timeout++
       lastSerialize = sim.serialized
-      records.push({ index: g + 1, seed: gameSeed, outcome: sim.outcome, reason: sim.reason, plies: sim.plies, eatenSheep: sim.eatenSheep, firstCapturePly: sim.firstCapturePly })
+      records.push({ index: g + 1, levelId: level.id, seed: gameSeed, outcome: sim.outcome, reason: sim.reason, plies: sim.plies, eatenSheep: sim.eatenSheep, firstCapturePly: sim.firstCapturePly, wolfStrategy: batchWolfStrategy, sheepDifficulty: batchDiff })
       if (g % 5 === 0 || g === n - 1) {
         setBatchProgress(g + 1)
         await new Promise((r) => setTimeout(r, 0))
@@ -386,6 +394,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     const csv = [
       level.id,
       batchDiff,
+      batchWolfStrategy,
       games,
       wolfWins,
       sheepWins,
@@ -404,8 +413,10 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       avgPlies,
       elapsedMs,
       lastSerialize,
-      csv: `level,diff,games,wolfWins,sheepWins,timeout,wolfWinPct,avgPlies,ms,seedBase\n${csv}`,
+      csv: `level,diff,wolfStrategy,games,wolfWins,sheepWins,timeout,wolfWinPct,avgPlies,ms,seedBase\n${csv}`,
       records,
+      wolfStrategy: batchWolfStrategy,
+      sheepDifficulty: batchDiff,
     }
     setBatchResult(result)
     setSeed(localSeed)
@@ -416,27 +427,27 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
   }
 
   function openReplay(record: BatchGameRecord) {
-    const level = getLevel(batchLevelId)
+    const level = getLevel(record.levelId)
     if (!level) return
-    const sim = simulateOneGame(level, batchDiff, record.seed, 400, hardBudgets, true)
+    const sim = simulateOneGame(level, record.sheepDifficulty, record.wolfStrategy, record.seed, 400, hardBudgets, true)
     setReplay({ record, states: sim.states, actions: sim.actions })
     setReplayIndex(0)
     pushLog(`replay game=${record.index} seed=${record.seed} reason=${record.reason}`)
   }
 
   function exportReproduction(record: BatchGameRecord) {
-    const level = getLevel(batchLevelId)
+    const level = getLevel(record.levelId)
     if (!level) return
     const payload = {
       schemaVersion: 1,
       levelId: level.id,
       level,
-      sheepDifficulty: batchDiff,
-      wolfStrategy: 'random-legal',
+      sheepDifficulty: record.sheepDifficulty,
+      wolfStrategy: record.wolfStrategy,
       seed: record.seed,
       hardBudgets,
       result: record,
-      command: `level=${level.id} diff=${batchDiff} seed=${record.seed} maxNodes=${hardBudgets.maxNodes} maxMs=${hardBudgets.maxMs}`,
+      command: `level=${level.id} diff=${record.sheepDifficulty} wolf=${record.wolfStrategy} seed=${record.seed} maxNodes=${hardBudgets.maxNodes} maxMs=${hardBudgets.maxMs}`,
     }
     downloadJson(payload, `repro-${level.id}-${record.seed}.json`)
   }
@@ -467,22 +478,27 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
-      <div className="grid gap-4 lg:grid-cols-[240px_1fr_280px]">
+      <details className="order-2 rounded-lg border border-[#5c6b52]/25 bg-white p-4">
+        <summary className="cursor-pointer font-medium text-[#2c3328]">高级诊断：复现具体局面或检查羊 AI 决策</summary>
+        <p className="mt-2 text-xs leading-relaxed text-[#5c6b52]">
+          仅在发现送子、错误走法、循环或异常局面时使用。这里可以编辑棋盘、让羊走一步、导入复现数据并查看内部评分；日常关卡检查不需要操作本区。
+        </p>
+      <div className="mt-4 grid gap-4 lg:grid-cols-[240px_1fr_280px]">
         <aside className="flex flex-col gap-3 text-sm">
           <label className="flex flex-col gap-1">
-            AI 档位
+            羊方防守难度
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value as Difficulty)}
               className="rounded border border-[#5c6b52]/40 bg-[#f7f5ef] px-2 py-1"
             >
-              <option value="easy">easy</option>
-              <option value="normal">normal</option>
-              <option value="hard">hard</option>
+              <option value="easy">简单</option>
+              <option value="normal">标准</option>
+              <option value="hard">困难</option>
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            Seed
+            随机种子
             <input
               type="number"
               value={seed}
@@ -491,7 +507,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             />
           </label>
           <label className="flex flex-col gap-1">
-            Fixture 一键载入
+            载入预设问题局面
             <select
               defaultValue=""
               onChange={(e) => {
@@ -511,7 +527,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             </select>
           </label>
           <div className="rounded border border-[#5c6b52]/25 bg-[#f7f5ef] p-2 text-xs text-[#5c6b52]">
-            <p className="font-medium text-[#2c3328]">HardBudgets</p>
+            <p className="font-medium text-[#2c3328]">困难 AI 计算上限</p>
             <label className="mt-1 flex items-center gap-2">
               maxNodes
               <input
@@ -611,7 +627,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             className="rounded-lg bg-[#3d4a3a] px-3 py-2 text-[#f4f1ea] disabled:opacity-50"
             onClick={sheepStep}
           >
-            {busy ? '计算中…' : '羊单步 AI'}
+            {busy ? '计算中…' : '让羊 AI 走一步'}
           </button>
           <div className="flex gap-2">
             <button
@@ -620,7 +636,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
               className="flex-1 rounded border border-[#5c6b52]/40 bg-[#f7f5ef] px-2 py-1 text-xs disabled:opacity-50"
               onClick={() => void autoRun(50)}
             >
-              自动跑 50
+              从当前局面演示50步
             </button>
             <button
               type="button"
@@ -637,12 +653,12 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             className="rounded border border-[#5c6b52]/40 bg-[#f7f5ef] px-2 py-1 text-xs"
             onClick={exportJson}
           >
-            导出 JSON
+            导出当前局面
           </button>
           <textarea
             value={importText}
             onChange={(e) => setImportText(e.target.value)}
-            placeholder="粘贴局面 JSON"
+            placeholder="粘贴别人发来的局面数据"
             className="h-24 rounded border border-[#5c6b52]/40 bg-[#f7f5ef] p-2 font-mono text-xs"
           />
           <button
@@ -650,14 +666,14 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             className="rounded border border-[#5c6b52]/40 bg-[#f7f5ef] px-2 py-1 text-xs"
             onClick={importJson}
           >
-            导入 JSON
+            导入并复现局面
           </button>
         </aside>
 
         <section className="flex flex-col items-center gap-2">
           <p className="text-sm text-[#5c6b52]">
-            {state.toMove} · {state.status} · eaten {state.eatenSheep}
-            {state.chain ? ` · chain ${state.chain.count}` : ''}
+            {sideLabel(state.toMove)} · {statusLabel(state.status)} · 已捕食 {state.eatenSheep} 只羊
+            {state.chain ? ` · 连吃 ${state.chain.count} 次` : ''}
           </p>
           <BoardSvg
             state={state}
@@ -681,14 +697,17 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
 
         <aside className="flex flex-col gap-3 text-sm">
           <div className="rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-3">
-            <p className="font-medium">evaluate</p>
-            <p className="mt-1 font-mono text-xs">total {breakdown.total.toFixed(2)}</p>
-            <ul className="mt-2 space-y-0.5 font-mono text-xs text-[#5c6b52]">
-              <li>material {breakdown.material.toFixed(2)}</li>
-              <li>wolfMobility {breakdown.wolfMobility.toFixed(2)}</li>
-              <li>cluster {breakdown.cluster.toFixed(2)}</li>
-              <li>advance {breakdown.advance.toFixed(2)}</li>
-              <li>surround {breakdown.surround.toFixed(2)}</li>
+            <p className="font-medium">羊方局面评分（仅用于比较候选走法）</p>
+            <p className="mt-1 text-xs text-[#5c6b52]">总分越高通常越有利于羊；不能用它判断关卡是否合格。</p>
+            <p className="mt-2 font-mono text-xs">综合分 {breakdown.total.toFixed(2)}</p>
+            <ul className="mt-2 space-y-0.5 text-xs text-[#5c6b52]">
+              <li>剩余羊数 {breakdown.material.toFixed(0)}</li>
+              <li>狼方合法行动 {breakdown.wolfMobility.toFixed(0)}</li>
+              <li>羊群紧密程度 {breakdown.cluster.toFixed(2)}</li>
+              <li>羊群推进程度 {breakdown.advance.toFixed(2)}</li>
+              <li>狼周围占位压力 {breakdown.surround.toFixed(0)}</li>
+              <li>狼方直接捕食威胁 {Math.abs(breakdown.safety).toFixed(0)}</li>
+              <li>羊方合法行动 {breakdown.sheepMobility.toFixed(0)}</li>
             </ul>
           </div>
           <div className="max-h-[420px] overflow-auto rounded-lg border border-[#5c6b52]/25 bg-[#1e261c] p-3 font-mono text-xs text-[#dfe8d8]">
@@ -696,12 +715,13 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
           </div>
         </aside>
       </div>
+      </details>
 
-      <section className="rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4">
-        <h2 className="font-medium text-[#2c3328]">批量校准</h2>
+      <section className="order-1 rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4">
+        <h2 className="font-medium text-[#2c3328]">关卡批量检查</h2>
         <p className="mt-1 text-xs text-[#5c6b52]">
-          狼方：合法着法均匀随机（非狼 AI）。羊方：线上同档 pickSheepAction。用于粗校准，非玩家真实胜率。
-          N≤200。深链：
+          选择一个狼方基准与正式羊 AI 重复对局，用来发现过易、过难、拖延和异常棋谱。结果是自动模拟基准，不是玩家真实胜率。
+          最多200局。可分享链接：
           <code className="ml-1 rounded bg-[#dfe8d8] px-1">/admin/ai?level=spring-01&amp;diff=hard</code>
         </p>
         <div className="mt-3 flex flex-wrap items-end gap-3 text-sm">
@@ -720,19 +740,30 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            羊 AI
+            狼方基准
+            <select
+              value={batchWolfStrategy}
+              onChange={(e) => setBatchWolfStrategy(e.target.value as DiagnosticWolfStrategy)}
+              className="rounded border border-[#5c6b52]/40 bg-white px-2 py-1"
+            >
+              <option value="mixed">策略型狼（推荐）</option>
+              <option value="random">随机狼（最低基准）</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-1">
+            羊方防守难度
             <select
               value={batchDiff}
               onChange={(e) => setBatchDiff(e.target.value as Difficulty)}
               className="rounded border border-[#5c6b52]/40 bg-white px-2 py-1"
             >
-              <option value="easy">easy</option>
-              <option value="normal">normal</option>
-              <option value="hard">hard</option>
+              <option value="easy">简单</option>
+              <option value="normal">标准</option>
+              <option value="hard">困难</option>
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            N
+            模拟局数
             <select
               value={batchN}
               onChange={(e) => setBatchN(Number(e.target.value))}
@@ -750,7 +781,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             className="rounded-lg bg-[#3d4a3a] px-4 py-2 text-[#f4f1ea] disabled:opacity-50"
             onClick={() => void runBatch()}
           >
-            {busy ? `跑批中 ${batchProgress}/${batchN}` : '开始批量'}
+            {busy ? `检查中 ${batchProgress}/${batchN}` : '开始检查'}
           </button>
           <button
             type="button"
@@ -764,7 +795,21 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
         </div>
         {batchResult && (
           <div className="mt-4 space-y-2 text-sm">
-            <p className="text-[#2c3328]">
+            <div className="grid gap-2 sm:grid-cols-4">
+              <ResultMetric label="完成局数" value={String(batchResult.games)} />
+              <ResultMetric label="狼方获胜" value={`${batchResult.wolfWins}（${(gameRate(batchResult.wolfWins, batchResult.games) * 100).toFixed(1)}%）`} />
+              <ResultMetric label="羊方守住" value={String(batchResult.sheepWins)} />
+              <ResultMetric label="拖延或超步" value={String(batchResult.timeout)} />
+            </div>
+            <p className="text-xs text-[#5c6b52]">
+              当前基准：{wolfStrategyLabel(batchResult.wolfStrategy)} · 羊方：{difficultyLabel(batchResult.sheepDifficulty)} · 平均 {batchResult.avgPlies.toFixed(1)} 步 · 用时 {batchResult.elapsedMs}ms
+            </p>
+            <div className="rounded border border-[#5c6b52]/20 bg-white p-3">
+              <p className="font-medium text-[#2c3328]">初步判断</p>
+              <p className="mt-1 text-sm leading-relaxed text-[#5c6b52]">{batchInterpretation(batchResult)}</p>
+              <p className="mt-1 text-xs text-[#7a8574]">这只是自动筛查。请优先回放拖延、狼被困或与预期不符的对局，再决定是否调整关卡或 AI。</p>
+            </div>
+            <p className="sr-only">
               局数 {batchResult.games} · 狼胜 {batchResult.wolfWins}（
               {(gameRate(batchResult.wolfWins, batchResult.games) * 100).toFixed(1)}%）· 羊胜{' '}
               {batchResult.sheepWins} · 超步 {batchResult.timeout} · 平均步数{' '}
@@ -814,9 +859,9 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             </div>
             <div className="max-h-72 overflow-auto border border-[#5c6b52]/20 bg-white">
               <table className="w-full text-left text-xs">
-                <thead className="sticky top-0 bg-[#eef2ea]"><tr><th className="p-2">局</th><th>seed</th><th>终局</th><th>plies</th><th>首吃</th><th>操作</th></tr></thead>
+                <thead className="sticky top-0 bg-[#eef2ea]"><tr><th className="p-2">局</th><th>种子</th><th>终局</th><th>总步数</th><th>首次捕食</th><th>操作</th></tr></thead>
                 <tbody>{batchResult.records.filter((record) => reasonFilter === 'all' || record.reason === reasonFilter).map((record) => (
-                  <tr key={record.index} className="border-t border-[#5c6b52]/10"><td className="p-2">{record.index}</td><td>{record.seed}</td><td>{record.reason}</td><td>{record.plies}</td><td>{record.firstCapturePly ?? '-'}</td><td className="space-x-2"><button type="button" onClick={() => openReplay(record)} className="underline">回放</button><button type="button" onClick={() => exportReproduction(record)} className="underline">复现包</button></td></tr>
+                  <tr key={record.index} className="border-t border-[#5c6b52]/10"><td className="p-2">{record.index}</td><td>{record.seed}</td><td>{terminalReasonLabel(record.reason)}</td><td>{record.plies}</td><td>{record.firstCapturePly ?? '-'}</td><td className="space-x-2"><button type="button" onClick={() => openReplay(record)} className="underline">回放</button><button type="button" onClick={() => exportReproduction(record)} className="underline">导出复现包</button></td></tr>
                 ))}</tbody>
               </table>
             </div>
@@ -825,10 +870,10 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       </section>
 
       {replay && (
-        <section className="border border-[#5c6b52]/25 bg-[#f7f5ef] p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-medium text-[#2c3328]">棋谱回放 · 第 {replay.record.index} 局</h2><p className="text-xs text-[#5c6b52]">seed {replay.record.seed} · {replay.record.reason} · 步骤 {replayIndex}/{replay.states.length - 1}</p></div><button type="button" onClick={() => setReplay(null)} className="text-sm underline">关闭回放</button></div>
+        <section className="order-3 border border-[#5c6b52]/25 bg-[#f7f5ef] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-medium text-[#2c3328]">棋谱回放 · 第 {replay.record.index} 局</h2><p className="text-xs text-[#5c6b52]">种子 {replay.record.seed} · {terminalReasonLabel(replay.record.reason)} · 步骤 {replayIndex}/{replay.states.length - 1}</p></div><button type="button" onClick={() => setReplay(null)} className="text-sm underline">关闭回放</button></div>
           <div className="mt-4 grid items-start gap-4 md:grid-cols-[minmax(0,480px)_1fr]">
-            <BoardSvg state={deserialize(JSON.parse(replay.states[replayIndex]!))} selectedWolfId={null} stepHighlights={[]} jumpHighlights={[]} jumpThroughs={[]} interactive={false} theme={themeForChapter(getLevel(batchLevelId)?.chapterId ?? 'spring')} onSelectWolf={() => undefined} onClickCell={() => undefined} />
+            <BoardSvg state={deserialize(JSON.parse(replay.states[replayIndex]!))} selectedWolfId={null} stepHighlights={[]} jumpHighlights={[]} jumpThroughs={[]} interactive={false} theme={themeForChapter(getLevel(replay.record.levelId)?.chapterId ?? 'spring')} onSelectWolf={() => undefined} onClickCell={() => undefined} />
             <div>
               <input aria-label="回放步骤" type="range" min={0} max={replay.states.length - 1} value={replayIndex} onChange={(event) => setReplayIndex(Number(event.target.value))} className="w-full" />
               <div className="mt-2 flex gap-2"><button type="button" disabled={replayIndex === 0} onClick={() => setReplayIndex((value) => Math.max(0, value - 1))} className="border px-3 py-2 disabled:opacity-40">上一步</button><button type="button" disabled={replayIndex >= replay.states.length - 1} onClick={() => setReplayIndex((value) => Math.min(replay.states.length - 1, value + 1))} className="border px-3 py-2 disabled:opacity-40">下一步</button></div>
@@ -842,6 +887,55 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
   )
 }
 
+function ResultMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded border border-[#5c6b52]/20 bg-white p-3">
+      <p className="text-xs text-[#5c6b52]">{label}</p>
+      <p className="mt-1 font-medium text-[#2c3328]">{value}</p>
+    </div>
+  )
+}
+
+function wolfStrategyLabel(strategy: DiagnosticWolfStrategy) {
+  return strategy === 'mixed' ? '策略型狼（近似懂规则的玩家）' : '随机狼（最低能力基准）'
+}
+
+function difficultyLabel(difficulty: Difficulty) {
+  return difficulty === 'easy' ? '简单防守' : difficulty === 'normal' ? '标准防守' : '困难防守'
+}
+
+function terminalReasonLabel(reason: TerminalReason) {
+  const labels: Record<TerminalReason, string> = {
+    targetEaten: '狼达成目标',
+    wolvesTrapped: '狼无合法行动',
+    maxPlies: '回合耗尽',
+    repetition: '重复局面',
+    stepLimit: '模拟步数上限',
+    unexpected: '异常终局',
+  }
+  return labels[reason]
+}
+
+function batchInterpretation(result: BatchResult) {
+  const wolfRate = gameRate(result.wolfWins, result.games)
+  const unresolved = result.records.filter((record) => ['maxPlies', 'repetition', 'stepLimit'].includes(record.reason)).length
+  const unexpected = result.records.filter((record) => record.reason === 'unexpected').length
+  if (unexpected > 0) return `发现 ${unexpected} 局异常终局。先打开这些棋谱检查规则、状态恢复或模拟入口，不应继续做平衡结论。`
+  if (gameRate(unresolved, result.games) >= 0.2) return `有 ${unresolved} 局拖到回合耗尽、重复或模拟上限，比例偏高。优先检查是否只有拖延、没有有效攻防进展。`
+  if (result.wolfStrategy === 'random' && wolfRate >= 0.8) return '随机走法也经常获胜，说明关卡可能过松，或当前羊 AI 防守压力不足。建议再用“策略型狼”运行，并复盘羊是否明显送子。'
+  if (result.wolfStrategy === 'mixed' && wolfRate >= 0.9 && result.sheepWins === 0) return '策略型狼几乎稳定获胜，存在关卡偏易或强制胜风险。请复盘最快胜局，确认获胜是否需要真实策略。'
+  if (result.wolfStrategy === 'mixed' && wolfRate <= 0.2) return '策略型狼仍很难获胜，存在关卡偏难或获胜路径不清晰风险。请复盘狼方失败局和首次捕食时间。'
+  return '当前基准没有显示单一的极端风险。下一步应查看代表性胜负棋谱，并由人工试玩确认策略是否清楚、操作是否合理。'
+}
+
+function sideLabel(side: Side) {
+  return side === 'wolf' ? '轮到狼方' : '轮到羊方'
+}
+
+function statusLabel(status: BoardState['status']) {
+  return status === 'playing' ? '对局进行中' : status === 'won' ? '狼方已获胜' : status === 'lost' ? '羊方已守住' : '和局'
+}
+
 function gameRate(n: number, total: number) {
   return total > 0 ? n / total : 0
 }
@@ -849,6 +943,7 @@ function gameRate(n: number, total: number) {
 function simulateOneGame(
   level: LevelConfig,
   difficulty: Difficulty,
+  wolfStrategy: DiagnosticWolfStrategy,
   seed: number,
   maxSteps = 400,
   budgets?: HardBudgets,
@@ -867,7 +962,7 @@ function simulateOneGame(
       const legal = listLegalActions(s)
       if (legal.length === 0) break
       const rng = createSeededRng(localSeed++)
-      const pick = legal[Math.floor(rng.nextFloat() * legal.length)]!
+      const pick = chooseDiagnosticWolfAction(s, legal, rng, wolfStrategy)
       const res = applyAction(s, pick)
       if (!res.ok) break
       s = res.state

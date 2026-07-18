@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import {
   CHAPTER_LABEL,
   LEVELS,
@@ -7,6 +8,8 @@ import {
   type ChapterId,
   type SkinCatalogItem,
 } from '@wolf-sheep/game-core'
+
+export const metadata: Metadata = { title: '奖励与经济' }
 
 export default function AdminEconomyPage() {
   const wolfSets = SKIN_CATALOG.filter((s) => s.kind === 'wolf_set')
