@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { AdminLogout } from '../components/AdminLogout'
-import '../../web/src/app/globals.css'
+import '../../../packages/web-shared/styles/globals.css'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const links = [['/skins', '皮肤'], ['/levels', '关卡'], ['/ai', 'AI'], ['/docs', '说明'], ['/economy', '经济'], ['/checklist', '清单'], ['/platform', '平台']]

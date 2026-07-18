@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Literata, Nunito_Sans } from 'next/font/google'
 import { getT } from '@/i18n/get-locale'
-import '../../web/src/app/globals.css'
+import '../../../packages/web-shared/styles/globals.css'
 
 const display = Literata({ subsets: ['latin'], variable: '--font-display', display: 'swap' })
 const sans = Nunito_Sans({ subsets: ['latin'], variable: '--font-sans', display: 'swap' })

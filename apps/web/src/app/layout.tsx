@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Literata, Nunito_Sans } from 'next/font/google'
 import { Ga4 } from '@/components/Ga4'
 import { getT } from '@/i18n/get-locale'
-import './globals.css'
+import '../../../../packages/web-shared/styles/globals.css'
 
 const display = Literata({
   subsets: ['latin'],
