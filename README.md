@@ -2,13 +2,13 @@
 
 非对称围猎棋（3 狼 vs 15 羊）的 Web 游戏。玩法与规格见 [`docs/`](docs/)。
 
-**边界**：业务代码 = `game-core` + `web`；自动化测试只在 game-core（Vitest）。无独立 backend、无 E2E、无 web 单测包；App（Capacitor）一期不上，仅有 stub。
+**边界**：业务代码 = `game-core` + `apps/player-web` + `apps/admin`；`apps/web` 仅保留兼容入口。玩家端和 Admin 是两个独立 Next 应用，共享核心与 Web 契约；App（Capacitor）一期不上，仅有预留方案。
 
 ---
 
 ## 1. 游戏是怎么串起来的
 
-**`game-core` 判定真相**（合法着法、胜负、AI、存档 schema）；**`apps/web` 负责呈现与会话**（点哪里、播什么音、进度写哪、广告走哪）。
+**`game-core` 判定真相**（合法着法、胜负、AI、存档 schema）；**`apps/player-web` 负责玩家呈现与会话，`apps/admin` 负责验收与管理**。两者共享同一套规则和 AI。
 
 ```text
 玩家点棋盘 (PlayScreen / BoardSvg)
@@ -34,7 +34,7 @@
 | `src/ai/` | `pickSheepAction`（easy / normal / hard），对局与 Admin 共用 |
 | `src/content/` | 关卡表、`SaveGame`、皮肤 Catalog、任务 |
 
-### 1.2 `apps/web/src/lib/` 壳层
+### 1.2 `apps/player-web` 壳层
 
 | 模块 | 干什么 |
 |------|--------|
@@ -45,15 +45,15 @@
 | **ads** | **`IAds`**：按 env 选 Mock / 门户 SDK / AdSense 占位；激励发奖只认 `ok`。 |
 | **adapters/** | 原生预留（现仅 `capacitor-stub.ts`）；将来仍走同一套 `IStorage` / `IAds`。 |
 
-### 1.3 壳层其它目录
+### 1.3 玩家端其它目录
 
 | 路径 | 内容 |
 |------|------|
 | `src/components/PlayScreen.tsx` | 对局页：接 play-store + save-store，结算、静音、重置 |
 | `src/components/BoardSvg.tsx` | 棋盘渲染与点击 |
-| `src/components/admin/*` | 独立站驾驶舱；AI 仍调同一 `pickSheepAction` |
-| `src/i18n/`、`middleware.ts`、sitemap / robots | 中英语言与收录 |
-| `public/` | 皮肤 SVG、音效、品牌图 |
+| `apps/admin` | 独立 Admin：关卡工作台、试玩、AI 诊断、验收 API |
+| `apps/player-web/i18n/`、`middleware.ts`、sitemap / robots | 玩家端中英语言与收录 |
+| `apps/player-web/public/` | 皮肤 SVG、音效、品牌图 |
 
 ---
 
@@ -64,8 +64,11 @@
 | 路径 | 角色 |
 |------|------|
 | `packages/game-core` | 玩法内核（纯 TS，无 DOM） |
-| `apps/web` | Next.js 壳、`/admin`、`public/` |
-| `content/skins` | 几乎空；真实皮肤在 `apps/web/public/skins/` |
+| `apps/player-web` | 玩家 Next 应用、公开页面、H5 构建入口 |
+| `apps/admin` | Admin Next 应用、内部页面和管理 API |
+| `apps/web` | 兼容入口和兼容导出，等待线上回归后评估退役 |
+| `packages/web-shared` | 跨应用契约、共享样式和平台边界 |
+| `apps/web/public` | 当前资源源目录，构建时同步到玩家端 |
 | `docs/` | 产品 / 技术文档（非运行时） |
 | `.github/workflows/ci.yml` | CI |
 | 根 `package.json` | 统一脚本入口 |
@@ -76,17 +79,21 @@
 
 ```bash
 pnpm install
-pnpm dev                 # http://localhost:5000
+pnpm --filter @wolf-sheep/player-web dev # http://localhost:5003
+pnpm --filter @wolf-sheep/admin dev      # http://localhost:5002
 pnpm test                # 仅 game-core Vitest
 pnpm lint
 pnpm build
-pnpm build:portal        # 门户瘦包（无可用 admin）
+pnpm build:standalone    # 玩家端独立站构建
+pnpm build:poki          # Poki 玩家端构建
+pnpm build:crazygames    # CrazyGames 玩家端构建
+pnpm build:admin         # Admin 独立构建
 pnpm check:skins         # 皮肤齐套（CI 用）
 ```
 
 深度平衡：`pnpm --filter @wolf-sheep/game-core balance:deep`。
 
-环境变量：复制 [`apps/web/.env.example`](apps/web/.env.example)；多渠道 / env 防呆见技术设计 `07` §3.3。
+环境变量：玩家端使用 `apps/player-web/.env.example`；Admin 使用自己的部署环境；多渠道 / env 防呆见工程边界总览。
 
 ---
 
@@ -112,7 +119,7 @@ Admin `AiSimConsole` 是人工校准，不是自动化测试。壳层回归靠 `
 |------|------|
 | `packages/game-core/scripts/check-skins.mjs` | 皮肤齐套 |
 | `packages/game-core/scripts/balance-deep.mjs` | 深度平衡模拟 |
-| `apps/web/scripts/build-portal.mjs` | 门户瘦包 |
+| `apps/player-web/scripts/build-target.mjs` | Standalone/Poki/CrazyGames 玩家端构建 |
 | `apps/web/scripts/assets/gen-boards.mjs` / `gen-sfx.mjs` | 资源生成辅助 |
 
 ---

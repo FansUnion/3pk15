@@ -129,7 +129,7 @@ Fangrush **不要**抄里面的 `credits` / `grantSignupBonus` / activity 日志
 
 先看 SS 模板：`C:\Users\fansu\git\StartUpSense\.env.example`（Tier 1 Supabase + Auth + Google）。
 
-写入 FR: `apps/web/.env.example`（及本地 `.env.local`）：
+未来实施时写入 FR: `apps/player-web/.env.example`（及玩家端本地 `.env.local`）：
 
 ```bash
 # 与 StartUpSense 同名，便于对照
