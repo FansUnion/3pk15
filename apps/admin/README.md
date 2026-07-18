@@ -14,9 +14,10 @@ pnpm dev:admin
 
 ```bash
 pnpm build:admin
+pnpm audit:admin-artifact
 ```
 
-Admin 使用与玩家应用相同的 `packages/game-core` 和 `packages/web-shared`，但不应进入玩家构建产物。
+Admin 使用与玩家应用相同的 `packages/game-core` 和 `packages/web-shared`，但不应进入玩家构建产物；Admin自身也不应包含公开玩家路由。
 
 ## 访问控制
 

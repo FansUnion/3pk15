@@ -4,7 +4,8 @@ import { join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
-const appName = process.argv.includes('--player') ? 'player-web' : 'web'
+const adminAudit = process.argv.includes('--admin')
+const appName = adminAudit ? 'admin' : process.argv.includes('--player') ? 'player-web' : 'web'
 const buildRoot = join(root, `apps/${appName}/.next`)
 const serverApp = join(buildRoot, 'server/app')
 const strict = process.argv.includes('--strict')
@@ -34,7 +35,9 @@ function walkBuild(directory, files = []) {
 }
 
 const files = walk(serverApp)
-const forbiddenPrefixes = ['admin/', 'api/admin/']
+const forbiddenPrefixes = adminAudit
+  ? ['chapters/', 'how-to-play/', 'hunt/', 'levels/', 'play/', 'privacy/', 'quests/', 'settings/', 'skins/']
+  : ['admin/', 'api/admin/']
 const forbidden = files.filter((file) => forbiddenPrefixes.some((prefix) => file.startsWith(prefix)))
 
 console.log(`audit:web-artifact: ${appName}: ${files.length} server app files`)
@@ -46,7 +49,7 @@ if (forbidden.length) {
     console.error('Strict portal audit failed: Admin code is still present in the build artifact.')
     process.exit(1)
   }
-  console.warn('Portal runtime blocks Admin, but the current Next build does not physically remove it.')
+  console.warn(adminAudit ? 'Admin build contains public player routes.' : 'Portal runtime blocks Admin, but the current Next build does not physically remove it.')
 }
 
 if (!forbidden.length) console.log('audit:web-artifact: PASS')

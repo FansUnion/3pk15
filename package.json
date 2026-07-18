@@ -27,6 +27,7 @@
     "audit:portal-external": "node ./scripts/audit-web-artifact.mjs --external-strict",
     "audit:player-artifact": "node ./scripts/audit-web-artifact.mjs --player --strict",
     "audit:player-portal": "node ./scripts/audit-web-artifact.mjs --player --strict --external-strict",
+    "audit:admin-artifact": "node ./scripts/audit-web-artifact.mjs --admin --strict",
     "check:deployment-contract": "node ./scripts/check-deployment-contract.mjs",
     "check:player-boundaries": "node ./scripts/check-player-boundaries.mjs",
     "release:check": "node ./scripts/release-check.mjs"
