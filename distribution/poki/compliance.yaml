@@ -1,5 +1,5 @@
 # Fangrush × Poki compliance matrix
-# Human digest: docs/商业成功/Poki官方文档双语整理/
+# Human digest: docs/商业成功/2个H5平台官网资料/Poki官方文档双语整理/
 # Policy SSOT: https://sdk.poki.com/ (English official pages)
 # Status: missing | partial | ready | verified
 # Level: required | recommended | not_applicable
@@ -10,10 +10,10 @@ meta:
   studio: Fangrush Studio
   engine_path: HTML5 / TypeScript / Next.js (custom board-game engine)
   official_home: https://sdk.poki.com/
-  bilingual_digest: docs/商业成功/Poki官方文档双语整理/
-  source_capture: docs/文档整理todo/poki内容/
+  bilingual_digest: docs/商业成功/2个H5平台官网资料/Poki官方文档双语整理/
+  source_capture: docs/商业成功/2个H5平台官网资料/原始材料-tmp/poki内容/
   checklist_entry: distribution/poki/README.md
-  early_access_form: docs/商业成功/Poki早期准入申请/说明与填表口径.md
+  early_access_form: docs/商业成功/上架事项/Poki早期准入申请/说明与填表口径.md
   matrix_updated: 2026-07-18
   notes_zh: >
     本文件供 AI 与验收使用。政策以官网英文为准；分成与独家年限不以本文件为合同事实。
@@ -30,7 +30,7 @@ requirements:
     official_url: https://developers.poki.com/share
     last_verified: 2026-07-17
     evidence:
-      - docs/商业成功/Poki早期准入申请/说明与填表口径.md
+      - docs/商业成功/上架事项/Poki早期准入申请/说明与填表口径.md
       - distribution/poki/early-access-form.md
     gap_zh: 填表口径已备；需开发者本人提交并等待邀请。
 
@@ -44,7 +44,7 @@ requirements:
     official_url: https://sdk.poki.com/deal-types.html
     last_verified: 2026-07-17
     evidence:
-      - docs/商业成功/Poki官方文档双语整理/06-缩略图-商务协议与FAQ.md
+      - docs/商业成功/2个H5平台官网资料/Poki官方文档双语整理/06-缩略图-商务协议与FAQ.md
       - docs/商业成功/渠道发展路线.md
     gap_zh: 官网对独家年限有 5 年/7 年表述差异，待合同与现行页面核对；并行 CrazyGames 策略勿在签独家前锁定。
 

@@ -1,6 +1,6 @@
 # Fangrush × CrazyGames compliance matrix
-# Human digest: docs/商业成功/CrazyGames官方文档双语整理/
-# Decision digest: docs/商业成功/门户上架要点/03-CrazyGames专属事项.md
+# Human digest: docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/
+# Decision digest: docs/商业成功/上架事项/门户上架要点/03-CrazyGames专属事项.md
 # Policy SSOT: https://docs.crazygames.com/ (English official pages)
 # Status: missing | partial | ready | verified
 # Level: required | recommended | not_applicable
@@ -12,9 +12,9 @@ meta:
   studio: Fangrush Studio
   engine_path: HTML5 / TypeScript / Next.js (custom board-game engine)
   official_home: https://docs.crazygames.com/
-  bilingual_digest: docs/商业成功/CrazyGames官方文档双语整理/
-  essentials_digest: docs/商业成功/门户上架要点/03-CrazyGames专属事项.md
-  source_capture: docs/文档整理todo/crazygames/
+  bilingual_digest: docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/
+  essentials_digest: docs/商业成功/上架事项/门户上架要点/03-CrazyGames专属事项.md
+  source_capture: docs/商业成功/2个H5平台官网资料/原始材料-tmp/crazygames/
   checklist_entry: distribution/crazygames/README.md
   matrix_updated: 2026-07-18
   notes_zh: >
@@ -34,7 +34,7 @@ requirements:
     official_url: https://docs.crazygames.com/
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/01-平台概览与双阶段发布.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/01-平台概览与双阶段发布.md
       - distribution/crazygames/README.md
     gap_zh: 文档已澄清；尚未实际提交 Basic / Full。
 
@@ -49,7 +49,7 @@ requirements:
     official_url: https://docs.crazygames.com/
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/01-平台概览与双阶段发布.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/01-平台概览与双阶段发布.md
     gap_zh: 尚未进入 Basic Launch 实测。
 
   - id: CG-BIZ-001
@@ -64,7 +64,7 @@ requirements:
     last_verified: 2026-07-18
     evidence:
       - docs/商业成功/渠道发展路线.md
-      - docs/商业成功/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
     gap_zh: 本地抓取部分 FAQ 无正文，待核官网。
 
   - id: CG-QUALITY-001
@@ -78,7 +78,7 @@ requirements:
     official_url: https://docs.crazygames.com/requirements/intro
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/02-Requirements技术玩法广告账户与质量.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/02-Requirements技术玩法广告账户与质量.md
     gap_zh: 英文本地化与发布质量验收未完成。
 
   - id: CG-TECH-001
@@ -92,7 +92,7 @@ requirements:
     official_url: https://docs.crazygames.com/requirements/intro
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/02-Requirements技术玩法广告账户与质量.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/02-Requirements技术玩法广告账户与质量.md
     gap_zh: 尚未按 CG 限制做发行构建测量。
 
   - id: CG-TECH-002
@@ -106,7 +106,7 @@ requirements:
     official_url: https://docs.crazygames.com/requirements/intro
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/门户上架要点/01-多平台通用质量事项.md
+      - docs/商业成功/上架事项/门户上架要点/01-多平台通用质量事项.md
     gap_zh: 需按 CG iframe 尺寸清单做可读性抽检。
 
   - id: CG-GAMEPLAY-001
@@ -120,7 +120,7 @@ requirements:
     official_url: https://docs.crazygames.com/requirements/intro
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/02-Requirements技术玩法广告账户与质量.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/02-Requirements技术玩法广告账户与质量.md
     gap_zh: 门户包进入路径尚未按 Full 口径冻结。
 
   - id: CG-SDK-001
@@ -135,7 +135,7 @@ requirements:
     last_verified: 2026-07-18
     evidence:
       - distribution/crazygames/README.md
-      - docs/商业成功/CrazyGames官方文档双语整理/04-HTML5-SDK与游戏模块.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/04-HTML5-SDK与游戏模块.md
     gap_zh: v3 适配器未完成（见 README 当前缺口）。
 
   - id: CG-SDK-002
@@ -149,7 +149,7 @@ requirements:
     official_url: https://docs.crazygames.com/sdk/intro#html5
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/04-HTML5-SDK与游戏模块.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/04-HTML5-SDK与游戏模块.md
     gap_zh: 生命周期与进度上报未接。
 
   - id: CG-SDK-003
@@ -163,7 +163,7 @@ requirements:
     official_url: https://docs.crazygames.com/sdk/intro#html5
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/04-HTML5-SDK与游戏模块.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/04-HTML5-SDK与游戏模块.md
     gap_zh: 未接平台静音。
 
   - id: CG-ADS-001
@@ -177,7 +177,7 @@ requirements:
     official_url: https://docs.crazygames.com/sdk/intro#html5
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/05-广告模块-视频与横幅.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/05-广告模块-视频与横幅.md
     gap_zh: 真实广告回调未完成。
 
   - id: CG-ADS-002
@@ -191,7 +191,7 @@ requirements:
     official_url: https://docs.crazygames.com/requirements/intro
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/门户上架要点/01-多平台通用质量事项.md
+      - docs/商业成功/上架事项/门户上架要点/01-多平台通用质量事项.md
     gap_zh: 产品纪律已写；CG 包与 AdBlock 路径待工程验证。
 
   - id: CG-ADS-003
@@ -205,7 +205,7 @@ requirements:
     official_url: https://docs.crazygames.com/sdk/intro#html5
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/05-广告模块-视频与横幅.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/05-广告模块-视频与横幅.md
     gap_zh: 未接 Banner。
 
   - id: CG-COVER-001
@@ -219,7 +219,7 @@ requirements:
     official_url: https://docs.crazygames.com/requirements/intro
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/03-游戏封面与素材.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/03-游戏封面与素材.md
       - distribution/crazygames/README.md
     gap_zh: 三类封面与双预览视频未定稿验收。
 
@@ -234,7 +234,7 @@ requirements:
     official_url: https://docs.crazygames.com/requirements/intro
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
     gap_zh: 首发可延后；有云存/登录需求时再做。
 
   - id: CG-DATA-001
@@ -248,7 +248,7 @@ requirements:
     official_url: https://docs.crazygames.com/sdk/intro#html5
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
     gap_zh: 首发可延后。
 
   - id: CG-IAP-001
@@ -262,7 +262,7 @@ requirements:
     official_url: https://docs.crazygames.com/sdk/intro#html5
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
     gap_zh: 棋类首发不做 CG IAP。
 
   - id: CG-PAY-001
@@ -276,7 +276,7 @@ requirements:
     official_url: https://docs.crazygames.com/
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
+      - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
     gap_zh: 待获 Portal 后配置；可能影响提交。
 
   - id: CG-PACK-001

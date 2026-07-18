@@ -20,8 +20,8 @@
 - **平台政策以官方英文文档为 SSOT**；仓库内双语整理稿与 `compliance.yaml` 只做摘要、状态与证据，执行前重新核验官网。
 - `compliance.yaml` 用 `missing | partial | ready | verified` 表达状态；只有证据齐全才标 `verified`。
 - 品牌文案 SSOT：[`docs/普通文档ing/美术等资源/01-品牌文案和游戏上架材料.md`](../docs/普通文档ing/美术等资源/01-品牌文案和游戏上架材料.md)；运行时翻译 SSOT：`apps/player-web/i18n/messages.ts`。发行目录不复制两者正文。
-- Poki 人读理解稿：[`docs/商业成功/Poki官方文档双语整理/`](../docs/商业成功/Poki官方文档双语整理/00-索引与阅读边界.md)；原始抓取保留于 `docs/文档整理todo/poki内容/`。
-- CrazyGames 人读理解稿：[`docs/商业成功/CrazyGames官方文档双语整理/`](../docs/商业成功/CrazyGames官方文档双语整理/00-索引与阅读边界.md)；原始抓取保留于 `docs/文档整理todo/crazygames/`。
+- Poki 人读理解稿：[`docs/商业成功/2个H5平台官网资料/Poki官方文档双语整理/`](../docs/商业成功/2个H5平台官网资料/Poki官方文档双语整理/00-索引与阅读边界.md)；原始抓取保留在同级 `原始材料-tmp`，不作为执行入口。
+- CrazyGames 人读理解稿：[`docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/`](../docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/00-索引与阅读边界.md)；原始抓取保留在同级 `原始材料-tmp`，不作为执行入口。
 - 不提交账号密钥、团队API Key、签名证书、支付凭据或其他秘密。
 
 当前执行任务见 [任务清单](../docs/任务/任务清单.md)，渠道决策见 [渠道发展路线](../docs/商业成功/渠道发展路线.md)。
