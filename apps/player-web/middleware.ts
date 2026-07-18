@@ -6,7 +6,7 @@ import {
   stripLocalePrefix,
   withLocalePath,
   type SupportedLocale,
-} from '../web/src/config/locales'
+} from './config/locales'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
