@@ -14,6 +14,14 @@ export interface AdsContract {
 
 export type PlatformKind = 'standalone' | 'poki' | 'crazygames'
 
+export interface StoragePort {
+  getItem(key: string): string | null
+  setItem(key: string, value: string): void
+  removeItem(key: string): void
+}
+
+export const ACTIVE_GAME_STORAGE_KEY = 'wolf-sheep:active-game:v1'
+
 export type WebTargetConfig = {
   shell: WebShell
   platform: PlatformTarget

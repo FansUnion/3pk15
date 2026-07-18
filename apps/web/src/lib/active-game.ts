@@ -9,8 +9,9 @@ import {
   type Pos,
   type SerializedBoard,
 } from '@wolf-sheep/game-core'
+import { ACTIVE_GAME_STORAGE_KEY } from '@wolf-sheep/web-shared'
 
-const ACTIVE_GAME_KEY = 'wolf-sheep:active-game:v1'
+const ACTIVE_GAME_KEY = ACTIVE_GAME_STORAGE_KEY
 
 export type ActiveGameConfig = {
   levelId: string

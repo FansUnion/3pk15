@@ -4,12 +4,9 @@ import {
   SAVE_KEY,
   type SaveGame,
 } from '@wolf-sheep/game-core'
+import type { StoragePort } from '@wolf-sheep/web-shared'
 
-export type IStorage = {
-  getItem(key: string): string | null
-  setItem(key: string, value: string): void
-  removeItem(key: string): void
-}
+export type IStorage = StoragePort
 
 export const browserStorage: IStorage = {
   getItem(key) {
