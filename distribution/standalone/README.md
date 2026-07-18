@@ -10,10 +10,11 @@
 
 ```bash
 pnpm build:standalone
-pnpm audit:web-artifact
+pnpm audit:player-artifact
+pnpm --filter @wolf-sheep/player-web start
 ```
 
-当前 Next 构建仍会编译 Admin 代码，但运行时会阻断访问。`pnpm audit:portal-artifact` 在物理拆分完成前应保持失败，不能把当前构建称为“已移除 Admin 的平台包”。
+独立站由 `apps/player-web` 独立构建。严格产物审计确认玩家包不包含 Admin/API；Admin 使用单独的 `pnpm build:admin` 构建，不进入独立站发布产物。
 
 ## 生产配置
 
@@ -35,6 +36,7 @@ pnpm audit:web-artifact
 - [ ] 不请求平台 SDK、广告网络或未批准外部服务。
 - [ ] 隐私政策、站点 URL、robots 和 sitemap 使用正式域名。
 - [ ] 运行 `pnpm release:check` 并保留结果。
+- [ ] 运行 `pnpm audit:player-artifact` 并保留结果。
 - [ ] 保留上一版本回滚入口。
 
 ## 不在本批次
