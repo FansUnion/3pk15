@@ -1,6 +1,6 @@
 # CI 与发布门禁专项（待确认）
 
-> 实施状态（2026-07-18）：已定位并修复根因。CI 使用冻结锁文件、并发取消、超时和官方当前 Actions 版本；命令定义集中在 `release:check`，GitHub 按 gate ID 展示具体失败阶段。根因是 `web-shared` 只指向未纳入 Git 的 `dist`，本地残留产物掩盖问题；工作区导出已改为 `src/index.ts`。本地已在临时移走 dist 后复测通过，等待 GitHub Linux 最终绿灯。
+> 实施状态（2026-07-18）：已完成。CI 使用冻结锁文件、并发取消、超时和官方当前 Actions 版本；命令定义集中在 `release:check`，GitHub 按 gate ID 展示具体失败阶段。根因是 `web-shared` 只指向未纳入 Git 的 `dist`，本地残留产物掩盖问题；工作区导出已改为 `src/index.ts`。本地移走 dist 的复测与 GitHub Linux 完整门禁均通过，CI #34 全部步骤为绿色。
 
 ## 一、问题与目标
 
