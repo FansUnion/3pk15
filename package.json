@@ -4,6 +4,8 @@
   "packageManager": "pnpm@9.15.0",
   "scripts": {
     "dev": "pnpm --filter @wolf-sheep/web dev",
+    "dev:player": "pnpm --filter @wolf-sheep/player-web dev",
+    "build:player": "pnpm --filter @wolf-sheep/player-web build",
     "build": "pnpm -r build",
     "build:portal": "pnpm --filter @wolf-sheep/web build:portal",
     "build:standalone": "pnpm --filter @wolf-sheep/web build:portal",
