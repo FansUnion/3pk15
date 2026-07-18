@@ -13,6 +13,9 @@ importers:
       '@wolf-sheep/game-core':
         specifier: workspace:*
         version: link:../../packages/game-core
+      '@wolf-sheep/web-shared':
+        specifier: workspace:*
+        version: link:../../packages/web-shared
       next:
         specifier: 15.5.18
         version: 15.5.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -44,6 +47,9 @@ importers:
       '@wolf-sheep/game-core':
         specifier: workspace:*
         version: link:../../packages/game-core
+      '@wolf-sheep/web-shared':
+        specifier: workspace:*
+        version: link:../../packages/web-shared
       next:
         specifier: 15.5.18
         version: 15.5.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -127,6 +133,12 @@ importers:
       vitest:
         specifier: ^3.0.5
         version: 3.2.7(@types/node@20.19.43)(jiti@1.21.7)
+
+  packages/web-shared:
+    devDependencies:
+      typescript:
+        specifier: ^5
+        version: 5.9.3
 
 packages:
 

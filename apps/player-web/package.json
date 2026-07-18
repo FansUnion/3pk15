@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@wolf-sheep/game-core": "workspace:*",
+    "@wolf-sheep/web-shared": "workspace:*",
     "next": "15.5.18",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

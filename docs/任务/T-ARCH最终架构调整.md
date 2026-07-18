@@ -29,7 +29,7 @@ packages/game-core
 
 - `apps/player-web`：完整玩家路由、独立资源、独立 middleware，Admin/API 严格审计为0。
 - `apps/web`：当前完整开发入口和 Admin 兼容入口。
-- `packages/web-shared`：尚未建立，本批次开始建立。
+- `packages/web-shared`：已建立第一版跨应用目标契约；业务实现迁移尚未完成。
 - `apps/admin`：尚未建立，本批次开始建立。
 - `packages/game-core`：继续作为规则、AI、关卡和奖励唯一来源。
 
