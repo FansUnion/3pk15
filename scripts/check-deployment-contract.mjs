@@ -4,15 +4,16 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
-const env = readFileSync(join(root, 'apps/web/.env.example'), 'utf8')
-const guide = readFileSync(join(root, 'apps/web/README.md'), 'utf8')
+const env = readFileSync(join(root, 'apps/player-web/.env.example'), 'utf8')
 const standalone = readFileSync(join(root, 'distribution/standalone/README.md'), 'utf8')
 
 const checks = [
-  ['standalone shell is documented', /NEXT_PUBLIC_APP_SHELL=standalone/.test(env) && /NEXT_PUBLIC_APP_SHELL[\s|`]*standalone/.test(standalone)],
-  ['standalone platform is documented', /NEXT_PUBLIC_PLATFORM=standalone/.test(env) && /NEXT_PUBLIC_PLATFORM[\s|`]*standalone/.test(standalone)],
-  ['production ads are disabled', /NEXT_PUBLIC_ADS_PROVIDER=none/.test(env) && /NEXT_PUBLIC_ADS_PROVIDER[\s|`]*none/.test(standalone)],
-  ['Admin is disabled for production', /ADMIN_ENABLED[\s|`]*false/.test(standalone) && /Admin.*关闭/.test(guide)],
+  ['standalone shell is configured', /NEXT_PUBLIC_APP_SHELL=standalone/.test(env)],
+  ['standalone platform is configured', /NEXT_PUBLIC_PLATFORM=standalone/.test(env)],
+  ['production ads are disabled', /NEXT_PUBLIC_ADS_PROVIDER=none/.test(env)],
+  ['player env excludes Admin settings', !/ADMIN_ENABLED|ADMIN_ACCESS_KEY/.test(env)],
+  ['player artifact audit is documented', /audit:player-artifact/.test(standalone)],
+  ['player production start is documented', /@wolf-sheep\/player-web start/.test(standalone)],
   ['rollback is documented', /回滚/.test(standalone)],
 ]
 

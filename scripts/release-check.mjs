@@ -10,6 +10,7 @@ const gates = [
   ['platform boundaries', ['check:platform-boundaries']],
   ['player boundaries', ['check:player-boundaries']],
   ['application source boundaries', ['check:app-source-boundaries']],
+  ['deployment contract', ['check:deployment-contract']],
   ['public assets', ['--filter', '@wolf-sheep/web', 'check:assets']],
   ['production build', ['build:standalone']],
   ['player artifact', ['audit:player-artifact']],
