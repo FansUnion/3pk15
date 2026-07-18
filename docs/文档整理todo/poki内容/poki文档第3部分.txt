@@ -1,0 +1,1238 @@
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+General Info
+  
+基本信息
+HTML5
+Defold
+  
+展开/还原
+Use the Defold Poki Integration
+  
+使用 Defold Poki 集成
+1. Install the SDK
+  
+1. 安装 SDK
+2. Implement the gameplay events
+  
+2. 实现游戏事件
+3. Implement commercialBreak
+  
+3. 实现商业休息
+4. Implement rewardedBreak
+  
+4. 实现奖励休息
+5. User Accounts
+  
+5. 用户账户
+6. Final Steps
+  
+6. 最后步骤
+Unity
+GameMaker
+Phaser 3
+Godot
+  
+戈多
+Cocos
+  
+可可斯
+Construct 3
+GDevelop
+Bonus Level
+  
+奖励关卡
+FAQ
+  
+常见问题解答
+defold-banner
+
+PokiSDK - Defold
+Made by Defold  由 Defold 制作 
+
+Introduction & Features  简介与特性
+Use the Defold Poki Integration
+使用 Defold Poki 集成
+Below is a step-by-step guide to implement the Poki SDK and get your game ready to launch. However, as part of the partnership between Poki and the Defold Foundation, we also have released the ability to bundle Defold games directly to Poki. This direct integration, which also includes an SDK template, will make creating, testing and iterating on your Poki game much smoother.
+以下是实现 Poki SDK 并为您的游戏准备发布的分步指南。然而，作为 Poki 与 Defold 基金会合作的一部分，我们还发布了直接将 Defold 游戏打包到 Poki 的功能。这种直接集成还包括一个 SDK 模板，将使您创建、测试和迭代 Poki 游戏变得更加顺畅。
+
+For more information on the integration and how to use it, have a look at this article.
+有关集成和使用方法的更多信息，请查看这篇文章。
+
+poki-x-defold
+
+
+
+1. Install the SDK
+1. 安装 SDK
+To use Poki SDK in your Defold project, add a version of the Poki SDK extension to your game.project dependencies from the list of available Releases. Find the version you want, copy the URL to ZIP archive of the release and add it to the project dependencies.
+要在您的 Defold 项目中使用 Poki SDK，从可用的 Releases 列表中，将 Poki SDK 扩展的一个版本添加到您的 game.project 依赖项中。找到您想要的版本，复制该版本发布 ZIP 存档的 URL，并将其添加到项目依赖项中。
+
+extension-add
+
+Select Project->Fetch Libraries once you have added the version to game.project to download the version and make it available in your project.
+在将版本添加到 game.project 后，选择 Project->Fetch Libraries 下载该版本，并在您的项目中使其可用。
+
+
+
+2. Implement the gameplay events
+2. 实现游戏事件
+Use the  🎮 gameplayStart()  event to describe when users are playing your game (e.g. on first user interaction and unpause).
+使用 🎮 gameplayStart() 事件来描述用户正在玩您的游戏（例如：第一次用户交互和恢复播放）。
+
+Use the  ☠ gameplayStop()  event to describe when users aren’t playing your game (e.g. level finish, game over, pause, quit to menu).
+使用 ☠ gameplayStop() 事件来描述用户未在玩您的游戏（例如：关卡完成、游戏结束、暂停、退出到菜单）。
+
+
+-- player interacts with the game
+poki_sdk.gameplay_start()
+-- player is playing
+-- player loses round
+poki_sdk.gameplay_stop()
+-- game over screen pops up
+
+
+3. Implement commercialBreak
+3. 实现商业广告
+Commercial breaks are used to display video ads and should be triggered on natural breaks in your game. Throughout the rest of your game, we recommend you implement the  🎞 commercialBreak()  before every  🎮 gameplayStart() , i.e. whenever the user has shown an intent to continue playing.
+商业广告时段用于展示视频广告，应在游戏中的自然间隙时触发。在游戏的其余部分，我们建议您在每次 🎮 gameplayStart() 之前实施 🎞 commercialBreak() ，即每当用户表现出继续游戏的意图时。
+
+
+poki_sdk.commercial_break(function(self, status)
+    if status == poki_sdk.COMMERCIAL_BREAK_START then
+        -- commercial break started, pause your game
+    elseif status == poki_sdk.COMMERCIAL_BREAK_SUCCESS then
+        -- continue game
+    end
+end)
+Important information about commercialBreaks
+关于商业广告时段的重要信息
+
+Not every single  🎞 commercialBreak()  will trigger an ad. Poki’s system will determine when a user is ready for another ad, so feel free to signal as many commercial break opportunities as possible.
+并非每个 🎞 commercialBreak() 都会触发广告。Poki 的系统将决定用户何时准备好观看另一则广告，因此请尽可能多地标记广告时段机会。
+
+
+
+4. Implement rewardedBreak
+4. 实现 rewardedBreak
+Rewarded breaks allow for a user to choose to watch a rewarded video ad in exchange for a certain benefit in the game (e.g. more coins, etc.). When using  🎬 rewardedBreak() , please make it clear to the player beforehand that they’re about to watch an ad.
+奖励休息允许用户选择观看一个奖励视频广告以换取游戏中的某些好处（例如更多金币等）。在使用 🎬 rewardedBreak() 时，请事先向玩家明确说明他们即将观看广告。
+
+
+-- gameplay stops
+poki_sdk.rewarded_break(function(self, status)
+    if status == poki_sdk.REWARDED_BREAK_ERROR then
+        -- an error happened, don't give the reward and continue the game
+    elseif status == poki_sdk.REWARDED_BREAK_START then
+        -- rewarded break started, pause your game
+    elseif status == poki_sdk.REWARDED_BREAK_SUCCESS then
+        -- rewarded break finished, give the reward and continue the game
+    end
+end)
+About the rewardedBreak timer
+关于 rewardedBreak 计时器
+
+ 🎬 rewardedBreak()  affects the timing of  🎞 commercialBreak()  - When a user interacts with a rewarded break, our system’s ad timer is reset to ensure the user does not immediately see another ad.
+🎬 奖励视频广告()会影响 🎞 商业视频广告()的播放时间 - 当用户与奖励视频广告互动时，我们的系统广告计时器会重置，以确保用户不会立即看到另一个广告。
+
+
+
+5. User Accounts  5. 用户账户
+The Defold extension exposes the account APIs as Lua functions with callbacks.
+Defold 扩展将账户 API 作为 Lua 函数和回调暴露。
+
+Call poki_sdk.get_user() after your game loads to check whether a player is already logged in. Call poki_sdk.login() only from a player interaction that requires an account. A successful login can refresh the page, so check get_user() again after load.
+在游戏加载后调用 poki_sdk.get_user() 来检查玩家是否已经登录。仅在需要账户的玩家交互中调用 poki_sdk.login() 。成功的登录可能会刷新页面，所以在加载后再次检查 get_user() 。
+
+
+poki_sdk.get_user(function(self, user, error)
+    if error then
+        -- User accounts are unavailable or the user opted out.
+        return
+    end
+
+    if user then
+        print("Welcome", user.username)
+        print("Avatar", user.avatar_url)
+    else
+        print("User not logged in")
+    end
+end)
+
+local function on_login_finished(self, success, error)
+    if not success then
+        -- User closed the auth panel or login timed out.
+        return
+    end
+
+    -- If the page did not refresh, the user was already logged in.
+    poki_sdk.get_user(function(self, user, error)
+        if user then
+            print("Logged in as", user.username)
+        end
+    end)
+end
+
+poki_sdk.login(on_login_finished)
+Use poki_sdk.get_token() when your game needs to verify the Poki user on your own backend:
+使用 poki_sdk.get_token() 当您的游戏需要在您自己的后端验证 Poki 用户时
+
+
+poki_sdk.get_token(function(self, token, error)
+    if token then
+        print("Token", token)
+    end
+end)
+The token expires in 1 minute. Do not store it or use it for anything other than backend verification. Verify it with GET https://user-vault.poki.com/auth/verify-token using the headers Authorization: Bearer <token> and X-Poki-Team-Api-Key: <team-api-key>. The endpoint returns an immutable, game-specific user_id.
+该令牌将在 1 分钟内过期。请不要存储它或用于除后端验证之外的任何用途。使用 Authorization: Bearer <token> 和 X-Poki-Team-Api-Key: <team-api-key> 头部通过 GET https://user-vault.poki.com/auth/verify-token 进行验证。该端点返回一个不可变、游戏特定的 user_id 。
+
+
+
+6. Final Steps  6. 最后步骤
+Disable sound and input during ads
+在广告期间禁用声音和输入
+Make sure that your game is paused and keyboard input are disabled during commercial breaks and rewarded breaks, so that the game doesn’t interfere with the ad:
+确保在广告间隙和奖励间隙期间游戏处于暂停状态，并禁用键盘输入，以防止游戏干扰广告：
+
+Either:   或者：
+
+
+-- gameplay stops
+poki_sdk.commercial_break(function(self, status)
+    if status == poki_sdk.COMMERCIAL_BREAK_SUCCESS then
+        -- fire your function to continue the game
+    end
+end)
+Or:   或者：
+
+
+poki_sdk.commercial_break(function(self, status)
+    if status == poki_sdk.COMMERCIAL_BREAK_START then
+        -- gameplay stops
+    elseif status == poki_sdk.COMMERCIAL_BREAK_SUCCESS then
+        -- fire your function to continue the game
+    end
+end)
+
+
+Upload and test your game in Poki for Developers
+在 Poki for Developers 中上传并测试您的游戏
+Congrats, you’ve successfully implemented the PokiSDK! Now upload your game to the Poki Inspector and test it there. When you’re happy with the implementation, send us a review request and we’ll play the game. Feel free to contact us via Discord or developersupport@poki.com if you’re stuck.
+恭喜，您已成功实现 PokiSDK！现在将您的游戏上传到 Poki Inspector 并在那里进行测试。当您对实现满意时，请发送给我们一个审核请求，我们会玩这款游戏。如果您遇到困难，可以通过 Discord 或 developersupport@poki.com 联系我们。
+
+
+
+Error handling  错误处理
+Do not collect Lua errors manually using sys.set_error_handler(). The SDK collects Lua errors and the engine’s errors and warnings automatically.
+不要手动使用 sys.set_error_handler() 收集 Lua 错误。SDK 会自动收集 Lua 错误以及引擎的错误和警告。
+
+
+
+Shareable URLs  可分享的 URL
+You can create a shareable url with the following function:
+您可以使用以下函数创建可分享的 URL：
+
+
+local params = {
+    id = "myid",
+    type = "mytype",
+    score = 28
+    -- ... any other param
+}
+poki_sdk.shareable_url(params, function(self, url)
+    print(url)
+    -- if run on e.g. https://poki.com/en/g/my-awesome-game it will return:
+    -- https://poki.com/en/g/my-awesome-game?gdid=myid&gdtype=mytype&score=28
+end)
+-- read further to see how to fetch these params easily from within your game
+
+
+Reading Poki url params
+读取 Poki URL 参数
+As you might have noticed in the previous topic, the poki_sdk.shareable_url() creates a url with parameters that are prefixed with gd. We have created a simple helper function that will easily allow you to read the params.
+
+
+poki_sdk.get_url_param("<param name>")
+
+-- example
+local id = poki_sdk.get_url_param("id")
+-- this will return either the gdid param set on poki.com or the id param on the current url
+
+
+Moving the Poki Pill on mobile
+移动手机上的 Poki 药丸
+On mobile, you can reposition the Poki Pill slightly to better fit your game UI using move_pill(topPercent, topPx).
+在手机上，您可以使用 move_pill(topPercent, topPx) 微调 Poki 药丸的位置，以更好地适应您的游戏 UI。
+
+topPercent is a number between 0 and 50 and sets the pill’s vertical position as a percentage from the top of the game area.
+topPercent 是一个介于 0 和 50 之间的数字，它将药丸的垂直位置设置为游戏区域顶部的百分比。
+topPx is an additional pixel offset applied on top of topPercent (positive moves it down, negative moves it up).
+topPx 是在 topPercent 基础上应用的一个额外的像素偏移量（正值向下移动，负值向上移动）。
+You can’t move the pill lower than 50% of the game area (the game bar at the bottom is not included in this area).
+你不能将药丸移动到游戏区域以下 50%（底部游戏栏不包括在此区域内）。
+
+The default position is move_pill(0, 24).
+默认位置是 move_pill(0, 24) 。
+
+Poki Pill size  Poki 药丸尺寸
+
+46px × 62px on screens narrower than 1211px.
+在屏幕宽度小于 1211px 的设备上显示 46px × 62px 。
+92px × 64px on screens 1211px wide or wider.
+92px × 64px 在 1211px 更宽或更宽的屏幕上。
+
+-- Move the pill 100 pixels above the center of the game.
+poki_sdk.move_pill(50, -100)
+
+
+Example project and Source code
+示例项目和源代码
+Refer to the example project to see a complete example of how the integration works.
+参考示例项目，了解集成工作的完整示例。
+
+The source code is available on GitHub
+源代码可在 GitHub 上找到
+
+Previous   上一个HTML5
+Next   接下来Unity
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+General Info
+  
+基本信息
+HTML5
+Defold
+  
+展开/还原
+Unity
+GameMaker
+Phaser 3
+Godot
+  
+戈多
+Cocos
+  
+可可斯
+Construct 3
+  
+构建 3
+GDevelop
+Game Events 
+  
+游戏事件
+Event Types
+  
+事件类型
+Engine Examples
+  
+引擎示例
+Special Action Values
+  
+特殊动作值
+Choosing Event Values
+  
+选择事件值
+Progress Events
+  
+进度事件
+Interaction Events
+  
+交互事件
+Custom Events
+  
+自定义事件
+Automatic Ad Events
+  
+自动广告事件
+Bonus Level
+  
+奖励关卡
+FAQ
+Game Events  游戏事件
+Use the  📊 measure()  function to track game-specific events that help you understand how players move through your game.
+使用 📊 measure() 函数来跟踪游戏特定事件，帮助你了解玩家如何在你游戏中移动。
+
+Game events work like analytics checkpoints: when something meaningful happens in your game, an event is logged. This helps you understand where players drop off, which levels or features are most engaging, whether upgrades are being used, and how your ad placements fit into the experience.
+游戏事件就像分析检查点：当你的游戏中发生有意义的事情时，就会记录一个事件。这有助于你了解玩家在哪里流失，哪些关卡或功能最吸引人，是否在使用升级，以及你的广告位置如何融入体验。
+
+Choose values that are stable and easy to compare across versions of your game:
+选择稳定且易于跨游戏版本比较的值。
+
+category: the broad group, such as level, tutorial, drawing, button, or difficulty.
+分类：指广义的组别，例如 level 、 tutorial 、 drawing 、 button 或 difficulty 。
+what: the specific thing being measured, such as 1, de_dust, reward-revive, or hard.
+指标：指被测量的具体事物，例如 1 、 de_dust 、 reward-revive 或 hard 。
+action: the event state. Any value is accepted, but some values have special analytical meaning.
+动作：指事件状态。接受任何值，但某些值具有特殊的分析意义。
+For example, the start of level 1 can be measured like this:
+例如，1 级开始可以像这样测量：
+
+
+PokiSDK.measure('level', '1', 'start');
+
+
+Event Types  事件类型
+Track the events that explain important player behavior. The more meaningful events you send, the more useful the analytics become.
+跟踪解释重要玩家行为的事件。你发送的越有意义的事件，分析结果就越有用。
+
+Event type  事件类型	When to use it
+何时使用它
+Progress events  进度事件	Track player progression checkpoints with start, complete, and fail. Best for levels, quests, missions, rounds, and tutorial steps.
+使用 start 、 complete 和 fail 跟踪玩家进度检查点。最适合用于关卡、任务、任务、回合和教程步骤。
+Interaction events  交互事件	Compare UI exposure and engagement with visible and interact. Best for buttons, upgrades, shops, power-ups, and popups.
+使用 visible 和 interact 比较 UI 曝光度和参与度。最适合用于按钮、升级、商店、强化道具和弹窗。
+Ads  广告	Commercial and rewarded ad analytics are tracked automatically through your existing ad SDK calls. No extra measure() calls are needed.
+商业广告和奖励广告分析将自动通过您现有的广告 SDK 调用进行跟踪。无需额外的 measure() 调用。
+Custom events  自定义事件	Track unique game systems with any custom action value. Best for difficulty choices, VIP access, currency, crafting, and first-time milestones.
+使用任何自定义动作值跟踪独特的游戏系统。最适合难度选择、VIP 访问、货币、制作和首次里程碑。
+
+
+Engine Examples  引擎示例
+
+HTML5
+Unity  团结一致
+GameMaker
+Phaser 3
+Godot  戈多
+Cocos  可可斯
+Construct 3
+GDevelop
+Defold  展开/还原
+
+PokiSDK.measure('level', '1', 'start');
+
+
+
+Special Action Values  特殊动作值
+The action value is not restricted to the values below. Use any custom value when you want to track that a gameplay reached a specific event.
+动作值不限于以下值。当你想要跟踪一个游戏玩法达到特定事件时，可以使用任何自定义值。
+
+These special values are interpreted by Poki for richer analytics. They determine whether an event appears in progress, interaction, or other event reporting.
+
+Action value	Reporting	Meaning
+ start 	Progress events	Starts a progress funnel, such as a level, tutorial, or drawing. Example: measure('level', '1', 'start').
+ complete 	Progress events	Marks that progress as completed. Use the same category and what as the matching start event. Example: measure('level', '1', 'complete').
+ fail 	Progress events	Marks that progress as failed. Use the same category and what as the matching start event. Example: measure('level', '1', 'fail').
+ visible 	Interaction events	Tracks when something becomes visible, such as a rewarded break button or tutorial hint. Example: measure('button', 'reward-revive', 'visible').
+ interact 	Interaction events	Tracks when something is interacted with. Use the same category and what as the matching visible event. Example: measure('button', 'reward-revive', 'interact').
+<action>	Other events	Tracks any other event. Custom actions show the percentage of gameplays that reached the event. Example: measure('difficulty', 'hard', 'selected').
+
+
+Choosing Event Values
+For category, choose a short group name such as level, tutorial, drawing, button, or difficulty.
+
+For what, choose the value that identifies the specific thing you are measuring. For levels, this could be 1, 2, or de_dust. For buttons, this could be skip-level or extra-points.
+
+For action, use a special value when the event fits one of the progress or interaction patterns above. Use a custom action for one-off events, choices, or milestones that should appear in other event reporting.
+
+Progress pairs should use the same category and what; only the action changes:
+
+
+PokiSDK.measure('level', '1', 'start');
+PokiSDK.measure('level', '1', 'complete');
+Interaction pairs should also use the same category and what; only the action changes:
+
+
+PokiSDK.measure('button', 'reward-revive', 'visible');
+PokiSDK.measure('button', 'reward-revive', 'interact');
+
+
+Progress Events
+Progress events are useful for games with levels, rounds, quests, tutorials, or any other milestone structure. Even when your game does not have fixed levels, progress can mean that a puzzle was solved, a round was completed, a chapter was reached, a boss was defeated, or a challenge was failed.
+
+Use progress events to find drop-off points, detect difficulty spikes, validate onboarding, and tune pacing or content.
+
+Game type	Useful progress events
+Level games	level-1-start, level-1-complete, level-1-fail
+Open world	quest-mainline-start, quest-side-complete, biome-desert-start
+Puzzle	puzzle-45-complete, streak-current-fail
+Action or shooter	wave-5-start, boss-2-fail, checkpoint-3-complete
+Dress-up	theme-winter-start, collection-shoes-complete
+Solitaire or card	round-1-start, round-1-fail
+
+
+Interaction Events
+Interaction events help you compare what players see with what they actually use. They are especially useful for buttons, shops, upgrades, boosters, power-ups, unlocks, and tutorial hints.
+
+If visibility is high but interaction is low, the feature may be unclear, poorly placed, or unappealing. If interaction is strong, the feature may be a good candidate for stronger rewards, more content, or monetization tuning.
+
+Game feature	Events to send
+Booster button	booster-x-visible, booster-x-interact
+Shop open	shop-main-visible, shop-main-interact
+Character unlock	skin-gold-visible, skin-gold-interact
+Power-up	powerup-freeze-visible, powerup-freeze-interact
+Hint	hint-default-visible, hint-default-interact
+
+
+Custom Events
+Use custom events for game-specific behavior that does not fit the progress or interaction patterns. Good examples include difficulty choices, crafting, resource economy actions, VIP states, seasonal content, battle passes, power-ups without a UI button, and first-time milestones.
+
+
+PokiSDK.measure('difficulty', 'hard', 'selected');
+PokiSDK.measure('vip', 'access', 'granted');
+PokiSDK.measure('currency', 'gold', 'spent');
+PokiSDK.measure('crafting', 'sword', 'finished');
+PokiSDK.measure('speedrun', 'mode', 'enabled');
+PokiSDK.measure('milestone', 'first-upgrade', 'reached');
+Custom events tell deeper stories about player behavior beyond UI clicks, wins, and losses.
+
+
+
+Automatic Ad Events
+Commercial breaks and rewarded breaks are tracked automatically through your existing ad SDK calls. You do not need to send extra measure() events for midroll or rewarded impressions.
+
+Ad analytics can help you understand whether ads are placed at good moments in the experience:
+
+Signal	What it can mean
+Many early commercial breaks	Ads may appear before players are ready, which can hurt retention.
+Rewarded breaks are rarely used	The reward may be too weak, unclear, or hard to find.
+Rewarded breaks are used often	The reward has strong value and may need more reward sinks or balancing.
+Commercial breaks are frequent	Ad pacing may be affecting session length or satisfaction.
+PreviousChat
+NextBonus Level
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+第 0 关 - 欢迎
+Level 1 - Adding Your Game
+  
+第 1 关 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+Level 2 - 反馈与测试玩
+Level 3 - Player Fit Test
+  
+Level 3 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - 网站适配测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+  
+奖励关卡
+Bonus Level
+  
+奖励关卡
+Deal Types
+  
+交易类型
+Release Process
+  
+发布流程
+How Does Poki Promote My Game
+  
+Poki 如何推广我的游戏
+Post-Release Update
+  
+发布后更新
+Fullscreen For Games
+  
+游戏全屏
+Animated Thumbnails
+  
+动画缩略图
+A/B Thumbnail Tests
+FAQ
+Bonus Level 👾  奖励关卡 👾
+When you partner with Poki, you’re unlocking a full-service platform that not only gets your game in front of tens of millions of players, but also gives you flexible deal structures, a data-driven release process, and ongoing marketing muscle to keep your community growing.
+当你与 Poki 合作时，你正在解锁一个全方位服务平台，它不仅能让你的游戏面向数千万玩家，还能为你提供灵活的协议结构、数据驱动的发布流程以及持续的市场营销支持，以保持你的社区持续增长。
+
+Under our Web Exclusive model (the default for maximum support), you grant Poki seven-year exclusivity on open-web browser platforms—including Discord and YouTube Playables—in exchange for deep promotional investment, premium ad and brand partnerships, and generous revenue splits (100% on direct searches, 50% on Poki referrals). If you’d rather retain full flexibility, our Non-Exclusive option offers a straightforward one-time license fee, letting you deploy your game anywhere without additional marketing or revenue-share commitments.
+在我们的独家网络模式（默认模式以获得最大支持）下，你授予 Poki 在开放网络浏览器平台（包括 Discord 和 YouTube Playables）上七年的独家权，以换取深度的推广投资、高级广告和品牌合作，以及慷慨的收入分成（直接搜索 100%，Poki 推荐 50%）。如果你更愿意保持完全的灵活性，我们的非独家选项提供一次性的许可费用，让你可以在任何地方部署你的游戏，而无需额外的营销或收入分成承诺。
+
+Behind the scenes, our release process guides your title from a quick tech check into a staged Soft Release, where real-world performance and player feedback help us fine-tune everything from load times to ad placements, all before you go Global and unlock homepage features, category pushes, and automated recommender boosts.
+背后，我们的发布流程引导您的游戏从快速技术检查进入分阶段的软发布，其中真实世界的性能和玩家反馈帮助我们微调从加载时间到广告位置等所有方面，所有这一切都在您进入全球市场并解锁主页功能、类别推广和自动推荐增强之前完成。
+
+You can learn more about these topics and others within the following articles to ensure that your game has the most optimal performance.
+您可以通过以下文章了解更多关于这些主题和其他内容，以确保您的游戏具有最优性能。
+
+
+
+Previous   上一个Game Events   游戏事件
+Next   下一Deal Types   交易类型
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+Bonus Level
+Deal Types
+Exclusivity on the Web
+Non-Exclusive Deals
+General Requirements
+Game Development & Content
+Minimum Game Performance Requirements
+Supported Devices & Browsers
+Release Process
+How Does Poki Promote My Game
+Post-Release Update
+Fullscreen For Games
+Animated Thumbnails
+A/B Thumbnail Tests
+FAQ
+Deals: What can I expect if I work with Poki? 🤝
+If your game is a fit for the Poki platform, we will offer you an agreement. These agreements fall into two categories, Web Exclusive and Non-Exclusive. We will describe the difference between these two below.
+
+Exclusivity on the Web
+Poki prefers to work with developers on a Web Exclusive basis. That means that on the open web, your game will be published only on Poki. Platforms such as Steam and the mobile app stores as well as traditional consoles are not part of this exclusivity clause.
+
+We do consider both Discord and YouTube Playables as web-based platforms, since they allow users to play HTML5 games directly in a browser (on the Discord web client and on YouTube). Because of that, releasing a game on those platforms would conflict with our web exclusivity policy.
+
+By default, exclusive deals with Poki are set for 5 years. In return for the exclusivity, Poki invests additional time and resources into your game. Once your game is published exclusively, we support you with:
+
+Marketing and promotion of your game to reach 90 million players and beyond.
+Monetization through our top-tier ad partners and the best brand deals.
+100% of the game’s earnings when you bring the player. For example, when a player searches for your game title in Google or a player lands directly on your game.
+50% of the game’s earnings when Poki brings the player. For example, when a player reaches your game through Poki promotions or marketing campaigns.
+Non-Exclusive Deals
+Non-exclusive licensing options are available at Poki. In these cases, Poki offers a one-time flat license fee in exchange for your game. The added revenue sharing and marketing for Web Exclusive games does not apply to these deal types.
+
+General Requirements
+The Developer will provide Poki with the required compatible build(s) for the Platform(s).
+
+The following requirements will apply to the Web. Parties will agree on separate technical requirements for any other Platform(s).
+
+Game Development & Content
+The Developer will be responsible for the development of the Game(s) and will implement the Poki ad SDK in the Game(s). Web best practices will be implemented according to Poki guidelines and requirements, under supervision of Poki.
+
+If the Game contains any form of chat, user-generated content, or other ways for users to communicate or display content to others, such features may only be included with Poki’s prior approval. If Poki permits such features, the Developer agrees to implement any content moderation tools provided by Poki
+
+The Game(s) may not include:
+
+Any promotions or commercial communication that is not approved by Poki (such approval to be withheld at Poki’s sole discretion).
+Any defamatory, discriminatory, obscene, inflammatory, racist, sexual, or otherwise illegal or harmful content.
+Any third-party plugins, tracking tools, or external services without Poki’s prior written consent (such consent to be withheld at Poki’s sole discretion). More information can be found at: https://sdk.poki.com/requirements.html#privacy-security.
+Minimum Game Performance Requirements
+The Game(s) must be fully responsive and support 16:9 aspect ratio across devices and should run at a minimum of 30 frames per second (“FPS”), with a target of 60 FPS, on the Supported Devices and Browsers under standard network conditions (e.g. 3G mobile data or better). The Developer will aim to keep the initial and full file size of the Game(s) as small as possible.
+
+The Game(s) must be free of game-breaking bugs, including but not limited to player progress resets, game freezes, infinite loading and/or major UI/UX malfunctions. Any and all bugs will be properly and timely fixed within one (1) month following reports thereof, or sooner if reasonably requested by Poki.
+
+Supported Devices & Browsers
+The Game(s) must meet the Minimum Game Performance Requirements and perform reliably on a representative set of mainstream consumer devices, including, but not limited to:
+
+Mid-range mobile phones released within the last three (3) years, running modern Android or iOS versions; and
+Desktop/laptop devices capable of running a major browser version released within the past 12-18 months.
+The Game(s) must meet the Minimum Game Performance Requirements and function without critical issues (such as crashes, major rendering errors, or input failures) for at least 85% of the users on each Platform.
+
+
+
+PreviousBonus Level
+NextRelease Process
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+Bonus Level
+Deal Types
+Exclusivity on the Web
+Non-Exclusive Deals
+General Requirements
+Game Development & Content
+Minimum Game Performance Requirements
+Supported Devices & Browsers
+Release Process
+How Does Poki Promote My Game
+Post-Release Update
+Fullscreen For Games
+Animated Thumbnails
+A/B Thumbnail Tests
+FAQ
+Deals: What can I expect if I work with Poki? 🤝
+If your game is a fit for the Poki platform, we will offer you an agreement. These agreements fall into two categories, Web Exclusive and Non-Exclusive. We will describe the difference between these two below.
+
+Exclusivity on the Web
+Poki prefers to work with developers on a Web Exclusive basis. That means that on the open web, your game will be published only on Poki. Platforms such as Steam and the mobile app stores as well as traditional consoles are not part of this exclusivity clause.
+
+We do consider both Discord and YouTube Playables as web-based platforms, since they allow users to play HTML5 games directly in a browser (on the Discord web client and on YouTube). Because of that, releasing a game on those platforms would conflict with our web exclusivity policy.
+
+By default, exclusive deals with Poki are set for 5 years. In return for the exclusivity, Poki invests additional time and resources into your game. Once your game is published exclusively, we support you with:
+
+Marketing and promotion of your game to reach 90 million players and beyond.
+Monetization through our top-tier ad partners and the best brand deals.
+100% of the game’s earnings when you bring the player. For example, when a player searches for your game title in Google or a player lands directly on your game.
+50% of the game’s earnings when Poki brings the player. For example, when a player reaches your game through Poki promotions or marketing campaigns.
+Non-Exclusive Deals
+Non-exclusive licensing options are available at Poki. In these cases, Poki offers a one-time flat license fee in exchange for your game. The added revenue sharing and marketing for Web Exclusive games does not apply to these deal types.
+
+General Requirements
+The Developer will provide Poki with the required compatible build(s) for the Platform(s).
+
+The following requirements will apply to the Web. Parties will agree on separate technical requirements for any other Platform(s).
+
+Game Development & Content
+The Developer will be responsible for the development of the Game(s) and will implement the Poki ad SDK in the Game(s). Web best practices will be implemented according to Poki guidelines and requirements, under supervision of Poki.
+
+If the Game contains any form of chat, user-generated content, or other ways for users to communicate or display content to others, such features may only be included with Poki’s prior approval. If Poki permits such features, the Developer agrees to implement any content moderation tools provided by Poki
+
+The Game(s) may not include:
+
+Any promotions or commercial communication that is not approved by Poki (such approval to be withheld at Poki’s sole discretion).
+Any defamatory, discriminatory, obscene, inflammatory, racist, sexual, or otherwise illegal or harmful content.
+Any third-party plugins, tracking tools, or external services without Poki’s prior written consent (such consent to be withheld at Poki’s sole discretion). More information can be found at: https://sdk.poki.com/requirements.html#privacy-security.
+Minimum Game Performance Requirements
+The Game(s) must be fully responsive and support 16:9 aspect ratio across devices and should run at a minimum of 30 frames per second (“FPS”), with a target of 60 FPS, on the Supported Devices and Browsers under standard network conditions (e.g. 3G mobile data or better). The Developer will aim to keep the initial and full file size of the Game(s) as small as possible.
+
+The Game(s) must be free of game-breaking bugs, including but not limited to player progress resets, game freezes, infinite loading and/or major UI/UX malfunctions. Any and all bugs will be properly and timely fixed within one (1) month following reports thereof, or sooner if reasonably requested by Poki.
+
+Supported Devices & Browsers
+The Game(s) must meet the Minimum Game Performance Requirements and perform reliably on a representative set of mainstream consumer devices, including, but not limited to:
+
+Mid-range mobile phones released within the last three (3) years, running modern Android or iOS versions; and
+Desktop/laptop devices capable of running a major browser version released within the past 12-18 months.
+The Game(s) must meet the Minimum Game Performance Requirements and function without critical issues (such as crashes, major rendering errors, or input failures) for at least 85% of the users on each Platform.
+
+
+
+PreviousBonus Level
+NextRelease Process
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+Bonus Level
+Deal Types
+Exclusivity on the Web
+Non-Exclusive Deals
+General Requirements
+Game Development & Content
+Minimum Game Performance Requirements
+Supported Devices & Browsers
+Release Process
+How Does Poki Promote My Game
+Post-Release Update
+Fullscreen For Games
+Animated Thumbnails
+A/B Thumbnail Tests
+FAQ
+Deals: What can I expect if I work with Poki? 🤝
+If your game is a fit for the Poki platform, we will offer you an agreement. These agreements fall into two categories, Web Exclusive and Non-Exclusive. We will describe the difference between these two below.
+
+Exclusivity on the Web
+Poki prefers to work with developers on a Web Exclusive basis. That means that on the open web, your game will be published only on Poki. Platforms such as Steam and the mobile app stores as well as traditional consoles are not part of this exclusivity clause.
+
+We do consider both Discord and YouTube Playables as web-based platforms, since they allow users to play HTML5 games directly in a browser (on the Discord web client and on YouTube). Because of that, releasing a game on those platforms would conflict with our web exclusivity policy.
+
+By default, exclusive deals with Poki are set for 5 years. In return for the exclusivity, Poki invests additional time and resources into your game. Once your game is published exclusively, we support you with:
+
+Marketing and promotion of your game to reach 90 million players and beyond.
+Monetization through our top-tier ad partners and the best brand deals.
+100% of the game’s earnings when you bring the player. For example, when a player searches for your game title in Google or a player lands directly on your game.
+50% of the game’s earnings when Poki brings the player. For example, when a player reaches your game through Poki promotions or marketing campaigns.
+Non-Exclusive Deals
+Non-exclusive licensing options are available at Poki. In these cases, Poki offers a one-time flat license fee in exchange for your game. The added revenue sharing and marketing for Web Exclusive games does not apply to these deal types.
+
+General Requirements
+The Developer will provide Poki with the required compatible build(s) for the Platform(s).
+
+The following requirements will apply to the Web. Parties will agree on separate technical requirements for any other Platform(s).
+
+Game Development & Content
+The Developer will be responsible for the development of the Game(s) and will implement the Poki ad SDK in the Game(s). Web best practices will be implemented according to Poki guidelines and requirements, under supervision of Poki.
+
+If the Game contains any form of chat, user-generated content, or other ways for users to communicate or display content to others, such features may only be included with Poki’s prior approval. If Poki permits such features, the Developer agrees to implement any content moderation tools provided by Poki
+
+The Game(s) may not include:
+
+Any promotions or commercial communication that is not approved by Poki (such approval to be withheld at Poki’s sole discretion).
+Any defamatory, discriminatory, obscene, inflammatory, racist, sexual, or otherwise illegal or harmful content.
+Any third-party plugins, tracking tools, or external services without Poki’s prior written consent (such consent to be withheld at Poki’s sole discretion). More information can be found at: https://sdk.poki.com/requirements.html#privacy-security.
+Minimum Game Performance Requirements
+The Game(s) must be fully responsive and support 16:9 aspect ratio across devices and should run at a minimum of 30 frames per second (“FPS”), with a target of 60 FPS, on the Supported Devices and Browsers under standard network conditions (e.g. 3G mobile data or better). The Developer will aim to keep the initial and full file size of the Game(s) as small as possible.
+
+The Game(s) must be free of game-breaking bugs, including but not limited to player progress resets, game freezes, infinite loading and/or major UI/UX malfunctions. Any and all bugs will be properly and timely fixed within one (1) month following reports thereof, or sooner if reasonably requested by Poki.
+
+Supported Devices & Browsers
+The Game(s) must meet the Minimum Game Performance Requirements and perform reliably on a representative set of mainstream consumer devices, including, but not limited to:
+
+Mid-range mobile phones released within the last three (3) years, running modern Android or iOS versions; and
+Desktop/laptop devices capable of running a major browser version released within the past 12-18 months.
+The Game(s) must meet the Minimum Game Performance Requirements and function without critical issues (such as crashes, major rendering errors, or input failures) for at least 85% of the users on each Platform.
+
+
+
+PreviousBonus Level
+NextRelease Process
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+Bonus Level
+Deal Types
+Exclusivity on the Web
+Non-Exclusive Deals
+General Requirements
+Game Development & Content
+Minimum Game Performance Requirements
+Supported Devices & Browsers
+Release Process
+How Does Poki Promote My Game
+Post-Release Update
+Fullscreen For Games
+Animated Thumbnails
+A/B Thumbnail Tests
+FAQ
+Deals: What can I expect if I work with Poki? 🤝
+If your game is a fit for the Poki platform, we will offer you an agreement. These agreements fall into two categories, Web Exclusive and Non-Exclusive. We will describe the difference between these two below.
+
+Exclusivity on the Web
+Poki prefers to work with developers on a Web Exclusive basis. That means that on the open web, your game will be published only on Poki. Platforms such as Steam and the mobile app stores as well as traditional consoles are not part of this exclusivity clause.
+
+We do consider both Discord and YouTube Playables as web-based platforms, since they allow users to play HTML5 games directly in a browser (on the Discord web client and on YouTube). Because of that, releasing a game on those platforms would conflict with our web exclusivity policy.
+
+By default, exclusive deals with Poki are set for 5 years. In return for the exclusivity, Poki invests additional time and resources into your game. Once your game is published exclusively, we support you with:
+
+Marketing and promotion of your game to reach 90 million players and beyond.
+Monetization through our top-tier ad partners and the best brand deals.
+100% of the game’s earnings when you bring the player. For example, when a player searches for your game title in Google or a player lands directly on your game.
+50% of the game’s earnings when Poki brings the player. For example, when a player reaches your game through Poki promotions or marketing campaigns.
+Non-Exclusive Deals
+Non-exclusive licensing options are available at Poki. In these cases, Poki offers a one-time flat license fee in exchange for your game. The added revenue sharing and marketing for Web Exclusive games does not apply to these deal types.
+
+General Requirements
+The Developer will provide Poki with the required compatible build(s) for the Platform(s).
+
+The following requirements will apply to the Web. Parties will agree on separate technical requirements for any other Platform(s).
+
+Game Development & Content
+The Developer will be responsible for the development of the Game(s) and will implement the Poki ad SDK in the Game(s). Web best practices will be implemented according to Poki guidelines and requirements, under supervision of Poki.
+
+If the Game contains any form of chat, user-generated content, or other ways for users to communicate or display content to others, such features may only be included with Poki’s prior approval. If Poki permits such features, the Developer agrees to implement any content moderation tools provided by Poki
+
+The Game(s) may not include:
+
+Any promotions or commercial communication that is not approved by Poki (such approval to be withheld at Poki’s sole discretion).
+Any defamatory, discriminatory, obscene, inflammatory, racist, sexual, or otherwise illegal or harmful content.
+Any third-party plugins, tracking tools, or external services without Poki’s prior written consent (such consent to be withheld at Poki’s sole discretion). More information can be found at: https://sdk.poki.com/requirements.html#privacy-security.
+Minimum Game Performance Requirements
+The Game(s) must be fully responsive and support 16:9 aspect ratio across devices and should run at a minimum of 30 frames per second (“FPS”), with a target of 60 FPS, on the Supported Devices and Browsers under standard network conditions (e.g. 3G mobile data or better). The Developer will aim to keep the initial and full file size of the Game(s) as small as possible.
+
+The Game(s) must be free of game-breaking bugs, including but not limited to player progress resets, game freezes, infinite loading and/or major UI/UX malfunctions. Any and all bugs will be properly and timely fixed within one (1) month following reports thereof, or sooner if reasonably requested by Poki.
+
+Supported Devices & Browsers
+The Game(s) must meet the Minimum Game Performance Requirements and perform reliably on a representative set of mainstream consumer devices, including, but not limited to:
+
+Mid-range mobile phones released within the last three (3) years, running modern Android or iOS versions; and
+Desktop/laptop devices capable of running a major browser version released within the past 12-18 months.
+The Game(s) must meet the Minimum Game Performance Requirements and function without critical issues (such as crashes, major rendering errors, or input failures) for at least 85% of the users on each Platform.
+
+
+
+PreviousBonus Level
+NextRelease Process
+Made with Material for MkDocs
+    
+
+
+Skip to content
+logo
+Search
+
+Poki Documentation
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+Bonus Level
+Deal Types
+Release Process
+🔧 Technical Test
+🏖️ Soft Release
+🌍 Global Release
+📣 Post-Release Monitoring
+How Does Poki Promote My Game
+Post-Release Update
+Fullscreen For Games
+Animated Thumbnails
+A/B Thumbnail Tests
+FAQ
+Release Process 🚀
+The Poki release process is designed to guide your game from initial testing to a full‐scale launch through a series of structured, data‐driven phases. The process usually begins with a Soft Release stage, where we gather performance metrics and player feedback from a specific subset of our audience. Once any necessary optimizations are in place, your game moves to Global Release, unlocking promotional support and access to millions of players worldwide.
+
+Throughout each step, close collaboration with our developer support team and continuous monitoring of key indicators—such as play conversion rates, error reports, and monetization metrics—ensure your game is polished, performant, and primed for success.
+
+🔧 Technical Test
+During the Technical Test phase, the Poki team releases your game globally, but only in the new games category, which generally limits the amount of gameplays to about 5k a day. This test aims to identify any technical bottlenecks that would prevent your game from handling thousands or millions of players.
+
+For most games this phase can be skipped, since previous tests will have provided enough data. In some cases, often with online multiplayer games or games using new technologies, we may require this phase.
+
+Once we have enough data, we will review the data for your game and discuss any issues that may need fixing.
+
+What we measure: - Conversion to play - Pre-play time - Error reports - Bug reports
+
+You can request a Technical Test by contacting your Poki representative directly. They will determine if it’s necessary based on your game’s technical complexity.
+
+🏖️ Soft Release
+For most games, after passing QA, the developer support team will plan a release date for soft release. It typically takes 1-2 weeks to schedule a soft release slot in our release calendar. We’ll keep you closely updated as soon as a release date becomes available.
+
+During the soft release, your game will be released on relevant category pages. This allows your game to be played by a representative subset of our global player base to get an impression of how the game will perform with our audience. Based on the game’s performance, there’s also a chance that your game gets promoted in additional categories. This will increase the amount of gameplays during this phase and is usually a good sign for the performance. We’re not promoting the game on our homepage or localized homepages during this phase.
+
+The soft release period should take around 2-3 weeks. You should be available to ship updates and fixes as needed during this period. The soft release phase cannot be skipped. It is a crucial phase to test your game’s performance, gather data and feedback, and identify and fix remaining bugs.
+
+While your game is in soft release, we expect you to monitor:
+
+Game performance: Conversion to Play Rate and Engagement
+Errors: Monitor the Error Details section in your Poki for Developers dashboard
+Monetization: Aiming for at least 1 Ad per DAU (with a nice split between Midroll and Rewarded videos);
+Player Feedback: Review both positive and negative feedback, as well as bug reports and identify any common patterns that you can act on.
+If you identify bugs, want to adjust difficulty levels, or optimize UX/UI, the soft release phase is a great opportunity to make improvements. At this point you can also still add content to address player feedback. This can make sure that players have plenty of content to enjoy once the game reaches a global audience.
+
+To submit an update, simply follow the same process as during QA: upload a new build and request a review. Once approved, the developer support team will publish your updated version.
+
+🌍 Global Release
+🎉 Congrats! Your game is now ready to be introduced to millions of players around the globe! 🎉
+
+What does a global release look like?
+
+In phase 3, your game will be released to all of our millions of players around the globe. Depending on your game’s performance during the soft release and how quickly you are to work on optimization, it usually takes 2 - 3 weeks to move from soft release to global release.
+
+At this point your game will also be picked up by our promotion system. Depending on performance, the promotion system will automatically show your game on any of our localized homepages, relevant category pages, and game pages. As a new game, it will also get a significant push for around 2 weeks in our systems to increase its discoverability. On top of that, the game will get a fire icon on your thumbnail, indicating to players that your game is new.
+
+📣 Post-Release Monitoring
+We strongly encourage you to continue monitoring your game’s performance and reports of bugs or errors. If you are thinking about potential improvements, feel free to reach out to the Poki team.
+
+
+
+PreviousDeal Types
+NextHow Does Poki Promote My Game
+Made with Material for MkDocs
+    Skip to content
+logo
+Search
+
+Poki Documentation
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+Bonus Level
+Deal Types
+Release Process
+How Does Poki Promote My Game
+Promotion at Global Release
+Post-Release Promotion
+Post-Release Update
+Fullscreen For Games
+Animated Thumbnails
+A/B Thumbnail Tests
+FAQ
+How Does Poki Promote My Game? ⭐️
+Promotion at Global Release
+Poki promotes every newly released game for 2-3 weeks to help it find its audience. During this period, the game receives prominent placement on category pages, promotion on related game pages to encourage relevant connections, and visibility on the Poki homepage (by adding a “fire” icon to make it stand out). Games that perform particularly well compared to other recent global releases have an even greater chance of securing extended visibility on the homepage.
+
+Post-Release Promotion
+After launch, games continue to be recommended within relevant category pages and game pages. Poki continues to promote games based on game performance metrics with:
+
+Higher placement on category pages and game pages;
+Placement on the Poki homepage as a large or small tile (for top-performing games in each category);
+Games that perform well with players, receive additional promotion and visibility. The metrics you can see on your Poki for Developers dashboard (total gameplays, engagement time, and conversion to play) are the key metrics we consider.
+
+As game performance improves, the recommender notices and adapts promotions accordingly. The system continuously updates based on daily releases, ensuring it promotes games that serve the best interests of both users and developers. If your game’s performance stats significantly change, the system will take this into account in the week after the improvement.
+
+There’s no exact metric that guarantees homepage placement, but updating game content regularly and higher performance stats will be noticed by our recommender, and receive more promotions!
+
+
+
+PreviousRelease Process
+NextPost-Release Update
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+Bonus Level
+Deal Types
+Release Process
+How Does Poki Promote My Game
+Post-Release Update
+Updating a game to address bugs and/or game performance
+Updating a game to re-engage players with additional content
+Updating a game to add localization
+Fullscreen For Games
+Animated Thumbnails
+A/B Thumbnail Tests
+FAQ
+Post-Release Updates 🎉
+Once your game has been globally released, we encourage you to keep an eye on its performance as well as any player feedback. You can make several updates to increase engagement:
+
+Updating a game to address bugs and/or game performance
+With a bigger audience, it’s always possible you’ll encounter additional bugs or performance issues in your game. As soon as you notice an issue that might be affecting performance, we encourage you to address the issue(s) as soon as possible and submit a new version through Poki for Developers and set it live. Additionally, if you feel your game can be better optimized from a tech, engagement, or monetization perspective, we also encourage you to make those optimizations as better metrics across the board can make your game eligible for more promotions.
+
+Updating a game to re-engage players with additional content
+Once your game has been live globally for a while, a content update is a great way to attract new players and re-engage existing ones. Regular updates can help you build a strong player community and foster long-term engagement. Think about what would be exciting to your players: new characters, levels, worlds, etc.? Your Poki contact is happy to discuss if updating your game’s content is the right strategy for your game.
+
+Updating a game to add localization
+You can add additional languages to your game at any time. Your Poki contact is happy to discuss if adding languages to your game content is the right strategy for your game.
+
+
+
+PreviousHow Does Poki Promote My Game
+NextFullscreen For Games
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+Bonus Level
+Deal Types
+Release Process
+How Does Poki Promote My Game
+Post-Release Update
+Fullscreen For Games
+Animated Thumbnails
+Video Requirements
+Content Guidelines
+A/B Thumbnail Tests
+FAQ
+Animated Thumbnails 🎬
+An animated thumbnail is a short video preview that plays when users hover over your game’s static thumbnail. This helps players quickly get a sense of what your game feels like and can significantly boost engagement.
+
+Once your game enters the Soft Release phase, you’ll have the opportunity to add an animated thumbnail to showcase your game.
+
+Video Requirements
+To ensure your animated thumbnail works seamlessly across the platform, please follow these specifications:
+
+Dimensions: 1080 x 1080 (can be higher, as long as it respects max file size)
+Aspect Ratio: 1 : 1 (square)
+Frame rate: 50fps+
+Duration: 4 to 6 seconds
+Audio: muted (you can export files with audio, but the website won’t play any sounds)
+Export format: .mp4 and respect max file sizes!
+Max file size: 100MB
+Content Guidelines
+Focus on gameplay: Showcase your core mechanics and most exciting moments.
+Keep text to a minimum: Visuals should do the talking.
+Highlight 2-3 scenes: Each scene should last around 1-2 seconds, to give variety without overwhelming the viewer.
+Start with the static artworks: Consider starting with your static thumbnail artwork and animating from there for a cohesive transition.
+Simplify: Always hide or mask UI elements that aren’t essential, and remember that the square crop can trim out some action, so center your visuals.
+Remove the cursor: Double-check that your cursor is not visible. We recommend using Cursorcerer to easily hide it during recording.
+
+
+PreviousFullscreen For Games
+NextA/B Thumbnail Tests
+Made with Material for MkDocs
+    
+
+Skip to content
+logo
+Search
+
+Poki Documentation
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+Bonus Level
+Deal Types
+Release Process
+How Does Poki Promote My Game
+Post-Release Update
+Fullscreen For Games
+Animated Thumbnails
+A/B Thumbnail Tests
+How Does the A/B Test Work?
+What Metrics Do We Track for A/B Tests?
+When Do We Run A/B Tests?
+FAQ
+A/B Thumbnail Tests 🧪
+Not sure which version of your game’s thumbnail will perform best? We can help you run an A/B thumbnail test during the Soft Release phase of your game to find the best performer.
+
+How Does the A/B Test Work?
+An A/B thumbnail test compares two versions of your game’s thumbnail by showing each one randomly to different players on the platform. This helps us understand which version attracts and retains players better. Each test round runs for a minimum of three days to ensure we gather enough reliable data.
+
+If you’d like to start a test, you can share up to three thumbnail options with us via email. Send the thumbnails to developersupport@poki.com and we’ll help you select the top two to test first. We limit the number of tests you can run to ensure you’re focusing on high-quality, well-considered designs. Since we can only test two thumbnails at a time, running too many rounds can unnecessarily prolong the soft release phase. Our goal is to help you find the most effective thumbnail efficiently, without delaying your game’s path to global release. Once the test is done, we will share the test results, including all the metrics, with you via email too.
+
+What Metrics Do We Track for A/B Tests?
+We track multiple indicators to evaluate which thumbnail performs better:
+
+C2P (Conversion to Play Rate): Indicates how many players start playing after clicking. Most of the time, the C2P results are pretty close between thumbnails, but in general, a higher C2P suggests the thumbnail sets the right expectations about the game.
+Average Playtime: Shows how long players stick around. Attracting players is the first step and one important aspect of the thumb, and another important aspect is to show that the expectation created by the thumbnail matches the real game experience, so players choose to stay and play the game.
+Video Ad Impressions: Tells us how often ads are viewed during sessions that start from each thumbnail. This generally correlates with longer and more engaged play sessions.
+Total Playtime (Total Playtime = C2P × Average Playtime): This is our most important metric as it tells us which thumbnail attracts and retains players best overall, making it the best representation for your game.
+When Do We Run A/B Tests?
+We only run A/B tests during the soft release phase, as it’s the ideal moment to evaluate how different thumbnails perform. At this stage, your game is already receiving a moderate traffic boost, which provides a solid volume of data to work with. You’re also in the process of gathering player insights and making final optimizations before the global release. Testing during this phase ensures that you’re setting your game up for long-term success with the most effective visual presentation.
+
+
+
+PreviousAnimated Thumbnails
+NextFAQ
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation
+Level 0 - Welcome
+Level 1 - Adding Your Game
+Level 2 - Feedback & Playtesting
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+FAQ
+How can I see how my game is doing?
+How do you determine which games are able to be played in fullscreen?
+What kinds of payments do you offer?
+Can I include external trackers in my game?
+Is there a referral bonus?
+Do you host Flash games?
+Do you have any merchandise?
+FAQ 🙋
+How can I see how my game is doing?
+Your Poki for Developers overview shows you top-level metrics of how your game is doing on Poki. You can view Daily Active Users (playing vs. non-playing), Engagement (time spent per DAU), Earnings, Ad Performance, Player Feedback, Errors, and more. You can also filter much of this data by country and device type.
+
+How do you determine which games are able to be played in fullscreen?
+We take numerous factors into account when considering if a game should be accessible in fullscreen and it is therefore determined on a case-by-case basis. We mainly consider if the player experience would be drastically improved by playing in fullscreen but also take the game’s design, quality, and performance into account. This approach is always evolving as we closely monitor player metrics.
+
+What kinds of payments do you offer?
+We pay out developers via wire transfer or PayPal. You can set and change your billing information in Poki for Developers. You can also choose your preferred currency.
+
+Can I include external trackers in my game?
+Due to privacy concerns, please consult us before including any external trackers or scripts in your game.
+
+Is there a referral bonus?
+Yes, we’re always looking to add more talented game developers to the Poki community! If you have a game developer friend who is interested in or is making web games, send us their info and if they’re a good fit for our platform, we’ll send you and them a nice bonus! It’s worth noting that it’s not possible to invite the people you refer to the Early Access of P4D, and the referral only applies once a game is signed and released.
+
+Do you host Flash games?
+Although Flash is dead, we have a tool that converts Flash games into HTML5. If you have a Flash game that you want to publish on Poki, contact flash@poki.com. For more information about this, check out the article PocketGamer wrote about us: Interview: Why Poki is partnering with Nitrome and more to preserve the Flash games of old
+
+Do you have any merchandise?
+We have a collection of Poki merch from everyday fashion accessories to bright stationery that expresses the universal playfulness of the gamers of Poki. You can find all of them over at the Poki Shop. We also offer international shipping.
+
+More questions? 🤔
+If you have a question that is not covered by the above, get in touch with us by sending an email to your Poki contact.
+
+
+
+PreviousA/B Thumbnail Tests
+Made with Material for MkDocs
+    

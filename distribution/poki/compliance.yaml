@@ -1,0 +1,380 @@
+# Fangrush × Poki compliance matrix
+# Human digest: docs/商业成功/Poki官方文档双语整理/
+# Policy SSOT: https://sdk.poki.com/ (English official pages)
+# Status: missing | partial | ready | verified
+# Level: required | recommended | not_applicable
+# last_verified = last time this row was checked against official docs / codebase
+
+meta:
+  product: Fangrush
+  studio: Fangrush Studio
+  engine_path: HTML5 / TypeScript / Next.js (custom board-game engine)
+  official_home: https://sdk.poki.com/
+  bilingual_digest: docs/商业成功/Poki官方文档双语整理/
+  source_capture: docs/文档整理todo/poki内容/
+  checklist_entry: distribution/poki/README.md
+  early_access_form: distribution/poki/early-access-form.md
+  matrix_updated: 2026-07-17
+  notes_zh: >
+    本文件供 AI 与验收使用。政策以官网英文为准；分成与独家年限不以本文件为合同事实。
+    verified 仅在 Inspector / 测试 / 截图 / 构建报告等证据齐全时使用。
+
+requirements:
+  - id: POKI-ACCESS-001
+    category: access
+    requirement_en: Obtain Poki for Developers access via early-access / submission review.
+    requirement_zh: 通过 early access / 提交审核获得 Poki for Developers 准入。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://developers.poki.com/share
+    last_verified: 2026-07-17
+    evidence:
+      - distribution/poki/early-access-form.md
+    gap_zh: 填表口径已备；需开发者本人提交并等待邀请。
+
+  - id: POKI-BIZ-001
+    category: business
+    requirement_en: Understand Web exclusivity scope before signing; exclusivity applies to open web, not necessarily Steam/mobile stores.
+    requirement_zh: 签约前理解 Web 独占范围；独占针对开放网页，不等于禁止 Steam/手机商店。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/deal-types.html
+    last_verified: 2026-07-17
+    evidence:
+      - docs/商业成功/Poki官方文档双语整理/06-缩略图-商务协议与FAQ.md
+      - docs/商业成功/渠道发展路线.md
+    gap_zh: 官网对独家年限有 5 年/7 年表述差异，待合同与现行页面核对；并行 CrazyGames 策略勿在签独家前锁定。
+
+  - id: POKI-QUALITY-001
+    category: quality
+    requirement_en: Meet Quality Guidelines — original, polished, web-first gameplay; no low-quality or obvious clone.
+    requirement_zh: 符合质量指南——原创、打磨、Web-first；非低质或明显克隆。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/poki-quality-guidelines.html
+    last_verified: 2026-07-17
+    evidence:
+      - docs/产品核心/01-核心产品定义.md
+      - docs/任务/任务清单.md
+    gap_zh: 玩法与 24 关已定稿，但玩家验收与发布质量尚未完成（T-005/T-016）。
+
+  - id: POKI-QUALITY-002
+    category: quality
+    requirement_en: If using AI assets, remove watermarks/prompt text; ensure visual consistency and originality beyond tooling.
+    requirement_zh: 若使用 AI 素材，去除水印/提示词痕迹；视觉一致，并超越模板/工具本身。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/working-with-ai.html
+    last_verified: 2026-07-17
+    evidence:
+      - docs/普通文档ing/美术等资源/01-品牌文案和游戏上架材料.md
+    gap_zh: 默认角色与缩略图成品尚未按平台规格定稿验收。
+
+  - id: POKI-TECH-001
+    category: tech
+    requirement_en: Support desktop, mobile, and tablet web play.
+    requirement_zh: 支持桌面、手机、平板网页游玩。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/new-requirements.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/components/BoardSvg.tsx
+      - apps/web/src/components/PlayScreen.tsx
+    gap_zh: 有触控/键盘基础，缺平台级 16:9 画布与 Inspector/设备矩阵证据。
+
+  - id: POKI-TECH-002
+    category: tech
+    requirement_en: Scale to full canvas at 16:9 (e.g. 640x360 / 836x470 / 1031x580).
+    requirement_zh: 全画布按 16:9 缩放（如 640×360 / 836×470 / 1031×580）。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/new-requirements.html
+    last_verified: 2026-07-17
+    evidence: []
+    gap_zh: 当前为方形棋盘 + 纵向网页布局，未做平台 16:9 容器。
+
+  - id: POKI-TECH-003
+    category: tech
+    requirement_en: Remain playable in incognito when localStorage is unavailable (try/catch or equivalent).
+    requirement_zh: 无痕模式下 localStorage 不可用时仍可开玩（try/catch 等）。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/new-requirements.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/lib/storage.ts
+      - apps/web/src/lib/storage.test.ts
+      - apps/web/src/lib/active-game.ts
+    gap_zh: 主存档有降级；play-metrics / ads mock 仍可能在禁用存储时抛错。
+
+  - id: POKI-TECH-004
+    category: tech
+    requirement_en: Target initial download under 8 MB; clean build without debug tools.
+    requirement_zh: 初始下载目标小于 8 MB；干净构建，无调试工具。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/new-requirements.html
+    last_verified: 2026-07-17
+    evidence: []
+    gap_zh: 缺静态上传包体积报告；portal 构建仍可能携带 Admin 相关编译产物。
+
+  - id: POKI-TECH-005
+    category: tech
+    requirement_en: No external splash/outbound links; no third-party ads; no IAP/remove-ads UI in portal build.
+    requirement_zh: 门户包无外链闪屏/出站链接；无第三方广告；无内购/去广告 UI。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/new-requirements.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/components/Ga4.tsx
+      - apps/web/scripts/build-portal.mjs
+      - apps/web/src/middleware.ts
+    gap_zh: Portal 已关 GA/Admin 入口；隐私页等外链与最终静态包内容仍需复核。
+
+  - id: POKI-TECH-006
+    category: tech
+    requirement_en: Do not gate core gameplay behind ad-block messages; no custom ad-blocked UI.
+    requirement_zh: 不以广告拦截提示锁核心玩法；不做自定义“广告被拦”提示。
+    level: required
+    applicability: applicable
+    status: ready
+    official_url: https://sdk.poki.com/new-requirements.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/lib/ads.ts
+    gap_zh: 当前无广告拦截自定义提示；真实 SDK 接入后需回归。
+
+  - id: POKI-PRIVACY-001
+    category: privacy
+    requirement_en: No unapproved external requests (fonts, CDN, GA, remote assets); Google Analytics blocked always.
+    requirement_zh: 禁止未批准外部请求（字体/CDN/GA/远程资源）；Google Analytics 一律禁止。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/external-resources.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/components/Ga4.tsx
+      - apps/web/scripts/build-portal.mjs
+    gap_zh: Portal 壳关闭 GA；需对最终静态包做网络白名单/HAR 验证。
+
+  - id: POKI-SDK-001
+    category: sdk
+    requirement_en: Initialize PokiSDK; continue loading if initialization fails.
+    requirement_zh: 初始化 PokiSDK；初始化失败时游戏仍须继续加载。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/html5.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/lib/platform.ts
+    gap_zh: 无真实 Poki SDK 脚本与适配器。
+
+  - id: POKI-SDK-002
+    category: sdk
+    requirement_en: Fire gameLoadingFinished once loading completes.
+    requirement_zh: 加载完成后触发 gameLoadingFinished。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/html5.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/lib/platform.ts
+    gap_zh: loadingFinished 为空实现且业务未调用。
+
+  - id: POKI-SDK-003
+    category: sdk
+    requirement_en: Fire gameplayStart on first player input; never duplicate consecutive start/stop; stop on pause/menu/level end.
+    requirement_zh: 首次玩家输入触发 gameplayStart；禁止连续重复 start/stop；暂停/菜单/关卡结束触发 stop。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/new-requirements.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/lib/platform.ts
+      - apps/web/src/components/PlayScreen.tsx
+    gap_zh: 生命周期事件未接入业务。
+
+  - id: POKI-SDK-004
+    category: sdk
+    requirement_en: Call commercialBreak at natural continue points; do not self-manage ad frequency timers.
+    requirement_zh: 在自然继续点调用 commercialBreak；不自建广告频控计时器。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/html5.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/lib/ads.ts
+    gap_zh: PortalAds 实际落到 UnavailableAds，无 commercialBreak。
+
+  - id: POKI-SDK-005
+    category: sdk
+    requirement_en: rewardedBreak only after clear opt-in; grant reward only on success; always offer standard continue.
+    requirement_zh: rewardedBreak 须先明确可选看广告；仅成功播放发奖；始终提供普通继续。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/html5.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/lib/ads.ts
+      - apps/web/src/lib/ads.test.ts
+    gap_zh: Mock 路径已做到成功才发奖；真实 rewardedBreak 与奖励按钮视觉层级未接。
+
+  - id: POKI-SDK-006
+    category: sdk
+    requirement_en: Mute audio and disable input during ads; resume reliably after break; no SDK events mid-ad.
+    requirement_zh: 广告期间静音并禁用输入；结束后可靠恢复；广告中途不发 SDK 事件。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/html5.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/lib/ads.ts
+      - apps/web/src/lib/sfx.ts
+    gap_zh: 有音频暂停回调雏形；缺统一输入锁定与 AI/对局状态冻结。
+
+  - id: POKI-SDK-007
+    category: sdk
+    requirement_en: Prevent parent-page scroll from arrow keys, Space, and wheel while playing.
+    requirement_zh: 游玩时阻止方向键/空格/滚轮导致父页面滚动。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/html5.html
+    last_verified: 2026-07-17
+    evidence: []
+    gap_zh: 未见官方推荐的 keydown/wheel preventDefault 片段。
+
+  - id: POKI-SDK-008
+    category: sdk
+    requirement_en: Support shareableURL / getURLParam for platform share links when sharing is offered.
+    requirement_zh: 若提供分享，使用 shareableURL / getURLParam 对接平台分享链接。
+    level: recommended
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/html5.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/lib/share-result.ts
+      - apps/web/src/lib/share-result.test.ts
+    gap_zh: 现有分享指向自有 origin，未接 Poki shareableURL。
+
+  - id: POKI-SDK-009
+    category: sdk
+    requirement_en: Optional Poki User Accounts and cloud saves; keep save under 1MB gzip; use poki_ignore for local-only keys.
+    requirement_zh: 可选 Poki 账号与云存档；存档 gzip 后不超过 1MB；仅本地数据用 poki_ignore 前缀。
+    level: recommended
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/html5.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/lib/storage.ts
+    gap_zh: 首发以本地存档为主，未接 Poki 账号/云同步；若启用需设计体积与忽略键。
+
+  - id: POKI-UX-001
+    category: ux
+    requirement_en: Reward UI hierarchy — standard continue always available, green, equal/larger, beside/above rewarded; rewarded uses film icon and not green.
+    requirement_zh: 奖励 UI 层级——始终有绿色普通继续且不小于激励按钮；激励按钮用影片图标且不可用绿色。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/new-requirements.html
+    last_verified: 2026-07-17
+    evidence: []
+    gap_zh: 未按 Poki 视觉规则实现激励/继续按钮。
+
+  - id: POKI-UX-002
+    category: ux
+    requirement_en: Streamlined entry; skippable intros; adaptive controls; tablets use mobile control scheme.
+    requirement_zh: 精简进入路径；引导可跳过；自适应控制；平板使用移动控制方案。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/new-requirements.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/components/PlayScreen.tsx
+      - apps/web/src/components/BoardSvg.tsx
+    gap_zh: 有基础教学/触控；平板强制移动控制与 ESC 暂停等需对照验收。
+
+  - id: POKI-I18N-001
+    category: localization
+    requirement_en: For text-heavy UI, offer languages and layouts that tolerate longer strings; Poki suggests EFIGS then CJK then PT/RU.
+    requirement_zh: 文本较多时提供多语言与可伸缩布局；Poki 建议顺序 EFIGS → CJK → PT/RU。
+    level: recommended
+    applicability: applicable
+    status: partial
+    official_url: https://sdk.poki.com/localization.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/src/i18n/messages.ts
+      - apps/web/src/config/locales.ts
+    gap_zh: 已有 en/zh；未覆盖 EFIGS 全组与长译文布局压测。
+
+  - id: POKI-ASSET-001
+    category: assets
+    requirement_en: Provide static square thumbnail (full-bleed, min 628x628) and animated thumbnail for global release.
+    requirement_zh: 全球发布需静态方形缩略图（满版、至少 628×628）与动画缩略图。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/game-thumbnail.html
+    last_verified: 2026-07-17
+    evidence:
+      - docs/普通文档ing/美术等资源/01-品牌文案和游戏上架材料.md
+    gap_zh: 仅有创意指引与站点 og/icon，无平台交付物。
+
+  - id: POKI-QA-001
+    category: qa
+    requirement_en: Pass Poki Inspector modules, event log, scaling tests, and clear warnings before review request.
+    requirement_zh: 提审前通过 Inspector 模块、事件日志、缩放测试并清零警告。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/poki-inspector.html
+    last_verified: 2026-07-17
+    evidence: []
+    gap_zh: 尚无 Inspector 报告；依赖真实 SDK 与可上传包。
+
+  - id: POKI-BUILD-001
+    category: build
+    requirement_en: Ship a portal package suitable for Poki upload (static game folder with index.html), without Admin/standalone ads.
+    requirement_zh: 产出适合上传的门户包（含 index.html 的静态游戏目录），无 Admin/独立站广告。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://sdk.poki.com/what-is-p4d.html
+    last_verified: 2026-07-17
+    evidence:
+      - apps/web/scripts/build-portal.mjs
+    gap_zh: build:poki/portal 仍偏 Next 构建，未证明可直接上传的静态 ZIP。
+
+  - id: POKI-MP-001
+    category: community
+    requirement_en: Multiplayer chat / external account systems collecting personal data are restricted.
+    requirement_zh: 多人聊天与收集个人数据的外部账号系统受限。
+    level: not_applicable
+    applicability: not_applicable
+    status: ready
+    official_url: https://sdk.poki.com/external-resources.html
+    last_verified: 2026-07-17
+    evidence: []
+    gap_zh: 当前产品无多人聊天与外部登录，保持不适用即可。

@@ -1,0 +1,1583 @@
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Working With Poki
+  
+使用 Poki
+Getting started
+  
+开始使用
+Why choose Poki?
+  
+为什么选择 Poki？
+Limited Access
+  
+有限访问
+Poki For Developers
+  
+Poki 开发者版
+Poki Inspector
+  
+宝可梦检查员
+Building For Localization
+  
+本地化构建
+Quality Guidelines
+  
+质量指南
+Working With AI
+  
+与 AI 合作
+Trends & Trend-Driven Content
+  
+趋势与趋势驱动内容
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+  
+奖励关卡
+FAQ
+  
+常见问题解答
+Welcome! 👋  欢迎！ 👋
+Getting started  开始使用
+Poki is the world’s largest web gaming platform, connecting over 100 million monthly active users across more than 100 countries. We partner with game developers worldwide to grow their audiences, provide fair monetization opportunities, and ensure every game gets its moment to shine.
+Poki 是全球最大的网页游戏平台，连接超过 1 亿每月活跃用户，遍布 100 多个国家。我们与全球的游戏开发者合作，帮助他们扩大受众，提供公平的盈利机会，并确保每一款游戏都能闪耀登场。
+
+As a developer on Poki, you’ll have access to powerful tools, resources, and insights to help you build, test, and refine your games. From streamlined onboarding to in-depth playtesting, from expert QA to dedicated marketing and user acquisition support — our platform is designed to remove friction so you can focus on making great games.
+作为 Poki 的开发者，你将获得强大的工具、资源和洞察力，帮助你构建、测试和优化你的游戏。从简化的入职流程到深入的测试，从专业的质量保证到专门的营销和用户获取支持——我们的平台旨在消除障碍，让你专注于制作优秀的游戏。
+
+In the following sections, we’ll guide you through everything from integrating the Poki SDK to optimizing your game for web performance, understanding our revenue model, and taking advantage of the exclusive benefits that come with publishing on Poki.
+在以下部分，我们将指导您从集成 Poki SDK 到优化您的游戏网络性能，了解我们的收入模式，以及利用在 Poki 上发布所带来的独家优势。
+
+Why choose Poki?  为什么选择 Poki？
+At Poki, we empower you as game developers to explore, create, and connect with players. Our tools and policies — from QA and marketing support to automated playtesting and fair revenue shares — are built to help you grow.
+在 Poki，我们赋予您作为游戏开发者探索、创造和连接玩家的能力。我们的工具和政策——从质量保证和市场营销支持到自动化测试和公平的收入分成——都是为了帮助您成长。
+
+🧪 Playtesting — Playtesting and player fit tests let you see how real players interact with your game in just a few hours, giving you crucial insights to test, pivot, and adapt faster than ever.
+🧪 测试 — 测试和玩家适配性测试让你在短短几小时内就能看到真实玩家如何与你的游戏互动，为你提供关键洞察，使你能够比以往任何时候都快地测试、调整和适应。
+🔧 Development tools — Poki provides a variety of game dev tools that can help you optimize and improve your game. These free tools include the Poki Inspector for reviewing your game against Poki’s requirements and guidelines, the Poki Networking Library (Netlib) to power online multiplayer games, and the Arbitrary User Data Store (AUDS) for easier backend data storage.
+🔧 开发工具 — Poki 提供了多种游戏开发工具，可以帮助你优化和改进你的游戏。这些免费工具包括用于根据 Poki 的要求和指南检查你的游戏的 Poki 检查器，用于支持在线多人游戏的 Poki 网络库（Netlib），以及用于更轻松的后端数据存储的任意用户数据存储（AUDS）。
+💰 Revenue sharing — If a user comes to your game directly, through bookmarks, search, social media or through your own community, you get 100% of the revenue for that user. If a user comes to your game through Poki.com, or through a marketing effort from Poki, then Poki splits the revenue 50/50 with you.
+💰 收入分成 — 如果用户直接来到你的游戏，通过书签、搜索、社交媒体或通过你自己的社区，你将获得该用户 100%的收入。如果用户通过 Poki.com 或通过 Poki 的市场营销活动来到你的游戏，那么 Poki 与你平分收入，各占 50%。
+✨ Curation — All games on Poki are hand-picked. If your game is published, it’s guaranteed a spot in the spotlight on our homepage.
+✨ 筛选推荐 — Poki 上的所有游戏都是人工精选的。如果你的游戏被发布，它将保证在我们的主页上获得一个曝光位置。
+📈 Marketing & user acquisition — We take on marketing, QA, and other traditional publisher roles to help your game succeed.
+📈 市场营销与用户获取 — 我们承担市场营销、质量保证和其他传统发行商角色，帮助您的游戏取得成功。
+In return for investing time and resources into your game, we ask for web exclusivity — meaning your game will only be published on Poki for the open web. You are still free to publish on Steam or mobile app stores; the exclusivity applies only to the web.
+作为对您在游戏中投入的时间和资源的回报，我们要求网页独占权——这意味着您的游戏将仅在 Poki 上为开放网络发布。您仍然可以自由在 Steam 或移动应用商店发布；独占权仅适用于网页。
+
+Limited Access  有限访问
+Poki for Developers and our playtesting tools are currently in closed beta with limited access. If you are a developer looking to work with us, you can share your game through our game submission form to apply for access! As we are a hand-curated playground, our team checks every game and decides whether it is a fit for Poki or not. We unfortunately cannot respond to every submission but if your game is a good fit, we’ll reach out to you! When we review games, here’s some pointers for what we’re looking for:
+Poki 面向开发者和我们的测试工具目前处于封闭测试阶段，访问权限有限。如果您是希望与我们合作的开发者，可以通过我们的游戏提交表单提交游戏以申请访问权限！由于我们是一个精心挑选的游乐场，我们的团队会检查每一款游戏，并决定它是否适合 Poki。不幸的是，我们无法回复每一份提交，但如果您的游戏符合条件，我们会联系您！在审查游戏时，以下是我们正在寻找的一些要点：
+
+🏅 Quality — We take a few things into account here but we are mainly looking at the UX/feel and the core game loop to assess the potential of the game on Poki. If the base game is fun and interesting, that always bodes well! If you want to get a feeling for the quality we look for, check out our homepages which show off our most popular games!
+🏅 质量 — 我们在这里考虑一些因素，但主要关注用户体验/感觉和核心游戏循环，以评估游戏在 Poki 上的潜力。如果基础游戏有趣且吸引人，那总是个好兆头！如果你想了解我们寻找的质量，可以查看我们的主页，展示我们最受欢迎的游戏！
+🎮 Player fit — Simply put, we approach the game from the perspective of our players. Would they like to play this game and have fun? We’re always learning more about our large, global audience so we can say early on what they’re attracted to.
+🎮 玩家适配——简单来说，我们是从玩家的角度来对待游戏的。他们会想玩这个游戏并享受乐趣吗？我们一直在学习更多关于我们庞大的全球受众，以便我们能够尽早知道他们被什么吸引。
+🛠️ Tech — Finally, and very importantly, we check how technically sound the game is and how well it is optimized for mobile and desktop web. With so many differing internet speeds and devices, it’s really important to make your game as optimized as possible, no matter the engine!
+🛠️ 技术——最后，也非常重要的一点，我们检查游戏的技术健全性以及它在移动和桌面网页上的优化程度。由于互联网速度和设备种类繁多，让游戏尽可能优化是非常重要的，无论使用什么引擎！
+Using these guidelines, we can decide if the game will fit Poki and our players! Cross-device (mobile and desktop web) games are more favorable due to our worldwide audience who have varying internet speeds and devices. We work with all game engines and tech, from Defold and PlayCanvas, to Pixi and Three.js. Optimized Unity games also work!
+使用这些指南，我们可以决定游戏是否适合 Poki 和我们的玩家！跨设备（移动和桌面网页）游戏更受欢迎，因为我们拥有全球用户，他们的互联网速度和设备各不相同。我们与所有游戏引擎和技术合作，从 Defold 和 PlayCanvas，到 Pixi 和 Three.js。优化的 Unity 游戏也可以使用！
+
+After your game has been accepted via Poki for Developers, there are two mandatory steps to get your game ready for an impactful launch: implementing our mandatory requirements and our SDK.
+在您的游戏通过 Poki for Developers 接受后，为了确保游戏能够成功发布，有两个强制步骤：实现我们的强制要求和我们的 SDK。
+
+
+
+Next   接下来Poki For Developers
+Poki 开发者版
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Working With Poki
+  
+使用 Poki
+Poki For Developers
+  
+Poki 开发者版
+What is Poki For Developers?
+  
+Poki For Developers 是什么？
+General Team Settings
+  
+团队通用设置
+Games
+  
+游戏
+Poki Inspector
+  
+宝可梦检查员
+Building For Localization
+  
+本地化构建
+Quality Guidelines
+  
+质量指南
+Working With AI
+  
+与 AI 合作
+Trends & Trend-Driven Content
+  
+趋势与趋势驱动内容
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+Bonus Level
+FAQ
+Poki For Developers 📊
+Poki 开发者专区 📊
+What is Poki For Developers?
+Poki 对开发者意味着什么？
+Poki for Developers is where all the information regarding your developer team and your games on Poki lives. You’ll be able to make sure your team information is set up properly and upload, analyze, and update your specific games all in one place. Below this you will find an overview of the key aspects of P4D.
+Poki 对开发者是所有关于您的开发团队和您在 Poki 上的游戏的信息所在的地方。您将能够确保您的团队信息设置正确，并在一个地方上传、分析和更新您的特定游戏。在此下方，您将找到 P4D 关键方面的概述。
+
+General Team Settings  一般团队设置
+Under this tab, you will find the general settings for your account.
+在此选项卡下，您将找到您账户的一般设置。
+
+General: Add general information regarding your team, primary contact details, and your country of residence. This information will be used should your game pass all the testing stages.
+常规：添加有关您团队、主要联系信息和居住国家的一般信息。如果您的游戏通过所有测试阶段，这些信息将被使用。
+
+Users: If you work on your games with multiple people, you can add multiple users to your Poki for Developers team account, allowing you to access dashboards and game entries together. Clicking Create User opens a menu where you can enter the name, contact information, and role. There are two roles to choose from:
+用户：如果您与多人一起开发游戏，您可以向您的 Poki for Developers 团队账户添加多个用户，以便您可以一起访问仪表板和游戏条目。点击创建用户会打开一个菜单，您可以输入名称、联系信息和角色。有两个角色可供选择：
+
+Developer — Access to all facets of Poki for Developers.
+开发者 — 访问 Poki for Developers 的所有方面。
+Developer Support — Can upload new versions, but with restricted access to earnings and monetization metrics after a game’s release.
+开发者支持 — 可以上传新版本，但在游戏发布后对收益和变现指标访问受限。
+Billing: If your game passes the testing stages and is released on Poki, you’ll be able to add and review your billing information here.
+账单：如果你的游戏通过测试阶段并在 Poki 上发布，你将能够在此添加和审核你的账单信息。
+
+Games  游戏
+While your game is going through the testing phases, the progress through the different levels of testing will be shown here. In total there are five steps:
+在游戏测试阶段期间，不同测试级别的进度将在此显示。总共有五个步骤：
+
+Add your game  添加你的游戏
+Get player feedback  获取玩家反馈
+Player Fit Test  玩家适配测试
+Poki Web Fit Test  Poki Web 适配测试
+Final Poki Review  最终宝可梦评测
+If your game has passed the testing phases and is released on Poki, your game’s performance metrics will be displayed here. Data regarding the total amount of gameplays, your game’s earnings, engagement times and monetization are all gathered here.
+如果你的游戏通过了测试阶段并在 Poki 上发布，你游戏的性能指标将显示在这里。有关游戏总游玩次数、你游戏的收入、参与时间和变现的数据都将在这里汇总。
+
+DataDisplay
+
+Versions: Here you can find the different versions you’ve uploaded for your game. Through the “Upload New Version” button, you can upload additional versions to Poki for Developers. On the right side, under the Actions tab, you can open your game in the Inspector tool or preview the game in Preview mode, which will show the game as it would be displayed on the actual Poki platform. This is particularly useful when checking whether your game works correctly in a live environment.
+版本：在这里您可以找到您为游戏上传的不同版本。通过“上传新版本”按钮，您可以向开发者 Poki 上传更多版本。在右侧的“操作”标签下，您可以在 Inspector 工具中打开游戏或以预览模式预览游戏，这将显示游戏在实际 Poki 平台上的显示效果。这在检查游戏是否在实时环境中正常工作时特别有用。
+
+Playtests: Here you can review and request more playtest recordings for your game. More details on the playtesting process can be found here.
+测试：在这里您可以查看并请求更多关于您游戏的测试录制。有关测试过程的更多详细信息，请参阅此处。
+
+Settings: Review and change more granular details about your game. For example, the title and the suggested categories and description for your game can be added here.
+设置：查看和更改更多关于您游戏的细节。例如，您游戏标题以及建议的分类和描述可以在这里添加。
+
+Suggested Categories & Description: Here you can pick up to four categories that describe your game. When setting up your game on Poki, we take the suggested categories that you’ve provided for us into account but also apply our own knowledge of the categories on Poki to help you find the best suited audience for the game. That means that sometimes games are placed in other or additional categories than the ones suggested.
+建议分类和描述：在这里您可以挑选最多四个描述您游戏的分类。当您在 Poki 上设置游戏时，我们会考虑您提供的建议分类，同时也会应用我们对 Poki 上分类的了解，以帮助您找到最适合的游戏受众。这意味着有时游戏会被放置在建议分类之外或额外的分类中。
+
+Similarly, we welcome your input on the description of your game! Tell us a bit about the main game mechanic and what makes your game stand out. We’ll use this as input while making sure your game has a search engine optimized description that is consistent with other game descriptions on Poki.
+同样，我们也欢迎您对游戏描述的反馈！告诉我们一些关于游戏主要机制的内容，以及是什么让您的游戏脱颖而出。我们将使用这些信息，同时确保您的游戏有一个符合 Poki 上其他游戏描述的、搜索引擎优化的描述。
+
+Thumbnails: Here you can upload and update your game’s thumbnail. Once a game is live on Poki, all thumbnail updates will need to be reviewed by our team. Simply drag the file for your new thumbnail onto the screen to upload. You can then submit the request, which will be reviewed as soon as possible.
+缩略图：在这里您可以上传和更新游戏的缩略图。一旦游戏在 Poki 上发布，所有缩略图更新都需要由我们的团队进行审核。只需将新缩略图的文件拖到屏幕上即可上传。然后您提交请求，我们将尽快进行审核。
+
+
+
+Previous   上一个Working With Poki
+使用 Poki
+Next   接下来Poki Inspector   宝可梦检查员
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Working With Poki
+  
+使用 Poki
+Poki For Developers
+  
+Poki 开发者版
+Poki Inspector
+  
+宝可梦检查员
+Use the QA Module Checklist
+  
+使用 QA 模块清单
+Check the Event Log
+  
+检查事件日志
+Check the Game Details
+  
+检查游戏详情
+Desktop and Mobile Mode
+  
+桌面和移动模式
+Check for Scaling Issues
+  
+检查缩放问题
+Check for Warnings
+  
+检查警告
+Building For Localization
+  
+本地化构建
+Quality Guidelines
+  
+质量指南
+Working With AI
+  
+与 AI 合作
+Trends & Trend-Driven Content
+  
+趋势与趋势驱动内容
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+FAQ
+Poki Inspector 🧐
+The Poki Inspector is the go-to tool when preparing your game for launch on Poki. It allows you to check if you are using the SDK correctly, if everything is working as it should, and if you are meeting all the requirements for your game.
+Poki 检查器是您在准备游戏上线 Poki 时的首选工具。它允许您检查是否正确使用 SDK，是否一切正常工作，以及是否满足游戏的全部要求。
+
+If you are accessing the Poki Inspector directly, open your game’s folder to upload it to the Poki Inspector. If you have already uploaded your game to Poki for Developers, you can open the Inspector with your game pre-loaded from the Versions tab.
+如果你直接访问 Poki Inspector，请打开你的游戏文件夹将其上传到 Poki Inspector。如果你已经将游戏上传到 Poki for Developers，你可以从版本标签页中预加载你的游戏来打开 Inspector。
+
+PokiInspector
+
+Use the QA Module Checklist
+使用 QA 模块清单
+On the left side of the Poki Inspector are multiple QA Modules. Go through each module and confirm that your game passes QA before submitting it.
+在 Poki Inspector 的左侧有多个 QA 模块。逐个检查每个模块，并在提交前确认你的游戏通过 QA 测试。
+
+As you go through the modules, you can click the check button to check off every point that’s working correctly. If something is not working correctly, it will either be marked automatically or you can mark it with a cross yourself.
+当你浏览模块时，你可以点击检查按钮来标记每个工作正常的点。如果某项功能不正常工作，它将被自动标记，或者你可以自己用叉号标记它。
+
+Check the Event Log
+检查事件日志
+The Event Log shows every Poki SDK event which your game fires. As you test your game you can check that the appropriate SDK events are firing. For further reference, see the relevant documentation on how SDK events should be implemented.
+事件日志显示了你的游戏触发的每个 Poki SDK 事件。在测试游戏时，你可以检查适当的 SDK 事件是否正在触发。有关更多信息，请参阅有关 SDK 事件应如何实现的相应文档。
+
+Check the Game Details
+检查游戏详情
+Right below your game are some additional details about your game, such as the loading time and file size.
+你游戏下方有一些关于你游戏的额外详细信息，例如加载时间和文件大小。
+
+Desktop and Mobile Mode
+桌面和移动模式
+With the game details below your game, you can find a toggle for Desktop and Mobile mode. Desktop mode is enabled by default. To check the SDK on a mobile device, you can switch to Mobile mode. The game screen will be replaced with a QR code.
+在你游戏下方的游戏详细信息中，你可以找到一个用于桌面和移动模式的切换开关。桌面模式默认启用。要在移动设备上检查 SDK，你可以切换到移动模式。游戏屏幕将被替换为二维码。
+
+Scan the QR code from a phone to open the game on the device. SDK events will still be displayed in the Event Log while testing in this mode.
+扫描手机上的二维码以在设备上打开游戏。在测试此模式下，SDK 事件仍然会在事件日志中显示。
+
+Check for Scaling Issues
+检查缩放问题
+The Poki Inspector lets you test your game on different dimensions and some popular devices. At the bottom of the screen, click on Scaling Tests and select a dimension or device to test with.
+
+Check for Warnings
+In the bottom-right is the Warnings tab. If the Inspector detects a potential issue with your submitted build, you will see warnings in this area. Warnings include:
+
+External Resources — Most often, these warnings have to do with the use of external resources. For more information on Poki’s stance regarding the use of external resources, see relevant documentation.
+
+Image Optimization — These warnings are shown when some of the images used in your game could be compressed further to increase loading speeds and decrease the game’s file size. Quick loading is very important to games on Poki, have a look at the size of your images when you see these warnings.
+
+Unexpected Behavior Detected — This message shows up when your game has functionalities in it that might disrupt the expected functionality of the Poki SDK. In order to correctly track the necessary metrics for your game, a correct implementation of the SDK is very important, so make sure this warning is resolved when you see it.
+
+
+
+PreviousPoki For Developers
+NextBuilding For Localization
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Working With Poki
+  
+使用 Poki
+Poki For Developers
+  
+Poki 开发者版
+Poki Inspector
+  
+宝可梦检查员
+Building For Localization
+  
+本地化构建
+Translations
+  
+翻译
+Is localization right for your game?
+  
+本地化适合您的游戏吗？
+Prepare your game for localization
+  
+为游戏本地化做准备
+Major language groups
+  
+主要语言组
+How to display languages
+  
+如何显示语言
+Quality Guidelines
+  
+质量指南
+Working With AI
+  
+与 AI 合作
+Trends & Trend-Driven Content
+  
+趋势与趋势驱动内容
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+FAQ
+Localization 📖  本地化 📖
+Translations  翻译
+The more languages you have available in your game, the more people will be able to play and enjoy it. Localization will improve engagement for players as they will be able to understand what is happening in-game, especially for any game that has text. Since Poki has a worldwide audience, games with text that aren’t localized can struggle in countries where players don’t understand the language. That’s why it’s really important to think carefully about localization when creating your game!
+你游戏中的可用语言越多，能够玩和享受游戏的人就越多。本地化将提高玩家的参与度，因为他们能够理解游戏中的情况，特别是对于任何有文本的游戏。由于 Poki 拥有全球受众，没有本地化的含文本游戏在玩家不懂语言的地区可能会遇到困难。因此，在创建游戏时，认真考虑本地化非常重要！
+
+Is localization right for your game?
+你的游戏适合本地化吗？
+If your game is in one of the following groups, you may want to consider localization:
+如果你的游戏属于以下任何一组，你可能需要考虑本地化：
+
+Story games  故事游戏
+Clicker and Idle games
+点击器和挂机游戏
+Quiz Games  问答游戏
+Any text-based game, or a game has features that are explained through text (guns, mechanics, power ups etc.)
+任何基于文本的游戏，或者具有通过文本解释的功能的游戏（枪械、机制、升级等）
+Outside of these groups, the language of your game may have less of an effect on its success and may not warrant localization.
+在这些类别之外，你的游戏语言对其成功的影响可能较小，可能不值得进行本地化。
+
+Prepare your game for localization
+为游戏本地化做准备
+Localization can be time-consuming and expensive if you haven’t prepared your game for it. To prepare for localization, ensure that the text you want to translate in your game is in one location, for example a JSON file. This will avoid you having to find all in-game texts one-by-one when translating.
+如果你没有为本地化准备你的游戏，那么本地化可能会既耗时又昂贵。为了为本地化做准备，请确保你想要翻译的游戏文本位于一个地方，例如一个 JSON 文件。这将避免你在翻译时需要一个个地寻找游戏中的文本。
+
+Major language groups  主要语言群体
+Poki has millions of players from all over the world, so make sure you cover as many bases as possible. However, you should also consider if the benefit is worth the cost. We recommend you consider covering the main languages in this order to reach a big audience:
+Poki 拥有来自世界各地的数百万玩家，所以确保尽可能覆盖所有方面。然而，你也应该考虑收益是否值得成本。我们建议你按以下顺序考虑覆盖主要语言，以触达广大受众：
+
+EFIGS (English, French, Italian, German, Spanish). First, cover this group to reach a broad audience in Europe, North America, and parts of South America. You may also want to consider Turkish, as it is an increasingly popular locale.
+EFIGS（英语、法语、意大利语、德语、西班牙语）。首先，覆盖这个群体以触及欧洲、北美和南美部分地区广泛的受众。您可能还想考虑土耳其语，因为它是一个日益流行的地区。
+CJK (Simplified Chinese, Japanese, Korean). Second, consider covering the Asian market. The Asian gaming market is huge, but the languages are more time-consuming and expensive to translate into - so only do this if you are confident it will be worth it.
+CJK（简体中文、日语、韩语）。其次，考虑覆盖亚洲市场。亚洲游戏市场巨大，但语言翻译更耗时且昂贵——所以只有如果您确信这是值得的，才这样做。
+Brazilian-Portuguese and Russian. Consider these last to cover the rest of your bases around the world.
+巴西葡萄牙语和俄语。考虑最后覆盖您在全球的其余基础。
+Interested in more details on how to pick languages for your game? Here’s a good video from YouTuber AuroDev on choosing languages to translate your game into.
+对如何为你的游戏挑选语言感兴趣吗？这里有一个来自 YouTuber AuroDev 的好视频，教你如何选择将游戏翻译成其他语言。
+
+
+How to display languages
+如何显示语言
+The user interface for picking a language in your game can be as simple as a toggle in the menu. By default, we suggest serving the game in the player’s browser language with a behind-the-scenes check.
+选择游戏语言的界面可以简单到只是一个菜单中的开关。默认情况下，我们建议使用玩家浏览器的语言来运行游戏，并在后台进行检测。	DataDisplay
+
+
+Previous   上一个Poki Inspector   宝可梦检查员
+Next   接下来Quality Guidelines   质量指南
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Working With Poki
+  
+使用 Poki
+Poki For Developers
+  
+Poki 开发者版
+Poki Inspector
+  
+宝可梦检查员
+Building For Localization
+  
+本地化构建
+Quality Guidelines
+  
+质量指南
+What Poki loves to see
+  
+Poki 喜欢看到什么
+Accessibility and alternative controls
+  
+可访问性和替代控制
+What Poki will not work with
+  
+Poki 无法兼容什么
+What happens if my game violates Poki’s quality guidelines?
+  
+我的游戏违反了 Poki 的质量指南会怎样？
+Working With AI
+  
+与 AI 合作
+Trends & Trend-Driven Content
+  
+趋势与趋势驱动内容
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+FAQ
+Quality Guidelines 🕵️‍♂️
+质量指南 🕵️‍♂️
+Poki focuses on games that first and foremost are proven to be of interest to our players. Next to that, we look for games that are original, high-quality, and often add something new to the web games space.
+Poki 专注于那些首先被证明对我们的玩家有吸引力的游戏。除此之外，我们还寻找原创、高质量且经常为网络游戏空间带来新事物的游戏。
+
+While we appreciate the effort and creativity involved in all games, we are a highly curated platform and we reserve the right to decide which game content to show to our audience.
+虽然我们欣赏所有游戏中所包含的努力和创造力，但我们是一个高度筛选的平台，我们保留决定向我们的受众展示哪些游戏内容的权利。
+
+What Poki loves to see
+Poki 喜欢看到什么
+💡 Originality & Uniqueness — Games that offer fresh gameplay ideas or put a creative twist on familiar mechanics. In other words, games that demonstrate clear differentiation — especially in oversaturated genres. If you are working on a game that is trend-inspired, see Trends & Trend-Driven Content.
+💡 独创性与独特性 — 提供新颖游戏玩法或对熟悉机制进行创意改造的游戏。换句话说，那些展示明显差异化的游戏——尤其是在过度饱和的流派中。如果你正在开发一款受潮流启发的游戏，请参阅潮流与潮流驱动内容。
+🌐 Web-first — Games that are designed with the web as a primary platform, not just a mobile port.
+🌐 网络优先 — 以网络为主要平台设计，而不仅仅是手机移植的游戏。
+💎 Polished Presentation — Games with high visual cohesion and pleasant animations. The UX should be consistent and responsive. Overall we love to see well thought out design and feedback loops that enhance the core experience.
+💎 精致呈现 — 具有高视觉一致性和愉悦动画的游戏。UX 应保持一致和响应。我们总体上喜欢看到经过深思熟虑的设计和反馈循环，这些可以增强核心体验。
+🧑‍🧑‍🧒‍🧒 Wholesome & Inclusive Content — Games that use family-friendly themes or appeal to kids of all ages from all backgrounds.
+👨‍👩‍👧‍👦 温馨与包容内容 — 使用家庭友好主题或吸引所有背景的所有年龄段孩子的游戏。
+Accessibility and alternative controls
+可访问性和替代控制
+When reviewing your game, please take a moment to consider accessibility, especially around control schemes. Not all players can use standard keyboard inputs such as WASD. Where possible, we encourage supporting alternative control methods like mouse only input, drag steering, auto acceleration, or customizable keys.
+在审核您的游戏时，请花点时间考虑可访问性，尤其是在控制方案方面。并非所有玩家都能使用标准键盘输入，如 WASD。在可能的情况下，我们鼓励支持替代控制方法，如仅鼠标输入、拖动转向、自动加速或可自定义的按键。
+
+Controls are the core of gameplay, and offering flexible input options can make the difference between someone being able to play or being completely excluded. Small adjustments can significantly broaden your audience and improve fairness and inclusivity.
+操控是游戏玩法的核心，提供灵活的输入选项可以使游戏体验从能够玩到完全被排除产生差异。微小的调整可以显著扩大你的受众群体，并提高公平性和包容性。
+
+What Poki will not work with
+Poki 不兼容的内容
+There are several reasons why we may choose not to move forward with releasing a game on Poki. While this list is not exclusive, these are the most common reasons:
+我们可能选择不继续在 Poki 上发布游戏的原因有多个。虽然这份清单并非详尽无遗，但这些是最常见的原因：
+
+😟 Games with unsafe themes for an audience of all ages - Poki only works with games that have safe and inclusive content which aligns with the Poki brand. Examples of what is not acceptable are games that include bullying, abuse, stereotypes, sexism, graphic violence, sustained scary themes, sex, inappropriate clothes, cheating, gambling, alcohol, tobacco, or other offensive materials.
+😟 针对所有年龄段的观众，含有不安全主题的游戏 - Poki 仅与具有安全且包容性内容，并与 Poki 品牌相符的游戏合作。不可接受的内容示例包括涉及欺凌、虐待、刻板印象、性别歧视、暴力、持续恐怖主题、性、不适当服装、作弊、赌博、酒精、烟草或其他冒犯性材料。
+©️ Games with unlicensed IP-usage or heavily inspired games - Poki takes the originality and integrity of games very seriously. We do not work with, or feature direct copies or clones of original titles. Adding such games is a violation of our Terms & Conditions. Even if a game isn’t a direct copy, we may still not be able to work with your game if its visual style, themes, game modes, and overall concept resembles well-known existing IPs. Poki also does not work with games that reuse templates or assets with little modification or creativity. That being said, Poki welcomes games that are inspired by other games and draw on known genres or ideas — as long as they contribute something new. See Clones vs inspired games for more information.
+©️ 使用未授权知识产权或受高度启发游戏 - Poki 非常重视游戏的原创性和完整性。我们不与，也不展示原创作品的直接复制或克隆版本。添加此类游戏违反了我们的条款和条件。即使游戏不是直接复制，如果其视觉风格、主题、游戏模式和整体概念与知名现有知识产权相似，我们可能仍然无法与您的游戏合作。Poki 也不与那些重复使用模板或资产且修改或创意很少的游戏合作。但话说回来，Poki 欢迎受其他游戏启发并借鉴已知类型或想法的游戏——只要它们能带来新意。有关克隆游戏与受启发游戏的信息，请参阅 Clones vs inspired games。
+👎 Low quality games - Poki values quality in games and believes that beautiful things can and often do come in little packages. Examples of what is not acceptable include buggy or broken games, excessive load size, poor performance, confusing UX or poor or inconsistent graphics. Use special care when working with AI, see the Working with AI chapter for more information.
+👎 低质量游戏 - Poki 重视游戏质量，并相信美好的事物可以而且经常以小包装的形式出现。不可接受的情况包括有 bug 或损坏的游戏、过大的加载体积、性能差、令人困惑的用户体验或差或不一致的图形。在与 AI 合作时要特别小心，有关更多信息请参阅与 AI 合作章节。
+What happens if my game violates Poki’s quality guidelines?
+如果我的游戏违反了 Poki 的质量指南会发生什么？
+We love to work with developers who are responsive to feedback and work with us to iterate on their games.
+我们喜欢与能够积极响应并与我们合作改进游戏的开发者合作。
+
+Q: Can I fix the issues and still publish my game?
+Q: 我可以修复问题并仍然发布我的游戏吗？
+
+It generally depends on the issues that your game has but this may be possible. Please be aware that we will only reconsider your game after significant improvement. Cases where this may be possible include:
+这通常取决于你的游戏存在哪些问题，但这可能是可能的。请注意，我们只有在游戏有显著改进后才会重新考虑。可能的情况包括：
+
+For games with concerns about similarity to other titles, you might be able to add more innovation or change visuals, mechanics or levels.
+对于与其他作品相似度存在问题的游戏，你可能会增加更多创新或改变视觉效果、机制或关卡。
+For games with mildly inappropriate content, such as light dating mechanics, suggestive jokes or violent scenes, you may remove the problematic content or reframe your game.
+对于内容轻微不适当的游戏，例如轻微的约会机制、暗示性笑话或暴力场景，你可以删除有问题的内容或重新构建你的游戏。
+For games with unpolished assets, confusing layout, or an uninspired theme, you can polish the game further.
+对于资产不精良、布局令人困惑或主题缺乏创意的游戏，你可以进一步打磨游戏。
+NOTE: Games that misuse IP or contain adult themes will be rejected immediately.
+注意：滥用知识产权或包含成人主题的游戏将被立即拒绝。
+
+Q: What if my game performs very well but violates the quality guidelines?
+问：如果我的游戏表现非常好但违反了质量指南怎么办？
+
+We may still decide against moving forward with your game. Please also note that while we try to be as transparent and responsive as possible, we are not able in all cases to go into detail about why your game was rejected.
+我们可能仍然决定不继续你的游戏。同时请注意，虽然我们尽量保持透明和及时回应，但在所有情况下，我们都不一定能详细说明为什么你的游戏被拒绝。
+
+Q: Where do you draw the line between clones and inspired games?
+Q: 你如何在克隆游戏和受启发游戏中划定界限？
+
+A one-to-one, obvious clone of an existing game will not be accepted on Poki. This includes exact copies of visuals, mechanics, UI, level design, or characters. Poki prefers you to come up with something totally unique but Poki also welcomes games that draw on known genres or ideas — as long as they contribute something new.
+Poki 不接受一对一、明显的现有游戏克隆。这包括视觉、机制、UI、关卡设计或角色的完全复制。Poki 更希望你能创作出完全独特的内容，但 Poki 也欢迎借鉴已知类型或想法的游戏——只要它们能带来新的东西。
+
+When a game is not a full copy but feels very close to another title, we look at the following specific dimensions to assess whether it’s merely inspired or a clone. Be aware that if your game walks the line of parody / inspiration, we may take your game down upon legal request. We may also choose to limit visibility in marketing campaigns. Below you can see a sample overview of different categories, and what would be considered inspiration vs. direct cloning.
+当一款游戏并非完全复制但感觉与另一款作品非常相似时，我们会从以下具体维度来评估它究竟是受到启发还是属于克隆。请注意，如果你的游戏处于讽刺/启发的边缘，我们可能会应法律要求下架你的游戏。我们也可能选择在营销活动中限制其可见性。下面你可以看到不同类别的样本概述，以及什么被视为受到启发与直接克隆。
+
+Art Style:  艺术风格：
+❌ Almost identical visual style to another game, including colors, shading, themes.
+❌ 与另一款游戏几乎相同的视觉风格，包括颜色、阴影、主题。	✅ Stylistically different or reimagined — for example, changing the theme entirely (post-apocalyptic, sci-fi, underwater, etc.).
+✅ 在风格上不同或重新构想——例如，完全改变主题（后末日、科幻、水下等）。
+Core Gameplay Mechanics:
+核心游戏机制：
+❌ Directly copying the gameplay loop, goals, and player inputs without change.
+❌ 直接复制游戏循环、目标和玩家输入而不做修改。	✅ Introducing a unique mechanic, twist, or polish — for example, adding time-loop mechanics, meta-game layers, or blending genres.
+✅ 引入独特的机制、转折或润色——例如，添加时间循环机制、元游戏层次或融合类型。
+Level design / in-game economy / game progress:
+关卡设计 / 游戏内经济 / 游戏进程:
+❌ Same progression structure, pacing, and monetization methods.
+❌ 相同的进度结构、节奏和盈利方式。	✅ New design; original level flow or progression logic. Adjusted monetization.
+✅ 新设计；原创的等级流程或进度逻辑。调整了盈利方式。
+UI / icons / audio / font:
+UI / 图标 / 音频 / 字体:
+❌ Replicating another game’s color scheme, button layout, icon style, or audio cues.
+❌ 复制其他游戏的配色方案、按钮布局、图标风格或音频提示。	✅ Creating a distinct interface with different layout, color use, and custom assets.
+✅ 创建具有不同布局、色彩使用和自定义资源的独特界面。
+Characters / skins:  角色 / 皮肤：
+❌ Using the same character designs, unique animations, or silhouettes as another title.
+❌ 使用与其他作品相同的角色设计、独特动画或轮廓。	✅ Designing original characters with unique silhouettes, animations, and avoiding IP infringement.
+✅ 设计具有独特轮廓、动画，并避免侵犯知识产权的原创角色。
+Game name / thumbnails:
+游戏名称/缩略图：
+❌ Nearly identical or intentionally similar to another title, especially to leverage search terms.
+❌ 与其他标题几乎完全相同或故意相似，尤其是为了利用搜索关键词。	✅ Naming and visual presentation focused on your own content, avoiding misleading SEO tactics.
+✅ 名称和视觉呈现聚焦于您自己的内容，避免误导性的 SEO 策略。
+
+
+❗️ Be inspired, don’t imitate. ❗️
+❗️ 获得灵感，而非模仿。 ❗️
+
+
+Previous   上一个Building For Localization
+本地化构建
+Next   接下来Working With AI
+与 AI 合作
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Working With Poki
+  
+使用 Poki
+Poki For Developers
+  
+Poki 开发者版
+Poki Inspector
+  
+宝可梦检查员
+Building For Localization
+  
+本地化构建
+Quality Guidelines
+  
+质量指南
+Working With AI
+  
+与 AI 合作
+Poki Tips for AI Content
+  
+Poki AI 内容技巧
+Acceptable AI Use
+  
+可接受的 AI 使用方式
+Should Developers Give Credit?
+  
+开发者是否应该给予信用？
+Trends & Trend-Driven Content
+  
+趋势与趋势驱动内容
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+FAQ
+Working with AI 🤖
+与 AI 合作 🤖
+Poki encourages creative experimentation — and that includes thoughtful use of AI tools. However, AI-generated content must add value rather than replace craft, quality, or originality. The golden rule: AI should empower, not shortcut. We want developers who use AI well, not rely on it blindly.
+Poki 鼓励创意实验——这也包括对 AI 工具的深思熟虑使用。然而，AI 生成的内容必须增加价值，而不是取代工艺、质量或原创性。黄金法则：AI 应该赋能，而不是走捷径。我们希望看到善用 AI 的开发者，而不是盲目依赖 AI。
+
+Poki Tips for AI Content
+Poki AI 内容技巧
+Before submitting your AI-enhanced game:
+在提交您的 AI 增强游戏之前：
+
+Check that visuals are clean, sharp, and consistent.
+检查视觉效果是否干净、清晰、一致。
+Ensure no AI watermarks or prompt text is visible.
+确保没有可见的 AI 水印或提示文本。
+Review all dialogue for grammar, pacing, and tone.
+审查所有对话的语法、节奏和语气。
+Test gameplay — do not add AI-generated, untested content.
+测试游戏玩法——不要添加未经测试的 AI 生成内容。
+Games (solely) created with the use of AI could create IP ownership issues for Poki. You should therefore be able to demonstrate how and which tools were used, and be able to provide Poki with an overview of the game creation process and prompts and iterations upon request.
+使用 AI（仅）创建的游戏可能导致 Poki 的 IP 所有权问题。因此，您应该能够展示使用了哪些工具以及如何使用的，并且能够根据 Poki 的要求提供游戏创建过程、提示和迭代的概述。
+
+We understand that in the early stages of development, it’s common to experiment with templates, take inspiration from existing games, or use AI tools, especially when prototyping core mechanics. However, before submitting your game to our Player Fit or Web Fit tests, we expect your game to reflect your unique perspective or meaningful improvements. Games should go beyond the base inspiration or tooling to showcase original creativity and design.
+我们理解在开发的早期阶段，尝试使用模板、从现有游戏中获取灵感或使用 AI 工具是很常见的，尤其是在原型设计核心机制时。然而，在将您的游戏提交给我们进行玩家匹配或网页匹配测试之前，我们期望您的游戏能够体现您独特的视角或具有意义的改进。游戏应该超越基础灵感或工具，以展示原创的创造力和设计。
+
+At Poki, we curate a diverse and quality-driven portfolio. Games that rely too heavily on AI-generated content or templates without adding distinct personality, polish, or innovation may not meet our standards. The more non-original material your game uses, the higher the risk it won’t be accepted for release on Poki after the Web Fit Test.
+在 Poki，我们精心策划一个多元且注重品质的版库。过于依赖 AI 生成内容或模板，且缺乏独特个性、打磨或创新的游戏可能不符合我们的标准。你的游戏使用的非原创材料越多，它在 Web Fit 测试后无法在 Poki 上发布的风险就越高。
+
+We reserve the right to decline any game that doesn’t feel like a strong content/quality fit for Poki (even if it functions well) if it lacks originality or doesn’t contribute to the diversity of our platform.
+我们保留拒绝任何不符合 Poki 内容/质量标准（即使它运行良好）的游戏的权利，如果它缺乏原创性或不能为我们的平台增添多样性。
+
+Acceptable AI Use  可接受的 AI 使用
+Thumbnails:  缩略图：
+✅ DO:  ✅ 做：
+
+Ensure the art style of thumbnails matches your in-game visuals.
+确保缩略图的艺术风格与游戏内视觉效果相符。
+Use thumbnails that accurately represent your game’s tone, setting, and content.
+使用能够准确反映游戏氛围、场景和内容的缩略图。
+Maintain visual cohesion even if AI is part of the process — blend styles intentionally if combining multiple tools.
+即使使用 AI，也要保持视觉上的连贯性——如果结合多种工具，要有意地融合风格。
+
+
+❌ DON’T:  ❌ 不要：
+
+Mix multiple AI-generated styles without intentional blending, resulting in a mismatched look.
+混合多种 AI 生成的风格而不进行有意融合，导致外观不协调。
+Create misleading thumbnails that do not reflect actual gameplay.
+制作与实际游戏玩法不符的误导性缩略图。
+Use inconsistent styles that feel like a patchwork of unrelated assets.
+使用不一致的风格，感觉像是无关资产的拼凑。
+In-game Visuals:  游戏内视觉效果：
+✅ DO:  ✅ 做：
+
+Heavily edit and polish AI-generated assets so they look cohesive with your hand-made or existing assets.
+对 AI 生成的资源进行大量编辑和润色，使其与您的手工制作或现有资源看起来协调一致。
+Maintain a unified art direction across all scenes, characters, and UI.
+在所有场景、角色和 UI 中保持统一的艺术风格。
+Use AI for initial concepts, then refine in your own style.
+使用 AI 进行初步构思，然后用您自己的风格进行细化。
+
+
+❌ DON’T:  ❌ 不要：
+
+Drop raw AI-generated art into the game without adjustments.
+将原始的 AI 生成艺术直接放入游戏中，无需调整。
+Use mismatched art styles within the same game.
+在同一款游戏中使用不匹配的艺术风格。
+Include assets with visible watermarks or signatures.
+包含带有明显水印或签名的资源。
+Include copyrighted characters or styles in prompts to skirt originality (e.g., “Mario-style character”).
+在提示中包含受版权保护的角色或风格以规避原创性（例如，“马里奥风格角色”）。
+Assume AI art makes a clone original — if the concept is copied, it’s still a clone.
+假设 AI 艺术制作的是原始复制品——如果概念被复制，它仍然是复制品。
+UI Assets:  UI 资产：
+✅ DO:  ✅ 应该做：
+
+Use AI-generated menus, buttons, and icons if they match your overall game style.
+如果它们与您的整体游戏风格相匹配，请使用 AI 生成的菜单、按钮和图标。
+Edit and refine all UI assets to ensure they’re polished and consistent.
+编辑和细化所有 UI 资源，以确保它们精致且一致。
+
+
+❌ DON’T:  ❌ 不要：
+
+Copy and paste raw AI-generated UI components without editing.
+未经编辑地复制和粘贴原始 AI 生成的 UI 组件。
+Introduce a UI style that clashes with the game’s art direction.
+引入一种与游戏艺术风格冲突的 UI 样式。
+Use generic or low-quality buttons/icons that feel out of place.
+使用通用或低质量的按钮/图标，感觉格格不入。
+Level Design:  关卡设计：
+✅ DO:  ✅ 应该做：
+
+Use AI or procedural generation to speed up level creation if you test, tweak, and balance each level manually.
+如果手动测试、调整和平衡每个关卡，请使用 AI 或程序生成来加快关卡创建速度。
+Ensure generated levels meet player expectations and align with your game’s pacing and difficulty curve.
+确保生成的关卡符合玩家期望，并与您游戏的速度和难度曲线保持一致。
+
+
+❌ DON’T:  ❌ 不要：
+
+Publish levels exactly as generated without design oversight.
+按生成的方式精确发布关卡，无需设计监督。
+Rely solely on AI output for gameplay structure.
+仅依赖 AI 输出进行游戏结构设计。
+Skip Quality Assurance because “the AI generated it.”
+因为“是 AI 生成的”而跳过质量保证。
+Narrative / Dialogue:  叙事/对话：
+✅ DO:  ✅ 做：
+
+Use AI for brainstorming, rough drafts, or comedic ideas.
+使用 AI 进行头脑风暴、草稿或幽默想法的创作。
+Human-review and rewrite dialogue so it matches the game’s tone and audience.
+人工审核并重写对话，使其符合游戏的语气和受众。
+Ensure narrative text flows naturally and feels intentional.
+确保叙述文本自然流畅，并显得有意为之。
+
+
+❌ DON’T:  ❌ 不要：
+
+Copy-paste unedited AI scripts or dialogue into the final game.
+将未编辑的 AI 脚本或对话复制粘贴到最终游戏中。
+Allow AI-generated text to dictate tone inconsistently.
+允许 AI 生成的文本不一致地决定语气。
+Neglect human QA for story accuracy and emotional impact.
+忽视人类 QA 以确保故事准确性和情感影响。
+Code:  代码：
+✅ DO:  ✅ 应该：
+
+Use AI tools (e.g., GitHub Copilot, ChatGPT) for boilerplate or repetitive coding tasks.
+使用 AI 工具（例如 GitHub Copilot、ChatGPT）处理模板或重复的编码任务。
+Rely on AI for initial structures, then manually test and optimize.
+依赖 AI 进行初始结构设计，然后手动测试和优化。
+Keep full developer ownership of game logic.
+保留游戏逻辑的完全开发者所有权。
+
+
+❌ DON’T:  ❌ 不要：
+
+Ship AI-generated code without testing.
+未经测试就发送 AI 生成的代码。
+Assume AI-written logic is production-ready.
+假设 AI 编写的逻辑可以直接用于生产环境。
+Let AI decisions replace gameplay balancing and QA.
+让 AI 的决策取代游戏平衡和测试。
+Should Developers Give Credit?
+开发者是否应该给予信用？
+Be sure to check the terms and conditions of the AI tools(s) you’re using. Some tools may not allow commercial use, or may require you to credit them (for example: “Some UI art generated with Midjourney and refined in Photoshop.”)
+请务必检查您正在使用的 AI 工具的条款和条件。某些工具可能不允许商业使用，或者可能要求您给予信用（例如：“部分 UI 艺术使用 Midjourney 生成并在 Photoshop 中细化。”）
+
+When in doubt, transparency is appreciated — especially if the game contains:
+如有疑问，透明度是受欢迎的——特别是如果游戏包含：
+
+Visibly AI-style art  明显的 AI 风格艺术
+AI-written text  AI 生成的文本
+Code built with LLM suggestions
+使用 LLM 建议构建的代码
+
+
+Previous   上一个Quality Guidelines   质量指南
+Next   接下来Trends & Trend-Driven Content
+趋势与趋势驱动内容
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Working With Poki
+  
+使用 Poki
+Poki For Developers
+  
+Poki 开发者版
+Poki Inspector
+  
+宝可梦检查员
+Building For Localization
+  
+本地化构建
+Quality Guidelines
+  
+质量指南
+Working With AI
+  
+与 AI 合作
+Trends & Trend-Driven Content
+  
+趋势与趋势驱动内容
+What We Look For:
+  
+我们寻找的：
+Avoiding Oversaturation:
+  
+避免过度饱和：
+Ongoing Collaboration:
+  
+持续合作：
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+  
+奖励关卡
+FAQ
+Trends & Trend-Driven Content 📈
+趋势与趋势驱动内容 📈
+We fully encourage you to stay on top of current trends to create content that feels fresh and relevant for players. Being connected to what’s happening culturally is part of making great web games.
+我们鼓励你紧跟当前潮流，创作出让玩家感觉新鲜且相关的内容。了解文化动态是制作优秀网络游戏的一部分。
+
+At Poki, we welcome trend-inspired games, but with clear boundaries:
+在 Poki，我们欢迎受潮流启发的游戏，但需明确界限：
+
+✅ Trends are great if they fuel creative, fun games.
+✅ 潮流如果能为创意、有趣的游戏提供动力，那将是极好的。
+❌ Trends are not an excuse for rushed, low-effort, or repetitive content.
+❌ 潮流绝不能成为草率、低质量或重复内容的借口。
+What We Look For:
+我们寻找什么：
+The game still needs to deliver an enjoyable, polished player experience, even if some polish or depth may be reasonably sacrificed in order to quickly capitalize on the trend.
+游戏仍然需要提供令人愉悦、精致的游戏体验，即使为了迅速利用趋势，一些精致或深度可能需要合理地牺牲。
+
+Trend-inspired content should add something unique rather than simply collect a bunch of memes, viral challenges, or popular tropes without meaningful gameplay.
+受趋势启发的内容应该增加一些独特性，而不是简单地收集一堆迷因、病毒式挑战或流行套路，而没有有意义的游戏玩法。
+
+We reserve the right to decline games that may function well but feel too derivative, lack originality, or do not contribute to Poki’s diversity of high-quality content.
+我们保留拒绝那些虽然功能良好但感觉过于模仿、缺乏原创性或没有为 Poki 的高质量内容多样性做出贡献的游戏的权利。
+
+Avoiding Oversaturation:
+避免过度饱和：
+We actively manage the variety of content on Poki to keep the platform diverse and engaging for players.
+我们积极管理 Poki 上的内容多样性，以保持平台对玩家的多样性和吸引力。
+
+If a genre or trend becomes too crowded, we may reject additional similar submissions to prevent audience fragmentation and performance drops across overlapping games.
+如果一个类型或趋势变得过于拥挤，我们可能会拒绝额外的相似提交，以防止观众碎片化和重叠游戏中性能下降。
+
+Developers should aim to approach trends from fresh angles that expand and evolve the trend, rather than simply replicate what’s already widely represented.
+开发者应该力求从新的角度接近趋势，以扩展和演变趋势，而不是简单地复制已经广泛代表的内容。
+
+Ongoing Collaboration:  持续合作：
+We’re actively working on ways to share trend insights proactively with our developer community.
+我们正在积极寻求向开发者社区主动分享趋势洞察的方法。
+
+We’re also open to hearing directly from developers to help us continuously improve and fine-tune these guidelines around trends. As trends evolve, we aim to adjust our approach while balancing creative freedom with Poki’s long-term content diversity
+我们也欢迎开发者直接向我们反馈，以帮助我们不断改进和优化这些指南，使其更符合趋势。随着趋势的发展，我们旨在调整我们的方法，同时平衡创意自由与 Poki 的长期内容多样性
+
+
+
+Previous   上一个Working With AI
+与 AI 合作
+Next   接下来Requirements   要求
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Requirements
+  
+要求
+Desktop, Mobile and Tablet support
+  
+支持桌面、移动设备和平板
+Widescreen aspect ratio
+  
+宽屏长宽比
+Incognito support
+  
+隐身模式支持
+Privacy & Security
+  
+隐私与安全
+No branding or external ads
+  
+无品牌或外部广告
+No ad block prevention
+  
+无广告拦截措施
+Poki Quality Guidelines
+  
+Poki 质量指南
+1. Technical Standards
+  
+1. 技术标准
+2. Platform Integration:
+  
+2. 平台集成：
+3. User Interface & Experience Design
+  
+3. 用户界面与体验设计
+4. Localization (recommended for text-heavy games)
+  
+4. 本地化（推荐用于文本密集型游戏）
+5. Advertisement Integration
+  
+5. 广告集成
+6. Content & Community Standards
+  
+6. 内容与社区标准
+External Resources
+  
+外部资源
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+  
+奖励关卡
+FAQ
+  
+常见问题解答
+Requirements 📋  需求 📋
+To get started, the very first thing you’ll need to do is upload your game to Poki for Developers—it’s quick, intuitive, and sets everything else in motion. However, before you hit “Upload,” please take a moment to review our Terms & Conditions for Developers to ensure a smooth publishing experience and avoid any surprises down the road.
+开始使用，您需要做的第一件事是将您的游戏上传到开发者 Poki——它快速、直观，并启动其他所有流程。但是，在您点击“上传”之前，请花点时间查看我们的开发者条款和条件，以确保顺利发布并避免未来的任何意外。
+
+In this section we’ll go over the Requirements for games submitted on Poki. Here we’ve laid out the technical, design, and policy standards every game must meet to deliver the best possible experience for Poki’s 90 million monthly players. From device support and aspect ratios to privacy safeguards and branding rules, these guidelines are your roadmap to getting approved.
+在本节中，我们将概述提交到 Poki 上的游戏的要求。在这里，我们制定了技术、设计和政策标准，每款游戏都必须达到这些标准，以期为 Poki 的 9000 万月活跃玩家提供最佳体验。从设备支持和屏幕宽高比到隐私保护和品牌规则，这些指南是您获得批准的路线图。
+
+All games released on Poki must meet the following requirements in order to ensure players around the world have the best experience possible. Some rules are meant to be broken, but not these.
+所有在 Poki 上发布的游戏都必须满足以下要求，以确保全球玩家获得尽可能好的体验。有些规则是可以打破的，但不是这些规则。
+
+Desktop, Mobile and Tablet support
+桌面、移动和平板电脑支持
+Players on Poki play on a range of web connected devices. Make sure your game works on all of them! On mobile, your game should cover the entire screen in either the portrait or the landscape orientation. Or both if you aim for the best user experience.
+Poki 上的玩家使用各种连接到网络的设备进行游戏。确保您的游戏在所有这些设备上都能正常运行！在移动设备上，您的游戏应该在横屏或竖屏方向上覆盖整个屏幕。如果您追求最佳用户体验，则两种方向都应支持。	Mobile
+Widescreen aspect ratio  宽屏长宽比
+Your game must scale up to cover the full canvas across all devices and have the aspect ratio of 16:9. The correct dimensions to scale proportionally to are 640x360, 836x470, or 1031x580.
+您的游戏必须能够扩展以覆盖所有设备上的整个画布，并具有 16:9 的宽高比。正确的等比例缩放尺寸为 640x360、836x470 或 1031x580。	Aspect Ratio
+Incognito support  隐身模式支持
+Your game must work in incognito mode. Google’s Incognito Mode restricts access to localStorage, so you should wrap your localStorage operations in a try/catch block to avoid this problem and make your games playable on Incognito Mode.
+您的游戏必须在隐身模式下运行。Google 的隐身模式会限制对 localStorage 的访问，因此您应该将 localStorage 操作包裹在 try/catch 块中，以避免这个问题，并使您的游戏可以在隐身模式下运行。	Incognito
+Privacy & Security  隐私与安全
+In an effort to reduce risk and overhead when it comes to privacy compliance, Poki blocks all external requests by default that are sent from games on our platform. If your game calls any unnecessary requests to third-party services like Google Fonts, external game assets (images/audio), external code libraries on external CDNs (ie. jsDelivr), etc., you will need to remove these before the game is released on Poki.
+为减少隐私合规方面的风险和开销，Poki 默认会阻止平台上的游戏发送所有外部请求。如果你的游戏调用了任何不必要的第三方服务请求，例如 Google Fonts、外部游戏资源（图像/音频）、外部 CDN 上的代码库（如 jsDelivr）等，你需要在游戏在 Poki 上发布前移除这些请求。
+
+There are two exceptions to the above:
+以上规定有两个例外：
+Games that utilize multiplayer functionality that rely on externally hosted servers will be exempt from this rule but will need to provide Poki with an up-to-date Privacy Statement. This ensures players are aware of how that external request handles their data.
+使用外部托管服务器的多人游戏功能将不受此规则限制，但需要向 Poki 提供最新的隐私声明。这确保了玩家了解外部请求如何处理他们的数据。
+Games that utilize third-party analytics providers such as GameAnalytics or an in-house analytics solution will be reviewed on a case-by-case basis. If Poki allows the use of such third-party analytics, these games will then also need to provide Poki with an up-to-date Privacy Statement in order to ensure players are aware of how that external request handles their data.
+使用 GameAnalytics 等第三方分析提供程序或内部分析解决方案的游戏将个案处理。如果 Poki 允许使用此类第三方分析，则这些游戏也需要向 Poki 提供最新的隐私声明，以确保玩家了解外部请求如何处理他们的数据。
+It’s worth noting that Google related products (such as Google Analytics) are blocked in all instances. You can read more about our policy regarding External Resources here.
+值得注意的是，所有实例中的 Google 相关产品（如 Google Analytics）均被封锁。您可以在此处阅读更多关于我们对外部资源政策的信息。
+Privacy and Security
+No branding or external ads
+无品牌标识或外部广告
+Remove all splash screens and outgoing links from the game. Feel free to incorporate your studio’s logo into the loading screen instead.Since Poki’s SDK comes out of the box with advertisements, no other ads are allowed in the game.
+移除游戏中的所有启动画面和外部链接。您可以自由地将您工作室的标志整合到加载画面中。由于 Poki 的 SDK 默认包含广告，游戏中不允许出现其他广告。	Ads
+No ad block prevention
+无广告拦截预防
+Your game should be playable even if the player has an ad blocker extension, you shouldn’t withhold any core gameplay behind an ad block message. We deal with this condition on the platform side so there is no need to include any specific messaging to inform the player.
+您的游戏即使玩家使用广告拦截扩展也应该可以玩，不应该将核心游戏内容隐藏在广告拦截消息后面。我们在平台端处理这种情况，因此无需包含任何特定的消息来告知玩家。	Adblock
+Poki Quality Guidelines  Poki 质量指南
+While we appreciate the effort and creativity involved in all games, we are a highly curated platform and we reserve the right to decide which game content to show to our audience. Please read the Poki Quality Guidelines to ensure your game’s content has the best chance of being selected for our playground.
+虽然我们欣赏所有游戏中包含的努力和创造力，但我们是一个高度筛选的平台，我们保留决定向我们的受众展示哪些游戏内容的权利。请阅读 Poki 质量指南，以确保您的游戏内容有最佳机会被选中在我们的游乐场展示。
+
+The following segment gives a thorough overview of general Guidelines and Requirements that the Developer Support team checks for all upcoming games.
+以下段落详细介绍了开发者支持团队对所有即将推出的游戏进行检查的一般指南和要求。
+
+1. Technical Standards  1. 技术标准
+SDK Integration: Implement SDK events correctly (required for Web Fit testing and all releases). Some common issues to look out for include:
+SDK 集成：正确实现 SDK 事件（Web Fit 测试和所有发布版本均需）。需注意的一些常见问题包括：
+
+SDK events should not fire twice in succession.
+SDK 事件不应连续触发两次。
+e.g. a  🎮 gameplayStart()  cannot follow another  🎮 gameplayStart() ;
+例如，一个 🎮 gameplayStart() 不能紧跟另一个 🎮 gameplayStart() ;
+a  ☠ gameplayStop()  cannot fire after a  ☠ gameplayStop() .
+一个 ☠ gameplayStop() 不能在 ☠ gameplayStop() 之后触发。
+ 🎮 gameplayStart()  must fire on the player’s first input (not on load).
+🎮 gameplayStart() 必须在玩家第一次输入时触发（不是在加载时）。
+ ☠ gameplayStop()  must fire on any gameplay interruption (pause, menu open, level end, cutscene).
+☠ gameplayStop() 必须在任何游戏中断（暂停、菜单打开、关卡结束、过场动画）时触发。
+It should not be possible to fire any SDK events during midrolls or rewarded videos.
+在广告播放中或奖励视频期间不应触发任何 SDK 事件。
+ 🎞 commercialBreak()  must fire only when exiting a pause and heading back into gameplay
+🎞 commercialBreak() 只应在退出暂停并返回游戏时触发
+e.g. closing a Pause menu and heading into gameplay = Correct ✅ ; leaving gameplay and going into a Level selection = Wrong ❌.
+例如关闭暂停菜单并进入游戏 = 正确 ✅；离开游戏并进入关卡选择 = 错误 ❌。
+(Edge cases: - “Dress-up” games may fire  ☠ gameplayStop()  +  🎞 commercialBreak()  when swapping clothing categories.)
+(边缘情况：- “换装”游戏在切换服装类别时可能会触发 ☠ gameplayStop() + 🎞 commercialBreak()。)
+SDK Documentation  SDK 文档
+
+For full overview of our SDK, please refer to our SDK Documentation.
+有关我们 SDK 的完整概述，请参阅我们的 SDK 文档。
+
+File Size: Target an initial download size under 8 MB. For Unity games, follow the provided optimization guidelines to meet this requirement.
+文件大小：目标初始下载大小不超过 8 MB。对于 Unity 游戏，请遵循提供的优化指南以满足此要求。
+
+Clean Build: Remove all development tools, debug code, and testing artifacts before publication.
+干净构建：在发布前移除所有开发工具、调试代码和测试工件。
+
+Save System: Implement progress saving where appropriate, or clearly inform players when progress won’t be saved upon exit.
+保存系统：在适当的地方实现进度保存，或在退出时明确告知玩家进度不会保存。
+
+2. Platform Integration:
+2. 平台集成：
+Game Thumbnails: All games must include both static and animated thumbnails for global release. See the Game Thumbnail Guide for detailed specifications.
+游戏缩略图：所有游戏必须包含静态和动态缩略图以供全球发布。有关详细规范，请参阅游戏缩略图指南。
+
+Page Integration: Prevent game viewport scrolling from affecting the parent page during review process.
+页面集成：在审核过程中，防止游戏视口滚动影响父页面。
+
+Mobile Controls: Automatically force mobile control schemes on tablet devices.
+移动控制：在平板设备上自动强制使用移动控制方案。
+
+Responsive Design: Ensure consistent experience across different screen sizes and input methods.
+响应式设计：确保在不同屏幕尺寸和输入方式下提供一致体验。
+
+In-game Privacy Policy: If your game links externally (even for analytics exemptions), include an in-game, accessible Privacy Policy UI and provide us a hosted policy URL (no Google Doc links).
+游戏内隐私政策：如果您的游戏链接外部（即使是用于分析豁免），请包含一个游戏内可访问的隐私政策 UI，并为我们提供一个托管的策略 URL（不要使用 Google 文档链接）。
+
+3. User Interface & Experience Design
+3. 用户界面与体验设计
+Streamlined Entry: Minimize UI screens and menus - ideally place players directly into gameplay.
+简化入口：最小化 UI 界面和菜单 - 理想情况下直接将玩家带入游戏。
+
+Keyboard Support: For keyboard-controlled games, implement ESC or spacebar for pause/resume functionality. Please make sure that the game fires the appropriate SDK events in that case.
+键盘支持：对于键盘控制的游戏，实现 ESC 或空格键用于暂停/继续功能。请确保游戏在这种情况下触发适当的 SDK 事件。
+
+Cutscene Management: Ensure all cutscenes and introductory sequences are skippable.
+场景管理：确保所有场景和开场序列均可跳过。
+
+Clear Instructions: Design tutorials that are visual and intuitive rather than text-heavy.
+清晰说明：设计视觉直观而非文字繁重的教程。
+
+Adaptive Controls: Display appropriate control schemes (mobile controls on mobile/tablets, keyboard instructions on desktop).
+自适应控制：显示适当的控制方案（移动设备上显示移动控制，桌面上显示键盘说明）。
+
+4. Localization (recommended for text-heavy games)
+4. 本地化（推荐用于文本密集型游戏）
+Offer multiple language options for UI and in-game text.
+为 UI 和游戏内文本提供多种语言选项。
+Ensure text fields and layouts adapt to longer translations.
+确保文本字段和布局能够适应较长的翻译。
+5. Advertisement Integration
+5. 广告集成
+Ad Break Integration: Implement commercialBreak() and/or rewardedBreak() functions as appropriate for your game.
+广告中断集成：根据您的游戏需要，适当实现 commercialBreak() 和/或 rewardedBreak() 函数。
+Audio Management: Automatically mute game audio during advertisement playback.
+音频管理：在广告播放期间自动静音游戏音频。
+Timing Control: Do not implement internal ad timers - rely on Poki’s system to manage ad frequency.
+计时控制：不要实现内部广告计时器 - 依赖 Poki 的系统来管理广告频率。
+One-per-reward: Don’t require players to watch multiple consecutive videos for a single reward.
+每奖励一次一个：不要要求玩家为了一个奖励观看多个连续的视频。
+Clear Hierarchy: Design reward options with proper visual hierarchy:
+清晰的层级：设计具有适当视觉层级的奖励选项：
+There must always be a standard continue button as an alternative to a 🎬 rewarded one;
+必须始终有一个标准的继续按钮作为奖励观看按钮的替代方案；
+Standard and reward options appear simultaneously;
+标准选项和奖励选项同时出现；
+Standard button equal or larger size than reward button;
+标准按钮的大小应等于或大于奖励按钮；
+Standard button uses green color;
+标准按钮使用绿色；
+Standard button positioned next to or above reward button;
+标准按钮位于奖励按钮旁边或上方；
+Rewarded buttons cannot use green color;
+奖励按钮不能使用绿色；
+All reward buttons include prominent 🎬 or 🎞️ icons;
+所有奖励按钮都包含显眼的 🎬 或 🎞️ 图标；
+Confirmation Feedback: Provide clear confirmation when players receive rewards through animations, sounds, or visual celebrations.
+确认反馈：当玩家通过动画、声音或视觉庆祝获得奖励时，提供清晰的确认。
+
+Immediate Application: When possible, automatically equip or activate rewards to reduce navigation steps.
+立即申请：在可能的情况下，自动装备或激活奖励以减少导航步骤。
+
+Single Reward Policy: Prevent double-rewarding scenarios for the same action.
+单一奖励政策：防止针对同一行为的双重奖励情况。
+
+No Reward Policy: When ad blockers are detected, do not follow through and provide rewards.
+无奖励政策：当检测到广告拦截器时，不执行并提供奖励。
+
+Silent Handling: Avoid displaying custom “ad blocked” messages - Poki manages this communication.
+静默处理：避免显示自定义“广告已屏蔽”消息 - Poki 管理此通信。
+
+6. Content & Community Standards
+6. 内容与社区规范
+Profanity Filtering: For multiplayer games with username input, implement strict profanity filtering using the provided bad words list (we’d recommend expanding that list further to be even more elaborate and effective for your games).
+脏话过滤：对于有用户名输入的多人游戏，请使用提供的脏话列表实施严格的脏话过滤（我们建议进一步扩展该列表，以便为您的游戏提供更详尽和有效的保护）。
+
+No Internal Purchases: Remove any in-game UI elements for purchasing currency or disabling advertisements.
+禁止内部购买：删除任何用于购买货币或禁用广告的游戏内 UI 元素。
+
+Platform-Only Monetization: Only Poki’s advertisement system is allowed to be implemented for ads in all games.
+仅平台化变现：所有游戏中广告的实现仅允许使用 Poki 的广告系统。
+
+
+
+Previous   上一个Trends & Trend-Driven Content
+趋势与趋势驱动内容
+Next   接下来External Resources   外部资源
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Requirements
+  
+要求
+External Resources
+  
+外部资源
+Forbidden Request Types
+  
+禁止的请求类型
+Exceptions
+  
+异常
+How to Get an External Link Approved
+  
+如何获得外部链接的批准
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+  
+奖励关卡
+FAQ
+  
+常见问题解答
+External Resources 📥  外部资源 📥
+To reduce risk and overhead related to privacy compliance, Poki blocks all external requests by default for games on our platform. This means your game may not call any third-party URLs unless they have been explicitly approved.
+为降低与隐私合规相关的风险和开销，Poki 平台默认会阻止所有外部请求。这意味着，除非经过明确批准，否则您的游戏不得调用任何第三方 URL。
+
+Forbidden Request Types  禁止的请求类型
+To maintain platform safety and performance, the following external request types are not allowed:
+为维护平台安全性和性能，以下外部请求类型是不被允许的：
+
+❌ Unnecessary External Assets — Requests to third-party services for non-essential assets such as:
+❌ 非必要的外部资源 — 请求第三方服务获取非必要资源，例如：
+
+Google Fonts  Google 字体
+Externally hosted images or audio
+外部托管的图像或音频
+Code libraries from external CDNs (e.g. jsDelivr)
+来自外部 CDN 的代码库（例如 jsDelivr）
+Instead, you can download and bundle these assets directly into your game build. No calls to external URLs should be made at runtime for these resources.
+相反，您可以直接将这些资源下载并打包到您的游戏构建中。在运行时不应对这些资源进行外部 URL 调用。
+
+❌ In-Game Chat Systems — In-game chat can expose players, especially younger ones, to risks such as inappropriate language, bullying, and other interactions that may harm their experience. To address these risks, Poki does not allow any chat systems in games with the exception of those covered by Poki Guardian, our moderation tooling that is slowly being rolled out to select games). If you want to encourage players to interact with each other, you could instead have an emoji system that players can also use to express their feelings.
+❌ 游戏内聊天系统 — 游戏内聊天可能会让玩家，尤其是年轻人，接触到不适当语言、欺凌和其他可能损害他们体验的互动风险。为了应对这些风险，Poki 不允许任何游戏内聊天系统，例外情况是 Poki Guardian，这是我们正在逐步在部分游戏中推出的审核工具。如果您想鼓励玩家互相交流，您可以考虑使用表情符号系统，让玩家也能用来表达情感。
+
+❌ External Account Systems — Games should not collect any personal information from players. Login systems that require email addresses or integrations with services like Google or Facebook login are not allowed. Any system that asks for identifiable personal data like email must be removed.
+❌ 外部账户系统 — 游戏不得收集任何玩家个人信息。不允许使用需要电子邮件地址或与 Google 或 Facebook 登录等服务集成的登录系统。任何要求提供可识别个人数据的系统（如电子邮件）都必须移除。
+Exceptions  例外情况
+While most external requests are restricted, there are some acceptable use cases for third-party resources.
+虽然大多数外部请求受到限制，但第三方资源存在一些可接受的用例。
+
+Multiplayer Games with External Servers: If your game uses an externally hosted server for multiplayer, that’s fine once you get it approved by Poki!
+外部服务器多人游戏：如果你的游戏使用外部托管服务器进行多人游戏，一旦获得 Poki 的批准，那就没问题。
+Third-Party Analytics Providers: Analytics services like GameAnalytics, ByteBrew, or your own in-house solution may be approved on a case-by-case basis. You must provide a Privacy Policy covering any data collected and how it’s handled.
+第三方分析提供商：像 GameAnalytics、ByteBrew 或你自己的内部解决方案这样的分析服务可能会根据具体情况批准。你必须提供一个隐私政策，涵盖收集的任何数据以及如何处理这些数据。
+Leaderboards  排行榜
+Account systems with a username (with profanity filter) and password, but without personal data collection.
+带有用户名（带脏话过滤器）和密码的账户系统，但不收集个人数据。
+How to Get an External Link Approved
+如何获得外部链接批准
+If your game requires external resources, please request these on your game’s Settings page in the Custom Content Security Policy section. To request resources you’ll need to provide an up-to-date Privacy Policy that:
+如果您的游戏需要外部资源，请在游戏的设置页面中的自定义内容安全策略部分提出这些请求。要请求资源，您需要提供一个最新的隐私政策，该政策必须：
+
+Must be hosted on a live webpage accessible to all players;
+必须托管在所有玩家都可以访问的实时网页上；
+Must be linked within the game itself;
+必须在游戏本身中链接。
+Must clearly describe how the external service handles user data;
+必须清楚描述外部服务如何处理用户数据；
+If your request is approved, Poki will configure the Content Security Policy (CSP) for your game to allow the specified external requests.
+如果您的请求获得批准，Poki 将为您的游戏配置内容安全策略（CSP），以允许指定的外部请求。
+
+Note: Poki cannot review or provide examples of privacy policies due to a conflict of interest. You’ll need to make sure your policy covers all necessary info.
+注意：由于利益冲突，Poki 无法审查或提供隐私政策的示例。您需要确保您的政策涵盖所有必要信息。
+
+
+
+Previous   上一个Requirements   要求
+Next   接下来Level 2 - Feedback & Playtesting
+第二级 - 反馈与测试
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Poki Playtesting
+  
+Poki 测试游玩
+How Does it Work?
+  
+它是如何工作的？
+A Test For Every Situation
+  
+每种情况都有一个测试
+Test Often!
+  
+测试经常！
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+  
+奖励关卡
+FAQ
+  
+常见问题解答
+Playtesting 🎥  测试游玩 🎥
+Playtesting is a major part of developing or improving a game. Sharing what you’ve made with players can help uncover bugs, gather feedback, and test if your design works as intended. It can highlight fun aspects of your game and pinpoint areas that might need improvement. For developer teams of all sizes, playtesting has proven to be the key to making a game a success story.
+测试是开发或改进游戏的重要组成部分。与玩家分享你的作品可以帮助发现错误、收集反馈，并测试你的设计是否按预期工作。它可以突出游戏的有趣方面，并指出可能需要改进的领域。对于各种规模的开发团队来说，测试已被证明是使游戏成为成功故事的关键。
+
+Poki Playtesting  Poki 测试
+Setting up playtests can be a difficult undertaking. Especially finding players who match your audience can be challenging. Friends and family may be easy to reach but might not give the feedback you need.
+设置测试可能是一项艰巨的任务。特别是找到与你目标受众匹配的玩家可能具有挑战性。朋友和家人可能很容易联系，但可能无法提供你需要的反馈。
+
+That’s where Poki Playtesting can help! With this tool, you can leave all the setup, providing players, devices, and tracking tools to us so you can focus on perfecting your game.
+那是 Poki 测试可以提供帮助的地方！使用这个工具，你可以将所有设置、提供玩家、设备和跟踪工具的工作交给我们，这样你就可以专注于完善你的游戏。
+
+How Does it Work?
+它是如何运作的？
+Poki Playtesting uses the Poki platform to gather playtest recordings. You can specify which devices you want to run playtests on and with which audience you want to test. You can specify this by category - so for example if you are making a platformer, it would be a good idea to test it with the Platformer Games audience.
+Poki 测试使用 Poki 平台来收集测试录制。你可以指定你想要在哪些设备上运行测试，以及与哪些受众进行测试。你可以通过类别来指定这些信息——例如，如果你正在制作一个平台游戏，那么测试它与平台游戏受众一起进行会是一个好主意。
+
+When you send out your test, a small group of Poki players will receive a Mystery Tile on their page. Clicking on it will give them a one-time opportunity to playtest your game. If they agree to their session being recorded, they can try your game on their own devices and at their own pace.
+当你发布测试版时，一小部分 Poki 玩家会在他们的页面上收到一个神秘方块。点击它将给他们一次机会来测试你的游戏。如果他们同意录制他们的会话，他们可以在自己的设备上以自己的节奏尝试你的游戏。
+
+Once the player is done, the recording of their gameplay is saved and added to your Poki for Developers dashboard, ready to be reviewed at any time! Each playtest gets you 10 video recordings, together with the button inputs the player made during the tests and the console output. Playtest recordings also include how long the gameplay lasted, the country where the test was done, and the type of device used by the player. No need to breathe down a tester’s neck to see what they’re doing!
+一旦玩家完成，他们的游戏录制将被保存并添加到您的开发者 Poki 仪表板中，随时可以查看！每次测试游戏您将获得 10 个视频录制，以及玩家在测试过程中进行的按钮输入和主机输出。测试游戏录制还包括游戏进行的时长、测试的国家以及玩家使用的设备类型。无需盯着测试人员看他们正在做什么！
+
+With Poki’s huge player base from all over the world you can expect your first playtests from real players that fit your audience within minutes. This makes it simpler to include testing in your workflow and use the results for iteration and changes. With Poki Playtesting, you can create a new feature in the morning and have it tested and improved by the end of the day!
+有了来自世界各地的 Poki 庞大用户群，你可以在几分钟内期待来自真正用户的首次测试，这些用户符合你的目标受众。这使得将测试纳入你的工作流程并使用结果进行迭代和变更变得更加简单。通过 Poki 测试，你可以在早上创建一个新功能，并在当天结束时完成测试和改进！
+
+A Test For Every Situation
+适用于各种情况的测试
+Knowing what you want to test helps you get the most value from a playtest. It’s important to have a clear goal, but also to limit the number of things you’re testing so the results are easy to understand.
+了解你想测试什么能帮助你从测试中获得最大价值。设定明确的目标很重要，但也要限制测试的数量，以便结果更容易理解。
+
+The Poki Playtesting feature allows for tons of different tests to be done. Developers who have already used playtesting have found these types to be the most helpful:
+Poki 测试功能可以进行大量不同的测试。已经使用过测试的开发者发现这些类型最有帮助：
+
+Baseline Test: Especially important in the early stages of development, a baseline test is focused on discovering if your targeted audience has fun with the game you’re making. By simply showing your audience your game and measuring the time players spend with it, you can get a good idea of how they like the game.
+基准测试：在开发的早期阶段尤其重要，基准测试专注于发现您的目标受众是否喜欢您正在制作的游戏。通过简单地展示您的游戏并测量玩家花费的时间，您可以很好地了解他们对游戏的喜好。
+
+❓ What to Look For: To see whether the core of your game is interesting for the Poki audience, look for the amount of time players spend with the game during your playtests. If players engage with your game for multiple minutes - that’s a good first sign! The more time players spend with your game during the playtests, the stronger the potential Poki fit is.
+❓ 要寻找什么：为了判断你的游戏核心对 Poki 受众是否有吸引力，观察玩家在你的测试中花费的时间。如果玩家能持续玩你的游戏几分钟——那是个好的初步迹象！在测试中玩家花费在你的游戏上的时间越长，Poki 的匹配潜力就越大。
+Engagement Guide  参与度指南
+
+For some tips to help increase your Engagement times, have a look at our Engagement Guide. This can be further explored in more detail in the next submission stage (Level 3 - Player Fit Test).
+想要获取一些帮助增加参与度的建议，可以查看我们的参与度指南。这可以在下一阶段（第 3 级 - 玩家匹配测试）中更详细地探讨。
+
+Onboarding Experience Testing: No matter how good your game is, if players can’t quickly understand how it works, they’re more likely to quit before seeing the best parts. That’s why you should test your onboarding and tutorials very thoroughly. The easier it is for players to get through the beginning of the game, the more likely they are to keep playing.
+新用户引导体验测试：无论你的游戏多么优秀，如果玩家无法快速理解其玩法，他们更有可能在看到最佳内容之前就放弃。因此，你应该非常彻底地测试你的新用户引导和教程。玩家越容易度过游戏的开头，他们就越有可能继续玩下去。
+
+❓ What to Look For: For this test it’s important to look at where your players are getting frustrated. If they leave the game after playing for less than a minute, chances are your onboarding might need some tweaks. Have a look at those recordings to see where the player dropped off and what could be improved!
+❓ 需要注意什么：对于这个测试，重要的是要看看你的玩家在哪里感到沮丧。如果他们在游戏时间不到一分钟后就离开了，那么你的引导流程可能需要一些调整。查看那些录制视频，看看玩家在哪里流失，以及什么可以改进！
+Easy Access Guide  快速入门指南
+
+If you need some inspiration to improve your onboarding, give our Easy Access guide a look!
+如果你需要一些改进引导流程的灵感，可以看看我们的快速入门指南！
+
+Difficulty Balancing: Few things can spoil your fun with a game more than running into a sudden difficult part. At the same time, you don’t want the game to be so easy that your players get bored. That’s why it’s important to balance your game.
+难度平衡：没有什么比遇到突然的困难部分更能破坏游戏乐趣的了。同时，也不想游戏太难以至于玩家感到无聊。这就是为什么要平衡游戏的重要性所在。
+
+❓ What to Look For: Playtests make it easy to see exactly where and in what part of the game players get frustrated or bored - allowing you to make difficulty tweaks more easily and precisely. If all players repeatedly lose in Level 3 - that level might be too hard. If players simply stop playing at Level 3 - they might be bored and in need of something exciting to keep them going!
+❓ 需要注意什么：测试可以让你清楚地看到玩家在游戏的哪个部分感到沮丧或无聊——从而更容易、更精确地进行难度调整。如果所有玩家在 3 级反复失败——那么这个级别可能太难了。如果玩家在 3 级就停止玩——他们可能感到无聊，需要一些刺激的事情来保持他们的兴趣！
+Bug Testing: Important in every stage of development, a bug test is used to discover if there are any errors or bugs popping up in your game. To do this, you need a variety of people to play your game on different devices and browsers. This way, you can make sure everyone has a good experience, no matter what they are playing on.
+Bug 测试：在开发的每个阶段都非常重要，bug 测试用于发现游戏中是否存在任何错误或问题。为此，你需要让不同的人在不同的设备和浏览器上玩你的游戏。这样，你可以确保每个人都能获得良好的体验，无论他们在什么设备上玩。
+
+❓ What to Look For: Keep an eye on the console window when you’re watching your playtest recordings. See anything pop up that shouldn’t be there? Then it might be good to have a look at your code to see what might be causing the issue.
+❓ 需要注意什么：在观看你的测试录制时，请留意控制台窗口。看到不该出现的东西了吗？那最好检查一下你的代码，看看可能是什么原因导致的。
+Test Often!  经常测试！
+Once you get your playtest results back, make sure to give each recording a good look. The most important part of playtesting is iteration. When you have done your first test and have analyzed the results, find out what you want to test next and make a new plan. Even the smallest change made to your game can have an effect on the overall experience. That’s why it’s important to test as often as possible!
+一旦你收到你的测试结果，确保仔细查看每个录音。测试最重要的部分是迭代。当你完成第一次测试并分析了结果后，找出你接下来想要测试的内容，并制定一个新的计划。你对游戏做的任何微小改变都可能对整体体验产生影响。这就是为什么尽可能频繁地测试非常重要！
+
+
+
+Previous   上一个External Resources   外部资源
+Next   接下来Level 3 - Player Fit Test
+第三级 - 玩家适配测试
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+What Is a Player Fit Test?
+  
+什么是球员适配测试？
+How does a Player Fit Test work?
+  
+球员适配测试是如何工作的？
+What do I Need to do to unlock Player Fit Tests?
+  
+我需要做些什么来解锁球员适配测试？
+How to interpret the Test Results?
+  
+如何解读测试结果？
+What does my game need to achieve to proceed to the next stage?
+  
+我的游戏需要达成什么目标才能进入下一阶段？
+How do I improve my Player Fit Test results?
+  
+我如何提高我的玩家匹配测试结果？
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+  
+奖励关卡
+FAQ
+  
+常见问题解答
+Player Fit 🎮  球员适配 🎮
+What Is a Player Fit Test?
+什么是玩家匹配测试？
+The Player Fit Test is an automated testing tool that gives you quick access to a sample audience of 500 players. The goal of the Player Fit Test is to estimate your game’s potential based on playtime data. You can use the results to refine your game and evaluate whether your game is ready for the big stage.
+玩家适配测试是一个自动化测试工具，可让您快速访问 500 名玩家的样本观众。玩家适配测试的目标是根据游戏时长数据来评估您游戏的潜力。您可以使用测试结果来优化您的游戏，并评估您的游戏是否已准备好进入大舞台。
+
+How does a Player Fit Test work?
+玩家适配测试是如何工作的？
+When you send out your test, the process is quite similar to running a Playtest. You can choose a category, set up the wanted orientations for mobile gameplay and send out the test. A small group of Poki players will receive a Mystery Tile on their page while playing on Poki. Clicking on it will lead them to your game.
+当你发送测试时，这个过程与运行一个 Playtest 非常相似。你可以选择一个类别，设置想要的移动游戏方向，并发送测试。一小群 Poki 玩家在玩 Poki 时会在他们的页面上收到一个神秘瓦片。点击它将引导他们来到你的游戏。
+
+PlayerFitTest
+
+Unlike playtests, footage of gameplay is not recorded. Instead, the test will measure how long the player is playing your game. Once 500 players have given your game a try, the test will automatically end and the results will be gathered.
+与 Playtest 不同，游戏录像不会被记录。相反，测试将测量玩家玩你的游戏的时间。一旦有 500 名玩家尝试了你的游戏，测试将自动结束，结果将被收集。
+
+Once you start the player fit test, it usually takes around 5 hours to complete, but depending on the traffic on Poki, categories chosen, and the amount of requests for Player Fit tests at that moment, testing times will vary.
+一旦你开始进行玩家适配测试，通常需要大约 5 个小时才能完成，但具体测试时间会根据 Poki 的流量、所选类别以及当前玩家适配测试的请求数量而有所不同。
+
+Developers are currently limited to 2 test requests per day.
+开发者目前每天最多只能进行 2 次测试请求。
+
+What do I Need to do to unlock Player Fit Tests?
+我需要做些什么来解锁玩家适配测试？
+In order to unlock the ability to request Player Fit Tests for your game, you will first need to watch at least 5 playtest recordings in Level 2.
+为了解锁为你的游戏请求玩家适配测试的功能，你首先需要在第 2 级观看至少 5 次玩测试录像。
+
+How to interpret the Test Results?
+如何解读测试结果？
+The result is a histogram showing the distribution of recorded play time ranges across the 500 players.
+结果是一个直方图，显示了在 500 名玩家中记录的游玩时间范围的分布情况。
+
+Let’s say a player plays your game for a minute and a half. In the graph, that player will be represented on the 1-2 minutes bar, with the other players that played between 1 and 2 minutes.
+假设一名玩家玩了你一分钟半的游戏。在图表中，这名玩家将与其他玩了 1 到 2 分钟时间的玩家一起显示在 1-2 分钟的条形上。
+
+StatsOne
+
+You can also select the results of two different tested versions at the top of the graph to display them next to each other. This makes it easy to compare the performance and improvements of different versions.
+你也可以在图表顶部选择两个不同的测试版本的结果，将它们并排显示。这使得比较不同版本的性能和改进变得容易。
+
+StatsTwo
+
+What does my game need to achieve to proceed to the next stage?
+我的游戏需要实现什么才能进入下一阶段？
+In order to move on to the Web Fit Test stage, your game needs to reach the following metrics:
+为了进入 Web Fit 测试阶段，您的游戏需要达到以下指标：
+
+An average overall playtime of over 3 minutes;
+平均总游戏时间超过 3 分钟；
+At least 25% of the 500 gameplays must be over 3 minutes;
+至少 25%的 500 次游戏过程中必须超过 3 分钟；
+If your game reaches these metrics, that shows that players take a genuine interest in your game. In addition, you can be assured that it’s not just one small group of players playing a lot— there’s a meaningful portion of your audience engaging with your game.
+如果你的游戏达到这些指标，那就说明玩家对你游戏有真正的兴趣。此外，你也可以确信不只是少数玩家在大量玩游戏——有相当一部分你的受众在参与你的游戏。
+
+It’s good to note that the goal of the Player Fit Test is to be an iterative tool. If your game does not reach the metrics needed to continue on to the next testing stage in your first tests, that’s not necessarily a sign that your game is not good. What it does mean is that your concept might need some more tweaks and changes in order to be introduced to a larger part of the Poki audience.
+值得注意的是，玩家适配测试的目标是一个迭代工具。如果你的游戏在初次测试中没有达到继续进入下一测试阶段的指标，这并不一定意味着你的游戏不好。它意味着你的概念可能需要一些更多的调整和改变，以便向更大部分的 Poki 受众推出。
+
+How do I improve my Player Fit Test results?
+我该如何提高我的玩家适应性测试成绩？
+Success in the Player Fit Test can be measured by how players are distributed in the graph. The larger the bars are on the right-hand side of the graph, especially the 5m+ one, the more players will have played your game for a longer period of time and the better your game has performed in the test.
+在玩家适配测试中的成功可以通过玩家在图表中的分布来衡量。图表右侧的条形越高，尤其是 5m+的那条，表示玩你游戏的玩家会玩更长时间，你的游戏在测试中的表现也越好。
+
+If the results from your tests do not show enough players in the 3-5m+ range, that could indicate that your game might need some changes in certain areas of the game.
+如果你的测试结果中没有足够的玩家在 3-5m+范围内，这可能表明你的游戏在某些方面需要一些改变。
+
+Most players fall in the first two columns: If your test shows most players fall in the first two columns, that means players have stopped playing your game quite early on. This indicates that your onboarding and early game experience might need some changes.
+大多数玩家都集中在前两列：如果你的测试显示大多数玩家都集中在前两列，这意味着玩家在游戏早期就停止玩了。这表明你的新手引导和早期游戏体验可能需要一些改变。
+A lot of players in the middle columns: If your test shows a lot of players in the middle columns, that indicates that the players are interested in what the game has to offer, but it might be lacking content or a needed hook to keep players interested. In this case it could be helpful to either review whether the amount of content in your current version is enough to keep players engaged for a longer period of time. It might also help to reassess the core mechanics of your game and see if they are interesting enough for longer playsessions. Conducting more Playtests may help you identify the issue.
+中列有很多玩家：如果你的测试显示中列有很多玩家，这说明玩家对游戏提供的内容感兴趣，但它可能缺乏内容或必要的钩子来保持玩家的兴趣。在这种情况下，审查当前版本中的内容量是否足够长时间地吸引玩家可能会有所帮助。重新评估游戏的核心机制，看看它们是否足够有趣以支持更长的游戏时间，也可能会有所帮助。进行更多的游戏测试可能会帮助你识别问题。
+To test your changes before doing another Player Fit test, it’s good to know you can request more playtest recordings if you want! They’re very helpful to see how your changes affect player behavior. You can find the Playtest tab in the entry for your game. You can request them during any testing stage!
+在进行下一次玩家适配测试之前测试您的更改，了解您可以请求更多的测试录制如果需要！它们对于查看您的更改如何影响玩家行为非常有帮助。您可以在您的游戏条目中找到测试标签。您可以在任何测试阶段请求它们！
+
+
+
+Previous   上一个Level 2 - Feedback & Playtesting
+第二级 - 反馈与测试
+Next   接下来Web Fit Test
+Web 适应性测试
+Made with Material for MkDocs
+    

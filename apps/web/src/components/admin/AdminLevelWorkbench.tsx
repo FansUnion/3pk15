@@ -40,6 +40,28 @@ type ReviewFilter = 'all' | 'unreviewed' | 'passed' | 'needs_changes' | 'incompl
 
 const AI_LABEL: Record<Difficulty, string> = { easy: '简单', normal: '普通', hard: '困难' }
 
+/** Product tags that mark a level as high-risk for triage (not every descriptive tag). */
+const HIGH_RISK_TAGS = new Set([
+  'Hard AI',
+  '困狼',
+  '策略敏感',
+  '高难',
+  '死角',
+  '偏狼风险',
+  '高压',
+])
+
+function effectiveVerdict(
+  levelId: string,
+  reports: CandidateReportMap,
+): CandidateVerdict | undefined {
+  return reports[levelId]?.verdict ?? CANDIDATE_BASELINE[levelId]?.verdict
+}
+
+function hasHighRiskTag(level: LevelConfig) {
+  return level.riskTags.some((tag) => HIGH_RISK_TAGS.has(tag))
+}
+
 export function AdminLevelWorkbench() {
   const [chapter, setChapter] = useState<ChapterFilter>('all')
   const [ai, setAi] = useState<AiFilter>('all')
@@ -63,18 +85,19 @@ export function AdminLevelWorkbench() {
     setCounterexamples(loadCandidateCounterexamples())
   }, [])
   const allErrors = useMemo(() => validateAllLevels(), [])
-  const filtered = useMemo(() => LEVELS.filter((level) => (
-    (chapter === 'all' || level.chapterId === chapter)
-    && (ai === 'all' || level.ai === ai)
-    && (difficulty === 'all' || String(level.difficulty) === difficulty)
-    && (!riskOnly || level.riskTags.length > 0)
-    && (verdict === 'all' || (verdict === 'missing' ? !reports[level.id] : (reports[level.id]?.verdict ?? CANDIDATE_BASELINE[level.id]?.verdict) === verdict))
-    && (reviewFilter === 'all'
-      || (reviewFilter === 'unreviewed' && (!reviews[level.id] || reviews[level.id]?.status === 'unreviewed'))
-      || (reviewFilter === 'incomplete' && !reviewCompletion(reviews[level.id]).complete)
-      || reviews[level.id]?.status === reviewFilter)
-  )).sort((a, b) => validationPriority(a, reports) - validationPriority(b, reports)), [ai, chapter, difficulty, reports, reviewFilter, reviews, riskOnly, verdict])
-  const selected = LEVELS.find((level) => level.id === selectedId) ?? filtered[0]
+  const filtered = useMemo(() => LEVELS.filter((level) => {
+    const gate = effectiveVerdict(level.id, reports)
+    return (chapter === 'all' || level.chapterId === chapter)
+      && (ai === 'all' || level.ai === ai)
+      && (difficulty === 'all' || String(level.difficulty) === difficulty)
+      && (!riskOnly || hasHighRiskTag(level))
+      && (verdict === 'all' || (verdict === 'missing' ? !gate : gate === verdict))
+      && (reviewFilter === 'all'
+        || (reviewFilter === 'unreviewed' && (!reviews[level.id] || reviews[level.id]?.status === 'unreviewed'))
+        || (reviewFilter === 'incomplete' && !reviewCompletion(reviews[level.id]).complete)
+        || reviews[level.id]?.status === reviewFilter)
+  }).sort(playerOrderCompare), [ai, chapter, difficulty, reports, reviewFilter, reviews, riskOnly, verdict])
+  const selected = filtered.find((level) => level.id === selectedId) ?? filtered[0]
   const passedCount = LEVELS.filter((level) => {
     const review = reviews[level.id]
     return review?.status === 'passed' && review.levelVersion === levelVersion(level) && reviewCompletion(review).complete
@@ -82,7 +105,7 @@ export function AdminLevelWorkbench() {
   const evidenceCount = LEVELS.filter((level) => reviewCompletion(reviews[level.id]).complete && reviews[level.id]?.levelVersion === levelVersion(level)).length
   const needsChangesCount = Object.values(reviews).filter((review) => review.status === 'needs_changes').length
   const verdictCounts = LEVELS.reduce((counts, level) => {
-    const current = reports[level.id]?.verdict ?? CANDIDATE_BASELINE[level.id]?.verdict
+    const current = effectiveVerdict(level.id, reports)
     if (current) counts[current] += 1
     return counts
   }, { pass: 0, review: 0, reject: 0 })
@@ -185,14 +208,14 @@ export function AdminLevelWorkbench() {
           ['all', '全部难度'], ['1', '1/5'], ['2', '2/5'], ['3', '3/5'], ['4', '4/5'], ['5', '5/5'],
         ]} />
         <Filter label="候选门禁" value={verdict} onChange={(value) => setVerdict(value as VerdictFilter)} options={[
-          ['all', '全部状态'], ['pass', 'pass'], ['review', 'review'], ['reject', 'reject'], ['missing', '无报告'],
+          ['all', '全部状态'], ['pass', 'pass'], ['review', 'review'], ['reject', 'reject'], ['missing', '无门禁结果'],
         ]} />
         <Filter label="人工验收" value={reviewFilter} onChange={(value) => setReviewFilter(value as ReviewFilter)} options={[
           ['all', '全部状态'], ['incomplete', '证据未完整'], ['unreviewed', '尚未记录'], ['passed', '标记通过'], ['needs_changes', '待修订'],
         ]} />
-        <label className="flex h-10 items-center gap-2 border border-[#5c6b52]/25 bg-[#f7f5ef] px-3">
+        <label className="flex h-10 items-center gap-2 border border-[#5c6b52]/25 bg-[#f7f5ef] px-3" title="Hard AI / 困狼 / 策略敏感 / 高难 / 死角 / 偏狼风险 / 高压">
           <input type="checkbox" checked={riskOnly} onChange={(event) => setRiskOnly(event.target.checked)} />
-          只看风险关
+          只看高风险关
         </label>
         <button type="button" onClick={() => { setChapter('all'); setAi('all'); setDifficulty('all'); setVerdict('all'); setReviewFilter('all'); setRiskOnly(false) }} className="h-10 px-3 text-[#3d4a3a] underline">
           重置筛选
@@ -250,6 +273,8 @@ function LevelCard({ level, review, report, baselineVerdict, selected, onSelect 
   const state = useMemo(() => createLevelInitialState(level), [level])
   const theme = useMemo(() => themeForChapter(level.chapterId), [level.chapterId])
   const stale = Boolean(review && review.levelVersion !== levelVersion(level))
+  const playHref = `/admin/play/${level.id}`
+  const aiHref = `/admin/ai?level=${encodeURIComponent(level.id)}&diff=${level.ai}`
   return (
     <article className={`border bg-[#f7f5ef] ${selected ? 'border-[#3d4a3a] ring-1 ring-[#3d4a3a]' : 'border-[#5c6b52]/20'}`}>
       <button type="button" onClick={onSelect} className="block w-full p-3 text-left">
@@ -269,17 +294,20 @@ function LevelCard({ level, review, report, baselineVerdict, selected, onSelect 
           {(report?.verdict ?? baselineVerdict) && <VerdictBadge verdict={(report?.verdict ?? baselineVerdict)!} />}
         </div>
       </button>
+      <div className="flex gap-2 border-t border-[#5c6b52]/15 px-3 py-2 text-xs" onClick={(event) => event.stopPropagation()}>
+        <Link href={playHref} className="bg-[#3d4a3a] px-2.5 py-1.5 text-[#f4f1ea]" onClick={(event) => event.stopPropagation()}>Admin 试玩</Link>
+        <Link href={aiHref} className="border border-[#3d4a3a] px-2.5 py-1.5 text-[#3d4a3a]" onClick={(event) => event.stopPropagation()}>AI 诊断</Link>
+      </div>
     </article>
   )
 }
 
-function validationPriority(level: LevelConfig, reports: CandidateReportMap) {
-  const verdict = reports[level.id]?.verdict ?? CANDIDATE_BASELINE[level.id]?.verdict
-  const findings = reports[level.id]?.findings.map((finding) => finding.code) ?? CANDIDATE_BASELINE[level.id]?.findingCodes ?? []
-  if (verdict === 'reject') return 0
-  if (findings.includes('LONG_TAIL')) return 1
-  if (verdict === 'review') return 2
-  return 3
+function playerOrderCompare(a: LevelConfig, b: LevelConfig) {
+  const chapterDelta = CHAPTER_ORDER.indexOf(a.chapterId) - CHAPTER_ORDER.indexOf(b.chapterId)
+  if (chapterDelta !== 0) return chapterDelta
+  const indexDelta = a.indexInChapter - b.indexInChapter
+  if (indexDelta !== 0) return indexDelta
+  return a.id.localeCompare(b.id)
 }
 
 function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?: CandidateAcceptanceReport; baseline?: { verdict: CandidateVerdict; findingCodes: string[] } }) {
@@ -296,23 +324,21 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
     <aside className="sticky top-4 border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
       <p className="text-xs text-[#7a8574]">{CHAPTER_LABEL[level.chapterId]}第 {level.indexInChapter} 关 · {level.id}</p>
       <h2 className="mt-1 font-serif text-2xl text-[#2c3328]">{level.nameZh}</h2>
-      <p className="mt-3 leading-relaxed text-[#5c6b52]">{level.blurbZh}</p>
-      <dl className="mt-4 grid grid-cols-2 gap-2 border-y border-[#5c6b52]/15 py-3 text-xs">
+      <p className="mt-2 leading-relaxed text-[#5c6b52]">{level.blurbZh}</p>
+      <dl className="mt-3 grid grid-cols-2 gap-2 border-y border-[#5c6b52]/15 py-3 text-xs">
         <div><dt className="text-[#7a8574]">羊 AI</dt><dd>{AI_LABEL[level.ai]} ({level.ai})</dd></div>
         <div><dt className="text-[#7a8574]">操作难度</dt><dd>{level.difficulty}/5</dd></div>
         <div><dt className="text-[#7a8574]">胜利目标</dt><dd>吃 {level.targetEaten} 羊</dd></div>
         <div><dt className="text-[#7a8574]">回合上限</dt><dd>{level.maxPlies} plies</dd></div>
       </dl>
-      <DetailText label="名称含义" text={level.nameMeaningZh} />
-      <DetailText label="设计理念" text={level.designConceptZh} />
-      <DetailText label="玩家体验目标" text={level.playerGoalZh} />
-      <DetailText label="狼方策略" text={level.wolfStrategyZh} />
-      <DetailText label="主策略" text={`${primaryStrategy.nameZh}：${primaryStrategy.summaryZh}`} />
-      <DetailText label="辅助策略" text={`${secondaryStrategy.nameZh}：${secondaryStrategy.summaryZh}`} />
-      <DetailText label="盘面信号" text={primaryStrategy.signalZh} />
-      <DetailText label="常见错误" text={primaryStrategy.mistakeZh} />
-      <DetailText label="羊方防守" text={level.sheepDefenseZh} />
-      <DetailText label="前台教学说明" text={level.teachingPoint ?? ''} />
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link href={`/admin/play/${level.id}`} className="bg-[#3d4a3a] px-3 py-2 text-[#f4f1ea]">Admin 试玩</Link>
+        <Link href={`/admin/ai?level=${encodeURIComponent(level.id)}&diff=${level.ai}`} className="bg-[#3d4a3a] px-3 py-2 text-[#f4f1ea]">AI 诊断</Link>
+        <Link href={`/hunt/${level.id}`} target="_blank" className="border border-[#3d4a3a] px-3 py-2 text-[#3d4a3a]">前台说明</Link>
+      </div>
+      <p className="mt-2 text-xs text-green-800">Admin 试玩复用正式规则与羊 AI，但不写玩家奖励、解锁或任务进度。</p>
+
       {report && (
         <section className="mt-4 border-t border-[#5c6b52]/15 pt-4">
           <div className="flex items-center justify-between"><h3 className="text-xs font-medium text-[#7a8574]">候选门禁</h3><VerdictBadge verdict={report.verdict} /></div>
@@ -364,12 +390,20 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
           <p className="mt-1 text-xs text-amber-900">当前仅为摘要；导入完整报告后才显示指标、证据种子和棋谱入口。</p>
         </section>
       )}
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Link href={`/admin/ai?level=${encodeURIComponent(level.id)}&diff=${level.ai}`} className="bg-[#3d4a3a] px-3 py-2 text-[#f4f1ea]">AI 诊断</Link>
-        <Link href={`/hunt/${level.id}`} target="_blank" className="border border-[#3d4a3a] px-3 py-2 text-[#3d4a3a]">前台说明</Link>
-        <Link href={`/admin/play/${level.id}`} className="border border-[#3d4a3a] px-3 py-2 text-[#3d4a3a]">Admin 试玩</Link>
-      </div>
-      <p className="mt-2 text-xs text-green-800">Admin 试玩复用正式规则与羊 AI，但不写玩家奖励、解锁或任务进度。</p>
+
+      <details className="mt-4 border-t border-[#5c6b52]/15 pt-3">
+        <summary className="cursor-pointer text-xs font-medium text-[#3d4a3a]">产品说明与策略</summary>
+        <DetailText label="名称含义" text={level.nameMeaningZh} />
+        <DetailText label="设计理念" text={level.designConceptZh} />
+        <DetailText label="玩家体验目标" text={level.playerGoalZh} />
+        <DetailText label="狼方策略" text={level.wolfStrategyZh} />
+        <DetailText label="主策略" text={`${primaryStrategy.nameZh}：${primaryStrategy.summaryZh}`} />
+        <DetailText label="辅助策略" text={`${secondaryStrategy.nameZh}：${secondaryStrategy.summaryZh}`} />
+        <DetailText label="盘面信号" text={primaryStrategy.signalZh} />
+        <DetailText label="常见错误" text={primaryStrategy.mistakeZh} />
+        <DetailText label="羊方防守" text={level.sheepDefenseZh} />
+        <DetailText label="前台教学说明" text={level.teachingPoint ?? ''} />
+      </details>
     </aside>
   )
 }

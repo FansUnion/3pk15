@@ -1,0 +1,1244 @@
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+What Is a Player Fit Test?
+  
+什么是球员适配测试？
+How does a Player Fit Test work?
+  
+球员适配测试是如何工作的？
+What do I Need to do to unlock Player Fit Tests?
+  
+我需要做些什么来解锁球员适配测试？
+How to interpret the Test Results?
+  
+如何解读测试结果？
+What does my game need to achieve to proceed to the next stage?
+  
+我的游戏需要达成什么目标才能进入下一阶段？
+How do I improve my Player Fit Test results?
+  
+我如何提高我的玩家匹配测试结果？
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Web Fit Test
+  
+Web 适应性测试
+Game Thumbnail
+  
+游戏缩略图
+What To Do If My Game Doesn't Make It
+  
+如果我的游戏未能通过
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+  
+奖励关卡
+FAQ
+  
+常见问题解答
+Player Fit 🎮  球员适配 🎮
+What Is a Player Fit Test?
+什么是玩家匹配测试？
+The Player Fit Test is an automated testing tool that gives you quick access to a sample audience of 500 players. The goal of the Player Fit Test is to estimate your game’s potential based on playtime data. You can use the results to refine your game and evaluate whether your game is ready for the big stage.
+玩家适配测试是一个自动化测试工具，可让您快速访问 500 名玩家的样本观众。玩家适配测试的目标是根据游戏时长数据来评估您游戏的潜力。您可以使用测试结果来优化您的游戏，并评估您的游戏是否已准备好进入大舞台。
+
+How does a Player Fit Test work?
+玩家适配测试是如何工作的？
+When you send out your test, the process is quite similar to running a Playtest. You can choose a category, set up the wanted orientations for mobile gameplay and send out the test. A small group of Poki players will receive a Mystery Tile on their page while playing on Poki. Clicking on it will lead them to your game.
+当你发送测试时，这个过程与运行一个 Playtest 非常相似。你可以选择一个类别，设置想要的移动游戏方向，并发送测试。一小群 Poki 玩家在玩 Poki 时会在他们的页面上收到一个神秘瓦片。点击它将引导他们来到你的游戏。
+
+PlayerFitTest
+
+Unlike playtests, footage of gameplay is not recorded. Instead, the test will measure how long the player is playing your game. Once 500 players have given your game a try, the test will automatically end and the results will be gathered.
+与 Playtest 不同，游戏录像不会被记录。相反，测试将测量玩家玩你的游戏的时间。一旦有 500 名玩家尝试了你的游戏，测试将自动结束，结果将被收集。
+
+Once you start the player fit test, it usually takes around 5 hours to complete, but depending on the traffic on Poki, categories chosen, and the amount of requests for Player Fit tests at that moment, testing times will vary.
+一旦你开始进行玩家适配测试，通常需要大约 5 个小时才能完成，但具体测试时间会根据 Poki 的流量、所选类别以及当前玩家适配测试的请求数量而有所不同。
+
+Developers are currently limited to 2 test requests per day.
+开发者目前每天最多只能进行 2 次测试请求。
+
+What do I Need to do to unlock Player Fit Tests?
+我需要做些什么来解锁玩家适配测试？
+In order to unlock the ability to request Player Fit Tests for your game, you will first need to watch at least 5 playtest recordings in Level 2.
+为了解锁为你的游戏请求玩家适配测试的功能，你首先需要在第 2 级观看至少 5 次玩测试录像。
+
+How to interpret the Test Results?
+如何解读测试结果？
+The result is a histogram showing the distribution of recorded play time ranges across the 500 players.
+结果是一个直方图，显示了在 500 名玩家中记录的游玩时间范围的分布情况。
+
+Let’s say a player plays your game for a minute and a half. In the graph, that player will be represented on the 1-2 minutes bar, with the other players that played between 1 and 2 minutes.
+假设一名玩家玩了你一分钟半的游戏。在图表中，这名玩家将与其他玩了 1 到 2 分钟时间的玩家一起显示在 1-2 分钟的条形上。
+
+StatsOne
+
+You can also select the results of two different tested versions at the top of the graph to display them next to each other. This makes it easy to compare the performance and improvements of different versions.
+你也可以在图表顶部选择两个不同的测试版本的结果，将它们并排显示。这使得比较不同版本的性能和改进变得容易。
+
+StatsTwo
+
+What does my game need to achieve to proceed to the next stage?
+我的游戏需要实现什么才能进入下一阶段？
+In order to move on to the Web Fit Test stage, your game needs to reach the following metrics:
+为了进入 Web Fit 测试阶段，您的游戏需要达到以下指标：
+
+An average overall playtime of over 3 minutes;
+平均总游戏时间超过 3 分钟；
+At least 25% of the 500 gameplays must be over 3 minutes;
+至少 25%的 500 次游戏过程中必须超过 3 分钟；
+If your game reaches these metrics, that shows that players take a genuine interest in your game. In addition, you can be assured that it’s not just one small group of players playing a lot— there’s a meaningful portion of your audience engaging with your game.
+如果你的游戏达到这些指标，那就说明玩家对你游戏有真正的兴趣。此外，你也可以确信不只是少数玩家在大量玩游戏——有相当一部分你的受众在参与你的游戏。
+
+It’s good to note that the goal of the Player Fit Test is to be an iterative tool. If your game does not reach the metrics needed to continue on to the next testing stage in your first tests, that’s not necessarily a sign that your game is not good. What it does mean is that your concept might need some more tweaks and changes in order to be introduced to a larger part of the Poki audience.
+值得注意的是，玩家适配测试的目标是一个迭代工具。如果你的游戏在初次测试中没有达到继续进入下一测试阶段的指标，这并不一定意味着你的游戏不好。它意味着你的概念可能需要一些更多的调整和改变，以便向更大部分的 Poki 受众推出。
+
+How do I improve my Player Fit Test results?
+我该如何提高我的玩家适应性测试成绩？
+Success in the Player Fit Test can be measured by how players are distributed in the graph. The larger the bars are on the right-hand side of the graph, especially the 5m+ one, the more players will have played your game for a longer period of time and the better your game has performed in the test.
+在玩家适配测试中的成功可以通过玩家在图表中的分布来衡量。图表右侧的条形越高，尤其是 5m+的那条，表示玩你游戏的玩家会玩更长时间，你的游戏在测试中的表现也越好。
+
+If the results from your tests do not show enough players in the 3-5m+ range, that could indicate that your game might need some changes in certain areas of the game.
+如果你的测试结果中没有足够的玩家在 3-5m+范围内，这可能表明你的游戏在某些方面需要一些改变。
+
+Most players fall in the first two columns: If your test shows most players fall in the first two columns, that means players have stopped playing your game quite early on. This indicates that your onboarding and early game experience might need some changes.
+大多数玩家都集中在前两列：如果你的测试显示大多数玩家都集中在前两列，这意味着玩家在游戏早期就停止玩了。这表明你的新手引导和早期游戏体验可能需要一些改变。
+A lot of players in the middle columns: If your test shows a lot of players in the middle columns, that indicates that the players are interested in what the game has to offer, but it might be lacking content or a needed hook to keep players interested. In this case it could be helpful to either review whether the amount of content in your current version is enough to keep players engaged for a longer period of time. It might also help to reassess the core mechanics of your game and see if they are interesting enough for longer playsessions. Conducting more Playtests may help you identify the issue.
+中列有很多玩家：如果你的测试显示中列有很多玩家，这说明玩家对游戏提供的内容感兴趣，但它可能缺乏内容或必要的钩子来保持玩家的兴趣。在这种情况下，审查当前版本中的内容量是否足够长时间地吸引玩家可能会有所帮助。重新评估游戏的核心机制，看看它们是否足够有趣以支持更长的游戏时间，也可能会有所帮助。进行更多的游戏测试可能会帮助你识别问题。
+To test your changes before doing another Player Fit test, it’s good to know you can request more playtest recordings if you want! They’re very helpful to see how your changes affect player behavior. You can find the Playtest tab in the entry for your game. You can request them during any testing stage!
+在进行下一次玩家适配测试之前测试您的更改，了解您可以请求更多的测试录制如果需要！它们对于查看您的更改如何影响玩家行为非常有帮助。您可以在您的游戏条目中找到测试标签。您可以在任何测试阶段请求它们！
+
+
+
+Previous   上一个Level 2 - Feedback & Playtesting
+第二级 - 反馈与测试
+Next   接下来Web Fit Test
+Web 适应性测试
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Web Fit Test
+  
+Web 适应性测试
+Why do we Web Fit Test games?
+  
+我们为什么要进行 Web 适应性测试游戏？
+How does a Web Fit Test work?
+  
+Web 适应性测试是如何工作的？
+What do I need to do to unlock Web Fit Tests?
+  
+我需要做些什么来解锁 Web 适应性测试？
+Is my game making money during a Web Fit Test?
+  
+我的游戏在 Web Fit 测试期间是否盈利？
+What do we test for?
+  
+我们测试什么？
+How to interpret the test results?
+  
+如何解读测试结果？
+My game finished the Web Fit Test, what now?
+Game Thumbnail
+What To Do If My Game Doesn't Make It
+Level 5 - Final Poki Review
+SDK Documentation
+Bonus Level
+FAQ
+Web Fit Test 🌐
+Web 适应性测试 🌐
+During the Web Fit Test, your game is shown to around 10,000 players. Your game will be shown on a small set of category pages, where it will appear like a fully released game for the players on the platform.
+在 Web Fit 测试期间，您的游戏将向大约 10,000 名玩家展示。您的游戏将出现在一小部分分类页面上，对于平台上的玩家来说，它将像是一款完全发布的游戏。
+
+Why do we Web Fit Test games?
+我们为什么要进行 Web Fit 测试游戏？
+While the game is not promoted and not shown to Poki’s entire audience, this test provides an unbiased assessment of your game’s potential. The results of the Web Fit Test indicate whether there is a potential fit for your game with the Poki audience and where your game might fit within Poki’s categories.
+虽然游戏不会进行推广，也不会向 Poki 的整个受众展示，但这次测试可以为您提供对您游戏潜力的无偏见评估。Web Fit 测试的结果将表明您的游戏与 Poki 受众之间是否存在潜在匹配，以及您的游戏可能在 Poki 的分类中处于什么位置。
+
+The Web Fit Test is also another tool to use for iteration. While it takes longer to perform than some of our earlier testing stages, the metrics from the test are from a substantial number of users and can tell you a lot about the fit of your game with the Poki audience. If your game does not pass the test right away, that’s okay! The metrics from the Web Fit Test will help you understand which parts of the game to improve on. If your game is scoring less strongly on some testing metrics, have a look at our best practices to see what could be tweaked or improved about the experience and try again. As long as your game meets our Quality Guidelines, you can request a Web Fit Test more than once, so feel free to try it out once your game is ready!
+Web Fit 测试也是用于迭代的另一个工具。虽然执行它比我们早期的某些测试阶段要花费更长的时间，但测试的指标来自大量用户，可以告诉你很多关于你的游戏与 Poki 受众的匹配程度。如果你的游戏一开始没有通过测试，那没关系！Web Fit 测试的指标将帮助你了解游戏哪些部分需要改进。如果你的游戏在一些测试指标上得分较低，请查看我们的最佳实践，看看在体验方面有哪些可以调整或改进的地方，然后再次尝试。只要你的游戏符合我们的质量指南，你可以多次请求 Web Fit 测试，所以一旦你的游戏准备好了，请随时尝试！
+
+How does a Web Fit Test work?
+一个 Web Fit 测试是如何工作的？
+To create a balanced test, Poki adds the game to multiple categories that fit your game. You can suggest categories for the game to be tested under Settings -> Suggested Categories on your game entry in Poki for Developers. We take these categories into account but also use our own judgment to help you find the best suited audience for the game. That leads us to sometimes place games in other or additional categories than the ones suggested in order to get the most balanced results.
+为了创建一个均衡的测试，Poki 会将游戏添加到多个适合您游戏的分类中。您可以在 Poki for Developers 中的游戏条目中的“设置”->“建议分类”中为游戏建议分类。我们会考虑这些分类，但也会使用我们自己的判断来帮助您找到最适合游戏的受众。这导致我们有时会将游戏放置在其他或额外的分类中，以获得最均衡的结果。
+
+The Web Fit Test takes about 3-5 days to complete. This is dependent on how fast the needed amount of players can be reached. It’s good to note that when a test has started, it has to run its full course. Stopping a test after it has started is not possible. Found an important change or bug in your game after the test has started? No worries - you can always upload an additional version of your game while the test is running and send developersupport@poki.com an email to ask to update the version that is being used.
+网络适应性测试大约需要 3-5 天完成。这取决于能够多快达到所需的玩家数量。需要注意的是，一旦测试开始，就必须完成整个流程。测试开始后无法停止测试。测试开始后发现游戏中有重要变更或错误？别担心 - 您可以在测试运行期间上传游戏的新版本，并发送邮件至 developersupport@poki.com 请求更新正在使用的版本。
+
+Special instructions for multiplayer games
+多人游戏特殊说明
+What do I need to do to unlock Web Fit Tests?
+我需要做什么才能解锁 Web Fit 测试？
+In order to unlock the Web Fit Test for your game, you will first need to watch at least 5 playtest recordings in Level 2 and pass the Player Fit Test in Level 3. You also need to add a thumbnail to start this test.
+为了解锁您的游戏的 Web Fit 测试，您首先需要在第 2 关观看至少 5 次测试录制，并在第 3 关通过玩家适应性测试。您还需要添加一个缩略图来开始此测试。
+
+Is my game making money during a Web Fit Test?
+我的游戏在 Web Fit 测试期间赚钱吗？
+While it’s important to consider how to monetize your game early in the development, the actual implementation of these events is not yet necessary during the Web Fit Test. Adding the commercialBreak() and rewardedBreak() event to your game can be saved for after the testing phases.
+虽然从开发早期考虑如何盈利很重要，但在 Web Fit 测试期间实际上并不需要实现这些事件。将 commercialBreak() 和 rewardedBreak() 事件添加到您的游戏中可以留到测试阶段之后进行。
+
+Should you still want to add the monetization events to your game during Web Fit Test, then it’s good to know that when an ad is requested, one of our Poki placeholder ads will be displayed instead of a real one. Due to this, no revenue is made or shared during this testing stage.
+如果您在 Web Fit 测试期间仍然希望向您的游戏添加变现事件，那么您需要知道的是，当请求广告时，我们的 Poki 占位符广告将显示而不是真实的广告。由于这一点，在此测试阶段不会产生或分享任何收入。
+
+What do we test for?
+我们测试什么？
+During the Web Fit Test, three metrics are tracked. All three are equally important to your game’s possible success on Poki. For all of these metrics, higher numbers are better.
+在 Web Fit 测试期间，会跟踪三个指标。这三个指标对于您的游戏在 Poki 上的可能成功都同样重要。对于所有这些指标，较高的数字都是更好的。
+
+👆 Click-through Rate (CTR) - During the Web Fit Test, your game is shown on a small subset of category pages on Poki. The CTR measures how many players that visited those category pages clicked on the thumbnail for your game. With this metric, you can get an idea of how attractive your thumbnail is and how popular your game initially is to players.
+👆 点击率 (CTR) - 在 Web Fit 测试期间，您的游戏会在 Poki 的部分分类页面上展示。点击率衡量访问这些分类页面的玩家中有多少点击了您的游戏缩略图。通过这个指标，您可以了解您的缩略图有多吸引人，以及您的游戏在初始阶段对玩家的受欢迎程度。
+⏱️ Average Time on Page - This metric measures the average time players who reach your game stay on the page. It gives a good insight into how long players enjoy your game on average.
+⏱️ 页面平均停留时间 - 这个指标衡量到达您的游戏的玩家在页面上停留的平均时间。它提供了很好的洞察力，了解玩家平均在您的游戏中享受多长时间。
+% Conversion to Play - When you start a Web Fit Test, the gameplayStart() event from the Poki SDK should be implemented in your game already. With this metric, we measure how many players passed the first gameplayStart() event in your game. This gives insight into the startup process and onboarding of your game. On Poki, fast loading and quick onboarding are very important to the games overall performance, so it’s an important metric to keep in mind.
+% 转换到 Play - 当你开始一个 Web Fit 测试时，你的游戏中应该已经实现了 Poki SDK 的 gameplayStart() 事件。通过这个指标，我们衡量有多少玩家通过了你游戏中的第一个 gameplayStart() 事件。这能提供关于你游戏启动过程和用户引导的洞察。在 Poki 上，快速加载和快速用户引导对你游戏的整体性能非常重要，因此这是一个需要牢记的重要指标。
+How to interpret the test results?
+% 如何解读测试结果？
+Once the test is finished, you receive a performance review. It shows information about your game, an overview of the categories your game was tested in and the scores for the three testing metrics. Your scores show the performance of your game. Below the scores are benchmarks. These show the average performance of all games in the promoted categories.
+一旦测试完成，您将收到一份绩效评估。它显示有关您游戏的信息，您游戏被测试的类别概述以及三个测试指标的成绩。您的成绩显示了您游戏的性能。在成绩下方是基准。这些显示了推广类别中所有游戏的平均性能。
+
+WebFitTestResults
+
+The performance of your game on the three metrics is scored on a scale of 0 to 5. This score is dependent on how well your game performed against the averages in the categories your game was tested in. These averages will be different for different categories. If your game scores a 3 or higher, that means your game scores on the same level or higher than the average game in the categories your game was tested in.
+您游戏在三个指标上的表现将在 0 到 5 的量表上进行评分。这个分数取决于您的游戏在测试的游戏类别中相对于平均水平的表现。这些平均值将因不同的类别而异。如果您的游戏得分达到 3 分或更高，这意味着您的游戏在测试的游戏类别中得分与平均水平相当或更高。
+
+To make this a bit more visual, let’s have a look at an example. Let’s say your game was tested in the Action and Adventure games categories. On average, games in these categories score:
+为了让这个更直观一些，让我们来看一个例子。假设你的游戏在动作和冒险游戏类别中进行了测试。在这些类别中，游戏平均得分：
+
+1.5% on CTR  点击率的 1.5%
+4 minutes Average Time on Page
+4 分钟 平均页面停留时间
+70% C2P  70% C2P 模式
+During the test, if the performance of your game is equal to the numbers mentioned above, your game will score a 3 out of 5.
+在测试中，如果您的游戏性能与上述数字相等，您的游戏将获得 3 分（满分 5 分）。
+
+My game finished the Web Fit Test, what now?
+我的游戏完成了 Web Fit 测试，接下来该怎么做？
+Depending on the result of your test, your game either moves on to the Final Poki Review or enters the next stage of iteration. Once the game enters the final review stages, the game will stay live on Poki until the Final Review is concluded but is not promoted or earning anything from in-game ads. This is so players who liked your game in the testing phases can still enjoy it! Let us know if this is an issue and we can remove the game completely while we discuss further.
+根据您的测试结果，您的游戏将进入最终 Poki 评审或进入下一阶段的迭代。一旦游戏进入最终评审阶段，游戏将在 Poki 上保持在线状态，直到最终评审结束，但不会获得推广或通过游戏内广告盈利。这是为了让在测试阶段喜欢您游戏的玩家仍然能够享受它！如果这是一个问题，请告诉我们，我们可以在讨论期间完全移除游戏。
+
+If your game did not pass the Web Fit Test this time, that’s not the end of your game’s journey on Poki. Have a look at “What to do if my game does not make it?” to see what can be done to improve your game’s fit for the platform. You are also welcome to try another Web Fit Test with a new version, by requesting one in your Poki for Developers dashboard.
+如果你的游戏这次没有通过 Web Fit 测试，那并不是你的游戏在 Poki 上的旅程结束。请查看“如果我的游戏未通过测试怎么办？”以了解如何改进你的游戏以适应平台。你也可以通过在 Poki for Developers 控制面板中请求一个新的版本来尝试另一个 Web Fit 测试。
+
+Passing the Web Fit Test means that your game shows a potential fit to be released on Poki - congrats! However, that does not mean that your game will be released on Poki right away. Now that we’ve established the possibility of a fit for your game on Poki, your game will be automatically submitted for the Final Poki Review.
+通过 Web Fit 测试意味着您的游戏显示出与 Poki 发布的潜在匹配度 - 恭喜！然而，这并不意味着您的游戏会立即在 Poki 上发布。既然我们已经确定了您的游戏在 Poki 上匹配的可能性，您的游戏将自动提交进行最终 Poki 审核。
+
+
+
+Previous   上一个Level 3 - Player Fit Test
+第三级 - 玩家适配测试
+Next   接下来Game Thumbnail   游戏缩略图
+Made with Material for MkDocs
+    
+
+
+
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Web Fit Test
+  
+Web 适应性测试
+Game Thumbnail
+  
+游戏缩略图
+Static Thumbnails
+  
+静态缩略图
+Thumbnail Requirements
+  
+缩略图要求
+Size Matters
+  
+尺寸很重要
+Color & Contrast
+  
+颜色与对比度
+Don’t Cut Corners
+  
+不要走捷径
+Remove Padding and Borders
+  
+移除内边距和边框
+Avoid Text
+  
+避免文本
+Guidelines and Tips
+  
+指南和技巧
+Show What’s On the Inside
+  
+展示内部内容
+Embrace Simplicity
+Keep It Together
+Motions Matter
+How Your Thumbnail Affects Your Game’s Success
+Thumbnail Updates
+During Development
+After Release
+What To Do If My Game Doesn't Make It
+  
+如果我的游戏未能通过
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+Bonus Level
+FAQ
+Game Thumbnails 🖼️  游戏缩略图 🖼️
+You’ve done the hard part and created a game. The next step is to get players to click and play! That’s why you need a great thumbnail to make a good first impression and to help players recognize your game.
+你已经完成了最难的部分，制作了一款游戏。下一步是吸引玩家点击并开始玩！这就是为什么你需要一个出色的缩略图，以留下良好的第一印象并帮助玩家识别你的游戏。
+
+Static Thumbnails  静态缩略图
+A static thumbnail is the first visual representation of your game that players see across the Poki platform, whether on category pages, game pages, or search results. Your static thumbnail should reflect what the game is about. Imagine your thumbnail as a store window. If you sell plants, put a plant in the window. If you sell books, put a book in the window.
+静态缩略图是玩家在 Poki 平台上看到的游戏的第一视觉呈现，无论是在分类页面、游戏页面还是搜索结果中。你的静态缩略图应该反映游戏的内容。想象一下你的缩略图就像一个商店的橱窗。如果你卖植物，就在橱窗里放一株植物。如果你卖书籍，就在橱窗里放一本书。
+
+A static thumbnail should clearly show what your game is about and entice players to explore further.
+一个静态缩略图应该清晰地展示你的游戏内容，并吸引玩家进一步探索。
+
+You must have a static thumbnail to start a Web Fit Test.
+你必须有一个静态缩略图才能开始 Web Fit 测试。
+
+Animated Thumbnails  动态缩略图
+Thumbnail Requirements  缩略图要求
+To make sure your thumbnail works well across the Poki platform, there are some requirements for your thumbnails.
+为了确保您的缩略图在 Poki 平台上运行良好，有一些要求适用于您的缩略图。
+
+Size Matters  尺寸很重要
+Design for small and big game tile sizes: We know it can be tempting to work on a big canvas and show lots of detail. But keep in mind that a lot of detail can look messy in smaller tiles.
+为小和大游戏瓦片尺寸设计：我们知道在大的画布上工作并展示很多细节很有诱惑力。但请记住，很多细节在小瓦片上看起来会很杂乱。
+
+If you choose to include your game’s title in the thumbnail, make sure the typography remains legible in smaller sizes as well. Notice how the typography becomes unreadable in smaller sizes in this example.
+如果你选择在缩略图中包含你的游戏标题，请确保字体在小尺寸下仍然可读。注意在这个示例中，字体在小尺寸下变得难以辨认。	ThumbnailSize
+Color & Contrast  颜色与对比度
+While creating a colorful thumbnail (or not colorful at all, depending on your game art style) it’s good to keep in mind that some colors are naturally contrasting, and some colors might not register as all that different. Contrast makes things “pop” visually, whereas similar shades might make a thumbnail appear to fall flat.
+在创建一个色彩缤纷的缩略图（或者根据你的游戏艺术风格可能一点也不色彩缤纷）时，最好记住有些颜色天生对比强烈，而有些颜色可能看起来差异不大。对比能让事物在视觉上突出，而相似的色调可能会让缩略图显得平淡无奇。
+
+Also keep in mind that the Poki Playground background color is #83FFE7 so make sure your thumbnail is not too similar in color as it might make your thumbnail disappear.
+还要记住，Poki Playground 的背景颜色是#83FFE7，所以确保你的缩略图颜色不要太相似，否则它可能会消失不见。	ThumbnailColor
+Don’t Cut Corners  不要走捷径
+Deliver your thumbnail as a full-bleed square image of at least 628px by 628px. We’ll add the rounded corners as an image mask on our end.
+将您的缩略图作为至少 628px x 628px 的全出血方形图像提交。我们将在我们这边将圆角作为图像蒙版添加。	ThumbnailCorners
+Remove Padding and Borders
+移除填充和边框
+Make sure that your thumbnail has no additional borders, padding, or letterboxing. As your thumbnail will be displayed in various sizes across the platform, adding borders or padding would make it less legible for players.
+确保您的缩略图没有额外的边框、填充或画中框。由于您的缩略图将在平台上以各种尺寸显示，添加边框或填充会降低其对玩家的可读性。
+
+Avoid Text  避免使用文字
+Avoid placing any text or titles in your thumbnail, stick with visual designs. Your game will be shown on different tile sizes and text quickly becomes unreadable on smaller tiles.
+避免在缩略图中放置任何文本或标题，坚持使用视觉设计。您的游戏将显示在不同的瓦片尺寸上，文本在小瓦片上会很快变得难以阅读。
+
+Additionally, Poki has run tests that indicate our players prefer text-free thumbnails. Visuals alone drive better performance.
+此外，Poki 进行了测试，表明我们的玩家更喜欢无文本的缩略图。仅使用视觉效果能带来更好的性能。
+
+Guidelines and Tips  指南和技巧
+Follow these guidelines and tips to make your thumbnails shine.
+遵循这些指南和技巧，让你的缩略图脱颖而出。
+
+Show What’s On the Inside
+展示内部内容
+The visuals in the thumbnail should closely relate to the visuals in your game. If the two don’t relate, players will feel like they’ve been directed to a wrong game and this could hurt conversion to play or gameplay time.
+缩略图中的视觉效果应与游戏中的视觉效果紧密相关。如果两者不相关，玩家会感觉他们被引导到了错误的游戏，这可能会损害游戏的转化率或游戏时间。
+
+Always include your main character in their default skin. This builds recognition and avoids confusion. When players open the game, they will immediately feel like they’ve landed in the right place.
+始终使用你的主要角色的默认皮肤。这有助于建立识别并避免混淆。当玩家打开游戏时，他们会立刻感觉像是来到了正确的位置。
+ThumbnailShowcase
+Embrace Simplicity  拥抱简约
+Don’t overcrowd your thumbnail with too many details or ideas.
+不要让你的缩略图塞满太多细节或想法。
+Have one clear foreground object. Stick to the essentials like a main character or an important gameplay element.
+有一个清晰的 foreground 对象。坚持 essentials，比如主角或重要的游戏元素。
+
+A simple and clean background helps keep the focus where it matters.
+简单干净的背景有助于将焦点放在重要之处。
+
+Less is more: clarity outperforms complexity when it comes to catching a player’s eye.
+少即是多：当吸引玩家注意力时，清晰胜过复杂。
+ThumbnailSimplicity
+Keep It Together  保持一致
+If your game is part of a series or saga, make sure you have continuation in your thumbnails too. This helps players recognize thumbnails of the other games in your saga if they enjoyed playing a first entry.
+如果你的游戏是某个系列或传奇的一部分，请确保你的缩略图中也有延续性。这有助于玩家在玩过第一作后，认出你传奇中其他游戏的缩略图。	ThumbnailCohesive
+Motions Matter  动作很重要
+You don’t want to just place your character in plain or stiff stances. Dynamic poses make your thumbnail more engaging and clickable.
+你不想只是让你的角色摆出普通或僵硬的姿势。动态姿势让你的缩略图更具吸引力并更容易点击。
+
+Think how you can deliver a feeling of movements in the static thumbnail.
+想想你如何在静态缩略图中传达运动的感受。
+Show the main character in an interesting and eye-catching position. If it is a platform game, think about having the character jumping or running. If it is a shooting game, let the main character hold up their weapon or get ready in a shooting position.
+将主要角色摆在一个有趣且引人注目的位置。如果是平台游戏，考虑让角色跳跃或奔跑。如果是射击游戏，让主要角色举起武器或摆出射击姿势。
+How Your Thumbnail Affects Your Game’s Success
+你的缩略图如何影响你的游戏成功
+Click-Through Rate (CTR): The thumbnail plays a key role in catching attention and driving clicks. A compelling thumbnail can significantly improve your Click-Through Rate (CTR), which refers to the percentage of players who click your game after seeing it.
+点击率（CTR）：缩略图在吸引注意力和促进点击方面起着关键作用。一个引人注目的缩略图可以显著提高您的点击率（CTR），点击率是指看到游戏后点击游戏的玩家百分比。
+
+CTR is influenced by how well your thumbnail communicates the game’s theme, character, and visual style, especially when displayed among many other games.
+CTR 受您缩略图传达游戏主题、角色和视觉风格的能力影响，尤其是在与其他许多游戏并列显示时。
+
+Conversion to Play (C2P): A common misconception is that thumbnails directly drive Conversion to Play (C2P), the rate at which players start playing after clicking. Here’s the nuance:
+转化率至玩 (C2P)：一个常见的误解是缩略图直接驱动转化率至玩 (C2P)，即玩家点击后开始游戏的比率。以下是细节：
+
+Thumbnails can influence C2P, especially if the game’s visuals don’t match the thumbnail. If players click expecting one thing and get something else, they might drop off before starting gameplay. However, C2P is primarily affected by the game’s technical performance, things like loading times, file size, responsiveness, and pre-play experience.
+缩略图可以影响 C2P，尤其是在游戏视觉效果与缩略图不匹配时。如果玩家点击时期望一种东西，而得到的是另一种，他们可能在开始游戏前就流失。然而，C2P 主要受游戏技术性能的影响，例如加载时间、文件大小、响应性和预游戏体验。
+
+So while thumbnails can indirectly affect C2P through expectation-setting, they mostly influence CTR. For C2P, focus on optimizing the technical aspects of your game.
+因此，虽然缩略图可以通过设定期望间接影响 C2P，但它们主要影响 CTR。对于 C2P，应专注于优化游戏的技术方面。
+
+Thumbnail Updates  缩略图更新
+During Development  开发期间
+You can update game thumbnails during development at any time unless you have an ongoing Web Fit Test.
+在开发期间，您可以随时更新游戏缩略图，除非您正在进行 Web Fit 测试。
+
+After your game has passed the Web Fit Test, any changes to your thumbnail must be approved by Poki’s Developer Support team. Upload the new version in Poki for Developers, and we’d be able to see the requested changes on our end. Our Developer Support team will review the new design and either approve it or provide feedback or reason for declining the changes.
+当您的游戏通过 Web Fit 测试后，对缩略图的任何更改都必须获得 Poki 开发者支持团队的批准。在 Poki for Developers 中上传新版本，我们将能够看到您请求的更改。我们的开发者支持团队将审查新设计，并予以批准或提供反馈或拒绝更改的理由。
+
+If you have multiple thumbnail versions during the Soft Release process, feel free to reach out to us for input on how to choose the best one—we can help evaluate the options and advise on the right approach.
+如果在软发布过程中你有多个缩略图版本，可以随时联系我们，询问如何选择最佳版本——我们可以帮助评估选项并建议正确的方法。
+
+After Release  发布后
+Once your game is released, we only update thumbnails if the game has received a substantial content update like a new world, mode, or major feature. Thumbnail updates may draw in players that then encounter the same old content, which can cause players to feel misled. This can lead to lower engagement and faster drop-offs, negatively affecting your game’s performance.
+一旦你的游戏发布，我们只有在游戏收到重大内容更新（如新世界、模式或主要功能）时才会更新缩略图。缩略图更新可能会吸引玩家，但玩家随后会遇到旧内容，这可能导致玩家感到被误导。这可能导致参与度降低和更快的流失，从而对你的游戏性能产生负面影响。
+
+If you’ve launched a substantial update, submit the new build along with your new thumbnail on Poki for Developers. Our team will first evaluate the update before approving the thumbnail change.
+如果你发布了一个重大更新，请在新版本中提交新的缩略图，并在 Poki for Developers 上提交。我们的团队将首先评估更新，然后才会批准缩略图更改。
+
+Once approved, if your new thumbnail is strong and visually consistent with your original, players may see it as a signal of new content, drawing more attention and boosting gameplay numbers.
+一旦批准，如果你的新缩略图强大且与原始版本视觉上保持一致，玩家可能会将其视为新内容的信号，从而吸引更多关注并提升游戏玩家人数。
+
+However, higher gameplay volume also increases the chance of player drop-off, especially if expectations aren’t met, which may slightly impact engagement and conversion to play (C2P) metrics.
+然而，更高的玩家人数也会增加玩家流失的机会，特别是如果期望得不到满足，这可能会稍微影响参与度和转化率（C2P）指标。
+
+
+
+Previous   上一个Web Fit Test
+Web 适应性测试
+Next   接下来What To Do If My Game Doesn't Make It
+如果我的游戏未能通过
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Web Fit Test
+  
+Web 适应性测试
+Game Thumbnail
+  
+游戏缩略图
+What To Do If My Game Doesn't Make It
+  
+如果我的游戏未能通过
+How to improve CTR?
+  
+如何提高点击率？
+How to improve Average Playtime?
+  
+如何提高平均游戏时间？
+How to improve Conversion to Play?
+  
+如何提高转化为游戏的比率？
+Iteration is key!
+  
+迭代是关键！
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+  
+奖励关卡
+FAQ
+  
+常见问题解答
+What To Do If My Game Doesn’t Make It? 🤔
+我的游戏没有成功？🤔
+If your game did not make it through the Web Fit Test, that’s not the end of your game’s journey on Poki. Neither is it a signal from Poki that your game is not good. What it does mean is that your game needs some more work in order to be a fit for the platform.
+如果你的游戏没有通过 Web Fit 测试，那并不是你游戏在 Poki 上的旅程的终点。这也不是 Poki 暗示你的游戏不好的信号。它意味着你的游戏需要更多的工作才能成为该平台的合适选择。
+
+It’s good to note that your game must pass the Web Fit Test in order to be considered for the Final Poki Review.
+值得注意的是，你的游戏必须通过 Web Fit 测试，才能被考虑进行最终 Poki 审核。
+
+How to improve CTR?
+如何提高点击率？
+If your game did not score high enough on this metric, it might be helpful to go back and review your game’s thumbnail. Check out our Game Thumbnail best practices!
+如果你的游戏在这项指标上的得分不够高，回顾并检查你的游戏缩略图可能会有所帮助！查看我们的游戏缩略图最佳实践！
+
+How to improve Average Playtime?
+如何提高平均游戏时间？
+If players are not engaging with your game long enough, revisit the Playtesting and Player Fit Test stages to work on increasing playtime.
+如果玩家没有足够长时间地参与你的游戏，请重新审视测试和玩家匹配测试阶段，以增加游戏时间。
+
+How to improve Conversion to Play?
+如何提高转换为游戏的转化率？
+Raising your game’s Conversion to Play is all about getting your players into gameplay as quickly as possible. Shortening loading times, decreasing file sizes and making your onboarding short and snappy are key.
+提升你游戏的游戏转化率关键在于尽快让玩家进入游戏。缩短加载时间、减小文件大小以及让新手引导简短有力是关键。
+
+Iteration is key!  迭代是关键！
+Our main advice if your game did not pass the Web Fit Test yet would be to continue iterating. Have a look at what metrics your game could be improved on and check the linked guides on how they can be improved. More playtests and Player Fit Tests are always freely available to help you out in the iterating process.
+如果你的游戏尚未通过 Web Fit 测试，我们主要的建议是继续迭代。查看你的游戏可以在哪些指标上得到改进，并检查相关的指南来了解如何改进。更多的游戏测试和 Player Fit 测试总是免费提供，以帮助你在迭代过程中。
+
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+What is the Final Review?
+  
+什么是最终评测？
+How long does this process take?
+  
+这个过程需要多长时间？
+My game passed the Final Review, what now?
+  
+我的游戏通过了最终评测，接下来该怎么做？
+My game did not pass the Final Review, what now?
+  
+我的游戏没有通过最终审核，现在怎么办？
+SDK Documentation
+  
+SDK 文档
+Bonus Level
+  
+奖励关卡
+FAQ
+  
+常见问题解答
+Final Poki Review 🏁
+最终宝可梦评测 🏁
+After your game has passed the testing stages, there is a final stage, the Final Review.
+在您的游戏通过测试阶段后，还有一个最终阶段，即最终审核。
+
+What is the Final Review?
+什么是最终审核？
+Once your game has gone through the testing process, you can request for your game to be released on Poki. Once you have submitted your game, the Poki team will review your game’s results as well as the content of the game itself in order to determine whether:
+一旦您的游戏完成了测试过程，您可以申请将您的游戏发布到 Poki 上。提交游戏后，Poki 团队将审核您的游戏结果以及游戏内容本身，以确定是否：
+
+Your game and its content are in line with our Quality Guidelines
+您的游戏及其内容符合我们的质量指南
+Your game is unique enough among the category/categories your game falls into
+您的游戏在您所属的类别中具有足够的独特性
+How long does this process take?
+这个过程需要多长时间？
+1-2 weeks. It takes time to make an informed decision and ensure we maintain a high level of quality for our playground. Once the Final Review has concluded, you will be contacted by the Poki team to inform you about the decision of our team and the potential next steps.
+1-2 周。做出明智的决定并确保我们为我们的游乐场保持高质量需要时间。一旦最终审核结束，Poki 团队将联系您，通知您我们团队的决定以及可能的下一步措施。
+
+My game passed the Final Review, what now?
+我的游戏通过了最终审核，接下来该怎么做？
+If your game did pass the review - great! You’re on track to get your game released on Poki. The Poki team will be in touch as soon as possible with the next steps regarding the signing of the game and the game’s release process.
+如果你的游戏通过了审核——太好了！你将按计划在 Poki 上发布你的游戏。Poki 团队将尽快与你联系，讨论游戏的签约和发布流程。
+
+My game did not pass the Final Review, what now?
+我的游戏没有通过最终审核，接下来该怎么做？
+If your game did not pass the last review, that means our team does not see a fit for the game on Poki at this time. It is therefore not possible to publish your game on the Poki platform.
+如果你的游戏没有通过最后一次审核，这意味着我们的团队目前认为你的游戏不适合在 Poki 上发布。因此，你的游戏无法在 Poki 平台上发布。
+
+That said, we’d love to stay in touch! If you have other games in the works, feel free to submit them for testing. We’re always excited to see new ideas and explore potential opportunities to collaborate down the road. We know this may not be the response you were hoping for, but we hope to stay connected and see what new concepts you come up with in the future.
+既然如此，我们很乐意保持联系！如果你有其他正在开发的游戏，欢迎提交给我们进行测试。我们总是很兴奋地看到新的想法，并探索未来合作的潜在机会。我们知道这可能不是你期望的回复，但我们希望保持联系，看看你未来会提出哪些新概念。
+
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+General Info
+  
+基本信息
+Intention of events
+  
+事件的目的
+Definition of events
+  
+事件的定义
+Testing of events
+  
+事件的测试
+Versioning with CLI
+  
+使用 CLI 进行版本控制
+Full examples
+  
+完整示例
+HTML5
+Defold
+  
+展开/还原
+Unity
+GameMaker
+Phaser 3
+Godot
+  
+戈多
+Cocos
+  
+可可斯
+Construct 3
+GDevelop
+Bonus Level
+  
+奖励关卡
+FAQ
+  
+常见问题解答
+SDK Documentation 📃  SDK 文档 📃
+Intention of events  事件意图
+Thanks to our developer-friendly SDK, you can easily oversee the most important metrics of your game simply by firing a couple of SDK events during various moments in the game. This information includes, but is not limited to:
+感谢我们开发者友好的 SDK，您只需在游戏中的不同时刻触发几个 SDK 事件，即可轻松掌握游戏最重要的指标。这些信息包括但不限于：
+
+Daily Playing Users: The amount of page visitors and the percentage of users who are able to play the game.
+日活跃用户：页面访客数量以及能够玩游戏的用户百分比。
+Engagement: Average time players spends in game. Also shows how much time is spent on loading or ads.
+参与度：玩家在游戏中花费的平均时间。也显示加载或广告所花费的时间。
+Earnings: Ad-related metrics such as total earnings, or the distribution of impression types.
+收入：与广告相关的指标，如总收入或展示类型分布。
+Error Scanner: Details for all of errors of the past 24 hours, updated hourly.
+错误扫描器：过去 24 小时内所有错误的详细信息，每小时更新一次。
+Player Feedback: Details on player rating and comments.
+玩家反馈：关于玩家评分和评论的详细信息。
+Definition of events  事件定义
+ ⌛ gameLoadingFinished() : Pretty self-explanatory, we’d say. We need this to track the loading progress of your game and show your conversion to play.
+⌛ gameLoadingFinished() : 我们觉得这很直观。我们需要它来跟踪您的游戏加载进度并显示您的转化率。
+ 🎮 gameplayStart() : Fires whenever the player starts interacting with the game (e.g. when the player starts moving around or clicks to interact with something.).
+🎮 gameplayStart() : 每当玩家开始与游戏互动时触发（例如玩家开始移动或点击与某物互动时）。
+ ☠ gameplayStop() : Fires whenever the gameplay halts (e.g. when the game is paused, the level is completed or when the player is dead).
+☠ gameplayStop() : 每当游戏暂停时触发（例如游戏暂停、关卡完成或玩家死亡时）。
+ 🎞 commercialBreak() : Fires with the natural stops in the game (e.g. between levels, restarting a level, or basically any scenario where the player is about to go back into the gameplay stage).
+🎞 commercialBreak() : 在游戏的自然停顿时触发（例如关卡之间、重新开始关卡或基本上任何玩家即将回到游戏阶段的情况）。
+ 🎬 rewardedBreak() : Fires with user prompt in exchange for an in-game reward (e.g. unlocking gold or bonus items, revival after death, or any scenario where you can convince the player to watch an ad).
+🎬 rewardedBreak()：在用户按下相应按钮后触发该功能，用户因此可以获得游戏内的奖励（比如解锁金色物品或额外奖励、死亡后复活等）。这种机制通常用于诱导玩家观看广告。
+Example order of events:
+事件发生的顺序示例：
+Startup:  ⌛ gameLoadingFinished()  >  🎮 gameplayStart() 
+启动过程： ⌛ gameLoadingFinished() > 🎮 gameplayStart()
+Player dies and restarts:  ☠ gameplayStop()  >  🎞 commercialBreak()  >  🎮 gameplayStart() 
+玩家死亡后重新开始游戏： ☠ gameplayStop() > 🎞 commercialBreak() > 🎮 gameplayStart()
+Player dies and revives:  ☠ gameplayStop()  >  🎬 rewardedBreak()  >  🎮 gameplayStart() 
+玩家死亡后复活： ☠ gameplayStop() > 🎬 rewardedBreak() > 🎮 gameplayStart()
+Player goes to next level:  ☠ gameplayStop()  >  🎞 commercialBreak()  >  🎮 gameplayStart() 
+玩家进入下一个关卡： ☠ 游戏停止() > 🎞 广告插播() > 🎮 游戏开始()
+Player goes to next level with double rewards:  ☠ gameplayStop()  >  🎬 rewardedBreak()  >  🎮 gameplayStart() 
+玩家通过双倍奖励进入下一关卡： ☠ gameplayStop() > 🎬 rewardedBreak() > 🎮 gameplayStart()
+Player pauses / unpauses:  ☠ gameplayStop()  >  🎮 gameplayStart() 
+玩家暂停/恢复游戏： ☠ gameplayStop() > 🎮 gameplayStart()
+Note: if an ad is fired when gameplay is not interrupted (for example if the player watches an ad to unlock a character skin), it’s not necessary to fire a  ☠ gameplayStop()  or  🎮 gameplayStart()  event.
+注意：如果游戏未中断时触发广告（例如玩家观看广告解锁角色皮肤），则无需触发 ☠ gameplayStop() 或 🎮 gameplayStart() 事件。
+
+Testing of events  事件测试
+Our Inspector is designed to help test your game and the implementation of the SDK events easily. Simply drag and drop your game folder that contains an index.html file and you’re set.
+我们的 Inspector 旨在帮助您轻松测试游戏和 SDK 事件实现。只需将包含 index.html 文件的游戏文件夹拖放到工具中即可。
+
+The tool will run the game as if it’s live on the platform, so you can test the game’s behavior on any device or browser. The tool also outputs the event log, so you can check if the SDK events are firing correctly.
+该工具将像游戏在平台上正式上线一样运行游戏，因此您可以在任何设备或浏览器上测试游戏行为。该工具还会输出事件日志，以便您检查 SDK 事件是否正确触发。
+
+Versioning with CLI  使用 CLI 进行版本控制
+The Poki for Developers command line utility allows you to upload game builds directly from your terminal or CI-pipeline. Please check our GitHub repository for more information on installation.
+Poki for Developers 命令行工具允许您直接从终端或 CI 管道上传游戏构建版本。请查看我们的 GitHub 仓库以获取更多关于安装的信息。
+
+Full examples  完整示例
+If you’d like to see a full example of the SDK implementation for each game engine, check these links out:
+如果您想查看每个游戏引擎的 SDK 实现完整示例，请查看这些链接：
+
+
+HTML
+Unity
+GameMaker example project download
+GameMaker 示例项目下载
+
+Phaser 3 GitHub repository
+Phaser 3 GitHub 仓库
+
+
+
+Previous   上一个Level 5 - Final Poki Review
+Level 5 - 最终 Poki 评审
+Next   接下来HTML5
+Made with Material for MkDocs
+    
+
+
+Previous   上一个What To Do If My Game Doesn't Make It
+如果我的游戏未能通过
+Next   接下来General Info   基本信息
+Made with Material for MkDocs
+    
+
+
+Previous   上一个Game Thumbnail   游戏缩略图
+Next   接下来Level 5 - Final Poki Review
+Level 5 - 最终 Poki 评审
+Made with Material for MkDocs
+    
+Skip to content
+logo
+Search
+
+Poki Documentation 
+  
+Poki 文档
+Level 0 - Welcome
+  
+等级 0 - 欢迎
+Level 1 - Adding Your Game
+  
+第一级 - 添加您的游戏
+Level 2 - Feedback & Playtesting
+  
+第二级 - 反馈与测试
+Level 3 - Player Fit Test
+  
+第三级 - 玩家适配测试
+Level 4 - Web Fit Test
+  
+Level 4 - Web 适应性测试
+Level 5 - Final Poki Review
+  
+Level 5 - 最终 Poki 评审
+SDK Documentation
+  
+SDK 文档
+General Info
+  
+基本信息
+HTML5
+1. Initialize the SDK
+  
+1. 初始化 SDK
+2. Implement the game loading logic
+  
+2. 实现游戏加载逻辑
+3. Implement the gameplay events
+  
+3. 实现游戏事件
+4. Implement commercialBreak
+  
+4. 实现商业中断
+5. Implement rewardedBreak
+6. User Accounts
+User Interface
+User Data Structure
+SDK Methods
+Cloud Gamesaves
+7. Final Steps
+Defold
+Unity
+GameMaker
+Phaser 3
+Godot
+Cocos
+Construct 3
+GDevelop
+Bonus Level
+FAQ
+html5-banner
+
+PokiSDK - HTML5  PokiSDK - HTML5 技术
+1. Initialize the SDK
+1. 初始化 SDK
+Add the following HTML within the <head> tags of your game HTML:
+在游戏 HTML 的 <head> 标签内添加以下 HTML：
+
+
+<script src="https://game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>
+Initialize the SDK at the start of your game with the following Javascript:
+使用以下 JavaScript 在游戏开始时初始化 SDK：
+
+
+PokiSDK.init().then(() => {
+    console.log("Poki SDK successfully initialized");
+    // fire your function to continue to game
+}).catch(() => {
+    console.log("Initialized, something went wrong, load you game anyway");
+    // fire your function to continue to game
+});
+
+
+2. Implement the game loading logic
+2. 实现游戏加载逻辑
+In order to provide an accurate conversion to play metric for your game, please fire the following events when your loading has finished:
+为了为您提供准确的游玩指标转换，请在游戏加载完成后触发以下事件：
+
+
+// fire loading function here
+PokiSDK.gameLoadingFinished();
+
+
+3. Implement the gameplay events
+3. 实现游戏玩法事件
+Use the  🎮 gameplayStart()  event to describe when users are playing your game (e.g. level start and unpause).
+使用 🎮 gameplayStart() 事件来描述用户正在玩您的游戏（例如关卡开始和暂停）。
+
+Use the  ☠ gameplayStop()  event to describe when users aren’t playing your game (e.g. level finish, game over, pause, quit to menu).
+使用 ☠ gameplayStop() 事件来描述用户未在玩您的游戏（例如关卡结束、游戏结束、暂停、退出到菜单）。
+
+
+// first level loads, player clicks anywhere
+PokiSDK.gameplayStart();
+// player is playing
+// player loses round
+PokiSDK.gameplayStop();
+// game over screen pops up
+
+
+4. Implement commercialBreak
+4. 实现商业休息
+Commercial breaks are used to display video ads and should be triggered on natural breaks in your game. Throughout the rest of your game, we recommend you implement the  🎞 commercialBreak()  before every  🎮 gameplayStart() , i.e. whenever the user has shown an intent to continue playing.
+商业休息用于显示视频广告，应在游戏中的自然休息时触发。在游戏的其余部分，我们建议您在每次 🎞 gameplayStart() 之前实现 🎞 commercialBreak() ，即当用户表现出继续游戏的意图时。
+
+
+// pause your game here if it isn't already
+PokiSDK.commercialBreak(() => {
+  // you can pause any background music or other audio here
+}).then(() => {
+  console.log("Commercial break finished, proceeding to game");
+  // if the audio was paused you can resume it here (keep in mind that the function above to pause it might not always get called)
+  // continue your game here
+});
+Important information about commercialBreaks
+关于商业休息的重要信息
+
+Not every single  🎞 commercialBreak()  will trigger an ad. Poki’s system will determine when a user is ready for another ad, so feel free to signal as many commercial break opportunities as possible.
+并非每个 🎞 commercialBreak() 都会触发广告。Poki 的系统将决定用户何时准备好观看另一则广告，因此请尽可能多地发出商业休息机会的信号。
+
+
+
+5. Implement rewardedBreak
+5. 实现 rewardedBreak
+Rewarded breaks allow for a user to choose to watch a rewarded video ad in exchange for a certain benefit in the game (e.g. more coins, etc.). When using  🎬 rewardedBreak() , please make it clear to the player beforehand that they’re about to watch an ad.
+奖励休息允许用户选择观看一个奖励视频广告以换取游戏中的某些好处（例如更多金币等）。在使用 🎬 rewardedBreak() 时，请事先向玩家明确说明他们即将观看广告。
+
+
+// pause your game here if it isn't already
+PokiSDK.rewardedBreak(() => {
+  // you can pause any background music or other audio here
+}).then((success) => {
+    if(success) {
+        // video was displayed, give reward
+    } else {
+        // video not displayed, should not give reward
+    }
+    // if the audio was paused you can resume it here (keep in mind that the function above to pause it might not always get called)
+    console.log("Rewarded break finished, proceeding to game");
+    // continue your game here
+});
+Optional parameters to the rewardedBreak function
+rewardedBreak 函数的可选参数
+
+You can pass the follow optional parameter as properties of an object to the rewardedBreak function:
+你可以将以下可选参数作为对象的属性传递给 rewardedBreak 函数：
+
+size: The “size” of the reward. Accepted values are small, medium, large. Note: based on the size we can opt for showing more rewarded advertisements.
+size : 奖励的“大小”。接受的值是 small , medium , large 。注意：根据大小我们可以选择显示更多的奖励广告。
+
+onStart: A callback function for the moment an advertisement is shown to the user
+onStart : 在向用户显示广告时调用的回调函数
+
+
+PokiSDK.rewardedBreak({
+    size: 'medium',
+    onStart: () => {},
+}).then((success) => {});
+About the rewardedBreak timer
+关于 rewardedBreak 计时器
+
+ 🎬 rewardedBreak()  affects the timing of  🎞 commercialBreak()  - When a user interacts with a rewarded break, our system’s ad timer is reset to ensure the user does not immediately see another ad.
+🎬 奖励视频广告()会影响 🎞 商业视频广告()的播放时间 - 当用户与奖励视频广告互动时，我们的系统广告计时器会重置，以确保用户不会立即看到另一个广告。
+
+
+
+6. User Accounts  6. 用户账户
+The User Accounts feature allows games to prompt the user to log in, access logged-in user information and authentication tokens. This enables personalized experiences and secure communication between games and Poki User Accounts.
+用户账户功能允许游戏提示用户登录，访问已登录用户信息和认证令牌。这能够实现个性化体验和游戏与 Poki 用户账户之间的安全通信。
+
+User Interface  用户界面
+The User Accounts module provides three main methods:
+用户账户模块提供三种主要方法：
+
+ 💬 login() : Prompts the user to log in if they haven’t already
+💬 login() : 如果用户尚未登录，则提示用户登录
+ 👤 getUser() : Returns information about the currently logged-in user
+👤 getUser() : 返回当前登录用户的信息
+ 🎫 getToken() : Returns a game specific JWT authentication token for the current user
+🎫 getToken() : 返回当前用户的特定游戏 JWT 认证令牌
+User Data Structure  用户数据结构
+When a user is logged in, the getUser() method returns a User object with the following properties:
+当用户登录时， getUser() 方法返回一个具有以下属性的 User 对象：
+
+
+interface User {
+  username: string;
+  avatarUrl: string;
+}
+SDK Methods  SDK 方法
+Login  登录
+login(): Promise<void>
+
+Prompts the user to log in if they are not already authenticated. If the user is already logged in, this method resolves immediately. Only call this in response to a user interaction that requires an account, avoid calling it automatically on game load.
+如果用户尚未通过身份验证，则提示用户登录。如果用户已经登录，此方法将立即解析。仅在需要账户的用户交互时调用此方法，避免在游戏加载时自动调用。
+
+If the user successfully logs in, a full page refresh will occur
+如果用户成功登录，将发生全页刷新
+If the user closes the authentication panel or takes too long (45 seconds), the promise will be rejected
+如果用户关闭了认证面板或操作时间过长（45 秒），则承诺将被拒绝
+
+try {
+  await PokiSDK.login();
+  // The page will reload if the user logs in.
+  // In case the user is already logged in, the promise resolves instantly and you can continue from here.
+  const user = await PokiSDK.getUser();
+  console.log("User logged in:", user.username);
+} catch (error) {
+  console.log("Login failed:", error.message);
+  // User closed auth panel or login timed out
+}
+Get User  获取用户
+getUser(): Promise<User | null>
+
+Returns the current logged-in user information, or null if no user is logged in. Throws an exception if user accounts is not enabled or if the user has opted out of the feature.
+返回当前登录用户的信息，如果没有用户登录则返回 null 。如果用户账户未启用或用户已选择退出该功能，则抛出异常。
+
+Call this function after your game loads to handle all possible user states (logged in, logged out, or after a page refresh due to an authentication state change). This allows you to provide the appropriate user experience from the start.
+在游戏加载后调用此函数以处理所有可能的用户状态（已登录、未登录或因身份验证状态变化而刷新页面）。这使您能够从一开始就提供适当的用户体验。
+
+
+try {
+  const user = await PokiSDK.getUser();
+  if (user) {
+    console.log(`Welcome ${user.username}!`);
+  } else {
+    // User is not logged in, you can call PokiSDK.login() to prompt it
+    console.log("User not logged in");
+  }
+} catch (error) {
+  // user accounts is not available or user opted out of the feature
+}
+Debug Mode (Inspector)  调试模式（检查器）
+
+When running with debug mode enabled, getUser() returns static mock data for local development and testing:
+当启用调试模式运行时， getUser() 会返回静态模拟数据用于本地开发和测试：
+
+
+{
+  username: 'TestUser',
+  avatarUrl: 'https://a.poki-cdn.com/img/placeholder_gradient.png'
+}
+Get Token  获取令牌
+getToken(): Promise<string | null>
+
+Returns a JWT token for the current user, or null if no user is logged in. Throws an exception if user accounts is not enabled or if the user has opted out of the feature. This token can then be verified from your backend.
+为当前用户返回一个 JWT 令牌，如果没有用户登录则返回 null 。如果用户账户未启用或用户已选择退出该功能，则会抛出异常。此令牌可以从您的后端进行验证。
+
+Important: The token expires in 1 minute for security purposes. Do not store this token or use it for anything other than verifying with the Poki endpoint to obtain the persistent user_id. Generate a new token each time you need to verify a user.
+重要：出于安全目的，该令牌将在 1 分钟内过期。请不要存储此令牌或将其用于除使用 Poki 端点验证以获取持久性 user_id 之外的其他任何用途。每次需要验证用户时，请生成新的令牌。
+
+Token Generation  令牌生成
+
+try {
+  const token = await PokiSDK.getToken();
+  if (token) {
+    // Send the token to your backend and verify it to obtain the user_id
+    fetch("/your/backend/service", ...);
+  } else {
+    console.log("No authentication token available");
+  }
+} catch (error) {
+  // user accounts is not available or user opted out of the feature
+}
+Token Verification  令牌验证
+You can verify the token from your backend using the Poki verification endpoint:
+您可以使用 Poki 验证端点从后端验证令牌：
+
+
+// Backend verification example
+async function verifyPokiToken(token, teamApiKey) {
+  const response = await fetch(
+    "https://user-vault.poki.com/auth/verify-token",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "X-Poki-Team-Api-Key": teamApiKey,
+      },
+    },
+  );
+
+  if (response.ok) {
+    const verificationResult = await response.json();
+    console.log("Token is valid:", verificationResult); // { user_id: "unique-user-identifier" }
+    return verificationResult.user_id;
+  } else {
+    console.log("Token verification failed");
+    return null;
+  }
+}
+The verification endpoint returns a user_id that is immutable and unique per game. This user_id should be used as the primary identifier for that user in your backend systems.
+验证端点返回一个不可变且每个游戏唯一的 user_id 。此 user_id 应作为您后端系统中该用户的主要标识符。
+
+Note: You’ll need to obtain your X-Poki-Team-Api-Key from your account manager to use the verification endpoint.
+注意：您需要从您的账户经理处获取 X-Poki-Team-Api-Key 才能使用验证端点。
+
+Debug Mode (Inspector)  调试模式（检查器）
+
+When running with debug mode enabled, getToken() returns a valid, long-lasting JWT token that works with the Poki verification endpoint. When decoded, this token resolves to the user_id: "debug-user-id". This allows you to test the full authentication flow, including backend token verification.
+启用调试模式运行时， getToken() 会返回一个有效的、持久的 JWT 令牌，该令牌可与 Poki 验证端点配合使用。解码此令牌后，它会解析为 user_id: "debug-user-id" 。这允许您测试完整的身份验证流程，包括后端令牌验证。
+
+Cloud Gamesaves  云存档
+When a user is logged in, the Poki SDK automatically syncs their game saves to the cloud. This is completely transparent — no extra SDK calls or setup are required. Saves are tied to the logged-in user and restored across sessions and devices.
+当用户登录时，Poki SDK 会自动将他们的游戏存档同步到云端。这个过程完全透明——不需要额外的 SDK 调用或设置。存档与登录用户绑定，可以在会话和设备之间恢复。
+
+How it works  它是如何工作的
+Every time a user plays a game, the SDK attempts to load their gamesave from the cloud and inject it into the game before it starts. During gameplay, the SDK monitors two browser storage APIs for changes, localStorage and IndexedDB, and batches any updates to sync them back to the cloud at a throttled interval to avoid excessive network activity and bandwidth usage.
+每次用户玩游戏时，SDK 都会尝试从云端加载他们的存档并将其注入游戏开始前。在游戏过程中，SDK 监控两个浏览器存储 API 的变化， localStorage 和 IndexedDB ，并将任何更新批量同步回云端，以避免过多的网络活动和带宽使用。
+
+Exclude data from your cloudsavegames
+从云端存档中排除数据
+If you have data that should never be included in cloud gamesaves, prefix it with poki_ignore.
+如果您有不应该包含在云端存档中的数据，请将其前缀为 poki_ignore 。
+
+localStorage keys that start with poki_ignore are skipped
+localStorage 以 poki_ignore 开头的键将被跳过
+IndexedDB object stores that start with poki_ignore are skipped
+以 poki_ignore 开头的 IndexedDB 对象存储将被跳过
+IndexedDB row keys that start with poki_ignore are skipped
+以 poki_ignore 开头的 IndexedDB 行键将被跳过
+This is useful for caches, temporary state, analytics buffers, or any other local-only data that should not be restored across devices.
+这对于缓存、临时状态、分析缓冲区或任何不应跨设备恢复的本地数据很有用。
+
+Storage limit  存储限制
+1MB Gamesave Limit  1MB 游戏存档限制
+
+The gamesave payload must not exceed 1MB after gzip compression. If a player’s save exceeds this limit, cloud gamesaves will be automatically disabled for that player and their progress will no longer be synced. Design your save data to stay well within this limit.
+游戏存档有效负载在 gzip 压缩后不得超过 1MB。如果玩家的存档超过此限制，云存档将自动为该玩家禁用，并且他们的进度将不再同步。请设计您的存档数据，使其保持在限制值以下。
+
+
+
+7. Final Steps  7. 最后步骤
+Disable sound and input during ads
+在广告期间禁用声音和输入
+Make sure that audio and keyboard input are disabled during commercialBreaks, so that the game doesn’t interfere with the ad:
+确保在 commercialBreaks 期间音频和键盘输入被禁用，这样游戏就不会干扰广告：
+
+
+// gameplay stops (don't forget to fire gameplayStop)
+// fire your mute audio function
+// fire your disable keyboard input function
+PokiSDK.commercialBreak().then(() => {
+    console.log("Commercial break finished, proceeding to game");
+    // fire your unmute audio function
+    // fire your enable keyboard input function
+    PokiSDK.gameplayStart();
+    // fire your function to continue to game
+});
+
+
+Prevent page jump  防止页面跳转
+When a player presses space or the arrow keys, the default browser behavior is to emulate scroll. But in a game, we don’t want that. It’s not noticeable in your development environment because your game is (probably) taking the full window. But on Poki, it will be inside a longer page that can scroll.
+当玩家按下空格键或方向键时，默认的浏览器行为是模拟滚动。但在游戏中，我们不想这样。在你的开发环境中，这可能不明显，因为你的游戏（可能）占用了整个窗口。但在 Poki 上，它将位于一个可以滚动的更长的页面中。
+
+Here is a snippet that you can paste in your game to disable this behavior.
+这里有一个代码片段，你可以将其粘贴到你的游戏中以禁用此行为。
+
+
+window.addEventListener('keydown', ev => {
+    if (['ArrowDown', 'ArrowUp', ' '].includes(ev.key)) {
+        ev.preventDefault();
+    }
+});
+window.addEventListener('wheel', ev => ev.preventDefault(), { passive: false });
+
+
+Shareable URLs & URL manipulation
+可分享的 URL 和 URL 操作
+Creating shareable urls and changing the Poki.com url
+创建可分享的 URL 和修改 Poki.com 的 URL
+You can create a shareable url with the following function:
+您可以使用以下函数创建可分享的 URL：
+
+
+PokiSDK.shareableURL({}).then(url => {});
+
+// example
+const params = {
+    id: 'myid',
+    type: 'mytype',
+    // ... any other param
+}
+
+PokiSDK.shareableURL(params).then(url => {
+    console.log(url);
+    // if run on e.g. https://poki.com/en/g/my-awesome-game it will return https://poki.com/en/g/my-awesome-game?gdid=myid&gdtype=mytype
+});
+
+// read further to see how to fetch these params easily from within your game
+Reading Poki.com url params
+读取 Poki.com URL 参数
+As you might have noticed in the previous topic, the PokiSDK.shareableURL creates a url with parameters that are prefixed with gd. We have created a simple helper function that will easily allow you to read the params.
+如您在上一主题中可能注意到的， PokiSDK.shareableURL 创建一个带有以 gd 为前缀的参数的 URL。我们创建了一个简单的辅助函数，可以轻松地让您读取这些参数。
+
+
+PokiSDK.getURLParam('<param name>');
+
+// example
+const id = PokiSDK.getURLParam('id');
+// this will return either the gdid param set on poki.com or the id param on the current url
+
+
+Moving the Poki Pill on mobile
+移动手机上的 Poki 药丸
+On mobile, you can reposition the Poki Pill slightly to better fit your game UI using PokiSDK.movePill(topPercent, topPx).
+在手机上，您可以使用 PokiSDK.movePill(topPercent, topPx) 微调 Poki 药丸的位置，以更好地适应您的游戏 UI。
+
+topPercent is a number between 0 and 50 and sets the pill’s vertical position as a percentage from the top of the game area.
+topPercent 是一个介于 0 和 50 之间的数字，它将药丸的垂直位置设置为游戏区域顶部的百分比。
+topPx is an additional pixel offset applied on top of topPercent (positive moves it down, negative moves it up).
+topPx 是在 topPercent 基础上应用的一个额外的像素偏移量（正值向下移动，负值向上移动）。
+You can’t move the pill lower than 50% of the game area (the game bar at the bottom is not included in this area).
+你不能将药丸移动到游戏区域以下 50%（底部游戏栏不包括在此区域内）。
+
+The default position is PokiSDK.movePill(0, 24).
+默认位置是 PokiSDK.movePill(0, 24) 。
+
+Poki Pill size  Poki 药丸大小
+
+46px × 62px on screens narrower than 1211px.
+在屏幕宽度小于 1211px 的设备上显示 46px × 62px 。
+92px × 64px on screens 1211px wide or wider.
+92px × 64px 在 1211px 更宽或更宽的屏幕上。
+
+// Move the pill 100 pixels above the center of the game.
+PokiSDK.movePill(50, -100);
+
+
+Upload and test your game in Poki for Developers
+在 Poki for Developers 中上传并测试您的游戏
+Congrats, you’ve successfully implemented the PokiSDK! Now upload your game to the Poki Inspector and test it there. When you’re happy with the implementation, send us a review request and we’ll play the game. Feel free to contact us via Discord or developersupport@poki.com if you’re stuck.
+恭喜，您已成功实现 PokiSDK！现在将您的游戏上传到 Poki 检查器并在那里进行测试。当您对实现结果满意时，请向我们发送审核请求，我们将试玩游戏。如果您遇到困难，欢迎通过 Discord 或 developersupport@poki.com 联系我们。
+
+Previous   上一个General Info   基本信息
+Next   接下来Defold   展开/还原
+Made with Material for MkDocs
+    
