@@ -33,6 +33,7 @@
     "verify:player:poki": "pnpm build:poki && pnpm report:player-build -- --expect=poki && pnpm audit:player-portal",
     "verify:player:crazygames": "pnpm build:crazygames && pnpm report:player-build -- --expect=crazygames && pnpm audit:player-portal",
     "check:deployment-contract": "node ./scripts/check-deployment-contract.mjs",
+    "check:runtime-routes": "node ./scripts/check-runtime-routes.mjs",
     "check:player-boundaries": "node ./scripts/check-player-boundaries.mjs",
     "check:app-source-boundaries": "node ./scripts/check-app-source-boundaries.mjs",
     "release:check": "node ./scripts/release-check.mjs"
