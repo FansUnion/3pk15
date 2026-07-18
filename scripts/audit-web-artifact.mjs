@@ -4,8 +4,9 @@ import { join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
-const buildRoot = join(root, 'apps/web/.next')
-const serverApp = join(root, 'apps/web/.next/server/app')
+const appName = process.argv.includes('--player') ? 'player-web' : 'web'
+const buildRoot = join(root, `apps/${appName}/.next`)
+const serverApp = join(buildRoot, 'server/app')
 const strict = process.argv.includes('--strict')
 const externalStrict = process.argv.includes('--external-strict')
 
@@ -36,7 +37,7 @@ const files = walk(serverApp)
 const forbiddenPrefixes = ['admin/', 'api/admin/']
 const forbidden = files.filter((file) => forbiddenPrefixes.some((prefix) => file.startsWith(prefix)))
 
-console.log(`audit:web-artifact: ${files.length} server app files`)
+console.log(`audit:web-artifact: ${appName}: ${files.length} server app files`)
 console.log(`audit:web-artifact: ${forbidden.length} Admin/API artifacts`)
 
 if (forbidden.length) {
