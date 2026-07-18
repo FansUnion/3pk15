@@ -28,8 +28,18 @@ jobs:
         run: pnpm release:check -- --only=core-tests
       - name: Core typecheck
         run: pnpm release:check -- --only=core-types
-      - name: Player tests
-        run: pnpm release:check -- --only=player-tests
+      - name: Player active-game test
+        run: pnpm release:check -- --only=player-active-game
+      - name: Player ads test
+        run: pnpm release:check -- --only=player-ads
+      - name: Player AI fault test
+        run: pnpm release:check -- --only=player-ai-fault
+      - name: Player platform test
+        run: pnpm release:check -- --only=player-platform
+      - name: Player share test
+        run: pnpm release:check -- --only=player-share
+      - name: Player storage test
+        run: pnpm release:check -- --only=player-storage
       - name: Admin tests
         run: pnpm release:check -- --only=admin-tests
       - name: Architecture and deployment boundaries

@@ -6,10 +6,17 @@ import { fileURLToPath } from 'node:url'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const playerTestArgs = ['--filter', '@wolf-sheep/player-web', 'test', '--', '--reporter=verbose']
 if (process.env.GITHUB_ACTIONS === 'true') playerTestArgs.push('--reporter=github-actions')
+const playerTestFile = (file) => ['--filter', '@wolf-sheep/player-web', 'test', '--', file, '--reporter=verbose']
 const allGates = [
   ['core-tests', 'game-core tests', ['--filter', '@wolf-sheep/game-core', 'test']],
   ['core-types', 'game-core typecheck', ['--filter', '@wolf-sheep/game-core', 'lint']],
   ['player-tests', 'player tests', playerTestArgs],
+  ['player-active-game', 'player active-game test', playerTestFile('lib/active-game.test.ts')],
+  ['player-ads', 'player ads test', playerTestFile('lib/ads.test.ts')],
+  ['player-ai-fault', 'player AI fault test', playerTestFile('lib/ai-fault.test.ts')],
+  ['player-platform', 'player platform test', playerTestFile('lib/platform.test.ts')],
+  ['player-share', 'player share test', playerTestFile('lib/share-result.test.ts')],
+  ['player-storage', 'player storage test', playerTestFile('lib/storage.test.ts')],
   ['admin-tests', 'admin tests', ['--filter', '@wolf-sheep/admin', 'test', '--', '--reporter=verbose']],
   ['platform-boundaries', 'platform boundaries', ['check:platform-boundaries']],
   ['player-boundaries', 'player boundaries', ['check:player-boundaries']],
