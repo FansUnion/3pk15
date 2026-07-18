@@ -14,7 +14,7 @@ import {
   type LevelConfig,
 } from '@wolf-sheep/game-core'
 import { BoardSvg } from '@/components/BoardSvg'
-import { themeForChapter } from '@/components/admin/adminBoardTheme'
+import { themeForChapter } from './adminBoardTheme'
 import { levelVersion, loadLevelReviews, reviewCompletion, type LevelReview } from '@/lib/admin-level-reviews'
 import {
   loadCandidateReports,

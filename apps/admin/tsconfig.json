@@ -20,8 +20,25 @@
       }
     ],
     "paths": {
+      "@/config/locales": ["../player-web/config/locales.ts"],
+      "@/i18n/messages": ["../player-web/i18n/messages.ts"],
+      "@/i18n/use-client-locale": ["../player-web/i18n/use-client-locale.ts"],
+      "@/lib/active-game": ["../player-web/lib/active-game.ts"],
+      "@/lib/ads": ["../player-web/lib/ads.ts"],
+      "@/lib/ai-fault": ["../player-web/lib/ai-fault.ts"],
+      "@/lib/candidate-replay": ["../player-web/lib/candidate-replay.ts"],
+      "@/lib/platform": ["../player-web/lib/platform.ts"],
+      "@/lib/play-store": ["../player-web/lib/play-store.ts"],
+      "@/lib/save-store": ["../player-web/lib/save-store.ts"],
+      "@/lib/sfx": ["../player-web/lib/sfx.ts"],
+      "@/lib/share-result": ["../player-web/lib/share-result.ts"],
+      "@/lib/storage": ["../player-web/lib/storage.ts"],
+      "@/components/BoardSvg": ["../player-web/components/BoardSvg.tsx"],
+      "@/components/HelpContent": ["../player-web/components/HelpContent.tsx"],
+      "@/components/LocaleSwitcher": ["../player-web/components/LocaleSwitcher.tsx"],
+      "@/components/PlayScreen": ["../player-web/components/PlayScreen.tsx"],
       "@/*": [
-        "../web/src/*"
+        "./*"
       ]
     },
     "allowJs": true,
@@ -33,8 +50,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    "../web/src/**/*.ts",
-    "../web/src/**/*.tsx"
+    "**/*.ts",
+    "**/*.tsx"
   ],
   "exclude": [
     "node_modules"

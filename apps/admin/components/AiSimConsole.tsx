@@ -30,8 +30,8 @@ import {
   type Side,
 } from '@wolf-sheep/game-core'
 import { BoardSvg } from '@/components/BoardSvg'
-import { themeForChapter } from '@/components/admin/adminBoardTheme'
-import { AI_FIXTURES } from '@/components/admin/aiFixtures'
+import { themeForChapter } from './adminBoardTheme'
+import { AI_FIXTURES } from './aiFixtures'
 import { consumeCandidateHandoff } from '@/lib/candidate-handoff'
 
 type PlaceMode = 'cycle' | 'empty' | 'wolf' | 'sheep' | 'rock'

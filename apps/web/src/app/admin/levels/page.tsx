@@ -1,5 +1,1 @@
-import { AdminLevelWorkbench } from '@/components/admin/AdminLevelWorkbench'
-
-export default function AdminLevelsPage() {
-  return <AdminLevelWorkbench />
-}
+export { default } from '../../../../../admin/app/levels/page'
