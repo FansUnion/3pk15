@@ -14,6 +14,8 @@ const gates = [
   ['production build', ['build:standalone']],
   ['player artifact', ['audit:player-artifact']],
   ['player external boundary', ['audit:player-portal']],
+  ['admin production build', ['build:admin']],
+  ['admin artifact', ['audit:admin-artifact']],
 ]
 const results = []
 

@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
-const appRoot = join(root, 'apps/web/src/app')
+const appRoot = join(root, 'apps/player-web/app')
 const playerRoots = ['chapters', 'how-to-play', 'hunt', 'levels', 'play', 'privacy', 'quests', 'settings', 'skins']
 const forbidden = [
   '@/components/admin',
@@ -41,4 +41,4 @@ if (violations.length) {
   process.exit(1)
 }
 
-console.log(`check:player-boundaries: OK (${files.length} player entry files)`)
+console.log(`check:player-boundaries: OK (${files.length} player-web entry files)`)
