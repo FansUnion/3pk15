@@ -171,6 +171,7 @@ export type MessageTree = {
     universalCost: string; seasonCost: string; chapterUnlock: string; intro: string
     wolfSets: string; boards: string; preview: string; previewActive: string
     unlockSuccess: string; insufficient: string; costProgress: string; remaining: string; readyUnlock: string
+    seasonBalances: string; seasonBalance: string
   }
   quests: {
     title: string; claim: string; claimed: string; empty: string; daily: string; weekly: string
@@ -422,6 +423,8 @@ export const en: MessageTree = {
     costProgress: '{current}/{cost} shards',
     remaining: '{n} more needed',
     readyUnlock: 'Ready to unlock',
+    seasonBalances: 'Season shards',
+    seasonBalance: '{season}: {n}',
   },
   quests: {
     title: 'Quests',
@@ -668,6 +671,8 @@ export const zh: MessageTree = {
     costProgress: '已有 {current}/{cost} 碎片',
     remaining: '还差 {n}',
     readyUnlock: '可以兑换',
+    seasonBalances: '四季碎片',
+    seasonBalance: '{season}：{n}',
   },
   quests: {
     title: '任务',

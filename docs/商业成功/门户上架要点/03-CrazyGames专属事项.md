@@ -39,6 +39,7 @@ CG 用 **Basic → Full** 缩短首发，用真实流量决定是否值得做完
 
 ### 要准备什么 / 关键口径
 
+- Portal 提交向导（Basic 首交字段）见 [CrazyGames游戏提交申请/说明与填表口径.md](../CrazyGames游戏提交申请/说明与填表口径.md)。
 - Basic：约 **2 周**有限受众；**不要**强上 CG 特定集成；变现关；仅 Basic QA。  
 - 晋级看：**平均时长、转化到游玩、留存**（对标平台其他游戏）。  
 - 全过 → 做 Full Implementation 再交 Full；部分过 → 可能再 Basic；多数不过 → 不能进 Full，再交须当**新游戏+重大改进**。  

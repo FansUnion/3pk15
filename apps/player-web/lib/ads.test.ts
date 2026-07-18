@@ -32,6 +32,14 @@ describe('MockAds', () => {
     expect(finish).toHaveBeenCalledOnce()
   })
 
+  it('does not report a successful reward more than once per display', async () => {
+    process.env.NEXT_PUBLIC_MOCK_AD_OUTCOME = 'success'
+    const finish = vi.fn()
+    const result = await new MockAds().showRewarded('double_drop', { onFinish: finish })
+    expect(result).toEqual({ ok: true })
+    expect(finish).toHaveBeenCalledOnce()
+  })
+
   it('falls back safely when browser storage is unavailable', () => {
     process.env.NEXT_PUBLIC_MOCK_AD_OUTCOME = 'unfilled'
     vi.stubGlobal('window', {

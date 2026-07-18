@@ -219,13 +219,15 @@ export function BoardSvg({
       {rocks.map((p, i) => {
         const { x, y } = xy(p.r, p.c)
         return (
-          <RockShape
-            key={`rock-${p.r}-${p.c}`}
-            x={x}
-            y={y}
-            variant={i + p.r + p.c}
-            warm={theme.rockWarm ?? 0}
-          />
+          <g key={`rock-${p.r}-${p.c}`}>
+            <title>Rock terrain at row {p.r}, column {p.c}</title>
+            <RockShape
+              x={x}
+              y={y}
+              variant={i + p.r + p.c}
+              warm={theme.rockWarm ?? 0}
+            />
+          </g>
         )
       })}
 
@@ -265,7 +267,6 @@ export function BoardSvg({
         )
         const body = src ? (
           <>
-            {fallbackBody}
             <image
               href={src}
               x={x - (PIECE * scale) / 2}
@@ -379,6 +380,9 @@ export function BoardSvg({
           const c = ci + 1
           const { x, y } = xy(r, c)
           const piece = state.pieces.find((item) => item.r === r && item.c === c)
+          const isWolf = piece?.side === 'wolf'
+          const isTarget = isBoardTarget(stepHighlights, jumpHighlights, r, c)
+          const isActionable = interactive && (isWolf || isTarget)
           return (
             <circle
               key={`hit-${r}-${c}`}
@@ -386,9 +390,10 @@ export function BoardSvg({
               cy={y}
               r={23}
               fill="transparent"
-              style={{ cursor: interactive ? 'pointer' : 'default' }}
-              role="button"
-              tabIndex={interactive && (piece?.side === 'wolf' || isBoardTarget(stepHighlights, jumpHighlights, r, c)) ? 0 : -1}
+              style={{ cursor: isActionable ? 'pointer' : interactive ? 'not-allowed' : 'default' }}
+              role={isActionable ? 'button' : undefined}
+              tabIndex={isActionable ? 0 : -1}
+              aria-disabled={interactive && !isActionable ? true : undefined}
               aria-label={piece?.side === 'wolf' ? `Wolf at row ${r}, column ${c}` : `Board position row ${r}, column ${c}`}
               onClick={() => {
                 if (!interactive) return

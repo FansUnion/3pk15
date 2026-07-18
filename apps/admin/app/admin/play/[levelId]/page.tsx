@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getLevel, LEVELS } from '@wolf-sheep/game-core'
-import { AdminPlayScreen } from '../../../components/AdminPlayScreen'
+import { AdminPlayScreen } from '../../../../components/AdminPlayScreen'
 
 export function generateStaticParams() {
   return LEVELS.map((level) => ({ levelId: level.id }))

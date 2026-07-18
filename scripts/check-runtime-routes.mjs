@@ -11,7 +11,7 @@ const checks = [
     path,
     label: `player ${path}`,
   })),
-  ...['/gate', '/levels', '/ai', ...levelIds.map((id) => `/admin/play/${id}`)].map((path) => ({
+  ...['/admin/gate', '/admin', '/admin/levels', '/admin/skins', '/admin/ai', ...levelIds.map((id) => `/admin/play/${id}`)].map((path) => ({
     base: adminBase,
     path,
     label: `admin ${path}`,

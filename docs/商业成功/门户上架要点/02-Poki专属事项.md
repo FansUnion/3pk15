@@ -20,7 +20,7 @@ Poki for Developers（P4D）与试玩工具处于**限量准入**。没有后台
 #### 适用 / 不适用
 
 - **适用：** 计划上 Poki 的团队。  
-- **对 Fangrush：** 填表与口径见 `distribution/poki/early-access-form.md`；早期准入 **≠** 已上架。
+- **对 Fangrush：** 填表与口径见 [Poki早期准入申请/说明与填表口径.md](../Poki早期准入申请/说明与填表口径.md)；早期准入 **≠** 已上架。
 
 #### 要准备什么 / 关键口径
 

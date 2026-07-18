@@ -25,3 +25,14 @@
 - 不提交账号密钥、团队API Key、签名证书、支付凭据或其他秘密。
 
 当前执行任务见 [任务清单](../docs/任务/任务清单.md)，渠道决策见 [渠道发展路线](../docs/商业成功/渠道发展路线.md)。
+
+## 本地构建验证顺序
+
+Poki 和 CrazyGames 构建都使用 `apps/player-web/.next` 作为临时产物目录，Windows 下不能并行运行两个目标，否则可能因目录锁定出现 `EPERM`。请串行执行：
+
+```powershell
+pnpm verify:player:poki
+pnpm verify:player:crazygames
+```
+
+两个命令分别包含目标构建、产物版本/大小报告和严格的玩家包边界审计。当前这两组本地验证均已通过，但不等于真实平台 SDK、Inspector、Portal 或提交审核已经通过。

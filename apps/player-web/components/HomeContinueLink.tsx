@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getLevel, levelDisplayName } from '@wolf-sheep/game-core'
+import { adjacentLevels, getLevel, isLevelCleared, levelDisplayName } from '@wolf-sheep/game-core'
 import { useSaveStore } from '@/lib/save-store'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import type { SupportedLocale } from '@/config/locales'
@@ -24,7 +24,11 @@ export function HomeContinueLink({
     setReady(true)
   }, [hydrate])
 
-  const levelId = save.lastPlayedLevelId ?? 'spring-01'
+  const lastLevelId = save.lastPlayedLevelId ?? 'spring-01'
+  const lastLevel = getLevel(lastLevelId)
+  const levelId = lastLevel && isLevelCleared(save, lastLevel.id)
+    ? adjacentLevels(lastLevel.id).next?.id ?? lastLevel.id
+    : lastLevelId
   const level = getLevel(levelId) ?? getLevel('spring-01')
   const href = `/play/${level?.id ?? 'spring-01'}`
   const label = level

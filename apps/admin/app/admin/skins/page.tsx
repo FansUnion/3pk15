@@ -10,7 +10,7 @@ import {
   type SkinCatalogItem,
   type WolfSetSkin,
 } from '@wolf-sheep/game-core'
-import { SkinBoardPreview } from '../../components/SkinBoardPreview'
+import { SkinBoardPreview } from '../../../components/SkinBoardPreview'
 
 export default function AdminSkinsPage() {
   const wolfSets = useMemo(
@@ -63,8 +63,8 @@ export default function AdminSkinsPage() {
           经济台
         </Link>
         {' · '}
-        <a href="/skins" target="_blank" rel="noreferrer" className="underline">
-          玩家图鉴 /skins
+        <a href="https://fangrush.com/skins" target="_blank" rel="noreferrer" className="underline">
+          玩家图鉴 fangrush.com/skins
         </a>
       </p>
       {catalogErrors.length > 0 && (

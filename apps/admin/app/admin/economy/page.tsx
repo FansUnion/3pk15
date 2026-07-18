@@ -50,13 +50,17 @@ export default function AdminEconomyPage() {
         <p className="mt-3 text-xs text-[#7a8574]">
           叠盘见 <Link href="/admin/skins" className="underline">皮肤台</Link>
           {' · '}
-          玩家图鉴 <a href="/skins" target="_blank" rel="noreferrer" className="underline">/skins</a>
+          玩家图鉴 <a href="https://fangrush.com/skins" target="_blank" rel="noreferrer" className="underline">fangrush.com/skins</a>
+        </p>
+        <p className="mt-3 border-t border-[#5c6b52]/15 pt-3 text-xs leading-relaxed text-[#7a8574]">
+          这里是规则和配置的静态估算：它能说明碎片是否有兑换目标、目标距离和奖励来源，不能证明玩家一定愿意收藏或观看广告。商业化结论需要真实试玩数据。
         </p>
       </section>
 
       <section className="mt-6">
         <h2 className="text-sm font-medium text-[#5c6b52]">皮肤解锁成本</h2>
-        <table className="mt-2 w-full text-left text-sm">
+        <div className="mt-2 overflow-x-auto">
+        <table className="w-full min-w-[560px] text-left text-sm">
           <thead>
             <tr className="border-b border-[#5c6b52]/30 text-[#5c6b52]">
               <th className="py-2 pr-2">id</th>
@@ -76,11 +80,13 @@ export default function AdminEconomyPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </section>
 
       <section className="mt-8">
         <h2 className="text-sm font-medium text-[#5c6b52]">任务奖励（QUEST_DEFS）</h2>
-        <table className="mt-2 w-full text-left text-sm">
+        <div className="mt-2 overflow-x-auto">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-[#5c6b52]/30 text-[#5c6b52]">
               <th className="py-2 pr-2">id</th>
@@ -104,6 +110,7 @@ export default function AdminEconomyPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </section>
 
       <section className="mt-8">

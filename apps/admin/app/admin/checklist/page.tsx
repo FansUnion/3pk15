@@ -19,7 +19,7 @@ const ITEMS: Item[] = [
     id: 'land',
     group: '漏斗断点',
     label: '落地 3s：品牌 Fangrush + 一句话 + 一键开玩清晰',
-    href: '/',
+    href: 'https://fangrush.com/',
     doc: '感官硬约束见美术资源和用户体验/01-体验与设计系统',
     adminHref: '/admin/docs',
   },
@@ -27,53 +27,53 @@ const ITEMS: Item[] = [
     id: 'teach',
     group: '漏斗断点',
     label: '首 60s：春日 1 教会隔空吃',
-    href: '/play/spring-01',
+    href: 'https://fangrush.com/play/spring-01',
     adminHref: '/admin/docs',
   },
   {
     id: 'juice',
     group: '漏斗断点',
     label: '第一次连吃有路径/消失反馈（juice）',
-    href: '/play/spring-01',
+    href: 'https://fangrush.com/play/spring-01',
   },
   {
     id: 'skin',
     group: '漏斗断点',
     label: '穿上皮后盘面立刻变（图鉴=对局）',
-    href: '/skins',
+    href: 'https://fangrush.com/skins',
     adminHref: '/admin/skins',
   },
   {
     id: 'ads-seam',
     group: '漏斗断点',
     label: '广告在自然缝；失败不挡结算/再来',
-    href: '/play/spring-01',
+    href: 'https://fangrush.com/play/spring-01',
   },
   {
     id: 'm1-core',
     group: '冒烟 M1',
     label: '春日至少 1 关可胜可败；隔空吃/连吃正确',
-    href: '/play/spring-01',
+    href: 'https://fangrush.com/play/spring-01',
     adminHref: '/admin/levels',
   },
   {
     id: 'm2-progress',
     group: '冒烟 M2',
     label: '通关进度本地保存；刷新不丢',
-    href: '/chapters',
+    href: 'https://fangrush.com/chapters',
   },
   {
     id: 'm3-skins-econ',
     group: '冒烟 M3',
     label: '皮肤解锁/装备；碎片可见闭环',
-    href: '/skins',
+    href: 'https://fangrush.com/skins',
     adminHref: '/admin/economy',
   },
   {
     id: 'm4-seo',
     group: '冒烟 M4',
     label: '/hunt 关卡页文案像成品；how-to-play 可读',
-    href: '/hunt/spring-01',
+    href: 'https://fangrush.com/hunt/spring-01',
     adminHref: '/admin/docs',
   },
   {
@@ -150,6 +150,9 @@ export default function AdminChecklistPage() {
       </p>
       <p className="mt-2 text-sm text-[#2c3328]">
         进度 {done}/{ITEMS.length}
+      </p>
+      <p className="mt-2 rounded border border-[#c9a227]/35 bg-[#fff9df] px-3 py-2 text-xs leading-relaxed text-[#6b5b1e]">
+        这份勾选只记录你当前浏览器的人工检查进度，不会自动证明生产验收通过；每项仍需结合页面、测试和真实设备证据。
       </p>
       <section className="mt-4 border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
         <h2 className="font-medium text-[#2c3328]">自动发布门禁</h2>

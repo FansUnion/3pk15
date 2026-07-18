@@ -578,9 +578,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       )}
 
       {uiPhase === 'terminal' && (
-        <div className="game-panel victory-pop p-5 text-center">
+        <div className="fixed inset-0 z-30 flex items-center justify-center overflow-y-auto bg-black/20 p-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="terminal-result-title" className="game-panel victory-pop w-full max-w-lg p-5 text-center">
           <p className="eyebrow">{state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose}</p>
-          <p className="font-serif text-2xl text-[var(--ink)]">
+          <p id="terminal-result-title" className="font-serif text-2xl text-[var(--ink)]">
             {state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose}
           </p>
           <p className="mt-1 text-sm text-[var(--muted)]">
@@ -638,14 +639,15 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           )}
           {!adminMode && <p className="mt-2 text-xs text-[#7a8574]">{fmt(p.universal, { n: save.fragments.universal })}</p>}
           <div className="mt-4 flex flex-col items-center gap-2">
-            <button
-              type="button"
-              disabled={shareBusy || adBusy}
-              onClick={() => void shareTerminalResult()}
-              className="primary-action w-full max-w-xs disabled:opacity-50"
-            >
-              {shareBusy ? p.sharePreparing : p.share}
-            </button>
+            {!adminMode && state.status === 'won' && nextLevel && nextLevel.chapterId === level.chapterId && (
+              <LocaleLink
+                href={`/play/${nextLevel.id}`}
+                locale={locale}
+                className="primary-action w-full max-w-xs justify-center text-center"
+              >
+                {p.nextLevel}
+              </LocaleLink>
+            )}
             <button
               type="button"
               disabled={adBusy}
@@ -664,9 +666,17 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
                 else replace(recordPlayStarted(useSaveStore.getState().save, level.id))
                 playCountedRef.current = true
               }}
-              className="primary-action w-full max-w-xs disabled:opacity-50"
+              className="w-full max-w-xs rounded-lg border border-[var(--line)] px-4 py-3 text-center text-sm text-[var(--ink)] disabled:opacity-50"
             >
               {p.again}
+            </button>
+            <button
+              type="button"
+              disabled={shareBusy || adBusy}
+              onClick={() => void shareTerminalResult()}
+              className="w-full max-w-xs px-4 py-2 text-sm text-[var(--ink)] underline-offset-2 hover:underline disabled:opacity-50"
+            >
+              {shareBusy ? p.sharePreparing : p.share}
             </button>
             {!adminMode && state.status === 'won' && !isDoubleDropActive(save) && (
               <button
@@ -678,15 +688,6 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
                 {p.doubleAd}
               </button>
             )}
-            {!adminMode && state.status === 'won' && nextLevel && nextLevel.chapterId === level.chapterId && (
-              <LocaleLink
-                href={`/play/${nextLevel.id}`}
-                locale={locale}
-                className="primary-action w-full max-w-xs text-center"
-              >
-                {p.nextLevel}
-              </LocaleLink>
-            )}
             <LocaleLink
               href={backHref}
               locale={locale}
@@ -695,6 +696,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               {p.levelList}
             </LocaleLink>
           </div>
+        </div>
         </div>
       )}
 
@@ -837,7 +839,7 @@ function GrantLine({
     .filter(([, v]) => (v ?? 0) > 0)
     .map(([k, v]) => `${seasonName[k]?.[locale] ?? k}+${v}`)
     .join(' ')
-  if (grant.universal === 0 && !seasonBits) {
+  if (grant.universal === 0 && seasonBits.length === 0) {
     return <p className="mt-2 text-sm text-[var(--muted)]">{labels.noDrop}</p>
   }
   const sep = locale === 'zh' ? '：' : ': '

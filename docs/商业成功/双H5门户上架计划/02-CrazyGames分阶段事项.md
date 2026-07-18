@@ -9,6 +9,7 @@
 ## 前置：S1 提交（动作在 00）
 
 - 完成开发者账号与**游戏提交**，进入审核队列。  
+- Portal 向导字段与 Basic 首交口径见 [CrazyGames游戏提交申请/说明与填表口径.md](../CrazyGames游戏提交申请/说明与填表口径.md)（[Submit Your Game](https://developer.crazygames.com/submit)）。
 - S1 可用 S0 的公开可玩 Demo；**不等同于**已 Full 变现。  
 
 **进入 S2a / S3 的门槛：** 游戏已提交（或已能在 Portal 上传版本）。

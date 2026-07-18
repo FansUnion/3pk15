@@ -32,7 +32,12 @@ export default async function HowToPlayPage() {
       <SiteHeader locale={locale} />
       <main className="page-shell flex flex-1 flex-col gap-8 py-8">
         <header className="game-panel p-5">
-          <p className="eyebrow">Fangrush field guide</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="eyebrow">Fangrush field guide</p>
+            <LocaleLink href="/" locale={locale} className="quiet-action min-h-10 px-3 text-sm">
+              {t.settings.close}
+            </LocaleLink>
+          </div>
           <h1 className="display-title mt-2 text-4xl">{h.title}</h1>
           <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{h.intro}</p>
         </header>

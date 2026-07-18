@@ -1,6 +1,7 @@
 # CrazyGames 发行清单
 
 > 最近核对：2026-07-18。执行时以 [Requirements](https://docs.crazygames.com/requirements/intro) 和 [HTML5 v3 SDK](https://docs.crazygames.com/sdk/intro#html5) 为准。  
+> **Portal 提交填表：** [`docs/商业成功/CrazyGames游戏提交申请/说明与填表口径.md`](../../docs/商业成功/CrazyGames游戏提交申请/说明与填表口径.md)（[Submit](https://developer.crazygames.com/submit)）。
 > **合规矩阵：** [`compliance.yaml`](./compliance.yaml)（Basic/Full、状态与证据）。  
 > **细则双语整理：** [`docs/商业成功/CrazyGames官方文档双语整理/`](../../docs/商业成功/CrazyGames官方文档双语整理/00-索引与阅读边界.md)  
 > **决策向要点：** [`docs/商业成功/门户上架要点/03-CrazyGames专属事项.md`](../../docs/商业成功/门户上架要点/03-CrazyGames专属事项.md)

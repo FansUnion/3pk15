@@ -98,14 +98,14 @@ export function AdminPlayScreen({ level }: { level: LevelConfig }) {
   return (
     <main className="mx-auto max-w-[1180px] pb-8">
       <header className="flex flex-wrap items-center gap-3 border-b border-[#5c6b52]/20 pb-4">
-        <Link href="/levels" className="text-sm text-[#3d4a3a] underline">返回关卡台</Link>
+        <Link href="/admin/levels" className="text-sm text-[#3d4a3a] underline">返回关卡台</Link>
         <div className="min-w-0 flex-1">
           <h1 className="font-serif text-xl text-[#2c3328]">Admin 试玩 · {level.nameZh}</h1>
           <p className="text-xs text-[#7a8574]">{level.id} · 配置 {version} · 不写玩家奖励与进度</p>
         </div>
         <nav className="flex gap-2 text-sm">
-          {prev && <Link href={`/play/${prev.id}`} className="border border-[#5c6b52]/25 px-3 py-2">上一关</Link>}
-          {next && <Link href={`/play/${next.id}`} className="border border-[#5c6b52]/25 px-3 py-2">下一关</Link>}
+          {prev && <Link href={`/admin/play/${prev.id}`} className="border border-[#5c6b52]/25 px-3 py-2">上一关</Link>}
+          {next && <Link href={`/admin/play/${next.id}`} className="border border-[#5c6b52]/25 px-3 py-2">下一关</Link>}
         </nav>
       </header>
 

@@ -50,10 +50,34 @@ export async function shareResult(data: ShareResultData, locale: 'en' | 'zh'): P
   const text = buildShareText(data, locale)
   const blob = await canvasBlob(renderResultCard(data, locale))
   const file = new File([blob], `fangrush-${data.levelId}.png`, { type: 'image/png' })
-  if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
-    await navigator.share({ title: `Fangrush · ${data.levelName}`, text, url: data.url, files: [file] }); return 'shared'
+  if (navigator.share) {
+    const canShareFiles = !navigator.canShare || navigator.canShare({ files: [file] })
+    try {
+      if (canShareFiles) {
+        await navigator.share({ title: `Fangrush · ${data.levelName}`, text, url: data.url, files: [file] })
+        return 'shared'
+      }
+      await navigator.share({ title: `Fangrush · ${data.levelName}`, text, url: data.url })
+      return 'shared'
+    } catch (error) {
+      // User cancellation should not trigger a second share prompt; other platform
+      // failures continue through clipboard/download fallbacks below.
+      if (error instanceof DOMException && error.name === 'AbortError') throw error
+    }
   }
-  if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(text); return 'copied' }
-  const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = file.name; link.click(); URL.revokeObjectURL(link.href)
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text)
+      return 'copied'
+    } catch {
+      // Clipboard permission can be denied in embedded browsers; use a file instead.
+    }
+  }
+  const downloadUrl = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = downloadUrl
+  link.download = file.name
+  link.click()
+  URL.revokeObjectURL(downloadUrl)
   return 'downloaded'
 }

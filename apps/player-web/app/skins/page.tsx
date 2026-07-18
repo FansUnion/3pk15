@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { CHAPTER_LABEL, CHAPTER_LABEL_EN, equipSkin, isSkinUnlocked, skinDisplayName, SKIN_CATALOG, unlockSkinWithCost, type SaveGame, type SkinCatalogItem } from '@wolf-sheep/game-core'
+import { CHAPTER_LABEL, CHAPTER_LABEL_EN, CHAPTER_ORDER, equipSkin, isSkinUnlocked, skinDisplayName, SKIN_CATALOG, unlockSkinWithCost, type SaveGame, type SkinCatalogItem } from '@wolf-sheep/game-core'
 import { SkinPreview } from '@/components/SkinPreview'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { SiteFooter } from '@/components/SiteChrome'
@@ -40,7 +40,18 @@ export default function SkinsPage() {
         <header className="flex items-center justify-between">
           <LocaleLink href="/" locale={locale} className="quiet-action text-sm">{t.nav.home}</LocaleLink>
           <div className="text-center"><p className="eyebrow">Collection</p><h1 className="display-title text-3xl">{t.skins.title}</h1></div>
-          <span className="min-w-16 text-right text-sm font-bold text-[var(--muted)]">✦ {save.fragments.universal}</span>
+          <div className="text-right text-xs text-[var(--muted)]">
+            <p className="font-bold">✦ {save.fragments.universal}</p>
+            <p className="mt-1">{t.skins.seasonBalances}</p>
+            <div className="mt-1 flex flex-wrap justify-end gap-x-2 gap-y-0.5">
+              {CHAPTER_ORDER.map((chapter) => (
+                <span key={chapter}>{fmt(t.skins.seasonBalance, {
+                  season: locale === 'zh' ? CHAPTER_LABEL[chapter] : CHAPTER_LABEL_EN[chapter],
+                  n: save.fragments.season[chapter] ?? 0,
+                })}</span>
+              ))}
+            </div>
+          </div>
         </header>
 
         <SkinPreview save={save} previewLabel={t.skins.preview} activeLabel={t.skins.previewActive} />

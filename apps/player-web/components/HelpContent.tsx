@@ -24,6 +24,15 @@ export function HelpContent({ h, locale, compact = false }: { h: MessageTree['ho
         </div>
       </section>
 
+      <section className="border-l-2 border-[var(--accent)] pl-3">
+        <h2 className="font-serif text-xl text-[var(--ink)]">{h.controlsTitle}</h2>
+        <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+          {locale === 'zh'
+            ? '只有狼可以被选中。绿点表示普通移动，红圈表示可以捕食；羊和岩石只能观察，不能直接操作。'
+            : 'Only wolves can be selected. Green points are ordinary moves; red rings are captures. Sheep and rocks are observed, not controlled.'}
+        </p>
+      </section>
+
       <section>
         <h2 className="font-serif text-xl text-[var(--ink)]">{h.diagramTitle}</h2>
         <p className="mt-2 text-xs text-[var(--muted)]">{h.diagramLegend}</p>

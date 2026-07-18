@@ -9,12 +9,12 @@
 |------|------|
 | [中英双语整理稿](../../docs/商业成功/Poki官方文档双语整理/00-索引与阅读边界.md) | 人读：要求含义、漏斗、商务与 FAQ |
 | [`compliance.yaml`](./compliance.yaml) | AI / 验收：要求 ID、状态、证据、缺口 |
-| [`early-access-form.md`](./early-access-form.md) | 一次性开发者准入填表口径 |
+| [`early-access-form.md`](./early-access-form.md) | 跳转 → [`Poki早期准入申请/说明与填表口径.md`](../../docs/商业成功/Poki早期准入申请/说明与填表口径.md) |
 | 原始抓取（只读） | [`docs/文档整理todo/poki内容/`](../../docs/文档整理todo/poki内容/) |
 
 ## 当前阶段
 
-1. **准入**：按 early-access-form 提交 [Request early access](https://developers.poki.com/share)。  
+1. **准入**：按 [说明与填表口径](../../docs/商业成功/Poki早期准入申请/说明与填表口径.md) 提交 [Request early access](https://developers.poki.com/share)。
 2. **理解规则**：阅读双语整理 01 → 04，对照 `compliance.yaml` 的 `missing/partial`。  
 3. **工程接入（T-017）**：真实 SDK、生命周期、广告、16:9 门户包、Inspector。  
 4. **素材**：静态/动画缩略图进入本目录 `assets/`（尚未生产）。

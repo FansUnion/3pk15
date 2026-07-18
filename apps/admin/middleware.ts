@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
   }
   if (key && !isUnlockRoute && request.cookies.get('ws_admin_gate')?.value !== '1' && !request.nextUrl.pathname.endsWith('/gate')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/gate'
+    url.pathname = '/admin/gate'
     url.searchParams.set('next', request.nextUrl.pathname)
     return NextResponse.redirect(url)
   }
