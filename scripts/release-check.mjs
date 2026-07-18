@@ -4,10 +4,12 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const playerTestArgs = ['--filter', '@wolf-sheep/player-web', 'test', '--', '--reporter=verbose']
+if (process.env.GITHUB_ACTIONS === 'true') playerTestArgs.push('--reporter=github-actions')
 const allGates = [
   ['core-tests', 'game-core tests', ['--filter', '@wolf-sheep/game-core', 'test']],
   ['core-types', 'game-core typecheck', ['--filter', '@wolf-sheep/game-core', 'lint']],
-  ['player-tests', 'player tests', ['--filter', '@wolf-sheep/player-web', 'test', '--', '--reporter=verbose']],
+  ['player-tests', 'player tests', playerTestArgs],
   ['admin-tests', 'admin tests', ['--filter', '@wolf-sheep/admin', 'test', '--', '--reporter=verbose']],
   ['platform-boundaries', 'platform boundaries', ['check:platform-boundaries']],
   ['player-boundaries', 'player boundaries', ['check:player-boundaries']],
