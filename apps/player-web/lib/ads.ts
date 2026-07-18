@@ -19,8 +19,12 @@ function delay(ms: number) {
 
 export function getMockAdOutcome(): MockAdOutcome {
   if (typeof window !== 'undefined') {
-    const stored = window.localStorage.getItem(MOCK_AD_OUTCOME_KEY)
-    if (MOCK_AD_OUTCOMES.includes(stored as MockAdOutcome)) return stored as MockAdOutcome
+    try {
+      const stored = window.localStorage.getItem(MOCK_AD_OUTCOME_KEY)
+      if (MOCK_AD_OUTCOMES.includes(stored as MockAdOutcome)) return stored as MockAdOutcome
+    } catch {
+      // Storage is optional in private or restricted browser contexts.
+    }
   }
   if (process.env.NEXT_PUBLIC_FAIL_ADS === '1') return 'failed'
   const configured = process.env.NEXT_PUBLIC_MOCK_AD_OUTCOME
@@ -30,7 +34,12 @@ export function getMockAdOutcome(): MockAdOutcome {
 }
 
 export function setMockAdOutcome(outcome: MockAdOutcome) {
-  if (typeof window !== 'undefined') window.localStorage.setItem(MOCK_AD_OUTCOME_KEY, outcome)
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(MOCK_AD_OUTCOME_KEY, outcome)
+  } catch {
+    // Keep the configured/default outcome when storage is unavailable.
+  }
 }
 
 async function runMock(lifecycle?: AdLifecycle): Promise<AdResult> {

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { MockAds } from './ads'
+import { getMockAdOutcome, MockAds, setMockAdOutcome } from './ads'
 
 describe('MockAds', () => {
   afterEach(() => {
@@ -30,5 +30,18 @@ describe('MockAds', () => {
     const result = await new MockAds().showRewarded('double_drop', { onFinish: finish })
     expect(result).toEqual({ ok: false, reason: 'cancelled' })
     expect(finish).toHaveBeenCalledOnce()
+  })
+
+  it('falls back safely when browser storage is unavailable', () => {
+    process.env.NEXT_PUBLIC_MOCK_AD_OUTCOME = 'unfilled'
+    vi.stubGlobal('window', {
+      localStorage: {
+        getItem: () => { throw new Error('blocked') },
+        setItem: () => { throw new Error('blocked') },
+      },
+    })
+    expect(getMockAdOutcome()).toBe('unfilled')
+    expect(() => setMockAdOutcome('success')).not.toThrow()
+    vi.unstubAllGlobals()
   })
 })
