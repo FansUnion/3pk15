@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev -p 5001",
     "build": "next build",
+    "build:standalone": "node ./scripts/build-target.mjs standalone",
+    "build:poki": "node ./scripts/build-target.mjs poki",
+    "build:crazygames": "node ./scripts/build-target.mjs crazygames",
     "start": "next start -p 5001"
   },
   "dependencies": {

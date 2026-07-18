@@ -52,7 +52,8 @@ if (forbidden.length) {
 if (!forbidden.length) console.log('audit:web-artifact: PASS')
 
 if (externalStrict) {
-  const allFiles = walkBuild(buildRoot)
+  const publishedRoots = [join(buildRoot, 'server'), join(buildRoot, 'static')]
+  const allFiles = publishedRoots.flatMap((directory) => walkBuild(directory))
     .map((file) => readFileSync(file, 'utf8'))
     .join('\n')
   const forbiddenExternal = ['googletagmanager.com', 'google-analytics.com']
