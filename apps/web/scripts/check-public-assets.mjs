@@ -22,7 +22,11 @@ function scan(directory) {
 }
 
 for (const root of scanRoots) scan(root)
-const missing = [...referenced].filter((asset) => !existsSync(join(publicRoot, asset.slice(1))))
+// The failure-recovery tests deliberately reference these virtual paths.
+// They must exercise the fallback renderer without becoming production assets.
+const missing = [...referenced].filter(
+  (asset) => !asset.startsWith('/__missing__/') && !existsSync(join(publicRoot, asset.slice(1))),
+)
 if (missing.length) {
   for (const asset of missing) console.error('MISSING', asset)
   process.exit(1)
