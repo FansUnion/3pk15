@@ -11,9 +11,11 @@ const platform = ['standalone', 'poki', 'crazygames'].includes(requestedPlatform
 
 const env = {
   ...process.env,
-  NEXT_PUBLIC_APP_SHELL: 'portal',
+  NEXT_PUBLIC_APP_SHELL: platform === 'standalone' ? 'standalone' : 'portal',
   NEXT_PUBLIC_PLATFORM: platform,
-  NEXT_PUBLIC_ADS_PROVIDER: platform === 'standalone' ? 'mock' : 'portal_sdk',
+  // Standalone production is an ad-free demo. Portal builds keep the
+  // provider boundary explicit until a real platform adapter is supplied.
+  NEXT_PUBLIC_ADS_PROVIDER: platform === 'standalone' ? 'unavailable' : 'portal_sdk',
   ADMIN_ENABLED: 'false',
 }
 
