@@ -117,7 +117,6 @@ apps/admin/.env.local
 | `NEXT_PUBLIC_ADS_PROVIDER` | `none` |
 | `ADMIN_ENABLED` | `false` |
 | `ADMIN_ACCESS_KEY` | 不配置到公开客户端环境；如保留服务端值必须由部署平台 Secret 管理 |
-| `NEXT_PUBLIC_TELEMETRY` | 按隐私政策和实际部署决定 |
 
 ## 部署前验收
 
