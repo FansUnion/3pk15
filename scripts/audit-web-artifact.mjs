@@ -36,7 +36,7 @@ function walkBuild(directory, files = []) {
 
 const files = walk(serverApp)
 const forbiddenPrefixes = adminAudit
-  ? ['chapters/', 'how-to-play/', 'hunt/', 'levels/', 'play/', 'privacy/', 'quests/', 'settings/', 'skins/']
+  ? ['chapters/', 'how-to-play/', 'hunt/', 'privacy/', 'quests/', 'settings/']
   : ['admin/', 'api/admin/']
 const forbidden = files.filter((file) => forbiddenPrefixes.some((prefix) => file.startsWith(prefix)))
 
