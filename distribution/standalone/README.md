@@ -64,7 +64,7 @@ Install Command 使用仓库现有的 `pnpm install --frozen-lockfile`（若 Ver
 推荐维护一条 `main` 主线：
 
 1. Pull Request 先由两个 Project 的 Preview 部署检查构建是否成功。
-2. 先发布 Player Production，检查首页、24 个关卡、隐私页、robots/sitemap 和 `/admin` 不可用。
+2. 先发布 Player Production，检查首页、24 个关卡、隐私页、robots/sitemap、`/llms.txt`、`/llms-full.txt` 和 `/admin` 不可用。
 3. Player 稳定后，再按需要发布 Admin Production；Admin 不作为公开站首页或 SEO 入口。
 4. 规则、AI 或共享包变化时，两个 Project 都必须重新部署并分别查看构建日志。
 
@@ -126,7 +126,8 @@ apps/admin/.env.local
 - [ ] 移动端宽度无横向溢出，刷新和返回后对局可恢复。
 - [ ] `/admin` 和 `/api/admin/*` 对外不可用。
 - [ ] 不请求平台 SDK、广告网络或未批准外部服务。
-- [ ] 隐私政策、站点 URL、robots 和 sitemap 使用正式域名。
+- [ ] 隐私政策、站点 URL、robots、sitemap、`/llms.txt`、`/llms-full.txt` 使用正式域名且可访问（200）。
+- [ ] `llms-full.txt` 含 `/zh/` 条目，不含 `/admin`。
 - [ ] 运行 `pnpm release:check` 并保留结果。
 - [ ] 运行 `pnpm audit:player-artifact` 并保留结果。
 - [ ] 保留上一版本回滚入口。

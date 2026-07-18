@@ -24,6 +24,15 @@ export function SiteFooter({
         <LocaleLink href="/settings" locale={locale} className="hover:underline">
           {t.nav.settings}
         </LocaleLink>
+        <a href="/sitemap.xml" className="hover:underline">
+          Sitemap
+        </a>
+        <a href="/llms.txt" className="hover:underline">
+          llms.txt
+        </a>
+        <a href="/llms-full.txt" className="hover:underline">
+          llms-full.txt
+        </a>
         <LocaleSwitcher locale={locale} variant="footer" />
         <span className="text-[#7a8574]">© Fangrush</span>
       </div>
