@@ -1,0 +1,294 @@
+# Fangrush × CrazyGames compliance matrix
+# Human digest: docs/商业成功/CrazyGames官方文档双语整理/
+# Decision digest: docs/商业成功/门户上架要点/03-CrazyGames专属事项.md
+# Policy SSOT: https://docs.crazygames.com/ (English official pages)
+# Status: missing | partial | ready | verified
+# Level: required | recommended | not_applicable
+# Phase: basic | full | both
+# last_verified = last time this row was checked against official docs / codebase
+
+meta:
+  product: Fangrush
+  studio: Fangrush Studio
+  engine_path: HTML5 / TypeScript / Next.js (custom board-game engine)
+  official_home: https://docs.crazygames.com/
+  bilingual_digest: docs/商业成功/CrazyGames官方文档双语整理/
+  essentials_digest: docs/商业成功/门户上架要点/03-CrazyGames专属事项.md
+  source_capture: docs/文档整理todo/crazygames/
+  checklist_entry: distribution/crazygames/README.md
+  matrix_updated: 2026-07-18
+  notes_zh: >
+    本文件供 AI 与验收使用。政策以官网英文为准；分成与独家不以本文件为合同事实。
+    Basic Launch 与 Full Launch 要求不同：phase 字段标明适用阶段。
+    verified 仅在 Portal QA / 预览 / 截图 / 构建报告等证据齐全时使用。
+
+requirements:
+  - id: CG-LAUNCH-001
+    category: launch
+    phase: both
+    requirement_en: Understand Basic Launch (~2 weeks, ads off) vs Full Launch (SDK + monetization).
+    requirement_zh: 理解 Basic Launch（约 2 周、广告关）与 Full Launch（SDK + 变现）差异。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://docs.crazygames.com/
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/01-平台概览与双阶段发布.md
+      - distribution/crazygames/README.md
+    gap_zh: 文档已澄清；尚未实际提交 Basic / Full。
+
+  - id: CG-LAUNCH-002
+    category: launch
+    phase: basic
+    requirement_en: Basic Launch metrics — average playtime, conversion to gameplay, retention vs platform benchmarks.
+    requirement_zh: Basic 晋级看平均时长、转化到游玩、留存（对标平台）。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/01-平台概览与双阶段发布.md
+    gap_zh: 尚未进入 Basic Launch 实测。
+
+  - id: CG-BIZ-001
+    category: business
+    phase: both
+    requirement_en: Keep dual-portal strategy non-exclusive until a signed contract says otherwise; verify FAQ gaps (ownership, iframe, store revenue share) on live docs before signing.
+    requirement_zh: 双门户先非独家直至合同另有约定；所有权/iframe/商店分账等 FAQ 签约前核官网。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://docs.crazygames.com/
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/渠道发展路线.md
+      - docs/商业成功/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
+    gap_zh: 本地抓取部分 FAQ 无正文，待核官网。
+
+  - id: CG-QUALITY-001
+    category: quality
+    phase: both
+    requirement_en: English UI; original polished web game; PEGI12 / 13+ friendly; no custom fullscreen button; limited cross-promo only as allowed.
+    requirement_zh: 英语 UI；原创打磨；PEGI12/13+；无自定义全屏按钮；交叉推广仅限允许范围。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://docs.crazygames.com/requirements/intro
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/02-Requirements技术玩法广告账户与质量.md
+    gap_zh: 英文本地化与发布质量验收未完成。
+
+  - id: CG-TECH-001
+    category: tech
+    phase: both
+    requirement_en: Initial download ≤50MB (≤20MB for mobile homepage eligibility); total ≤250MB; ≤1500 files; relative paths only.
+    requirement_zh: 初始下载 ≤50MB（移动首页倾向 ≤20MB）；总包 ≤250MB；文件数 ≤1500；仅相对路径。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/requirements/intro
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/02-Requirements技术玩法广告账户与质量.md
+    gap_zh: 尚未按 CG 限制做发行构建测量。
+
+  - id: CG-TECH-002
+    category: tech
+    phase: both
+    requirement_en: Desktop + mobile playable; landscape playable on desktop; Chrome/Edge support baseline.
+    requirement_zh: 桌面与移动可玩；桌面横屏可玩；Chrome/Edge 基线。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://docs.crazygames.com/requirements/intro
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/门户上架要点/01-多平台通用质量事项.md
+    gap_zh: 需按 CG iframe 尺寸清单做可读性抽检。
+
+  - id: CG-GAMEPLAY-001
+    category: gameplay
+    phase: full
+    requirement_en: Land new users in gameplay ASAP (0 clicks preferred, at most one click).
+    requirement_zh: Full 要求尽快进入真实玩法（最好 0 次、最多 1 次点击）。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://docs.crazygames.com/requirements/intro
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/02-Requirements技术玩法广告账户与质量.md
+    gap_zh: 门户包进入路径尚未按 Full 口径冻结。
+
+  - id: CG-SDK-001
+    category: sdk
+    phase: full
+    requirement_en: Load HTML5 v3 SDK, await init(); safe no-op outside CrazyGames.
+    requirement_zh: 加载 HTML5 v3 SDK 并 await init()；非 CG 环境安全降级。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/sdk/intro#html5
+    last_verified: 2026-07-18
+    evidence:
+      - distribution/crazygames/README.md
+      - docs/商业成功/CrazyGames官方文档双语整理/04-HTML5-SDK与游戏模块.md
+    gap_zh: v3 适配器未完成（见 README 当前缺口）。
+
+  - id: CG-SDK-002
+    category: sdk
+    phase: full
+    requirement_en: Fire loading and gameplay start/stop correctly; first gameplayStart for initial-download metrics; report completion percentage.
+    requirement_zh: 正确发送 loading 与 gameplay start/stop；首次 start 服务初始下载计量；上报完成进度。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/sdk/intro#html5
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/04-HTML5-SDK与游戏模块.md
+    gap_zh: 生命周期与进度上报未接。
+
+  - id: CG-SDK-003
+    category: sdk
+    phase: full
+    requirement_en: Honor platform muteAudio setting over in-game volume toggle.
+    requirement_zh: 遵守平台 muteAudio，优先于游戏内音量开关。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/sdk/intro#html5
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/04-HTML5-SDK与游戏模块.md
+    gap_zh: 未接平台静音。
+
+  - id: CG-ADS-001
+    category: ads
+    phase: full
+    requirement_en: Integrate midgame and rewarded via SDK only; pause/mute on adStarted; reward only on adFinished; handle errors including Basic-disabled and cooldown.
+    requirement_zh: 仅经 SDK 接 midgame/rewarded；adStarted 静音暂停；仅 adFinished 发奖；处理禁用/冷却等错误。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/sdk/intro#html5
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/05-广告模块-视频与横幅.md
+    gap_zh: 真实广告回调未完成。
+
+  - id: CG-ADS-002
+    category: ads
+    phase: both
+    requirement_en: No external ad networks; game remains playable when ads disabled (Basic) or AdBlock present; core path not soft-locked.
+    requirement_zh: 无外部广告网；Basic 广告禁用或 AdBlock 时核心主线仍可玩。
+    level: required
+    applicability: applicable
+    status: partial
+    official_url: https://docs.crazygames.com/requirements/intro
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/门户上架要点/01-多平台通用质量事项.md
+    gap_zh: 产品纪律已写；CG 包与 AdBlock 路径待工程验证。
+
+  - id: CG-ADS-003
+    category: ads
+    phase: full
+    requirement_en: Banners optional for first ship; if used, follow size/visibility/refresh rules and max 2 per screen.
+    requirement_zh: Banner 首发可延后；若使用须遵守尺寸/可见/刷新与每屏最多 2 条。
+    level: recommended
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/sdk/intro#html5
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/05-广告模块-视频与横幅.md
+    gap_zh: 未接 Banner。
+
+  - id: CG-COVER-001
+    category: assets
+    phase: both
+    requirement_en: Three covers 1920x1080 / 800x1200 / 800x800 consistent style; landscape+portrait silent preview videos 15–20s ≤50MB.
+    requirement_zh: 三封面 1920×1080 / 800×1200 / 800×800 风格一致；横竖无声预览 15–20s且 ≤50MB。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/requirements/intro
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/03-游戏封面与素材.md
+      - distribution/crazygames/README.md
+    gap_zh: 三类封面与双预览视频未定稿验收。
+
+  - id: CG-ACCOUNT-001
+    category: account
+    phase: full
+    requirement_en: If account features apply — no external login; progress on CrazyGames account; guests can play.
+    requirement_zh: 若适用账户能力——无外部登录；进度绑 CG 账号；游客可玩。
+    level: recommended
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/requirements/intro
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
+    gap_zh: 首发可延后；有云存/登录需求时再做。
+
+  - id: CG-DATA-001
+    category: account
+    phase: full
+    requirement_en: Optional Data module cloud save (1MB); enable Progress Save on submit when used.
+    requirement_zh: 可选 Data 云存（1MB）；使用时提交勾选 Progress Save。
+    level: recommended
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/sdk/intro#html5
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
+    gap_zh: 首发可延后。
+
+  - id: CG-IAP-001
+    category: monetization
+    phase: full
+    requirement_en: In-game purchases invite-only via Xsolla; logged-in users only — defer unless invited.
+    requirement_zh: 内购邀请制、Xsolla、仅登录用户——未受邀则延后。
+    level: not_applicable
+    applicability: not_applicable
+    status: missing
+    official_url: https://docs.crazygames.com/sdk/intro#html5
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
+    gap_zh: 棋类首发不做 CG IAP。
+
+  - id: CG-PAY-001
+    category: business
+    phase: full
+    requirement_en: Complete Tipalti / Billing in Developer Portal before payouts; €100 minimum payout threshold.
+    requirement_zh: 在 Developer Portal 完成 Tipalti/Billing；最低提现约 €100。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/
+    last_verified: 2026-07-18
+    evidence:
+      - docs/商业成功/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
+    gap_zh: 待获 Portal 后配置；可能影响提交。
+
+  - id: CG-PACK-001
+    category: build
+    phase: both
+    requirement_en: CrazyGames build excludes Admin, standalone-only features, and non-CG ad networks.
+    requirement_zh: CG 包不含 Admin、独立站专用能力与非 CG 广告网。
+    level: required
+    applicability: applicable
+    status: missing
+    official_url: https://docs.crazygames.com/requirements/intro
+    last_verified: 2026-07-18
+    evidence:
+      - distribution/crazygames/README.md
+    gap_zh: 发行构建管线未完成。

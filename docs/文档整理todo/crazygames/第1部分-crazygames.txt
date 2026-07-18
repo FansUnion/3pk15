@@ -1,0 +1,1697 @@
+Skip to content
+logo
+CrazyGames Documentation
+Introduction
+
+
+Search
+
+  
+Submit a game
+CrazyGames Documentation 
+CrazyGames 文档
+Introduction 
+  
+简介
+Requirements 
+  
+要求
+SDK
+Resources 
+  
+资源
+Partners 
+  
+合作伙伴
+FAQ & Contact 
+  
+常见问题 & 联系方式
+Payouts 
+  
+支付
+Table of contents 
+目录
+Launching on CrazyGames 
+  
+在 CrazyGames 上发布
+SDK
+Testing your game 
+  
+测试你的游戏
+Partners 
+  
+合作伙伴
+Others 
+  
+其他
+Introduction  简介
+Welcome to the documentation page for publishing a web game on CrazyGames. This page covers our game requirements and SDK documentation, while introducing you various resources and guidance to launch successful web-games. By publishing your game on CrazyGames, you can expect these benefits:
+欢迎来到 CrazyGames 发布网页游戏的文档页面。本页面涵盖了我们的游戏要求和 SDK 文档，同时介绍了各种资源和指南，帮助您成功发布网页游戏。通过在 CrazyGames 发布您的游戏，您可以期待以下这些好处：
+
+🎮 Your games available on desktop and mobile devices
+🎮 您的游戏可在桌面和移动设备上玩
+👥 Reach millions of gamers, many of them registered
+👥 覆盖数百万游戏玩家，其中许多是注册用户
+🤑 Earn revenue with ads (and in-game purchases for selected games only)
+🤑 通过广告（仅限部分游戏支持游戏内购买）赚取收入
+💾 Save game progress in the cloud easily
+💾 轻松将游戏进度保存在云端
+🎯 Engage gamers with in-game friend invites
+🎯 通过游戏内好友邀请吸引玩家
+📈 Get statistics and feedback for your games
+📈 获取您游戏的统计数据和反馈
+🤝 Join an ever-growing community of passionate developers
+🤝 加入一个不断壮大的、充满热情的开发者社区
+
+Launching on CrazyGames  将在 CrazyGames 上发布
+All game submissions are carefully reviewed by our QA team according to our technical and quality requirements. Please take the time to read our requirements section to ensure your game submission is accepted.
+所有游戏提交都将由我们的质量保证团队根据我们的技术和质量要求进行仔细审查。请花时间阅读我们的要求部分，以确保您的游戏提交被接受。
+
+Games follow a two-stage launch process: Basic Launch and Full Launch. The goal of this process is to shorten the initial launch timeline and evaluate real-world performance before proceeding to a global release. You can learn more about how we select games for launch on our FAQ page. For tips about launching your game in Basic Launch, see the Basic Launch Guide.
+游戏遵循两阶段发布流程：基础发布和完整发布。此流程的目的是缩短初始发布时间线，并在进行全球发布之前评估实际性能。您可以在我们的常见问题解答页面上了解更多关于我们如何选择发布游戏的信息。有关在基础发布中发布游戏的提示，请参阅基础发布指南。
+
+The phases are described below:
+各阶段描述如下：
+
+Basic Launch  基础发布
+Basic Implementation  基础实现	Full Launch  全面启动
+Full Implementation  完整实现
+Test your game on our platform with a limited audience for a temporary 2-week period.
+在我们的平台上，用有限的受众进行为期 2 周的临时测试您的游戏。
+Requires Basic Implementation; no CrazyGames-specific integration and only Basic QA review.
+需要基础实现；不能有 CrazyGames 特定的集成，并且仅进行基础 QA 审查。
+Monetization (video ads, banners, in-game purchases) is disabled.
+变现（视频广告、横幅广告、游戏内购买）已禁用。
+Proceed to Full Launch if metrics are good.
+如果指标良好，请继续进行全面发布。
+Your game is selected for global release.
+您的游戏已选中进行全球发布。
+Requires Full Implementation of CrazyGames requirements, including a Full QA review.
+需要全面实施 CrazyGames 的要求，包括进行全面的质量保证审查。
+Monetization is enabled and you start receiving revenue share.
+已启用变现功能，您开始获得收入分成。
+During integration, the Basic version remains available to its initial limited audience.
+集成期间，基础版本仍向其初始有限受众提供。
+Check our requirements section for detailed requirements for each phase. Our QA tool will guide you through the submission and review process step by step.
+请查看我们的要求部分，了解每个阶段的详细要求。我们的 QA 工具将指导您逐步完成提交和审核过程。
+
+Progression to the Full Launch stage is based on key engagement metrics - average playtime, conversion to gameplay, and retention. These metrics will be benchmarked against other games on the platform. During the Basic Launch stage, you'll have the opportunity to monitor performance and gather user feedback. At the end of this 2-week period, you’ll be notified about the next steps:
+要进入全面发布阶段，需要基于关键参与度指标——平均游戏时间、转化为游戏参与和留存。这些指标将与平台上的其他游戏进行基准测试。在基础发布阶段，您将有机会监控性能并收集用户反馈。在这个 2 周的周期结束后，您将收到关于下一步的通知：
+
+If all metrics meet or exceed benchmarks, you are invited to update your game. After implementing Full Implementation requirements, you can then submit the new version for Full Launch.
+如果所有指标均达到或超过基准，您将被邀请更新您的游戏。在实施完整实施要求后，您可以将新版本提交进行完整发布。
+If some metrics meet benchmarks, you may be invited to improve your game and request another Basic Launch period.
+如果部分指标达到基准，您可能会被邀请改进您的游戏并请求另一个基础发布期。
+If most metrics fall below benchmarks, your game unfortunately can’t proceed to Full Launch. If you wish to submit it again, you need to submit as a new game including significant improvements.
+如果大多数指标低于基准，您的游戏不幸无法进入完整发布。如果您希望再次提交，需要作为新游戏提交，包括重大改进。
+In some cases, such as multiplayer titles that require a larger audience or games already published elsewhere and specifically invited by our team, you may bypass the Basic Launch and proceed directly to the Full Launch.
+在某些情况下，例如需要更大受众的多人游戏或已在其他地方发布并由我们团队特别邀请的游戏，您可能可以跳过基础发布，直接进入完整发布。
+
+SDK
+Our SDK bridges the gap between your web game and CrazyGames. Furthermore:
+我们的 SDK 架起了您网络游戏与 CrazyGames 之间的桥梁。此外：
+
+It is easy to integrate, with simple one-time integration
+它易于集成，只需一次性简单集成
+You can earn revenue through user-friendly ads
+您可以通过用户友好的广告赚取收入
+Your game integrates perfectly with our platform
+您的游戏与我们的平台完美集成
+The documentation is simple to follow
+文档易于理解
+To start using the SDK pick the one corresponding to the technology you are using. If your technology isn't explicitly listed, you can usually manage at least basic integration through the HTML5 version. Most game engines that support WebGL also have a way of interacting with JavaScript when running in browser.
+要开始使用 SDK，请选择与您正在使用的技术对应的版本。如果您的技术没有明确列出，通常可以通过 HTML5 版本进行至少基本的集成。大多数支持 WebGL 的游戏引擎在浏览器中运行时，也都有与 JavaScript 交互的方式。
+
+Make sure to check about our requirements before you start integrating the SDK.
+在开始集成 SDK 之前，请确保查看我们的要求。
+
+You can integrate our SDK with any common game development framework. We currently have games live developed with Unity, Defold, Godot, Phaser, PlayCanvas, Construct, Pixi.js, BabylonJS, and many other frameworks.
+您可以将我们的 SDK 与任何常见的游戏开发框架集成。目前我们已经使用 Unity、Defold、Godot、Phaser、PlayCanvas、Construct、Pixi.js、BabylonJS 以及其他许多框架进行了实时游戏开发。
+
+HTML5	Unity	GameMaker	Construct3	Godot
+HTML5	Unity  团结一致	GameMaker	Construct3	Godot  戈多
+Cocos	GDevelop	Defold	Wonderland		
+Cocos  可可斯	GDevelop ↗	Defold ↗  展开 ↗	Wonderland ↗  仙境 ↗		
+Testing your game  测试你的游戏
+To preview your game on CrazyGames before submitting, you can use our Preview tool to test how your game will look on CrazyGames. You can easily reach it via Submit a game and test different versions before actually submitting.
+在提交前预览您的游戏到 CrazyGames，您可以使用我们的预览工具来测试您的游戏在 CrazyGames 上的外观。您可以通过“提交游戏”轻松访问它，并在实际提交前测试不同的版本。
+
+Partners  合作伙伴
+The Partners page gives an overview of our beloved partners.
+合作伙伴页面展示了我们珍爱的合作伙伴概览。
+
+Photon	Xsolla	ByteBrew	Lasso
+Photon Backend  光子后端	Xsolla Payments  Xsolla 支付	ByteBrew Analytics  字节酿分析	Lasso Moderation  拉索内容审核
+Others  其他
+In our Resources section, you can find more information about various topics like mouse lock and download size optimizations.
+在我们的资源部分，您可以找到有关鼠标锁定和下载大小优化的各种主题的更多信息。
+
+Lastly we offer an extensive FAQ for various questions and to reach out.
+最后，我们提供了一个广泛的常见问题解答，以回答各种问题并联系我们。
+
+Made with Material for MkDocs
+Ask AISkip to content
+logo
+CrazyGames Documentation
+Introduction
+
+
+Search
+
+  
+Submit a game
+CrazyGames Documentation 
+CrazyGames 文档
+Introduction 
+  
+简介
+Requirements 
+  
+要求
+Introduction 
+  
+简介
+Technical 
+  
+技术
+Gameplay 
+  
+游戏玩法
+Advertisement 
+  
+广告
+Account integration 
+  
+账户集成
+Multiplayer 
+  
+多人游戏
+Game covers 
+  
+游戏涵盖
+Quality guidelines 
+  
+质量指南
+SDK
+Resources 
+  
+资源
+Partners 
+  
+合作伙伴
+FAQ & Contact 
+  
+常见问题 & 联系方式
+Payouts 
+  
+支付
+Table of contents 
+目录
+Requirements 
+  
+要求
+Guidelines & resources 
+  
+指南与资源
+Monetization 
+  
+变现
+Insights & Analytics 
+  
+洞察与分析
+Technical support for SDK integration 
+SDK 集成技术支持
+Quality Assurance Tool 
+  
+质量保证工具
+Introduction
+Requirements
+To be published on CrazyGames, your game must meet our requirements. We designed these standards to ensure all games on our platform are fun, unique, visually appealing, and properly integrated.
+
+Our launch process consists of 2 steps. Read more about the principles on the introduction page.
+
+A game in Basic Launch allows you to go live without needing to customize your game for CrazyGames. The CrazyGames SDK is optional and monetization is not available. Review the Basic Launch Guide to understand how progression is evaluated.
+Once your game has been selected for Full Launch, you are required to comply to all integration requirements listed below, including the CrazyGames SDK.
+The table below provides a summary of the key requirements. Each category has a dedicated page with detailed descriptions:
+
+Category	Basic Implementation
+Basic Implementation	Full Implementation*
+Full Implementation
+Technical	
+Initial download size ≤ 50MB
+Total file size ≤ 250MB (50MB without SDK)
+File count ≤ 1500
+SDK & GameplayStart event
+Gameplay	
+Basic visual QA checks
+Adhere to PEGI12
+Full visual QA check
+Land directly in gameplay
+Advertisement	
+CrazyGames monetization is disabled
+No external ads
+Ads through SDK, following our guidelines
+Works with AdBlock
+Account integration
+Only when applicable	
+No external login options
+Progress is linked to CrazyGames Account
+Use CrazyGames username & avatar
+Automatic login for CrazyGames users
+Multiplayer
+Only when applicable	Full implementation features might increase engagement and are optional in basic launch	
+User room info
+Invite link (if applicable)
+Instant multiplayer flow
+Keep rooms across rounds
+DisableChat preference
+In-game Purchases
+Invite Only	Not available	
+Use CrazyGames Xsolla account and userId
+* A full implementation should implement the basic implementation requirements as well.
+
+Our HTML5 and Unity SDKs support all the scenarios. Other SDKs might miss certain functionalities.
+
+As part of the submission process, you will also need to provide qualitative metadata (game description and controls) and Game covers (images and videos).
+
+Guidelines & resources
+Additionally we offer some Quality Guidelines to optimize your game for success on the CrazyGames platform. These are optional but based on our insights in our audience and web gaming. Guidelines are marked with Guideline throughout the documentation.
+
+Lastly have a look at the Resources provided on this site for additional tips to publish a succesful web game.
+
+Monetization
+The primary monetization mechanism we offer is through advertisement revenue share. Only ads served through our SDK are allowed, refer to our Advertisement requirements.
+
+Selected games are eligible for In-game Purchases. A Full Implementation is required, using Xsolla as payments provider. Contact our team if you want to apply for this.
+
+Insights & Analytics
+Once your game has been published, you'll be able to monitor key game metrics on your Developer Dashboard. These are some of the metrics we provide by default:
+
+Players
+Average playtime
+Gameplay conversion
+Retention
+Revenue
+To further optimize your game and access advanced analytics — including level progression, drop-off points, and user journey tracking — we recommend utilizing ByteBrew. This powerful, free analytics tool is simple to integrate, enabling you to enhance player engagement and boost the visibility of your game on the Crazy Games Portal.
+为了进一步优化您的游戏并访问高级分析数据——包括关卡进度、流失点和用户旅程跟踪——我们建议使用 ByteBrew。这款强大且免费的 analytics 工具易于集成，使您能够提升玩家参与度并在 Crazy Games Portal 上提高游戏的可见性。
+
+Warning  警告
+
+In case your game collects additional personal data beyond the events in our SDK, the game should add a Terms & Conditions and/or Privacy Policy notice to new players. Check the User Consent section for details.
+如果您的游戏收集了我们 SDK 中事件之外的额外个人数据，游戏应向新玩家添加条款与条件以及/或隐私政策通知。请查看用户同意部分以获取详细信息。
+
+Technical support for SDK integration
+技术支持 SDK 集成
+Once your games reach 50k plays (combined), we can offer you technical support with SDK integration. This threshold allows us to give each developer individual feedback on ad placements and integration.
+当您的游戏达到 50k 次播放（总计）时，我们可以为您提供技术支持，协助 SDK 集成。这个门槛允许我们为每个开发者提供关于广告位置和集成的个性化反馈。
+
+Quality Assurance Tool  质量保证工具
+On our Developer Portal you'll be able to preview your game. It allows you to:
+在我们的开发者门户上，您将能够预览您的游戏。它允许您：
+
+Run your game as it would on CrazyGames
+运行你的游戏，就像在 CrazyGames 上运行一样
+Check if your game meets our requirements
+检查你的游戏是否符合我们的要求
+Test all the SDK features that you implemented and get feedback about it
+测试你实现的 SDK 功能，并获取关于它的反馈
+Made with Material for MkDocs
+Ask AISkip to content
+logo
+CrazyGames Documentation
+Technical
+
+
+Search
+
+  
+Submit a game
+CrazyGames Documentation 
+CrazyGames 文档
+Introduction 
+  
+简介
+Requirements 
+  
+要求
+Introduction 
+  
+简介
+Technical 
+  
+技术
+Gameplay 
+  
+游戏玩法
+Advertisement 
+  
+广告
+Account integration 
+  
+账户集成
+Multiplayer 
+  
+多人游戏
+Game covers 
+  
+游戏涵盖
+Quality guidelines 
+  
+质量指南
+SDK
+Resources 
+  
+资源
+Partners 
+  
+合作伙伴
+FAQ & Contact 
+  
+常见问题 & 联系方式
+Payouts 
+  
+支付
+Table of contents 
+目录
+File Size & Count Limits 
+文件大小和数量限制
+Device & browser compatibility 
+设备和浏览器兼容性
+Mobile game requirements 
+移动游戏要求
+Resuming audio after iOS interrupts it 
+在 iOS 中断后恢复音频
+Problem 
+  
+问题
+Solution 
+  
+解决方案
+SDK Integration 
+  
+SDK 集成
+Basic SDK Integration 
+  
+基础 SDK 集成
+Full SDK Integration 
+  
+完整 SDK 集成
+Sitelock & Whitelisting 
+  
+Sitelock & 白名单
+User Consent 
+  
+用户同意
+Technical requirements  技术要求
+You must follow these technical requirements to get your game published on CrazyGames. We selected these to ensure a fluid user experience when using the platform based on our experience with succesful web games.
+您必须遵循这些技术要求才能在 CrazyGames 上发布您的游戏。我们根据对成功网络游戏的体验选择了这些标准，以确保在平台上使用时具有流畅的用户体验。
+
+File Size & Count Limits
+文件大小和数量限制
+A key factor of a web game's success is the time it takes for a user to start playing. This is why we enforce strict file size limits.
+网络游戏成功的一个关键因素是用户开始玩游戏所需的时间。这就是为什么我们执行严格的文件大小限制。
+
+Basic Implementation A maximum total file size of 250MB is allowed. There's a file count limit on 1500 files as high file counts will make loading slower.
+基本实现允许的最大总文件大小为 250MB。文件数量限制为 1500 个文件，因为文件数量过高会使加载变慢。
+Basic Implementation The game must have an initial download size ≤ 50MB. In order to be eligible for the mobile homepage, the initial download size needs to be ≤ 20MB.
+基础实现 游戏的初始下载大小必须≤50MB。为了符合移动端首页的资格，初始下载大小需要≤20MB。
+When the SDK is integrated (optional for basic implementation, mandatory for full implementation), the initial download size is measured between the start of loading and the occurence of the first Gameplay start event triggered through the Game module. This event should be triggered when the user enters in a playable state, so excludes menus and additional loading steps.
+当 SDK 集成时（基础实现可选，完整实现必填），初始下载大小是在加载开始和通过 Game module 触发的第一个 Gameplay start 事件发生之间测量的。这个事件应该在用户进入可玩状态时触发，所以不包括菜单和额外的加载步骤。
+In case the SDK is not integrated, total file size is used and thus should be ≤ 50MB (20MB to be eligible for the mobile home page).
+如果 SDK 未集成，则使用总文件大小，因此应≤50MB（20MB 为进入移动主页的资格要求）。
+For externally hosted/loaded files our QA team will evaluate based on the time it takes to reach gameplay (≤ 20 seconds).
+对于外部托管/加载的文件，我们的质量保证团队将根据达到游戏玩法所需的时间进行评估（≤20 秒）。
+Use only relative paths when referring to other files in the game bundle. Never use absolute paths, as they will fail to load (see here for additional information).
+在游戏包中引用其他文件时，仅使用相对路径。永远不要使用绝对路径，因为它们将无法加载（有关更多信息，请参阅此处）。
+Refer to our Resources section and specifically to our Unity custom build feature for optimization guidelines.
+参考我们的资源部分，特别是我们的 Unity 自定义构建功能以获取优化指南。
+
+Device & browser compatibility
+设备和浏览器兼容性
+Basic Implementation  基础实现
+
+We expect games to work on Chrome and Edge. Games that don't work well on Safari will be disabled on that browser.
+我们期望游戏能在 Chrome 和 Edge 上运行。在 Safari 上运行效果不佳的游戏将被禁用。
+A significant segment of the CrazyGames audience uses Chromebook. Games will be disabled on Chromium OS if they do not work smoothly on a 4GB RAM device.
+CrazyGames 的用户中有很大一部分使用 Chromebook。如果游戏在 4GB RAM 的设备上运行不流畅，将被禁用 Chromium OS。
+Game supports mouse, keyboard, and touch if mobile is supported.
+游戏支持鼠标、键盘和触摸，如果移动设备受支持。
+Game should be playable in landscape mode on desktop. We allow vertical/portrait games to be published, especially if they are mobile friendly, either with displaying black bars or background images around on the sides.
+游戏应在桌面上的横屏模式下可玩。我们允许竖屏/肖像模式的游戏发布，特别是如果它们对移动设备友好，可以通过显示黑边框或在两侧显示背景图像来实现。
+CrazyGames has advanced device detection capabilities to distinguish desktop/mobile/tablet, OS browser and application type. We strongly recommend to rely on our system info to implement a device-specific experience.
+CrazyGames 具有先进的设备检测功能，可以区分桌面/移动/平板电脑、操作系统、浏览器和应用程序类型。我们强烈建议依赖我们的系统信息来实现设备特定的体验。
+Mobile game requirements
+移动游戏要求
+In order to be eligible for the mobile homepage, the initial download size can not exceed 20MB.
+为了符合移动主页的资格，初始下载大小不能超过 20MB。
+You can configure supported orientation in your submission. The website will make sure your game can be played only in those orientations, by asking the users to rotate their devices. Thus, you don't need to implement any orientation lock logic.
+您可以在提交时配置支持的方向。网站将通过提示用户旋转设备，确保您的游戏只能在这些方向上运行，因此您无需实现任何方向锁定逻辑。
+When playing on some devices like tablets for example, double tapping, or pressing and holding can show the magnification tool, or it can select the entire game and show a contextual menu. To prevent frustration, this CSS should be added to the body of your game:
+在平板电脑等设备上播放时，双击或按住可以显示放大工具，或者可以选择整个游戏并显示上下文菜单。为了防止用户感到沮丧，应在您的游戏的 body 中添加以下 CSS：
+
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+Unity games will be disabled on iOS by default due to frequent crashes (caused by memory shortage). Once your game reaches sufficient plays our team will evaluate the game on iOS and consider enabling it.
+由于频繁崩溃（由内存不足引起），Unity 游戏将默认在 iOS 上禁用。一旦您的游戏达到足够的播放量，我们的团队将在 iOS 上评估游戏，并考虑启用它。
+
+Mobile games should also work well inside the CrazyGames App, where games open in fullscreen and can be affected by device safe areas such as rounded corners, notches, and dynamic islands. See the CrazyGames App guide for app detection, safe area padding, and in-app purchase guidance.
+移动游戏也应该在 CrazyGames 应用程序中运行良好，游戏以全屏打开，并可能受到设备安全区域的影响，如圆角、缺口和动态岛。有关应用程序检测、安全区域填充和应用程序内购买指南，请参阅 CrazyGames 应用程序指南。
+We manage Unity graphics quality (Device Pixel Ratio) to ensure good game performance for users:
+我们管理 Unity 图形质量（设备像素比）以确保良好的游戏性能：
+For iOS devices and low memory Android devices, we choose DPR value of 1 because these devices crash with higher natively supported DPR
+对于 iOS 设备和低内存的 Android 设备，我们选择 DPR 值为 1，因为这些设备在更高的原生支持 DPR 下会崩溃。
+For other devices the native DPR supported by the device is used (window.devicePixelRatio)
+对于其他设备，使用设备原生支持的 DPR（ window.devicePixelRatio ）
+We can overwrite this configuration manually if we think an exception is needed
+如果我们认为需要例外，可以手动覆盖此配置
+Resuming audio after iOS interrupts it
+在 iOS 中断后恢复音频
+Problem
+Android keeps the AudioContext in a running state when a user moves to a different app (while still silencing the audio).
+
+On iOS, the AudioContext enters an interrupted state when the app is backgrounded or interrupted by system events like phone calls. iOS therefore requires a proactive approach to restore sound once the user returns.
+
+Some game engines / audio libraries handle this automatically for the developer like Unity. We did notice issues in games using Howler and PlayCanvas.
+
+Solution  解决方案
+The context often transitions to suspended when the app is foregrounded. To revive the audio, developers must call the resume() method within a valid user-initiated gesture, such as a touchend or click event. Simply listening for a visibility change is insufficient, as WebKit restricts audio playback until a direct interaction occurs.
+
+document.addEventListener("touchend", () => {
+    if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+});
+The AudioContext is created by the developer’s game (or library). For example when using Howler it will be at Howler.ctx, in PlayCanvas it’s at pc.app.soundManager.context.
+
+SDK Integration  SDK 集成
+The CrazyGames SDK
+
+For the best user experience and to be able to tap into all value of the CrazyGames platform, integrating the SDK is important. Refer to the appropriate game engine in the side menu.
+
+Basic SDK Integration  基础 SDK 集成
+Basic Implementation  基础实现
+
+If you decide to integrate the SDK for a Basic Launch, we require the following:
+
+A Gameplay start event is triggered from the Game module when the player reaches game state. This is used to measure initial download size.
+Take into account that Ads are not allowed in Basic Launch, and will be disabled even if you would integrate them.
+Full SDK Integration  完整 SDK 集成
+Full Implementation  完整实现
+
+A full integration of the SDK, involves the basic integration requirements and these additional ones:
+
+Gameplay start/stop events: allow us to measure and report on gameplay experience
+(if applicable) Data module for saving user game progression - see Progress Save
+(if applicable) User module for account integration and using username/avatar - see Account Integration
+(optional) Load start/stop events: allow us to measure and report on in-game loading times and fail rates
+Sitelock & Whitelisting  Sitelock & 白名单
+Basic Implementation  基础实现
+
+To avoid that your game files are stolen, you might implement a sitelock in your game. Read more about in the SDK docs of your game engine. If you implement a sitelock, you need to take into account that CrazyGames operates on multiple domains. If applicable, make sure to whitelist each of our domains to allow all our users to play.
+为了避免您的游戏文件被盗，您可以在游戏中实现一个站锁。请查阅您的游戏引擎 SDK 文档以获取更多信息。如果您实现了站锁，需要考虑的是 CrazyGames 在多个域名上运行。如果适用，请确保将我们的每个域名添加到白名单中，以允许所有用户进行游戏。
+
+Read more on our page about Sitelock.
+请访问我们的站锁相关页面了解更多信息。
+
+User Consent  用户同意
+In case your game collects additional personal data beyond the events in our SDK, the game should add a Terms & Conditions and/or Privacy Policy notice to new players.
+如果您的游戏收集了超出我们 SDK 事件范围的其他个人数据，游戏应向新玩家添加条款和条件以及/或隐私政策通知。
+
+We recommend to make this a simple notice rather than a pop-up blocking the user.
+我们建议将其制作成一个简单的通知，而不是一个阻止用户的弹窗。
+Bloxd.io shows a good example of in-game privacy policy
+Bloxd.io 展示了在游戏中显示隐私政策的良好示例
+Racing Limits opens the privacy policy in a new tab
+Racing Limits 在新标签页中打开隐私政策
+Made with Material for MkDocs
+Ask AISkip to content
+logo
+CrazyGames Documentation
+Gameplay
+
+
+Search
+
+  
+Submit a game
+CrazyGames Documentation 
+CrazyGames 文档
+Introduction 
+  
+简介
+Requirements 
+  
+要求
+Introduction 
+  
+简介
+Technical 
+  
+技术
+Gameplay 
+  
+游戏玩法
+Advertisement 
+  
+广告
+Account integration 
+  
+账户集成
+Multiplayer 
+  
+多人游戏
+Game covers 
+  
+游戏涵盖
+Quality guidelines 
+  
+质量指南
+SDK
+Resources 
+  
+资源
+Partners 
+  
+合作伙伴
+FAQ & Contact 
+  
+常见问题 & 联系方式
+Payouts 
+  
+支付
+Table of contents 
+目录
+Basic Gameplay Requirements 
+基础游戏玩法要求
+Full Gameplay Requirements 
+完整游戏玩法要求
+Additional Quality Guidelines 
+附加质量指南
+Gameplay requirements
+This page outlines the requirements that submitted games must meet to ensure a high-quality game experience. While we are not looking for the "perfect" game, our goal is to help players discover your well-crafted game without encountering inappropriate or subpar content. Only games that prioritize quality and gameplay will be allowed on the platform. Developers who repeatedly submit non-compliant games may face restrictions on future submissions.
+
+Our quality guidelines are inspired by the Facebook games.
+
+Basic Gameplay Requirements
+基本游戏性要求
+Basic Implementation  基础实现
+
+Our team performs several visual and functional checks on each submitted game. Ensure your game meets the following criteria:
+我们的团队对每个提交的游戏进行多项视觉和功能检查。确保您的游戏符合以下标准：
+
+Readable Content: Text and images must be legible on devices with a devicePixelRatio:1, on responsive iframe sizes (16x9 ratio) and mobile screens (if applicable). These are the most important iframe sizes for our audience:
+Readable Content: 文本和图像必须在具有 devicePixelRatio:1 的设备上可读，在响应式 iframe 尺寸（16x9 比例）和移动屏幕（如适用）上。这些是我们受众最重要的 iframe 尺寸：
+907 x 510 px (desktop - non-fullscreen)
+907 x 510 px （桌面 - 非全屏）
+1216 x 684 px (desktop - non-fullscreen)
+1216 x 684 px （桌面 - 非全屏）
+1077 x 606 px (desktop - non-fullscreen)
+1077 x 606 px （桌面 - 非全屏）
+821 x 462 px (desktop - non-fullscreen)
+821 x 462 px (桌面 - 非全屏)
+1366 x 768 px (desktop - fullscreen)
+1366 x 768 px (桌面 - 全屏)
+1920 x 1080 px (desktop - fullscreen)
+1920 x 1080 px (桌面 - 全屏)
+1536 x 864 px (desktop - fullscreen)
+1536 x 864 px (桌面 - 全屏)
+1280 x 720 px (desktop - fullscreen)
+1280 x 720 px (桌面 - 全屏)
+800 x 450 px (mobile)   800 x 450 px (移动设备)
+1080 x 607 px (tablet)   1080 x 607 px (平板电脑)
+Consistent Physics: The game's physics must perform consistently across different monitor refresh rates (e.g. 144 Hz, 165 Hz)
+一致的物理效果：游戏物理必须在不同的显示器刷新率（例如 144 Hz、165 Hz）上表现一致
+Language Support:  语言支持：
+The game must have English localization
+游戏必须支持英语本地化
+If translations are included, they should be accurate and of high quality. The game should use the user's language based on locale info provided through the system info method in our SDK, and if not available/set fallback to English.
+如果包含翻译，则应准确且高质量。游戏应根据通过我们 SDK 的系统信息方法提供的 locale 信息使用用户的语言，如果不可用/未设置则回退到英语。
+Intuitive controls: The game should have intuitive controls on different types of devices. Have a look at the section about restricted keys
+直观控制：游戏应在不同类型的设备上具有直观的控制。查看关于限制按键的部分
+Smooth Performance: The game must load quickly and play seamlessly without errors or crashes
+流畅性能：游戏必须快速加载且无缝运行，无错误或崩溃
+Originality: Game names, assets, and overall content should exhibit originality
+原创性：游戏名称、资源和整体内容应展现原创性
+Fullscreen Functionality: Fullscreen mode is automatically provided by CrazyGames. Custom in-game fullscreen buttons are prohibited, as they can interfere with other features (e.g. monetization).
+全屏功能：全屏模式由 CrazyGames 自动提供。禁止在游戏中自定义全屏按钮，因为它们可能会干扰其他功能（例如变现）。
+No Cross-Promotion: The game should not include cross-promotions for external or internal games/platforms.
+禁止交叉推广：游戏不应包含对外部或内部游戏/平台的交叉推广。
+Exception: Privacy Policy and Terms and Conditions if applicable. Check requirements intro for details.
+异常：隐私政策和使用条款（如适用）。详情请查看要求介绍。
+Following exceptions are allowed as long as these are not a main CTA on the menu :
+只要这些不是菜单上的主要行动号召，以下异常是允许的：
+Community links (discord, dev website, ...) are allowed on the game menu only as long they don’t lead directly to a playable web version
+社区链接（如 Discord、开发者网站等）仅允许出现在游戏菜单上，只要它们不直接链接到可玩的网页版本
+Game Store (Epic, Steam, ...) links to the game on desktop games only on main menu or at the end of a demo game
+游戏商店（如 Epic、Steam 等）链接仅在桌面游戏上的主菜单或演示游戏结束时指向游戏
+Backlinks to CG home or category page are accepted but not promoted
+指向 CG 主页或分类页面的回链是可以接受的，但不会被特别推荐。
+Links to other game(s) in the same series of games (e.g. Horror Tale 1, 2, 3, …)
+同一系列游戏中的其他游戏的链接（例如：《恐怖故事 1》、《恐怖故事 2》、《恐怖故事 3》等）
+App Store links are never allowed in-game, and should use the configurable game metadata fields in our Developer Portal
+应用商店的链接绝不允许出现在游戏内。应使用开发者门户中提供的可配置游戏元数据字段来处理相关链接。
+Suited for minors: CrazyGames is a website for an audience aged 13 or more. Your game must be PEGI 12 compliant.
+适合未成年人：CrazyGames 是一个专为 13 岁及以上的用户设计的网站。您所开发的游戏必须符合 PEGI 12 级标准。
+We host a standalone website dedicated for kids games, yet note that monetization is disabled on that domain.
+我们为儿童游戏托管了一个独立的网站，但请注意该域名上的盈利功能已禁用。
+Full Gameplay Requirements
+完整的游戏玩法要求
+Full Implementation  完整实现
+
+These additional requirements are mandatory for full implementations:
+这些附加要求对于完整实现是强制性的：
+
+Games should land new users in gameplay immediately.
+游戏应该让新用户立即进入游戏玩法。
+If this is not feasible given the game specifics, a maximum of 1 click is allowed.
+如果根据游戏的具体情况无法实现，则允许最多点击一次。
+Additional Quality Guidelines
+附加质量指南
+Guideline  指南
+
+Have a look at our Quality Guidelines for more suggestions and best practices on how to publish a succesful game, covering onboarding and other principles. These are not mandatory but strongly recommended.
+请查看我们的质量指南，以获取更多关于如何发布成功游戏的建议和最佳实践，涵盖用户引导和其他原则。这些不是强制性的，但强烈推荐。
+
+Made with Material for MkDocs
+Ask AISkip to content
+logo
+CrazyGames Documentation
+Advertisement
+
+
+Search
+
+  
+Submit a game
+CrazyGames Documentation 
+CrazyGames 文档
+Introduction 
+  
+简介
+Requirements 
+  
+要求
+Introduction 
+  
+简介
+Technical 
+  
+技术
+Gameplay 
+  
+游戏玩法
+Advertisement 
+  
+广告
+Account integration 
+  
+账户集成
+Multiplayer 
+  
+多人游戏
+Game covers 
+  
+游戏涵盖
+Quality guidelines 
+  
+质量指南
+SDK
+Resources 
+  
+资源
+Partners 
+  
+合作伙伴
+FAQ & Contact 
+  
+常见问题 & 联系方式
+Payouts 
+  
+支付
+Table of contents 
+目录
+Video ads 
+  
+视频广告
+Rewarded ads 
+  
+激励视频广告
+In-game banner ads 
+  
+游戏内横幅广告
+Adblockers 
+  
+广告拦截器
+Advertisement requirements
+广告要求
+Full Implementation  完整实现
+
+Warning  警告
+
+If your game is currently in the Basic Launch phase:
+如果您的游戏目前处于基础发布阶段：
+Advertisements will be disabled; no revenue will be shared.
+广告将被禁用；不会分享收入。
+If you did integrate the Ads SDK, our team will check to make sure the game runs smoothly while ads are disabled. The game will be rejected if it does not. For example: Game doesn't freeze between levels. There should not be rewarded ad buttons without effect.
+如果您已经集成了广告 SDK，我们的团队将检查以确保在禁用广告时游戏运行顺畅。如果游戏不顺畅，将被拒绝。例如：关卡之间游戏不会卡顿。不应该有无效的奖励广告按钮。
+Only Ads requested through the CrazyGames SDK are allowed.
+仅允许通过 CrazyGames SDK 请求的广告。
+These types of advertisements are available through the CrazyGames SDK:
+可通过 CrazyGames SDK 提供的广告类型有：
+
+Video ads  视频广告
+Midgame ads: between levels or stages
+游戏间隙广告：在关卡或阶段之间
+Rewarded ads: when giving a reward (CrazyGames provides fallback banners)
+奖励广告：在给予奖励时（CrazyGames 提供备用横幅）
+In-game banners  游戏内横幅
+In-game ads and purchases should provide a meaningful and rich experience for the player and should not appear before the user has experienced a reasonable amount of gameplay. Most importantly, in-game ads should not:
+游戏内广告和购买应为玩家提供有意义和丰富的体验，并且不应在用户体验了合理的游戏量之前出现。最重要的是，游戏内广告不应：
+
+Interrupt gameplay  打断游戏
+Trigger deceptively  欺骗性地触发
+Chain multiple ads  串联多个广告
+Video ads  视频广告
+Video
+
+Video ads can not interrupt gameplay and shouldn't come as a surprise: Advertisements should not be shown while a user is playing. We do not allow disruptive ads since they will scare users away. Instead, show them at a logical point for the user. Examples are during a level transition, a map change when the player died etc. Do not show a midgame ad on a navigational button (e.g. when clicking the main menu icon or opening the settings or opening the shop).
+视频广告不能中断游戏进程，也不应出乎意料：用户游戏时不应显示广告。我们不允许干扰性广告，因为它们会吓跑用户。相反，应在对用户来说合理的时机展示广告。例如在关卡过渡、玩家死亡时切换地图等。不要在导航按钮上显示中游戏广告（例如点击主菜单图标、打开设置或打开商店时）。
+Your game should be paused during a video ad: Ensure that a user cannot progress the game while requesting or showing an ad. Disable buttons, or show a spinner that blocks interaction. An ad request is not instantaneous: several auctions are held and take some time to return with a reply. Block the UI until either an adFinished or adError event occurs.
+在视频广告播放期间应暂停您的游戏：确保用户在请求或显示广告时无法继续游戏。禁用按钮，或显示一个阻止交互的加载指示器。广告请求并非即时完成：会进行几次拍卖，并需要一些时间来返回回复。直到发生 adFinished 或 adError 事件之前，请阻塞 UI。
+Handle unfilled ad calls correctly: Sometimes, the request for a midgame ad will be unfilled (either because of timing restrictions, adblock, or low demand). In this case you receive an adError event. You should handle this case correctly and ensure that the game continues.
+正确处理未完成的广告调用：有时，中游戏广告的请求可能未完成（可能是由于时间限制、广告拦截器或需求低）。在这种情况下，你会收到一个 adError 事件。你应该正确处理这种情况，并确保游戏继续。
+Your game should be muted during a video ad: Video advertisements have audio. Ensure that your in-game sound and the advertisement audio are not playing together. You should mute your audio whenever an advertisement starts playing, and unmute it when the ad has finished. Only mute the audio when the ad actually starts playing, and not when you request an ad. It is possible no advertisement is available, and muting and unmuting your music without a visual change is not user-friendly.
+您的游戏应在视频广告期间静音：视频广告有音频。确保您的游戏内声音和广告音频不会同时播放。当广告开始播放时，您应该静音音频，并在广告结束后取消静音。仅在广告实际开始播放时才静音音频，而不是在您请求广告时。可能没有广告可用，而无需视觉变化地静音和取消静音音乐对用户不友好。
+Request midgame ads at opportune moments without worrying about frequency or minimum intervals:
+在合适的时机请求游戏中的广告，而不用担心频率或最小间隔：
+We take care automatically of how often a midgame ad is shown, taking into account the start of the game, the midroll frequency (max 1 every 3 minutes) and interplay with rewarded ads
+我们自动管理中游戏广告的展示频率，考虑游戏的开始、中滚频率（最多每 3 分钟一次）以及与奖励广告的互动
+If the next midgame ad request is too early, it just gets ignored by the SDK and there is no impact for the user. This means that you can request a midgame ad at any opportune moment in the game without worrying about when the last midgame was shown
+如果下一个中游戏广告请求过早，SDK 会直接忽略它，对用户没有影响。这意味着你可以在游戏的任何合适时刻请求中游戏广告，而不用担心上次中游戏广告何时展示
+Rewarded ads  激励视频广告
+Rewarded ads should be special opportunities that a user looks forward to, and not an expectation whenever the user plays your game. Poorly designed levels that can only be completed by a rewarded ad are not acceptable. Instead, occasionally give the user the option to watch a rewarded ad that gives them a cool bonus, or a funny cosmetic change.
+奖励视频广告应该是用户期待的特殊机会，而不是用户每次玩游戏时的期望。设计糟糕、只能通过奖励视频广告才能完成的关卡是不可接受的。相反，偶尔给用户观看奖励视频广告的选择，以获得酷炫的奖励或有趣的视觉变化。
+
+We have strict requirements to include rewarded advertisements. Before you start implementing please make sure you read them carefully:
+我们有严格的要求来包含奖励广告。在开始实施之前，请确保仔细阅读它们：
+
+Placement and frequency  放置和频率
+
+Do not offer a rewarded ad too often. Inform the user of this with a timer or hide the ad request button.
+不要过于频繁地提供奖励广告。通过计时器或隐藏广告请求按钮来告知用户这一点。
+Do not chain multiple ads, i.e. watch more than one rewarded ad to receive a single reward.
+不要串联多个广告，即观看多个奖励广告以获得单个奖励。
+Do not promote the rewarded ads too aggressively. If the game rewarded ads are well-implemented users will want to use them, there is no need to remind them too often.
+The request button should not appear on an active gameplay screen. For example, in a racing game, the request button can't appear during the race.
+Reward UI
+
+The button to request a rewarded ad should be easily accessible in a consistent location.
+The button to request a rewarded ad can not be misleading in any way. Specifically, the continue without watching a rewarded ad should be the same size, font, color, etc.
+It needs to be clear immediately that the reward is optional. Hiding or delaying the skip or close button on the offer is not allowed.
+需要立即明确奖励是可选的。不允许隐藏或延迟优惠中的跳过或关闭按钮。
+It needs to be clear for players that they will have to watch an advertisement in exchange for the reward. This can be done by displaying a video icon for example.
+Provide an alternative to watching an ad. For example, a user can also buy the reward with coins that he can receive during the game.
+Rewarded ads callbacks
+
+When the ad has finished (adFinished), make it clear that the player iss rewarded. You can display an animation or a notification.
+When our rewarded ad returns with an adError callback, do NOT reward the player.
+当我们的奖励广告返回带有 adError 回调时，不要奖励玩家。
+We aim for a high ad fill rate, and provide alternative incentives if no ads are available.
+我们致力于实现高广告填充率，并在没有广告可用时提供替代激励。
+See below for more info about Ad Blockers.
+有关广告拦截器的更多信息，请见下文。
+Rewarded ad examples:  奖励广告示例：
+
+
+In-game store ads  游戏内商店广告
+End-of-game multiplier  游戏结束乘数
+Out of lives ads
+生命值广告
+In-game store ads are a great way to monetize players who are in a "purchase" mindset. You can award monetary value or items they otherwise have to buy.
+游戏内商店广告是让处于“购买”心态的玩家付费的绝佳方式。你可以奖励他们原本需要购买的货币价值或物品。
+
+
+In-game banner ads  游戏内横幅广告
+Banner
+
+In-game banners are only allowed on useful screens with content that are open for at least 5 seconds on average.
+游戏中的横幅仅允许在有用屏幕上显示，这些屏幕的内容平均打开时间至少为 5 秒。
+Make sure that in-game banners do not block any game UI on all game sizes (including on mobile).
+Do not show in-game banners during game-play.
+In-game banners must be clearly distinguishable from game content.
+游戏横幅必须与游戏内容明显区分开来。
+A maximum of 2 in-game banners may be displayed on the same screen/view, provided that the overall user experience remains clear, non-intrusive, and user-friendly.
+同一屏幕/视图中最多可显示 2 个游戏横幅，前提是整体用户体验保持清晰、非侵入性且用户友好。
+In-game banners can have a performance impact and may negatively affect the user experience, which can reduce the overall quality and usability of the game.
+游戏内的横幅可能会影响性能，并可能对用户体验产生负面影响，从而降低游戏的整体质量和可用性。
+Adblockers  广告拦截器
+Full Implementation  完整实现
+
+We strive to limit the use of adblockers on the CrazyGames platform, by disabling certain functionalities and blocking rewarded ads when an adblocker is detected. However since this detection won't ever be 100% correct, we want to ensure that even users where we detect an AdBlocker can play the game according to these rules:
+我们努力限制在 CrazyGames 平台上使用广告拦截器，通过禁用某些功能并在检测到广告拦截器时屏蔽奖励广告。然而，由于这种检测永远不会是 100%准确，我们希望确保即使我们检测到广告拦截器的用户也能根据这些规则玩游戏：
+
+Players with AdBlocker should be able to play the game normally: It is never allowed to block players with AdBlockers from playing, or penalize players with certain disadvantages
+使用 AdBlocker 的玩家应该能够正常玩游戏：永远不允许阻止使用 AdBlocker 的玩家玩游戏，或对使用 AdBlocker 的玩家施加不利条件
+You can block certain features or special functionalities in the game; make sure to show a notice on such functions that they are blocked because of the AdBlocker usage
+您可以阻止游戏中的某些功能或特殊功能；确保在相关功能上显示通知，说明它们因 AdBlocker 的使用而被阻止
+Do not use popups as they might interfere with fullscreen behaviour and with CrazyGames adblock notices
+不要使用弹窗，因为它们可能会干扰全屏行为和 CrazyGames 的 AdBlocker 通知
+Do not keep the rewarded ads clickable but without effect
+不要保持奖励广告可点击但没有效果
+Made with Material for MkDocs
+Ask AISkip to content
+logo
+CrazyGames Documentation
+Account integration
+
+
+Search
+
+  
+Submit a game
+CrazyGames Documentation 
+CrazyGames 文档
+Introduction 
+  
+简介
+Requirements 
+  
+要求
+Introduction 
+  
+简介
+Technical 
+  
+技术
+Gameplay 
+  
+游戏玩法
+Advertisement 
+  
+广告
+Account integration 
+  
+账户集成
+Multiplayer 
+  
+多人游戏
+Game covers 
+  
+游戏涵盖
+Quality guidelines 
+  
+质量指南
+SDK
+Resources 
+  
+资源
+Partners 
+  
+合作伙伴
+FAQ & Contact 
+  
+常见问题 & 联系方式
+Payouts 
+  
+支付
+Table of contents 
+目录
+Integration scenarios 
+  
+集成场景
+Progress save 
+  
+进度保存
+In-game account integration 
+游戏内账户集成
+Preparation 
+  
+准备
+Logic to implement at game launch 
+游戏启动时需实现的逻辑
+Option 1: User is not logged in (userNotAuthenticated error) 
+选项 1：用户未登录（发生 userNotAuthenticated 错误）
+Option 2: User is logged in on CrazyGames (userId is returned) 
+选项 2：用户已登录 CrazyGames（返回 userId）
+Logic to implement during the game 
+游戏中的逻辑实现
+Players changing CrazyGames accounts while playing 
+玩家在游戏中更换 CrazyGames 账号
+Login Button 
+  
+登录按钮
+Logout & account linking 
+登出与账号关联
+Account integration requirements
+账户集成要求
+The CrazyGames account system
+CrazyGames 账户系统
+
+The CrazyGames account system is a powerful tool that allows our users to save progress, play on multiple devices, customize their username and avatar and play with their friends. The most succesful games on our site integrate seamlessly with our account system.
+CrazyGames 账户系统是一个强大的工具，允许我们的用户保存进度、在多个设备上玩游戏、自定义他们的用户名和头像，并与朋友一起玩。我们网站上最成功的游戏都无缝集成了我们的账户系统。
+
+Over 35 million players have a CrazyGames account, many of them playing actively every week.
+超过 3500 万玩家拥有 CrazyGames 账户，其中许多每周都积极玩游戏。
+
+We want to ensure this experience for our users:
+我们希望为我们的用户提供这样的体验：
+
+No standalone in-game username or avatar is needed
+不需要独立的游戏内用户名或头像
+No additional login flows in-game are needed
+游戏内不需要额外的登录流程
+Guests can also play the games
+游客也可以玩游戏
+Integration scenarios  集成场景
+We understand these requirements can have a substantial impact on your game. However it's not necessary to do customization before releasing your initial game version which we describe below. We distinguish these 4 scenarios:
+我们理解这些要求可能会对您的游戏产生重大影响。然而，在发布您初始游戏版本（如下所述）之前，无需进行定制。我们区分了以下 4 种情况：
+
+
+Games without accounts  没有账号的游戏
+Use CrazyGames profile  使用 CrazyGames 个人资料
+In-game account (basic)  游戏内账号（基础版）
+In-game account (full)  游戏内账号（完整）
+Basic Implementation  基础实现
+
+If your game doesn’t have the notion of users, you are not expected to integrate with our user module.
+如果你的游戏没有用户的概念，你不需要集成我们的用户模块。
+
+You can however use the Data module in our SDK to save user progress, or alternatively rely on our APS system.
+不过你可以使用我们 SDK 中的数据模块来保存用户进度，或者选择依赖我们的 APS 系统。
+
+
+Progress save  进度保存
+Full Implementation  完整实现
+
+Saving game progress  保存游戏进度
+
+Players care A LOT about their progress in games, and expect their progress to synchronize across their devices. CrazyGames offers a number of methods to save progress in the cloud. Unless progress is not applicable for your game, we require you to implement one of these methods.
+玩家非常在意他们在游戏中的进度，并期望他们的进度能在不同设备间同步。CrazyGames 提供了多种将进度保存在云端的方法。除非你的游戏不适用进度保存，否则我们要求你实现其中的一种方法。
+
+Preferably you use the CrazyGames Data module which saves the user's progress on their CrazyGames account.
+你最好使用 CrazyGames 数据模块，该模块将用户的进度保存在他们的 CrazyGames 账户上。
+Progress for guest users is automatically saved locally
+对于游客用户，进度会自动保存在本地。
+When a guest logs in the progress is synced to their cloud (as long as no cloud progress was present).
+当游客登录时，进度会同步到云端（只要云端没有已有的进度）。
+If your game has their own back-end to save data, you can use the User module to link back-end data to the user's CrazyGames account.
+如果你的游戏有自己的后端来保存数据，你可以使用用户模块将后端数据链接到用户的 CrazyGames 账户。
+Take into account the flows described above in In-game account integration to handle specific scenarios like guests logging in.
+在游戏中账户集成中考虑上述流程来处理特定场景，例如访客登录。
+Make sure to consider that the same user might log in on multiple devices, and multiple accounts can share a single device.
+确保考虑同一用户可能会在多个设备上登录，并且多个账户可以共享单个设备的情况。
+Alternatively you can use our Automatic Progress Save system, which automatically syncs local progress to the cloud. This is not allowed for games with in-game purchases as it relies on local data.
+或者你可以使用我们的自动进度保存系统，该系统自动将本地进度同步到云端。这对于有游戏内购买的游戏是不允许的，因为它依赖于本地数据。
+In-game account integration
+游戏内账户集成
+Full Implementation  完整实现
+
+This section explains how to integrate CrazyGames accounts with your in-game account system according to our requirements.
+本节将说明如何根据我们的要求将 CrazyGames 账户与您的游戏内账户系统集成。
+
+Preparation  准备工作
+Your CrazyGames game version will need to allow using CrazyGames userId as identifiers within the game. This is a unique string tied to the CrazyGames account that can be accessed through the User module in our SDK.
+您的 CrazyGames 游戏版本需要允许在游戏中使用 CrazyGames userId 作为标识符。这是一个与 CrazyGames 账户相关联的唯一字符串，可以通过我们 SDK 中的用户模块访问。
+
+Logic to implement at game launch
+实现游戏启动时的逻辑
+Start by retrieving the current user by calling getUserToken() to get a JWT Token and verifying the token on your server. This will get you the player's userId.
+首先，通过调用 getUserToken() 来获取当前用户，以获取 JWT Token 并在您的服务器上验证该令牌。这将为您获取玩家的 userId 。
+
+Request the current user account every time the game starts, making sure to cover cases where different users share the same device or users change profile information (avatar/username/...).
+每次游戏启动时请求当前用户账号，确保覆盖不同用户共享同一设备或用户更改个人资料信息（头像/用户名/...）的情况。
+
+Option 1: User is not logged in (userNotAuthenticated error)
+You should always allow the user to start playing as Guest, as main scenario.
+
+Creating in-game accounts for CrazyGames guests
+
+We recommend NOT to create an in-game account in this scenario. If you do, you should be able to link it to a CrazyGames account when the guest logs in. Avoid relying solely on local data to identify Guests across sessions as multiple users might share the same device.
+
+It is allowed to show a Login with CrazyGames button but not as a main CTA.
+
+Don't trigger the Auth prompt automatically as this might confuse the user
+不要自动触发认证提示，因为这可能会让用户感到困惑
+
+Option 2: User is logged in on CrazyGames (userId is returned)
+Check if the CrazyGames userId account already exists in your back-end.
+
+Case: CrazyGames account (userId) is already known in your back-end:
+Users can update their CrazyGames username & avatar, so if you store this info on your back-end make sure to update it by calling an endpoint on your server with the actual username and profile picture.
+Fetch the data for this user from your back-end, and start playing!
+Case: The CrazyGames account (userId) is not yet known to your game:
+Automatically create a game account using the player's CrazyGames account. Make sure to make the link based on the userId unique field, as other fields like username might change.
+(optional) If feasible and desired, you can save any local progress the user made as guest to the new account. Alternatively this user will have fresh data in your back-end.
+Logic to implement during the game
+游戏中的逻辑实现
+Players changing CrazyGames accounts while playing
+玩家在游戏中更换 CrazyGames 账号
+Guest users logging into their CrazyGames account while playing should be detected using an Auth Listener, in this case we will expect you to follow the "User is logged in on CrazyGames" flow above and if necessary refresh the game. This only applies to users playing as guest in the game.
+游客在玩游戏时登录其 CrazyGames 账户应使用 Auth Listener 进行检测，在这种情况下，我们期望您遵循上述“用户已在 CrazyGames 登录”流程，并在必要时刷新游戏。这仅适用于在游戏中以游客身份玩游戏的用户。
+When a user logs out during gameplay, the entire web page is refreshed, so there is nothing else to do in this case. The game flow will start from the beginning.
+当用户在游戏过程中登出时，整个网页会刷新，所以这种情况下没有其他可做。游戏流程将从头开始。
+Login Button  登录按钮
+You can show a login button to guests:
+您可以为访客显示登录按钮：
+
+Do not make this the main CTA blocking the user
+不要让这个成为主要的 CTA 阻碍用户
+A good placement is in the top right corner
+一个良好的放置位置是在右上角
+If you do this, the button should trigger the Auth prompt method in our SDK.
+如果这样做，按钮应该触发我们 SDK 中的 Auth 提示方法。
+Don't allow Guests to use different login methods than 'Login with CrazyGames'
+不允许访客使用与'使用 CrazyGames 登录'不同的登录方法。
+Logout & account linking
+登出与账号关联
+Logging out in the game and allowing login with external login options (e.g. Facebook, Google, email) is not allowed.
+不允许在游戏中注销并允许使用外部登录选项（例如 Facebook、Google、电子邮件）。
+If you want to offer importing existing in-game accounts or exporting CrazyGames account, you are responsible for transferring/migrating progress correctly.
+如果你想提供导入现有游戏内账号或导出 CrazyGames 账号，你需要负责正确转移/迁移进度。
+Our SDK contains an optional Account link prompt function
+我们的 SDK 包含一个可选的账号链接提示功能
+This is strongly recommended if you create in-game accounts for CrazyGames guests
+如果你为 CrazyGames 的访客创建游戏内账号，强烈建议使用此功能
+If your game has In-Game Purchases, this is recommended if you create in-game accounts for CrazyGames guests
+如果你的游戏有游戏内购买功能，如果你为 CrazyGames 的访客创建游戏内账号，这也建议使用此功能
+Made with Material for MkDocs
+Ask AISkip to content
+logo
+CrazyGames Documentation
+Multiplayer
+
+
+Search
+
+  
+Submit a game
+CrazyGames Documentation 
+CrazyGames 文档
+Introduction 
+  
+简介
+Requirements 
+  
+要求
+Introduction 
+  
+简介
+Technical 
+  
+技术
+Gameplay 
+  
+游戏玩法
+Advertisement 
+  
+广告
+Account integration 
+  
+账户集成
+Multiplayer 
+  
+多人游戏
+Game covers 
+  
+游戏涵盖
+Quality guidelines 
+  
+质量指南
+SDK
+Resources 
+  
+资源
+Partners 
+  
+合作伙伴
+FAQ & Contact 
+  
+常见问题 & 联系方式
+Payouts 
+  
+支付
+Table of contents 
+目录
+How it works 
+  
+工作原理
+Requirements for Online with Friends 
+与朋友在线的需求
+Implement multiplayer flows 
+实现多人流程
+Additional multiplayer requirements 
+额外的多人游戏需求
+Guidelines for Online with Friends 
+与朋友联机的指南
+Multiplayer games in Basic Launch 
+基础启动中的多人游戏
+Chat and User Generated Content (UGC) 
+聊天和用户生成内容 (UGC)
+Multiplayer requirements
+多人游戏需求
+Games that offer an online multiplayer experience have 2x higher long term retention than single player games. We are strongly supporting multiplayer games on CrazyGames. Our Play with Friends functionality is designed to enhance the social experience of players, offering many benefits that foster community, engagement, and enjoyment.
+提供在线多人体验的游戏，其长期留存率比单人游戏高 2 倍。我们在 CrazyGames 上强烈支持多人游戏。我们的“与朋友一起玩”功能旨在增强玩家的社交体验，提供许多促进社区、参与和享受的好处。
+
+How it works  工作原理
+Users must have a CG account and be logged in to use the Friends feature
+用户必须拥有 CG 账号并登录才能使用好友功能
+Users can send and receive friend requests
+用户可以发送和接收好友请求
+When a user is in a joinable location within a game, following functionalities are available:
+当用户位于游戏中的可加入位置时，以下功能可用：
+
+Friends can join the user
+好友可以加入用户
+
+Friend list join
+
+The user can invite their friends, who will get a notification if they’re online
+用户可以邀请好友，如果好友在线，他们会收到通知
+
+Friend list invite
+
+The Game module in our SDK offers the functionality to support this this
+我们的 SDK 中的游戏模块提供了支持此功能的功能
+
+Games that support Friends functionality are featured on the dedicated Multiplayer landing page
+支持好友功能的游戏会展示在专门的多人游戏页面
+Requirements for Online with Friends
+与好友联机的要求
+Full Implementation  完整实现
+
+If your game includes an online multiplayer mode, the following requirements must be met to be eligible for our Multiplayer landing page.
+如果你的游戏包含在线多人模式，要符合我们多人游戏页面的资格，必须满足以下要求。
+
+Implement multiplayer flows
+实现多人游戏流程
+A smooth experience to bring and keep friends playing together is crucial for a succesful multiplayer game. Your game should implement these features:
+为朋友带来并保持一起玩的顺畅体验对于成功的多人游戏至关重要。您的游戏应实现以下功能：
+
+Sharing the user's room & status: Pass information on the user's room in your game through the CrazyGames SDK so we can activate our Join/Invite functionality. This will allow users to join easily via the CrazyGames UI. Avoid onboarding scenes for players joining like this, or make them skippable.
+共享用户房间和状态：通过 CrazyGames SDK 在您的游戏中传递用户房间信息，以便我们可以激活我们的加入/邀请功能。这将允许用户通过 CrazyGames UI 轻松加入。避免为通过这种方式加入的玩家设计入职场景，或者使其可跳过。
+(New) Use the Update Room functionality to indicate in which room (unique within your game at any time) a user is playing, and whether or not the room is open for other players to join (isJoinable). Use the inviteParams to pass information from the inviting players to their friends. Note: for existing games, the Invite Button remains supported.
+(新功能) 使用更新房间功能来指示用户正在哪个 room (在任何时候都是唯一的) 房间中玩游戏，以及房间是否对其他玩家开放 ( isJoinable )。使用 inviteParams 将邀请玩家的信息传递给他们的朋友。注意：对于现有游戏，邀请按钮仍然受支持。
+If you also want to allow copying direct invite links within your game, integrate the Invite Link functionality.
+如果您还想允许在游戏中复制直接邀请链接，请集成邀请链接功能。
+Instant Multiplayer: The first player in a party should be placed directly into a new private room with default settings.
+即时多人模式：队伍中的第一位玩家应直接被放置到一个新的私人房间，使用默认设置。
+
+When the IsInstantMultiplayer flag is set to true in the SDK, the game should launch directly into multiplayer mode when triggered from the CrazyGames UI. This happens for example on the Multiplayer landing page.
+当 SDK 中的 IsInstantMultiplayer 标志设置为 true 时，游戏在从 CrazyGames UI 触发时应直接启动到多人模式。例如，在多人游戏着陆页上就会发生这种情况。
+An intermediate configuration screen (e.g., game mode, player count) is acceptable.
+For games that support 20+ players, you may instead place the player directly into public gameplay.
+In all cases, the user should be joinable immediately after launching the game so their friends can join.
+Round-based games: At the end of a match, players should be able to continue playing with the same group without having to navigate back through the CrazyGames UI. Either by starting the next match immediately in the same room, or by directing all users to the same new room.
+
+Refer to the visual below which covers each of these cases:
+
+Multiplayer flows
+
+Additional multiplayer requirements
+额外的多人游戏需求
+Lobby Size: Submit lobby sizes when uploading your game build (For changes to existing games please contact our team).
+CrazyGames usernames: must be displayed in-game so players can recognize their friends. Read more on our User module page.
+CrazyGames 用户名：必须在游戏中显示，以便玩家能够识别他们的朋友。有关更多信息，请访问我们的用户模块页面。
+If you want to implement chat functionality, check the specific requirement below.
+如果您想实现聊天功能，请查看下方的具体要求。
+Guidelines for Online with Friends
+与朋友在线的指南
+Guideline  指南
+
+The following guidelines are strongly recommended for a good experience in playing with friends:
+
+Preferably players can join an existing room at all times, and while a round is on-going go in spectator mode. Alternatively your game should show a popup that the room is not available.
+Often users are already loading the game they want to play before joining/inviting each other. Implement our Room join listener to ensure a smoother UX without a page reload.
+通常用户在加入/邀请彼此之前就已经在加载他们想玩的游戏。实现我们的房间加入监听器，以确保更平滑的 UX 而无需页面刷新。
+Our User module offers a method to get the list of CrazyGames friends for the user. You can use this info within your game for various UX improvements (joining, notifying, matchmaking, ... )
+我们的用户模块提供了一个方法来获取用户在 CrazyGames 上的好友列表。你可以使用这些信息在你的游戏中进行各种 UX 改进（加入、通知、匹配等）。
+Multiplayer games in Basic Launch
+基础启动中的多人游戏
+Basic Implementation  基础实现
+
+Multiplayer games that require a large audience to ensure a good gaming experience may skip Basic Launch and proceed to Full Launch immediately. In that scenario your game is required to comply to the Full Launch integration requirements.
+需要大量用户以确保良好游戏体验的多人游戏可以跳过基础发布，直接进行完整发布。在这种情况下，您的游戏必须遵守完整发布集成要求。
+
+For multiplayer games that have a single player component and that do not require a large testing audience, a Basic Launch step is required.
+对于具有单人组件且不需要大量测试用户的多人游戏，需要执行基础发布步骤。
+
+Our QA team will decide which flow applies for your multiplayer games, and optionally provide feedback to you.
+我们的质量保证团队将决定哪个流程适用于您的多人游戏，并可选择为您提供反馈。
+
+Chat and User Generated Content (UGC)
+聊天和用户生成内容 (UGC)
+Basic ImplementationFull Implementation
+基本实现 完全实现
+
+Chat is a powerful tool for engagement, but carries risks. If you decide to implement chat functionality:
+聊天是一个强大的互动工具，但也存在风险。如果您决定实现聊天功能：
+
+Your game should disable your chat based on the game settings. In case of complaints, we will require you to disable chat alltogether.
+您的游戏应根据游戏设置禁用聊天。在出现投诉的情况下，我们将要求您完全禁用聊天。
+We require you to add chat moderation. The simplest solution is a profanity filter. Refer to this sheet for a non-comprehensive list of words to block.
+我们需要您添加聊天管理功能。最简单的解决方案是使用脏话过滤器。请参考此表格获取需要屏蔽的非详尽词汇列表。
+A more advanced solution is AI based moderation. We partner with Lasso Moderation and you are eligible for a referral bonus when integrating their solution. Read more on our Partners pages. This is not recommended for Basic Launch games.
+更高级的解决方案是基于人工智能的管理。我们与 Lasso Moderation 合作，在集成其解决方案时，您有资格获得推荐奖金。有关更多信息，请访问我们的合作伙伴页面。不建议在基础启动游戏中使用此方案。
+Moderation is also required if your game involves User Generated Content like uploading custom images or drawings. The Lasso solution can cover those content types as well.
+如果您的游戏涉及用户生成内容，如上传自定义图片或绘画，也需要进行审核。Lasso 解决方案同样可以覆盖这些内容类型。
+
+Made with Material for MkDocs
+Ask AISkip to content
+logo
+CrazyGames Documentation
+Game covers
+
+
+Search
+
+  
+Submit a game
+CrazyGames Documentation 
+CrazyGames 文档
+Introduction 
+  
+简介
+Requirements 
+  
+要求
+Introduction 
+  
+简介
+Technical 
+  
+技术
+Gameplay 
+  
+游戏玩法
+Advertisement 
+  
+广告
+Account integration 
+  
+账户集成
+Multiplayer 
+  
+多人游戏
+Game covers 
+  
+游戏涵盖
+Quality guidelines 
+  
+质量指南
+SDK
+Resources 
+  
+资源
+Partners 
+  
+合作伙伴
+FAQ & Contact 
+  
+常见问题 & 联系方式
+Payouts 
+  
+支付
+Table of contents 
+目录
+What are game covers? 
+游戏封面是什么？
+Cover Images 
+  
+封面图片
+Mandatory sizes 
+  
+强制尺寸
+Restrictions 
+  
+限制
+Guidelines for cover images 
+封面图片指南
+Don’t just take a screenshot of the game 
+不要只截取游戏截图
+Keep it simple! 
+  
+保持简洁！
+Put the name of your game directly on the cover 
+直接在封面上放置你的游戏名称
+Use a nice and stylized font 
+使用美观且时尚的字体
+Preview Video 
+  
+预览视频
+Video Requirements 
+  
+视频要求
+Video examples 
+  
+视频示例
+Game covers  游戏涵盖
+You must add 3 cover images (landscape, portrait and square) and upload preview videos when you submit your game to CrazyGames. We also advise updating your covers occasionally after publication. But what are the game covers, and why is it important to spend time perfecting them? What guidelines should you follow to create something that looks amazing?
+您必须在提交游戏到 CrazyGames 时添加 3 张封面图片（风景、肖像和方形），并上传预览视频。我们还建议在发布后偶尔更新封面。但游戏封面是什么，为什么花时间完善它们很重要？您应该遵循哪些指南来创建令人惊叹的作品？
+
+This guide explains our specifications and provides guidelines to create succesful covers.
+本指南解释了我们的规范，并提供了创建成功封面的指南。
+
+What are game covers?
+游戏封面是什么？
+Game covers are used to display your game on our website. They are crucial, as they need to attract the attention of new users and make them want to play your game in a fraction of a second.
+游戏封面用于在我们的网站上展示您的游戏。它们至关重要，因为它们需要在短时间内吸引新用户的注意力，并让他们想要玩您的游戏。
+
+Think of CrazyGames as the storefront for your web game. A beautiful cover will help your game stand out from the crowd and make people want to click on it. On the other hand, a poorly designed game cover will have a negative impact on your game’s performance. Users will not click on your game and will scroll past it because it doesn’t look appealing.
+将 CrazyGames 视为您的网页游戏的店面。一个漂亮的封面将帮助您的游戏在众多游戏中脱颖而出，并让人们想要点击它。另一方面，一个设计不佳的游戏封面将对您的游戏性能产生负面影响。用户不会点击您的游戏，而会因为它不吸引人而滚动过去。
+
+Let’s take YouTube as an example. You’ll notice that, for the most part, clear and eye-catching covers generate more views than randomly generated ones. Content creators put a lot of effort into creating good covers because that’s the first thing users see while scrolling on the platform. Search for one specific topic, and suddenly thousands of videos will show on your screen. Only the most appealing ones will get your attention. The same applies for CrazyGames, where your game is displayed in categories that contain hundreds of games.
+以 YouTube 为例。你会注意到，大部分情况下，清晰醒目的封面比随机生成的封面能带来更多观看量。内容创作者会花很多心思制作好的封面，因为这是用户在平台上滑动时首先看到的东西。搜索一个特定主题，突然屏幕上就会显示成千上万个视频。只有最吸引人的视频才会引起你的注意。这同样适用于 CrazyGames，你的游戏会显示在包含数百款游戏的分类中。
+
+That’s why you should make professional and eye-catching game covers. It’s the first thing our users will see while scrolling on the platform, so don’t rush the final step! Here's a few general guidelines:
+这就是为什么你应该制作专业且吸引眼球的游戲封面。这是用户在平台上滚动时首先看到的东西，所以不要急于最后一步！这里有一些一般性的指南：
+
+Don't reinvent the wheel: Look at games you like, or those in the same genre, and see how other developers created great-looking covers. Take some time to explore platforms like Steam or Epic Games to find inspiration! Find Inspiration
+不要重新发明轮子：看看你喜欢的游戏，或者同类型的游戏，看看其他开发者是如何制作出好看的封面的。花点时间探索像 Steam 或 Epic Games 这样的平台，寻找灵感！ Find Inspiration
+Update your game covers occasionally: Updating your game cover is an excellent way to encourage players to revisit your game. We noticed there is often a spike in sessions when covers for older games are updated. However, you shouldn’t update it too often, as users will lose familiarity with your game. If you update your game by adding new content, this is a great time to update your cover and show something new. Think about seasonal events as well, in case you plan on bringing some Christmas magic to your game for the holiday season!
+定期更新游戏封面：更新游戏封面是鼓励玩家重新游玩游戏的绝佳方式。我们注意到，当为较旧的游戏更新封面时，游戏会经常出现活跃度激增的情况。然而，你也不应该过于频繁地更新封面，否则用户会失去对游戏的熟悉感。如果你通过添加新内容来更新游戏，这也是更新封面并展示新内容的好时机。此外，也要考虑季节性活动，如果你计划在假日季节为游戏带来一些圣诞魔法！
+Get help!: If you don’t have the skills or the tools to do it yourself, you can always contact a professional designer on Fiverr or UpWork.
+获得帮助！：如果你没有自己完成所需的技能或工具，你总是可以联系 Fiverr 或 UpWork 上的专业设计师。
+Cover Images  封面图片
+Mandatory sizes  强制尺寸
+You’ll need to upload 3 different sizes for your game :
+你需要为你的游戏上传 3 种不同的尺寸：
+
+Landscape - 16:9 (1920x1080 pixels)
+风景 - 16:9 (1920x1080 像素)
+Portrait - 2:3 (800x1200 pixels)
+肖像 - 2:3 (800x1200 像素)
+Square - 1:1 (800x800 pixels)
+方形 - 1:1 (800x800 像素)
+The three covers should feature consistent visuals and aesthetics, ensuring that users can easily recognize your game whether they're looking at the square or landscape cover.
+三张封面应具有一致的视觉效果和美学，确保用户无论查看方形封面还是横版封面都能轻松识别您的游戏。
+
+Here are a few examples:
+以下是一些示例：
+
+Highway Racer 2 covers CrazyMx covers Smash Karts covers Crazy Crypt covers
+
+Restrictions  限制
+Don’t put borders around your game covers
+不要在你的游戏封面上加边框
+Don’t write anything else other than your game’s title (e.g. don’t write New, Updated, Play or Play now,...)
+除了你的游戏标题外不要写任何其他内容（例如不要写新版本、更新、玩或立即玩等）
+Don’t put icons or store logos in the visuals
+在视觉元素中不要加入图标或商店标志
+Don’t use copyrighted visuals that you don’t have the right to use
+不要使用你没有使用权利的版权视觉元素
+Don’t use blurry or pixelated visuals
+不要使用模糊或像素化的视觉效果
+Guidelines for cover images
+封面图片指南
+Here are a few guidelines that you should follow.
+
+Don’t just take a screenshot of the game
+不要只截取游戏截图
+We know it’s much easier to take a screenshot of the game and call it a day, but try to be more creative! Users can preview the gameplay by hovering over your game cover anyway.
+
+You can use the main character of your game as the primary visual element, a big title with a nice font, or a graphic that refers to the game without even being taken from the game itself. Game covers don’t have to be an accurate representation of the gameplay. They exist to attract users to your game’s world! Feel free to express what your game is about artistically.
+
+Game Cover Build NowGame Cover Shell Shockers
+Keep it simple!  保持简洁！
+Over-cluttered covers are hard to scan, especially on small screens. You should keep it clean, well-balanced, and easy to read.
+过于杂乱的封面难以浏览，尤其是在小屏幕上。你应该保持简洁、平衡，并易于阅读。
+
+Game Cover Tiny FishingGame Cover Capybara Clicker
+Put the name of your game directly on the cover
+直接在封面上放置你的游戏名称
+Adding the name of your game to the cover is a great way to make it more memorable! It also makes it distinct from other games that share a similar style.
+将游戏名称添加到封面上是一个使其更令人难忘的好方法！它还能让它与其他具有相似风格的其它游戏区分开来。
+
+Game Cover Helix JumpGame Cover Stick War
+Use a nice and stylized font
+使用美观且时尚的字体
+Use a font that fits your game’s aesthetic. Plenty of free fonts on the internet that could be perfect for your game, so don’t pick Times New Roman as your first option!
+使用符合你游戏美学的字体。互联网上有很多免费字体可能非常适合你的游戏，所以不要把 Times New Roman 作为你的首选！
+
+Game Cover Wild RootsGame Cover Highway Racer 2
+Preview Video  预览视频
+Most of the game thumbnails on CrazyGames also have a video preview when you hover. This chapter explains how to create a succesful preview video.
+
+Create a compelling gameplay video by capturing the most exciting and visually appealing moments. Since the developers quickly have access to the end-game levels or the most extraordinary cosmetics in the game, you can create a better video when such opportunities happen. To give a rough idea and some starting points, you can start by highlighting the best features of the game:
+制作引人入胜的游戏视频，捕捉最激动人心和视觉上最吸引人的时刻。由于开发者可以快速获得游戏末级关卡或最非凡的装饰品，当出现这样的机会时，你可以制作出更好的视频。为了提供一个大致的想法和一些起点，你可以从突出游戏的最佳功能开始：
+
+For driving games think about expensive cars driving through various maps and weather conditions, using different camera angles like dashboard views for an immersive experience.
+对于赛车游戏，可以考虑昂贵汽车在各种地图和天气条件下行驶，使用不同的相机角度，如仪表盘视图，以获得沉浸式体验。
+For multiplayer games, record a lobby full of players, cycle through different maps, and include the biggest celebration/prize, if applicable.
+对于多人游戏，录制一个充满玩家的大厅，循环切换不同的地图，如果适用，包括最大的庆祝/奖励。
+For action-packed games, showcase intense battles across multiple game modes, featuring different weapons, killstreaks, and even impressive buildings or platforms created within the game.
+对于动作类游戏，展示跨越多种游戏模式的激烈战斗，包括不同的武器、连杀奖励，甚至游戏中创建的令人印象深刻的建筑或平台。
+If character progression is a key feature, display evolution and customization, ensuring that different game modes are represented to highlight gameplay variety.
+如果角色成长是关键特性，展示进化和定制，确保不同游戏模式得到体现，以突出游戏玩法多样性。
+You can use animated video as long as it represents the gameplay and is not misleading.
+只要它代表游戏玩法且不具误导性，您可以使用动画视频。
+Video Requirements  视频要求
+Video Length: 15-20 seconds maximum, longer videos will be cut to 20 seconds
+视频长度：最长 15-20 秒，更长的视频将被截断至 20 秒
+Video Size: 50MB maximum
+视频大小：最大 50MB
+Resolutions:  分辨率：
+Full-screen size in landscape (1080p - 16:9 ratio) (mandatory)
+横向全屏尺寸（1080p - 16:9 比例）（强制要求）
+Full-screen size in portrait (1080p - 2:3 ratio) (mandatory)
+全屏尺寸在竖屏模式（1080p - 2:3 比例）（必填）
+Avoid these elements:  避免使用以下元素：
+Opening transition  开屏转场
+Black screen and logo transition
+黑屏和标志过渡
+Black bars top & bottom
+黑边条顶部 & 底部
+Default mouse cursor  默认鼠标光标
+"Play Now" text or promotional texts
+"立即播放" 文本或促销文本
+App or social media icons
+应用或社交媒体图标
+No fast-forwarding: We automatically speed up the video slightly when processing it
+不快进：我们在处理视频时自动稍微加速
+No sound  无声
+Video editing & conversion tool
+视频编辑与转换工具
+
+We recommend using  我们推荐使用
+
+ClipChamp (Windows) and iMovie (Mac) for video editing
+ClipChamp (Windows) 和 iMovie (Mac) 用于视频编辑
+HandBrake: an open-source video conversion tool
+HandBrake：一个开源视频转换工具
+Video examples  视频示例
+Some examples of good videos:
+一些好的视频示例：
+
+Holey.io
+MMA Manager 2  MMA 经理 2
+Horror Tale 2  恐怖故事 2
+Made with Material for MkDocs
+Ask AI
+Skip to content
+logo
+CrazyGames Documentation
+Quality guidelines
+
+
+Search
+
+  
+Submit a game
+CrazyGames Documentation 
+CrazyGames 文档
+Introduction 
+  
+简介
+Requirements 
+  
+要求
+Introduction 
+  
+简介
+Technical 
+  
+技术
+Gameplay 
+  
+游戏玩法
+Advertisement 
+  
+广告
+Account integration 
+  
+账户集成
+Multiplayer 
+  
+多人游戏
+Game covers 
+  
+游戏涵盖
+Quality guidelines 
+  
+质量指南
+SDK
+Resources 
+  
+资源
+Partners 
+  
+合作伙伴
+FAQ & Contact 
+  
+常见问题 & 联系方式
+Payouts 
+  
+支付
+Table of contents 
+目录
+Onboarding 
+  
+入职培训/新员工引导
+General principles 
+  
+一般原则
+What makes your game a fun experience? 
+你的游戏是什么让体验变得有趣？
+Is your game unique? 
+你的游戏是否独特？
+Is your game aesthetically pleasing? 
+你的游戏在视觉上吸引人吗？
+Restricted Keys 
+  
+限制按键
+Quality guidelines  质量指南
+Guideline  指南
+
+This page describes a number of guidelines to publish a succesful game on the CrazyGames platform. The guidelines should be used alongside our mandatory requirements.
+本页面描述了在 CrazyGames 平台上发布成功游戏的一系列指南。这些指南应与我们的强制性要求一起使用。
+
+Whether a game is "good" or "bad" can often be subjective, but there are best practices learned from our experiences with successful games. The following list is non-exhaustive.
+一个游戏是“好”还是“坏”往往具有主观性，但我们可以从成功的游戏中吸取最佳实践。以下列表并非详尽无遗。
+
+Onboarding  新手引导
+For a game to be successful it is crucial that users get to gameplay quickly, understand what the game is about and how to control it. A good onboarding is paramount to make this possible:
+为了让游戏成功，用户必须能够快速进入游戏玩法，理解游戏内容以及如何控制它。一个好的引导至关重要，以便实现这一点：
+
+Provide a simple onboarding phase where new users land directly.
+提供一个简单的新手引导阶段，让新用户直接进入。
+Implement the onboarding in gameplay.
+在游戏中实现新手引导。
+Focus on the core functionality so users can start playing, avoid explaining every single feature.
+专注于核心功能，让用户能够开始游戏，避免解释每一个功能。
+Make the onboarding phase skippable.
+使新手引导阶段可选跳过。
+Prioritize visuals and limit the use of text for onboarding.
+优先考虑视觉效果，限制新手引导中的文本使用。
+Show the user how to control the game with a keyboard overlay or mouse gestures. See Restricted Keys for more info.
+向用户展示如何使用键盘覆盖层或鼠标手势来控制游戏。有关更多信息，请参阅受限按键。
+Make sure the UI is clear.
+确保界面清晰。
+Buttons are clearly labeled to indicate how to proceed.
+按钮标签清晰，指示如何继续。
+Buttons are not sized to encourage ads or other behaviors.
+按钮尺寸设置不当，以避免鼓励广告或其他行为。
+Buttons do not have delays to confuse users or encourage other behaviors.
+按钮不会设置延迟来迷惑用户或鼓励其他行为。
+General principles  一般原则
+Once a user is onboarded into the game, here are some general principles for web games:
+一旦用户被接入游戏中，以下是一些网页游戏的一般原则：
+
+There are clear goals that the player can reach.
+玩家有明确的目标可以达成。
+The game is easy to learn.
+游戏易于学习。
+The game is easy to understand — the language is correct and clear, well translated, or the game makes good use of universal graphics prompts.
+游戏易于理解——语言正确清晰，翻译良好，或者游戏很好地使用了通用图形提示。
+The controls are consistent and intuitive throughout the game.
+游戏中的控制始终如一且直观。
+What makes your game a fun experience?
+是什么让您的游戏成为一次有趣的体验？
+Attributes of a web game that adheres to best practices:
+遵循最佳实践的网络游戏属性：
+
+The game responds quickly to the player's actions.
+游戏对玩家的操作响应迅速。
+The challenge, strategy, and game story are balanced and well-paced.
+挑战、策略和游戏故事平衡且节奏得当。
+The display layout is comfortable and intuitive.
+显示布局舒适且直观。
+The audio is comfortable and appropriate for the game.
+音频舒适，适合游戏。
+The game interface is designed for the user's device (desktop and optionally mobile).
+游戏界面为用户设备（台式机和可选的移动设备）设计。
+Various player segments can enjoy the game.
+各种玩家群体都能享受游戏。
+The game story or scenarios are interesting where applicable.
+在适用的情况下，游戏故事或场景很有趣。
+There are no overly repetitive or "boring" tasks in the game.
+游戏中没有过于重复或"无聊"的任务。
+The game processes information quickly to give players a feeling of smooth flow and continuity.
+游戏快速处理信息，给玩家带来流畅连续的感觉。
+Solo play and playing with friends:
+单人游戏和与朋友一起玩：
+Playing alone is as prominent as playing with friends if both are offered.
+如果两者都提供，单人玩和与朋友一起玩一样突出。
+If playing alone is not available, the game clearly explains that.
+如果单独玩不可用，游戏会清楚地解释这一点。
+Is your game unique?
+你的游戏很独特吗？
+Attributes of a web game that adheres to best practices:
+遵循最佳实践的网络游戏属性：
+
+It should be easy to improve or modify the game to add new content like new levels, art, story elements, etc.
+应该很容易改进或修改游戏以添加新内容，如新关卡、艺术、故事元素等。
+Major features such as the game's genre should not change after submission.
+主要功能如游戏类型在提交后不应更改。
+The game should be frequently maintained and updated.
+游戏应进行频繁的维护和更新。
+The game is not easily confused with another that features a similar name or iconography.
+游戏不应与其他具有相似名称或图标的游戏容易混淆。
+The game does not use a common identifier unless the game developer owns the respective IP.
+除非游戏开发者拥有相应的知识产权，否则游戏不应使用通用标识符。
+E.g. the name “Super Chess” is unique and clear, while simply “Chess” is not.
+例如，“Super Chess”这个名字独特且清晰，而单纯的“Chess”则不然。
+The name “Scrabble” is clear and unique, but can only be used by the IP holder.
+“Scrabble”这个名字清晰独特，但只能由知识产权持有人使用。
+Is your game aesthetically pleasing?
+你的游戏在视觉上吸引人吗？
+Attributes of a web game that adheres to best practices:
+遵循最佳实践的网络游戏属性：
+
+Graphics should be of high quality.
+图形应具有高质量。
+High resolution — quality games are visually pleasing.
+高分辨率——高质量的游戏在视觉上令人愉悦。
+Quality games have consistent resolution throughout the game.
+高质量的游戏在整个游戏中具有一致的分辨率。
+Quality games are free of graphical defects like compression artifacts.
+高质量的游戏没有图形缺陷，如压缩伪影。
+Audio should be of high quality
+音频质量应高
+Audio levels are consistent.
+音频电平一致。
+Sounds aren't too loud or quiet
+声音不太大也不太小
+Any music in the game complements the visual experience
+游戏中的任何音乐都增强了视觉体验
+In addition to having no technical graphical issues, the game is internally consistent, coherent, and has attractive visuals. The games aesthetic style should remain consistent and not switch between looks i.e. moving from realistic to cartoony, or high resolution to low resolution.
+除了没有技术性的图形问题外，游戏内部一致、连贯，并且视觉效果吸引人。游戏的美学风格应该保持一致，不应该在视觉上切换，即不会从写实切换到卡通，或从高分辨率切换到低分辨率。
+
+The game is clear about what it is. It isn't misleading and is clear about what genre and type of game it is overall. The name and imagery presented on CrazyGames should reflect accurately the type of game the player will experience. The game only changes its name and associated imagery where totally necessary, such as when a significant update or visual overhaul of the game takes place.
+游戏明确说明了它是什么。它不会误导玩家，并且清楚地表明了它的类型和整体游戏类型。CrazyGames 上展示的名称和图像应准确反映玩家将体验到的游戏类型。游戏只在完全必要时更改名称和相关图像，例如在游戏进行重大更新或视觉大改时。
+
+Restricted Keys  限制按键
+It's important that the game controls are intuitive and easy to learn.
+游戏控制应该直观且易于学习，这一点很重要。
+Preferably make your key bindings adapt to the user's keyboard layout, rather than requiring the user to change their own bindings.
+最好让您的快捷键适应用户的键盘布局，而不是要求用户更改自己的快捷键。
+Note that in some countries, like France, the standard keyboard has AZERTY layout, and the typical WASD keys for movement are ZQSD on that layout.
+请注意，在法国等一些国家，标准键盘有 AZERTY 布局，而典型的 WASD 移动键在该布局上是 ZQSD 。
+Avoid common keys that have other behaviour on web:
+避免使用在网页上有其他行为的常见键。
+Escape closes fullscreen   Escape 关闭全屏模式
+Ctrl / Cmd + W closes the tab; you can disable this when the user is in fullscreen
+Ctrl / Cmd + W 关闭标签页；当用户处于全屏模式时，可以禁用此功能
+Made with Material for MkDocs
+Ask AI
