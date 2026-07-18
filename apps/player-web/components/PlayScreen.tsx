@@ -73,6 +73,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const setLastGrant = useSaveStore((s) => s.setLastGrant)
 
   const rewardedRef = useRef(false)
+  const gameplayStartedRef = useRef(false)
   const playCountedRef = useRef(false)
   const [adBusy, setAdBusy] = useState(false)
   const [adError, setAdError] = useState(false)
@@ -118,6 +119,37 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }, [adminMode])
 
   useEffect(() => {
+    if (adminMode) return
+    function onVisibilityChange() {
+      if (document.hidden) {
+        getPlatform().gameplayStop()
+      } else if (gameplayStartedRef.current && uiPhase !== 'terminal') {
+        getPlatform().gameplayStart()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+  }, [adminMode, uiPhase])
+
+  useEffect(() => {
+    if (adminMode || uiPhase !== 'playing' || getPlatform().kind === 'standalone') return
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null
+      if (target?.matches('input, textarea, select, [contenteditable="true"]')) return
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(event.key)) event.preventDefault()
+    }
+    function onWheel(event: WheelEvent) {
+      event.preventDefault()
+    }
+    window.addEventListener('keydown', onKeyDown, { passive: false })
+    window.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('wheel', onWheel)
+    }
+  }, [adminMode, uiPhase])
+
+  useEffect(() => {
     if (muted || !juice) return
     if (juice.kind === 'jump') {
       playSfx(state.chain && state.chain.count >= 2 ? 'chain' : 'jump')
@@ -142,6 +174,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     terminalReportedRef.current = false
     guidanceReportedRef.current = false
     terminalSfxDone.current = false
+    gameplayStartedRef.current = false
     attemptStartedAtRef.current = Date.now()
     firstCapturePlyRef.current = null
     prevEaten.current = 0
@@ -382,6 +415,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     }
     if (resetArmTimer.current) clearTimeout(resetArmTimer.current)
     if (!adminMode) getPlatform().gameplayStop()
+    gameplayStartedRef.current = false
     setResetArmed(false)
     rewardedRef.current = false
     playCountedRef.current = false
@@ -411,7 +445,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }
 
   function handleSelectWolf(wolfId: string) {
-    if (interactive && !adminMode) getPlatform().gameplayStart()
+    if (interactive && !adminMode) {
+      gameplayStartedRef.current = true
+      getPlatform().gameplayStart()
+    }
     if (interactive && wolfId !== selectedWolfId) playSfx('select')
     selectWolf(wolfId)
     if (interactive) showNotice(p.wolfSelected)
@@ -436,7 +473,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }
 
   function handleEndChain() {
-    if (!adminMode) getPlatform().gameplayStart()
+    if (!adminMode) {
+      gameplayStartedRef.current = true
+      getPlatform().gameplayStart()
+    }
     endChain()
   }
 

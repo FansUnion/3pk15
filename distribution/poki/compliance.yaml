@@ -211,7 +211,7 @@ requirements:
       - apps/player-web/lib/platform.ts
       - apps/player-web/components/PlayScreen.tsx
       - apps/web/src/lib/platform.test.ts
-    gap_zh: 首次有效玩家输入、终局、离页和重开已接入去重start/stop；仍缺菜单/页面可见性细化、真实SDK和Inspector证据。
+    gap_zh: 首次有效玩家输入、终局、离页、重开和页面可见性已接入去重start/stop；仍缺真实SDK和Inspector证据。
 
   - id: POKI-SDK-004
     category: sdk
@@ -260,11 +260,13 @@ requirements:
     requirement_zh: 游玩时阻止方向键/空格/滚轮导致父页面滚动。
     level: required
     applicability: applicable
-    status: missing
+    status: partial
     official_url: https://sdk.poki.com/html5.html
     last_verified: 2026-07-17
-    evidence: []
-    gap_zh: 未见官方推荐的 keydown/wheel preventDefault 片段。
+    evidence:
+      - apps/player-web/components/PlayScreen.tsx
+      - scripts/check-platform-boundaries.mjs
+    gap_zh: Portal游玩阶段已阻止方向键、空格和滚轮默认滚动；仍需在Poki iframe和Inspector中验证父页行为。
 
   - id: POKI-SDK-008
     category: sdk
