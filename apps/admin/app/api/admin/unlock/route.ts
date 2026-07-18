@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 export async function POST(req: Request) {
   const expected = process.env.ADMIN_ACCESS_KEY ?? ''
   if (!expected) {
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: false, error: 'admin key is not configured' }, { status: 503 })
   }
   let body: { key?: string }
   try {

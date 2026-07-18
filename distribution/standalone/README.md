@@ -105,7 +105,7 @@ apps/player-web/.env.local
 apps/admin/.env.local
 ```
 
-模板中的空密钥只能用于本地无保护调试；部署 Admin 时必须在 Vercel 中填写强随机 Secret。
+模板中的空密钥只能表示“未配置”，不能用于 Admin 生产访问；当前代码会在密钥为空时拒绝 Admin 访问。部署 Admin 时必须在 Vercel 中填写强随机 Secret。
 
 ## 生产配置
 
