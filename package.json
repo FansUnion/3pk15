@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "pnpm --filter @wolf-sheep/web dev",
     "dev:player": "pnpm --filter @wolf-sheep/player-web dev",
+    "dev:admin": "pnpm --filter @wolf-sheep/admin dev",
     "build:player": "pnpm --filter @wolf-sheep/player-web build",
+    "build:admin": "pnpm --filter @wolf-sheep/admin build",
     "build:player:standalone": "pnpm --filter @wolf-sheep/player-web build:standalone",
     "build:player:poki": "pnpm --filter @wolf-sheep/player-web build:poki",
     "build:player:crazygames": "pnpm --filter @wolf-sheep/player-web build:crazygames",
