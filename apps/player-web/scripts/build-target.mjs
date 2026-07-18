@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { cpSync, rmSync } from 'node:fs'
+import { cpSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -14,7 +14,11 @@ if (!supported.includes(platform)) {
 rmSync(join(appRoot, '.next'), { recursive: true, force: true })
 cpSync(join(appRoot, '../web/public'), join(appRoot, 'public'), { recursive: true })
 
-const result = spawnSync('pnpm', ['exec', 'next', 'build'], {
+const command = process.platform === 'win32' ? (process.env.ComSpec ?? 'cmd.exe') : 'pnpm'
+const commandArgs = process.platform === 'win32'
+  ? ['/d', '/s', '/c', 'pnpm exec next build']
+  : ['exec', 'next', 'build']
+const result = spawnSync(command, commandArgs, {
   cwd: appRoot,
   env: {
     ...process.env,
@@ -24,6 +28,22 @@ const result = spawnSync('pnpm', ['exec', 'next', 'build'], {
     ADMIN_ENABLED: 'false',
   },
   stdio: 'inherit',
-  shell: true,
 })
-process.exit(result.status ?? 1)
+if (result.error) {
+  console.error(`Unable to start player build: ${result.error.message}`)
+  process.exit(1)
+}
+if (result.status !== 0) process.exit(result.status ?? 1)
+
+const revision = spawnSync('git', ['rev-parse', '--short', 'HEAD'], {
+  cwd: appRoot,
+  encoding: 'utf8',
+}).stdout?.trim() || 'unknown'
+writeFileSync(join(appRoot, '.next/fangrush-build.json'), `${JSON.stringify({
+  app: 'player-web',
+  target: platform,
+  appShell: platform === 'standalone' ? 'standalone' : 'portal',
+  adsProvider: platform === 'standalone' ? 'none' : 'portal_sdk',
+  adminEnabled: false,
+  revision,
+}, null, 2)}\n`)
