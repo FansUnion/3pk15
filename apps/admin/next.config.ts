@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
     config.resolve.alias['@/components/admin/SkinBoardPreview'] = join(process.cwd(), 'components/SkinBoardPreview.tsx')
     config.resolve.alias['@/components/admin/aiFixtures'] = join(process.cwd(), 'components/aiFixtures.ts')
     config.resolve.alias['@/components/admin/AdminPlayScreen'] = join(process.cwd(), 'components/AdminPlayScreen.tsx')
+    config.resolve.alias['@/lib/admin-level-reviews'] = join(process.cwd(), 'lib/admin-level-reviews.ts')
+    config.resolve.alias['@/lib/play-metrics'] = join(process.cwd(), 'lib/play-metrics.ts')
     return config
   },
 }
