@@ -4,7 +4,7 @@ import { dirname, extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const webRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
-const publicRoot = join(webRoot, 'public')
+const publicRoot = join(webRoot, '../../packages/web-assets/public')
 const scanRoots = [join(webRoot, 'src'), join(webRoot, '../../packages/game-core/src')]
 const sourceExtensions = new Set(['.ts', '.tsx', '.js', '.mjs'])
 const assetPattern = /['"](\/[A-Za-z0-9_./-]+\.(?:svg|png|jpe?g|webp|wav|mp3|ogg))['"]/g

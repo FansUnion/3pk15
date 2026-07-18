@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../../..')
-const publicSkins = join(root, 'apps/web/public')
+const publicSkins = join(root, 'packages/web-assets/public')
 
 const required = [
   '/skins/default/wolf.svg',

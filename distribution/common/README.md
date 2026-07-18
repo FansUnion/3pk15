@@ -9,7 +9,7 @@
 - 无平台UI的真实游戏截图和可用于封面设计的高分辨率局面。
 - 24关、皮肤、奖励和核心功能的事实核对入口。
 
-现有品牌文案见 [`docs/普通文档ing/美术等资源/01-品牌文案和游戏上架材料.md`](../../docs/普通文档ing/美术等资源/01-品牌文案和游戏上架材料.md)，运行资源当前源文件见 `apps/web/public`，构建时同步到 `apps/player-web/public`；运行时玩家代码归 `apps/player-web`，Admin 不进入发行包。
+现有品牌文案见 [`docs/普通文档ing/美术等资源/01-品牌文案和游戏上架材料.md`](../../docs/普通文档ing/美术等资源/01-品牌文案和游戏上架材料.md)，运行资源源文件见 `packages/web-assets/public`，构建时同步到 `apps/player-web/public` 和 Admin 构建目录；运行时玩家代码归 `apps/player-web`，Admin 不进入发行包。
 
 ## 待办
 

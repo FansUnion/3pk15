@@ -7,7 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const dir = path.resolve(__dirname, '../../public/skins/boards')
+const dir = path.resolve(__dirname, '../../../packages/web-assets/public/skins/boards')
 
 function board(id, { base, mid, deep, line, accent, frost = false }) {
   const blades = frost

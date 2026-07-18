@@ -12,7 +12,7 @@ if (!supported.includes(platform)) {
 }
 
 rmSync(join(appRoot, '.next'), { recursive: true, force: true })
-cpSync(join(appRoot, '../web/public'), join(appRoot, 'public'), { recursive: true })
+cpSync(join(appRoot, '../../packages/web-assets/public'), join(appRoot, 'public'), { recursive: true })
 
 const command = process.platform === 'win32' ? (process.env.ComSpec ?? 'cmd.exe') : 'pnpm'
 const commandArgs = process.platform === 'win32'

@@ -19,7 +19,7 @@ pnpm audit:admin-artifact
 
 Admin 使用与玩家应用相同的 `packages/game-core` 和 `packages/web-shared`，但不应进入玩家构建产物；Admin自身也不应包含公开玩家路由。
 
-Admin构建前会从 `apps/web/public` 同步运行时资源到独立生成目录；资源源文件仍只维护在 `apps/web/public`，同步目录不提交到 Git。
+Admin 构建前会从 `packages/web-assets/public` 同步运行时资源到独立生成目录；同步目录不提交到 Git。
 
 ## 访问控制
 
