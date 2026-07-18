@@ -53,7 +53,7 @@ Install Command 使用仓库现有的 `pnpm install --frozen-lockfile`（若 Ver
 | Project | Production 必要口径 | Preview 口径 |
 |---|---|---|
 | Player | `NEXT_PUBLIC_APP_SHELL=standalone`、`NEXT_PUBLIC_PLATFORM=standalone`、`NEXT_PUBLIC_ADS_PROVIDER=none`、`ADMIN_ENABLED=false`、正式 `NEXT_PUBLIC_SITE_URL` | 使用预览域名或测试域名；仍关闭 Admin 和广告 |
-| Admin | `ADMIN_ENABLED=true`、强随机 `ADMIN_ACCESS_KEY`、Admin 正式 URL | 使用独立测试密钥；不得复用 Production 密钥 |
+| Admin | `NEXT_PUBLIC_APP_SHELL=admin`、`ADMIN_ENABLED=true`、强随机 `ADMIN_ACCESS_KEY` | 使用独立测试密钥；不得复用 Production 密钥 |
 
 `ADMIN_ACCESS_KEY` 只能作为 Vercel Secret 配置在 Admin Project，不能出现在 `NEXT_PUBLIC_*`、玩家 Project、Git、构建日志或截图中。Player Project 不配置 Admin 密钥。
 
