@@ -5,9 +5,14 @@ import { dirname, join } from 'node:path'
 const cwd = dirname(fileURLToPath(import.meta.url))
 const webRoot = join(cwd, '..')
 const requestedPlatform = process.argv[2] ?? 'standalone'
-const platform = ['standalone', 'poki', 'crazygames'].includes(requestedPlatform)
-  ? requestedPlatform
-  : 'standalone'
+const supportedPlatforms = ['standalone', 'poki', 'crazygames']
+
+if (!supportedPlatforms.includes(requestedPlatform)) {
+  console.error(`Unsupported platform "${requestedPlatform}". Expected one of: ${supportedPlatforms.join(', ')}`)
+  process.exit(1)
+}
+
+const platform = requestedPlatform
 
 const env = {
   ...process.env,

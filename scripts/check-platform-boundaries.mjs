@@ -8,6 +8,7 @@ const buildScript = readFileSync(join(root, 'apps/web/scripts/build-portal.mjs')
 const envExample = readFileSync(join(root, 'apps/web/.env.example'), 'utf8')
 
 const checks = [
+  ['unsupported platform targets fail explicitly', buildScript, /if \(!supportedPlatforms\.includes\(requestedPlatform\)\)/],
   ['standalone uses the standalone shell', buildScript, /NEXT_PUBLIC_APP_SHELL:\s*platform === 'standalone' \? 'standalone' : 'portal'/],
   ['standalone is ad-free in production builds', buildScript, /NEXT_PUBLIC_ADS_PROVIDER:\s*platform === 'standalone' \? 'unavailable' : 'portal_sdk'/],
   ['portal builds disable Admin', buildScript, /ADMIN_ENABLED:\s*'false'/],
