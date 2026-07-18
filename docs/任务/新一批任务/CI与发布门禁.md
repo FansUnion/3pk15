@@ -1,6 +1,6 @@
 # CI 与发布门禁专项（待确认）
 
-> 实施状态（2026-07-18）：本地方案已执行。CI 改为调用唯一的 `release:check`，使用冻结锁文件、并发取消、超时和官方当前 Actions 版本；门禁补齐核心类型检查、皮肤检查和详细应用测试输出。本地完整门禁通过。GitHub Linux 结果需由本次提交后的 Actions 运行最终确认。
+> 实施状态（2026-07-18）：已定位并修复根因。CI 使用冻结锁文件、并发取消、超时和官方当前 Actions 版本；命令定义集中在 `release:check`，GitHub 按 gate ID 展示具体失败阶段。根因是 `web-shared` 只指向未纳入 Git 的 `dist`，本地残留产物掩盖问题；工作区导出已改为 `src/index.ts`。本地已在临时移走 dist 后复测通过，等待 GitHub Linux 最终绿灯。
 
 ## 一、问题与目标
 
@@ -28,11 +28,11 @@ CI=true pnpm test:web
 
 均通过：玩家端 6 个测试文件、19 个测试；Admin 1 个测试文件、2 个测试。由此可确认测试并非在所有环境稳定失败，问题与 GitHub 的 Linux/干净安装环境、资源限制或未显示的具体测试错误有关。
 
-### 3. 当前未确认项
+### 3. 根因确认
 
-**未确认：CI 中具体失败的测试文件和断言。**
+分阶段门禁将失败定位到 `apps/player-web/lib/active-game.test.ts`。该实现引用 `@wolf-sheep/web-shared`，而包清单此前只声明 `dist/index.js` 和 `dist/index.d.ts`；`dist` 不受 Git 管理。Windows 本地存在旧构建产物，因此测试通过；GitHub 干净检出没有 dist，因此模块解析失败。
 
-公开 Actions 页面只给出 `test:web` 退出码 1；未登录状态无法下载完整 job log，本地也未复现。缺少的证据是失败步骤的完整 stdout/stderr。不能把 Node 警告或 Linux 差异直接写成根因。
+修复后，`web-shared` 与 `game-core` 一致，通过 package exports 将工作区类型和默认入口指向 `src/index.ts`。临时移走本地 dist 后再次运行 active-game 测试通过，证明测试不再依赖残留构建产物。
 
 ## 三、`ci.yml` 是否有价值
 
