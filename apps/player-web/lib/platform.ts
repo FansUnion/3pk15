@@ -8,6 +8,8 @@ export interface GamePlatform {
   gameplayStart(): void
   gameplayStop(): void
   shareUrl(levelId: string): string
+  isAudioMuted(): boolean
+  subscribeAudioMuted(listener: (muted: boolean) => void): () => void
 }
 
 export interface PlatformLifecyclePort {
@@ -15,6 +17,8 @@ export interface PlatformLifecyclePort {
   gameplayStart?(): void
   gameplayStop?(): void
   shareUrl?(levelId: string): string | undefined
+  isAudioMuted?(): boolean
+  subscribeAudioMuted?(listener: (muted: boolean) => void): (() => void) | void
 }
 
 class BasePlatform implements GamePlatform {
@@ -50,6 +54,14 @@ class BasePlatform implements GamePlatform {
     if (platformUrl) return platformUrl
     if (typeof window === 'undefined') return `/hunt/${levelId}`
     return new URL(`/hunt/${levelId}`, window.location.origin).toString()
+  }
+
+  isAudioMuted() {
+    return this.lifecycle.isAudioMuted?.() ?? false
+  }
+
+  subscribeAudioMuted(listener: (muted: boolean) => void) {
+    return this.lifecycle.subscribeAudioMuted?.(listener) ?? (() => undefined)
   }
 }
 

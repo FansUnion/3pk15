@@ -31,4 +31,27 @@ describe('platform lifecycle boundary', () => {
     })
     expect(platform.shareUrl('spring-01')).toBe('https://portal.example/play?level=spring-01')
   })
+
+  it('exposes platform mute state and change events', () => {
+    let muted = true
+    let notify: ((value: boolean) => void) | undefined
+    const unsubscribe = vi.fn()
+    const platform = createGamePlatform('crazygames', new UnavailableAds(), {
+      isAudioMuted: () => muted,
+      subscribeAudioMuted: (listener) => {
+        notify = listener
+        return unsubscribe
+      },
+    })
+    const listener = vi.fn()
+
+    expect(platform.isAudioMuted()).toBe(true)
+    const release = platform.subscribeAudioMuted(listener)
+    muted = false
+    notify?.(muted)
+    release()
+
+    expect(listener).toHaveBeenCalledWith(false)
+    expect(unsubscribe).toHaveBeenCalledOnce()
+  })
 })

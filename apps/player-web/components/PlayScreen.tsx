@@ -98,7 +98,8 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const firstCapturePlyRef = useRef<number | null>(null)
   const [terminalDetails, setTerminalDetails] = useState<TerminalAttemptDetails | null>(null)
   const [adminMuted, setAdminMuted] = useState(false)
-  const muted = adminMode ? adminMuted : (save.settings?.muted ?? false)
+  const [platformMuted, setPlatformMuted] = useState(false)
+  const muted = adminMode ? adminMuted : platformMuted || (save.settings?.muted ?? false)
   const clientMessages = useClientMessages()
   const locale = localeOverride ?? clientMessages.locale
   const t = localeOverride ? getMessages(localeOverride) : clientMessages.t
@@ -116,6 +117,13 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     const platform = getPlatform()
     platform.loadingFinished()
     return () => platform.gameplayStop()
+  }, [adminMode])
+
+  useEffect(() => {
+    if (adminMode) return
+    const platform = getPlatform()
+    setPlatformMuted(platform.isAudioMuted())
+    return platform.subscribeAudioMuted(setPlatformMuted)
   }, [adminMode])
 
   useEffect(() => {
@@ -157,6 +165,11 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       playSfx('step')
     }
   }, [juice, muted, state.chain])
+
+  useEffect(() => {
+    if (muted) void suspendSfx()
+    else void resumeSfx()
+  }, [muted])
 
   useEffect(() => {
     if (!muted && uiPhase === 'aiThinking') playSfx('ai')

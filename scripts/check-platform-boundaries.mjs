@@ -20,6 +20,7 @@ const checks = [
   ['gameplay stop reaches terminal or cleanup', playScreen, /getPlatform\(\)\.gameplayStop\(\)/],
   ['visibility changes reach platform lifecycle', playScreen, /visibilitychange/],
   ['portal play prevents parent-page wheel scrolling', playScreen, /addEventListener\('wheel'[\s\S]*passive: false/],
+  ['platform mute overrides player audio', playScreen, /platformMuted \|\| \(save\.settings\?\.muted/],
   ['player environment defaults to no ads', envExample, /NEXT_PUBLIC_ADS_PROVIDER=none/],
   ['all target verification aliases exist', rootPackage, /verify:player:standalone[\s\S]*verify:player:poki[\s\S]*verify:player:crazygames/],
 ]
