@@ -90,7 +90,7 @@ export default function AdminDocsPage() {
           <li>坐标系：(行 1–6, 列 1–6)；交点制。</li>
           <li>章节 AI：春 easy / 夏秋 normal / 冬 hard；章内关卡不换档。</li>
           <li>吃子几何：隔空吃「狼—空—羊」，与 game-core 规则一致。</li>
-          <li>文案源：apps/web/src/i18n/messages.ts → howTo / home.faq</li>
+          <li>文案源：apps/player-web/i18n/messages.ts → howTo / home.faq</li>
         </ul>
       </details>
     </main>
