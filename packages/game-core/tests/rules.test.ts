@@ -66,8 +66,76 @@ describe('threefold repetition', () => {
     }
 
     expect(state.status).toBe('draw')
+    expect(state.terminalReason).toBe('repetition')
     expect(state.chain).toBeNull()
     expect(state.repetitionCounts.get(boardPositionKey(state))).toBe(3)
+  })
+
+  it('treats same-side piece identities as strategically interchangeable', () => {
+    const first = makeState({ pieces: [
+      { id: 'wolf-a', side: 'wolf', r: 6, c: 1 },
+      { id: 'wolf-b', side: 'wolf', r: 6, c: 2 },
+      { id: 'sheep-a', side: 'sheep', r: 1, c: 1 },
+      { id: 'sheep-b', side: 'sheep', r: 1, c: 2 },
+    ] })
+    const swapped = makeState({ pieces: [
+      { id: 'wolf-a', side: 'wolf', r: 6, c: 2 },
+      { id: 'wolf-b', side: 'wolf', r: 6, c: 1 },
+      { id: 'sheep-a', side: 'sheep', r: 1, c: 2 },
+      { id: 'sheep-b', side: 'sheep', r: 1, c: 1 },
+    ] })
+    expect(boardPositionKey(swapped)).toBe(boardPositionKey(first))
+  })
+})
+
+describe('sheep pass', () => {
+  const blockedSheepTurn = (maxPlies = 20) => makeState({
+    pieces: [
+      { id: 'wolf-1', side: 'wolf', r: 4, c: 4 },
+      { id: 'sheep-1', side: 'sheep', r: 6, c: 1 },
+    ],
+    rocks: [{ r: 6, c: 2 }],
+    eatenSheep: 14,
+    targetEaten: 15,
+    toMove: 'sheep',
+    maxPlies,
+  })
+
+  it('offers only a pass when no sheep can step and returns the turn to wolves', () => {
+    const state = blockedSheepTurn()
+    expect(listLegalActions(state)).toEqual([{ type: 'pass' }])
+    const result = applyAction(state, { type: 'pass' })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.state.toMove).toBe('wolf')
+    expect(result.state.plyCount).toBe(1)
+    expect(result.state.status).toBe('playing')
+  })
+
+  it('counts a pass toward maxPlies', () => {
+    const result = applyAction(blockedSheepTurn(1), { type: 'pass' })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.state.status).toBe('draw')
+    expect(result.state.terminalReason).toBe('maxPlies')
+  })
+
+  it.each(['easy', 'normal', 'hard'] as const)('%s AI returns the same legal pass', (difficulty) => {
+    const state = blockedSheepTurn()
+    expect(pickSheepAction(state, { difficulty, rng: createSeededRng(7) })).toEqual({ type: 'pass' })
+  })
+
+  it('rejects pass while sheep still have a step', () => {
+    const state = makeState({
+      pieces: [
+        { id: 'wolf-1', side: 'wolf', r: 4, c: 4 },
+        { id: 'sheep-1', side: 'sheep', r: 5, c: 1 },
+      ],
+      eatenSheep: 14,
+      targetEaten: 15,
+      toMove: 'sheep',
+    })
+    expect(applyAction(state, { type: 'pass' })).toEqual({ ok: false, error: 'Illegal action' })
   })
 })
 

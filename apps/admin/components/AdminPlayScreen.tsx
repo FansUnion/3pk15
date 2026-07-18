@@ -191,6 +191,7 @@ function ReviewSelect({ label, value, onChange, options }: { label: string; valu
 }
 
 function terminalReason(state: BoardState) {
+  if (state.terminalReason) return state.terminalReason
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
   if (state.plyCount >= state.maxPlies) return 'maxPlies'

@@ -1,6 +1,6 @@
 import type { Action, BoardState } from '../types'
 import { applyAction, endWolfTurn, listLegalActions } from '../rules'
-import { evaluateScore } from './evaluate'
+import { analyzeSheepActions, evaluateScore } from './evaluate'
 import type { Rng } from './rng'
 import { pickIndex } from './rng'
 import { pickNormal } from './normal'
@@ -11,7 +11,7 @@ export type HardBudgets = {
   maxMs?: number
 }
 
-const DEFAULT_BUDGETS: HardBudgets = { maxNodes: 4000, maxMs: 12 }
+const DEFAULT_BUDGETS: HardBudgets = { maxNodes: 80 }
 
 function clockNow() {
   return Date.now()
@@ -129,7 +129,8 @@ export function pickHardWithMeta(
   let bestScore = -Infinity
   let lookaheadCompleted = false
   const tops: Action[] = []
-  const applicable = actions.flatMap((action) => {
+  const allowed = new Set(analyzeSheepActions(state).filter((analysis) => !analysis.dominated).map((analysis) => JSON.stringify(analysis.action)))
+  const applicable = actions.filter((action) => allowed.has(JSON.stringify(action))).flatMap((action) => {
     const result = applyAction(state, action)
     return result.ok ? [{ action, result, immediateSheepScore: evaluateScore(result.state) }] : []
   })

@@ -69,10 +69,12 @@ export type {
   GameStatus,
   JumpMove,
   OpeningLayout,
+  PassAction,
   Piece,
   Pos,
   Side,
   StepMove,
+  TerminalReason,
 } from './types'
 export {
   BOARD_MAX,
@@ -103,8 +105,8 @@ export {
 } from './ai/index'
 export type { AiContext, HardBudgets, HardPickMeta, Rng } from './ai/index'
 export { pickHardWithMeta } from './ai/index'
-export { evaluate, evaluateScore } from './ai/evaluate'
-export type { EvalBreakdown } from './ai/evaluate'
+export { analyzeSheepActions, evaluate, evaluateScore } from './ai/evaluate'
+export type { EvalBreakdown, SheepActionAnalysis } from './ai/evaluate'
 export { assessLevelCandidate } from './analysis/candidateAcceptance'
 export type {
   CandidateAcceptanceOptions,

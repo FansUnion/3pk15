@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   LEVELS,
   applyAction,
+  analyzeSheepActions,
   createLevelInitialState,
   createSeededRng,
   evaluateScore,
@@ -37,6 +38,7 @@ describe('sheep AI behavior guardrails', () => {
     const risks = legal.map((action) => directCaptureCountAfter(state, action))
     expect(Math.min(...risks)).toBe(0)
     expect(Math.max(...risks)).toBeGreaterThan(0)
+    expect(analyzeSheepActions(state).some((analysis) => analysis.dominated && analysis.explanation === 'blunder')).toBe(true)
 
     for (const difficulty of ['normal', 'hard'] as const) {
       const action = pickSheepAction(state, {
@@ -45,6 +47,7 @@ describe('sheep AI behavior guardrails', () => {
         budgets: difficulty === 'hard' ? { maxNodes: 4_000, maxMs: 100 } : undefined,
       })
       expect(directCaptureCountAfter(state, action), difficulty).toBe(0)
+      expect(analyzeSheepActions(state).find((analysis) => JSON.stringify(analysis.action) === JSON.stringify(action))?.dominated).toBe(false)
     }
   })
 

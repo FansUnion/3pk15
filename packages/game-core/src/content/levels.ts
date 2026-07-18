@@ -137,17 +137,17 @@ export const CHAPTER_LABEL_EN: Record<ChapterId, string> = {
 }
 
 export const CHAPTER_BLURB_EN: Record<ChapterId, string> = {
-  spring: 'Learn gap-eat and short chains on a gentle flock — rocks stay scarce.',
-  summer: 'The flock blocks for real. Midfield rocks start to matter.',
-  autumn: 'Same AI tier as summer, but dense rocks crack your lines and create lanes.',
-  winter: 'Empty-board master duel — the hard AI surrounds without rock crutches.',
+  spring: 'Learn movement and your first captures on open ground.',
+  summer: 'Sheep defend more actively. Open a route without trapping your wolves.',
+  autumn: 'Rocks divide the board into narrow lanes. Read the route before you commit.',
+  winter: 'With no rocks to guide the route, spacing and teamwork decide the hunt.',
 }
 
 export const CHAPTER_BLURB_ZH: Record<ChapterId, string> = {
-  spring: '在温和羊群上学会隔空吃与短连吃；岩石很少，专注规则。',
-  summer: '羊群开始认真挡线，中场岩石开始影响路线。',
-  autumn: 'AI 档位与夏同级，但密岩撕开通道、逼出隔空连吃。',
-  winter: '空盘硬仗：高阶合围，不再靠岩石挡点。',
+  spring: '从开阔草地开始，学会移动和第一次捕食。',
+  summer: '羊群开始主动封路，你需要在被困前打开突破口。',
+  autumn: '岩石把棋盘分成窄道，出发前先看清入口和退路。',
+  winter: '没有岩石提示路线，三只狼的距离与配合决定胜负。',
 }
 
 const LEVEL_TEACHING_EN: Record<string, string> = {

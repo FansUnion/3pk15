@@ -85,7 +85,9 @@ export type MessageTree = {
     winSub: string
     loseSub: string
     draw: string
-    drawSub: string
+    drawRepetitionSub: string
+    drawMaxSub: string
+    gameEnded: string
     winAdvice: string
     loseAdvice: string
     firstLoseAdvice: string
@@ -102,6 +104,12 @@ export type MessageTree = {
     shareFailed: string
     levelList: string
     nextLevel: string
+    resultDetails: string
+    viewResult: string
+    closeResult: string
+    reportGame: string
+    reportReady: string
+    allSeasons: string
     resultMetrics: string
     none: string
     terminalReasons: Record<'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition' | 'unexpected', string>
@@ -255,7 +263,7 @@ export const en: MessageTree = {
     intro:
       'Fangrush is an asymmetric board hunt: you command three wolves against fifteen sheep on a 6×6 point grid.',
     winTitle: 'Win and lose',
-    winBody: 'Eat 8 sheep to clear the level. You lose if all three wolves have no legal moves.',
+    winBody: 'Reach the capture target before the flock blocks every wolf. If the flock cannot move, it passes and your turn continues.',
     moveTitle: 'Move and leap-capture',
     moveBody:
       'Wolves step orthogonally to an empty adjacent point. Leap-capture when wolf — empty — sheep share a line: land on the sheep and remove it.',
@@ -264,7 +272,7 @@ export const en: MessageTree = {
       'After a leap-capture you may capture again, up to 5 times in one turn, or stop early to keep a safer position.',
     sheepTitle: 'Sheep AI',
     sheepBody:
-      'Sheep move by AI, never capture, and cannot retreat toward row 1. Wait for their turn before you move again.',
+      'Sheep move by AI, never capture, and cannot retreat toward row 1. If the whole flock is blocked, it passes the turn.',
     rocksTitle: 'Rocks and seasons',
     rocksBody:
       'Rocks block landing points. Spring teaches rules; summer adds pressure; autumn packs rocks; winter is an empty-board hard duel.',
@@ -290,7 +298,7 @@ export const en: MessageTree = {
   hunt: {
     playCta: 'Play this hunt',
     seasonLine: '{season} · {rocks} rocks',
-    goalLine: 'Goal: eat {n} sheep · target {target} moves',
+    goalLine: 'Goal: capture {n} sheep before all wolves are blocked',
     teachingLabel: 'This hunt teaches',
     levelsLink: 'All levels in this season',
     howLink: 'How to play',
@@ -301,7 +309,7 @@ export const en: MessageTree = {
   },
   play: {
     back: 'Back',
-    eaten: 'Eaten {n}/8',
+    eaten: 'Captured {n}/{target}',
     sheepLeft: 'Sheep {n}',
     turnWolf: 'Wolf turn',
     turnSheep: 'Sheep turn',
@@ -312,10 +320,12 @@ export const en: MessageTree = {
     chainDecision: 'Red rings continue this chain. End now to keep this position and let the sheep respond.',
     win: 'Victory',
     lose: 'Defeat',
-    winSub: 'Eight sheep taken',
+    winSub: 'Capture target reached: {target}',
     loseSub: 'No moves for the wolves',
     draw: 'Stalemate',
-    drawSub: 'The hunt reached its move limit.',
+    drawRepetitionSub: 'Challenge incomplete: the same position occurred three times.',
+    drawMaxSub: 'Challenge incomplete: the action limit was reached.',
+    gameEnded: 'Game ended',
     winAdvice: 'Your route worked. Continue while the three-wolf coordination is fresh.',
     loseAdvice: 'On the retry, keep two wolves mobile while the third creates contact.',
     firstLoseAdvice: 'Retry with three roles: the center wolf approaches while both side wolves keep exits covered.',
@@ -332,7 +342,13 @@ export const en: MessageTree = {
     shareFailed: 'Sharing was cancelled or unavailable.',
     levelList: 'Level list',
     nextLevel: 'Next hunt',
-    resultMetrics: 'Attempt {attempt} · {plies} plies · {eaten} eaten · first {first} · {time} · {reason}',
+    resultDetails: 'Match details',
+    viewResult: 'View result',
+    closeResult: 'View final board',
+    reportGame: 'Report this game',
+    reportReady: 'Problem report downloaded.',
+    allSeasons: 'All seasons',
+    resultMetrics: 'Attempt {attempt} · {time} · {plies} actions · first capture {first} · {reason}',
     none: 'none',
     terminalReasons: {
       targetEaten: 'capture target',
@@ -513,13 +529,13 @@ export const zh: MessageTree = {
     metaDescription: 'Fangrush（三狼连猎）规则：隔空吃、连吃最多 5 次、岩石与四季猎场。浏览器免费玩。',
     intro: 'Fangrush 是不对称猎杀棋：你操控三狼，对阵十五羊，棋盘为 6×6 交点。',
     winTitle: '胜负',
-    winBody: '吃满 8 只羊过关；三狼皆无合法着法即败。',
+    winBody: '在三狼被全部封住前达到本关捕食目标。若全体羊都无法移动，羊方跳过一次，继续轮到狼方。',
     moveTitle: '移动与隔空吃',
     moveBody: '狼横竖走一格至空点。同线「狼—空—羊」时可隔空吃：狼落到羊位并移除该羊。',
     chainTitle: '连吃',
     chainBody: '隔空吃后可同回合继续连吃，最多 5 次；也可主动结束连吃以保全站位。',
     sheepTitle: '羊群 AI',
-    sheepBody: '羊由电脑移动，不吃子，不能向第 1 行后退。等羊走完你才能再操作。',
+    sheepBody: '羊由电脑移动，不吃子，不能向第 1 行后退。若全体羊都无路可走，羊方跳过一次。',
     rocksTitle: '岩石与四季',
     rocksBody: '岩石不可落子。春学规则、夏承压、秋密岩破阵、冬空盘硬仗。',
     saveTitle: '本地进度',
@@ -544,7 +560,7 @@ export const zh: MessageTree = {
   hunt: {
     playCta: '开始本关',
     seasonLine: '{season} · {rocks} 枚岩石',
-    goalLine: '目标：吃掉 {n} 只羊 · 预计 {target} 步',
+    goalLine: '目标：在三狼被封住前捕获 {n} 只羊',
     teachingLabel: '本关学习',
     levelsLink: '本章全部关卡',
     howLink: '怎么玩',
@@ -555,7 +571,7 @@ export const zh: MessageTree = {
   },
   play: {
     back: '返回',
-    eaten: '已吃 {n}/8',
+    eaten: '捕获 {n}/{target}',
     sheepLeft: '剩羊 {n}',
     turnWolf: '狼回合',
     turnSheep: '羊回合',
@@ -566,10 +582,12 @@ export const zh: MessageTree = {
     chainDecision: '点红圈可继续连吃；现在收手会保留当前位置，并交给羊方行动。',
     win: '胜利',
     lose: '失败',
-    winSub: '吃羊达到 8 只',
+    winSub: '已达到捕食目标：{target} 只',
     loseSub: '三狼无路可走',
-    draw: '和局',
-    drawSub: '对局达到步数上限，请重新挑战。',
+    draw: '僵局',
+    drawRepetitionSub: '挑战未完成：同一局面已经重复三次。',
+    drawMaxSub: '挑战未完成：本局已达到行动上限。',
+    gameEnded: '对局已结束',
     winAdvice: '这条狩猎路线有效。趁三狼分工还清楚，继续下一关。',
     loseAdvice: '重试时保留两狼机动，让第三只狼负责建立接触。',
     firstLoseAdvice: '重试时让中狼接近羊群，两侧狼保留出口，不要三狼追向同一处。',
@@ -586,7 +604,13 @@ export const zh: MessageTree = {
     shareFailed: '分享已取消或暂不可用。',
     levelList: '关卡列表',
     nextLevel: '进入下一关',
-    resultMetrics: '第 {attempt} 次 · {plies} plies · 吃 {eaten} · 首吃 {first} · 用时 {time} · {reason}',
+    resultDetails: '本局详情',
+    viewResult: '查看结果',
+    closeResult: '查看终局棋盘',
+    reportGame: '报告本局问题',
+    reportReady: '问题记录已下载，请将 JSON 文件发给开发者。',
+    allSeasons: '返回四季总览',
+    resultMetrics: '第 {attempt} 次 · 用时 {time} · {plies} 次行动 · 首次捕食 {first} · {reason}',
     none: '无',
     terminalReasons: {
       targetEaten: '达到捕食目标',

@@ -29,9 +29,10 @@ import { HelpContent } from '@/components/HelpContent'
 import { LocaleLink, LocaleSwitcher } from '@/components/LocaleSwitcher'
 import { getPlatform } from '@/lib/platform'
 import { shareResult, type ShareOutcome } from '@/lib/share-result'
+import { buildPlayerReproductionBundle, downloadPlayerReproductionBundle } from '@/lib/reproduction-bundle'
 import { usePlayStore } from '@/lib/play-store'
 import { useSaveStore } from '@/lib/save-store'
-import { playSfx, resumeSfx, suspendSfx } from '@/lib/sfx'
+import { playSfx, prepareSfx, resumeSfx, suspendSfx } from '@/lib/sfx'
 import {
   beginPlayAttempt,
   finishPlayAttempt,
@@ -64,6 +65,9 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const resumed = usePlayStore((s) => s.resumed)
   const aiError = usePlayStore((s) => s.aiError)
   const retryAi = usePlayStore((s) => s.retryAi)
+  const aiSeed = usePlayStore((s) => s.seed)
+  const initialAiSeed = usePlayStore((s) => s.initialSeed)
+  const actionHistory = usePlayStore((s) => s.actionHistory)
 
   const save = useSaveStore((s) => s.save)
   const hydrated = useSaveStore((s) => s.hydrated)
@@ -98,6 +102,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const attemptStartedAtRef = useRef(Date.now())
   const firstCapturePlyRef = useRef<number | null>(null)
   const [terminalDetails, setTerminalDetails] = useState<TerminalAttemptDetails | null>(null)
+  const [terminalOpen, setTerminalOpen] = useState(true)
   const [adminMuted, setAdminMuted] = useState(false)
   const [platformMuted, setPlatformMuted] = useState(false)
   const muted = adminMode ? adminMuted : platformMuted || (save.settings?.muted ?? false)
@@ -164,6 +169,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       playSfx(state.chain && state.chain.count >= 2 ? 'chain' : 'jump')
     } else {
       playSfx('step')
+      if (juice.newThreat) window.setTimeout(() => playSfx('threat'), 80)
     }
   }, [juice, muted, state.chain])
 
@@ -181,6 +187,19 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     terminalSfxDone.current = true
     playSfx(state.status === 'won' ? 'win' : 'lose')
   }, [uiPhase, state.status, muted])
+
+  useEffect(() => {
+    if (uiPhase === 'terminal') setTerminalOpen(true)
+  }, [uiPhase])
+
+  useEffect(() => {
+    if (uiPhase !== 'terminal' || !terminalOpen) return
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setTerminalOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [terminalOpen, uiPhase])
 
   useEffect(() => {
     rewardedRef.current = false
@@ -447,6 +466,23 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     playCountedRef.current = true
   }
 
+  function restartAttempt() {
+    rewardedRef.current = false
+    playCountedRef.current = false
+    terminalReportedRef.current = false
+    guidanceReportedRef.current = false
+    attemptRef.current = adminMode ? null : beginPlayAttempt(level.id)
+    attemptStartedAtRef.current = Date.now()
+    firstCapturePlyRef.current = null
+    setTerminalDetails(null)
+    setLastGrant(null)
+    setTerminalOpen(true)
+    reset()
+    if (adminMode) onAdminAttempt?.()
+    else replace(recordPlayStarted(useSaveStore.getState().save, level.id))
+    playCountedRef.current = true
+  }
+
   function toggleMute() {
     if (adminMode) {
       setAdminMuted((value) => !value)
@@ -460,6 +496,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }
 
   function handleSelectWolf(wolfId: string) {
+    void prepareSfx()
     if (interactive && !adminMode) {
       gameplayStartedRef.current = true
       getPlatform().gameplayStart()
@@ -501,6 +538,19 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     noticeTimer.current = setTimeout(() => setInteractionNotice(null), 1600)
   }
 
+  function reportCurrentGame() {
+    downloadPlayerReproductionBundle(buildPlayerReproductionBundle({
+      state,
+      difficulty: level.ai,
+      initialAiSeed,
+      nextAiSeed: aiSeed,
+      actions: actionHistory,
+      muted,
+    }))
+    setMoreOpen(false)
+    showNotice(p.reportReady)
+  }
+
   return (
     <div className="mx-auto flex min-h-dvh max-w-lg flex-col gap-3 px-4 pb-4 pt-5">
       <header className="flex items-center justify-between gap-3">
@@ -522,7 +572,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
             : 'text-[var(--ink)]'
         }`}
       >
-        <span className="game-stat flex-1 text-center sm:flex-none"><strong>{fmt(p.eaten, { n: state.eatenSheep })}</strong></span>
+        <span className="game-stat flex-1 text-center sm:flex-none"><strong>{fmt(p.eaten, { n: state.eatenSheep, target: state.targetEaten })}</strong></span>
         <span className="game-stat flex-1 text-center sm:flex-none"><strong>{fmt(p.sheepLeft, { n: sheepLeft })}</strong></span>
         <span
           className={`inline-flex w-full items-center justify-center gap-1.5 sm:w-auto ${thinking ? 'font-medium text-[var(--muted)]' : ''}`}
@@ -533,7 +583,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               thinking || state.toMove === 'sheep' ? 'bg-[var(--muted)]' : 'bg-[var(--accent)]'
             }`}
           />
-          {turnLabel(uiPhase, state, p)}
+          {uiPhase === 'terminal' ? p.gameEnded : turnLabel(uiPhase, state, p)}
         </span>
           {!adminMode && doubleLeft && (
           <span className="w-full text-xs text-[var(--muted)]">{fmt(p.doubleLeft, { t: doubleLeft })}</span>
@@ -543,7 +593,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       <div className="relative flex flex-1 flex-col items-center justify-center py-2">
         <BoardSvg
           state={state}
-          selectedWolfId={selectedWolfId}
+          selectedWolfId={uiPhase === 'terminal' ? null : selectedWolfId}
           stepHighlights={highlights.steps}
           jumpHighlights={highlights.jumps}
           jumpThroughs={highlights.throughs}
@@ -579,132 +629,66 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
         </div>
       )}
 
-      {uiPhase === 'terminal' && (
-        <div className="fixed inset-0 z-30 flex items-center justify-center overflow-y-auto bg-black/20 p-4">
-        <div role="dialog" aria-modal="true" aria-labelledby="terminal-result-title" className="game-panel victory-pop w-full max-w-lg p-5 text-center">
-          <p className="eyebrow">{state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose}</p>
-          <p id="terminal-result-title" className="font-serif text-2xl text-[var(--ink)]">
-            {state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose}
-          </p>
-          <p className="mt-1 text-sm text-[var(--muted)]">
-            {state.status === 'won' ? p.winSub : state.status === 'draw' ? p.drawSub : p.loseSub}
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--ink)]">
-            {state.status === 'won'
-              ? p.winAdvice
-              : state.status === 'draw'
-                ? p.drawAdvice
-                : level.id === 'spring-01'
-                  ? p.firstLoseAdvice
-                  : p.loseAdvice}
-          </p>
-          {terminalDetails && (
-            <p className="mt-3 text-xs tabular-nums text-[var(--muted)]">
-              {fmt(p.resultMetrics, {
-                attempt: terminalDetails.attemptNumber,
-                plies: state.plyCount,
-                eaten: state.eatenSheep,
-                first: terminalDetails.firstCapturePly ?? p.none,
-                time: formatDuration(terminalDetails.durationMs),
-                reason: terminalReasonLabel(terminalReason(state), p),
-              })}
+      {uiPhase === 'terminal' && terminalOpen && (
+        <div className="fixed inset-0 z-30 flex items-center justify-center overflow-y-auto bg-black/25 p-4">
+          <div role="dialog" aria-modal="true" aria-labelledby="terminal-result-title" className="game-panel victory-pop relative w-full max-w-md p-5 text-center">
+            <button type="button" onClick={() => setTerminalOpen(false)} aria-label={p.closeResult} title={p.closeResult} className="absolute right-3 top-3 grid h-11 w-11 place-items-center text-2xl text-[var(--muted)]">×</button>
+            <h2 id="terminal-result-title" className="pr-10 font-serif text-2xl text-[var(--ink)]">
+              {state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose}
+            </h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              {state.status === 'won' ? fmt(p.winSub, { target: state.targetEaten }) : state.status === 'draw' ? drawSubtitle(state, p) : p.loseSub}
             </p>
-          )}
-          {adBusy && <p className="mt-1 text-xs text-[#7a8574]">{p.preparing}</p>}
-          {adError && <p role="status" className="mt-1 text-xs text-[#8b2e22]">{p.adFailed}</p>}
-          {shareStatus && (
-            <p role="status" className="mt-1 text-xs text-[var(--muted)]">
-              {shareStatus === 'shared' ? p.shareShared : shareStatus === 'copied' ? p.shareCopied : shareStatus === 'downloaded' ? p.shareDownloaded : p.shareFailed}
+            <p className="mt-2 text-sm leading-relaxed text-[var(--ink)]">
+              {state.status === 'won' ? p.winAdvice : state.status === 'draw' ? p.drawAdvice : level.id === 'spring-01' ? p.firstLoseAdvice : p.loseAdvice}
             </p>
-          )}
-          {!adminMode && state.status === 'won' && lastGrant && (
-            <div className="mt-3 rounded-lg border border-[var(--line)] bg-[var(--paper)] px-3 py-3 text-left">
-              <GrantLine grant={lastGrant} labels={p} locale={locale} />
-              <p className="mt-2 text-xs text-[var(--muted)]">{fmt(p.rewardBalance, { n: save.fragments.universal })}</p>
-              {nextWolfSkin?.kind === 'wolf_set' && nextWolfSkin.unlock.type === 'cost' && (
-                <>
-                  <p className="mt-1 text-xs text-[var(--ink)]">
-                    {fmt(p.nextRewardTarget, { name: skinDisplayName(nextWolfSkin, locale), cost: nextWolfSkin.unlock.universal })}
-                  </p>
-                  <p className="mt-1 text-xs font-medium text-[var(--muted)]">
-                    {save.fragments.universal >= nextWolfSkin.unlock.universal
-                      ? p.rewardReady
-                      : fmt(p.rewardRemaining, { n: nextWolfSkin.unlock.universal - save.fragments.universal })}
-                  </p>
-                </>
-              )}
-              <p className="mt-2 text-xs text-[var(--muted)]">{p.adBonusSeparate}</p>
-              <LocaleLink href="/skins" locale={locale} className="mt-2 inline-flex text-xs font-semibold text-[var(--ink)] underline underline-offset-2">
-                {p.openSkins}
-              </LocaleLink>
-            </div>
-          )}
-          {!adminMode && <p className="mt-2 text-xs text-[#7a8574]">{fmt(p.universal, { n: save.fragments.universal })}</p>}
-          <div className="mt-4 flex flex-col items-center gap-2">
-            {!adminMode && state.status === 'won' && nextLevel && nextLevel.chapterId === level.chapterId && (
-              <div className="w-full max-w-xs rounded-lg border border-[var(--line)] bg-[var(--paper)] p-3 text-left">
-                <p className="eyebrow">{p.nextPreview}</p>
-                <p className="mt-1 font-serif text-lg text-[var(--ink)]">{levelDisplayName(nextLevel, locale)}</p>
-                <p className="mt-1 text-xs leading-relaxed text-[var(--muted)]">{levelTeachingPoint(nextLevel, locale)}</p>
-                <p className="mt-2 text-xs font-medium text-[var(--ink)]">{fmt(p.difficulty, { n: nextLevel.difficulty ?? 3 })}</p>
-                <LocaleLink
-                  href={`/play/${nextLevel.id}`}
-                  locale={locale}
-                  className="primary-action mt-3 w-full justify-center text-center"
-                >
-                  {p.nextLevel}
-                </LocaleLink>
+
+            {!adminMode && state.status === 'won' && lastGrant && (
+              <div className="mt-4 rounded-lg border border-[var(--line)] bg-[var(--paper)] px-3 py-3 text-left">
+                <GrantLine grant={lastGrant} labels={p} locale={locale} />
               </div>
             )}
-            <button
-              type="button"
-              disabled={adBusy}
-              onClick={() => {
-                rewardedRef.current = false
-                playCountedRef.current = false
-                terminalReportedRef.current = false
-                guidanceReportedRef.current = false
-                attemptRef.current = adminMode ? null : beginPlayAttempt(level.id)
-                attemptStartedAtRef.current = Date.now()
-                firstCapturePlyRef.current = null
-                setTerminalDetails(null)
-                setLastGrant(null)
-                reset()
-                if (adminMode) onAdminAttempt?.()
-                else replace(recordPlayStarted(useSaveStore.getState().save, level.id))
-                playCountedRef.current = true
-              }}
-              className="w-full max-w-xs rounded-lg border border-[var(--line)] px-4 py-3 text-center text-sm text-[var(--ink)] disabled:opacity-50"
-            >
-              {p.again}
-            </button>
-            <button
-              type="button"
-              disabled={shareBusy || adBusy}
-              onClick={() => void shareTerminalResult()}
-              className="w-full max-w-xs px-4 py-2 text-sm text-[var(--ink)] underline-offset-2 hover:underline disabled:opacity-50"
-            >
-              {shareBusy ? p.sharePreparing : p.share}
-            </button>
-            {!adminMode && state.status === 'won' && !isDoubleDropActive(save) && (
-              <button
-                type="button"
-                disabled={adBusy}
-                onClick={() => void watchDouble()}
-                className="text-sm text-[var(--muted)] underline-offset-2 hover:underline disabled:opacity-50"
-              >
-                {p.doubleAd}
-              </button>
-            )}
-            <LocaleLink
-              href={backHref}
-              locale={locale}
-              className="px-4 py-2 text-sm text-[var(--ink)] underline-offset-2 hover:underline"
-            >
-              {p.levelList}
-            </LocaleLink>
+
+            <div className="mt-4">
+              {!adminMode && state.status === 'won' ? (
+                nextLevel ? (
+                  <div className="rounded-lg border border-[var(--line)] bg-[var(--paper)] p-3 text-left">
+                    <p className="text-xs text-[var(--muted)]">{p.nextPreview}</p>
+                    <p className="mt-1 font-serif text-lg text-[var(--ink)]">{levelDisplayName(nextLevel, locale)}</p>
+                    <LocaleLink href={`/play/${nextLevel.id}`} locale={locale} className="primary-action mt-3 w-full justify-center text-center">{p.nextLevel}</LocaleLink>
+                  </div>
+                ) : (
+                  <LocaleLink href="/chapters" locale={locale} className="primary-action w-full justify-center text-center">{p.allSeasons}</LocaleLink>
+                )
+              ) : (
+                <button type="button" onClick={restartAttempt} className="primary-action w-full justify-center">{p.again}</button>
+              )}
+            </div>
+
+            <details className="mt-3 border-t border-[var(--line)] pt-3 text-left">
+              <summary className="cursor-pointer text-center text-sm text-[var(--muted)]">{p.resultDetails}</summary>
+              {terminalDetails && <p className="mt-3 text-xs tabular-nums text-[var(--muted)]">{fmt(p.resultMetrics, { attempt: terminalDetails.attemptNumber, plies: state.plyCount, eaten: state.eatenSheep, first: terminalDetails.firstCapturePly ?? p.none, time: formatDuration(terminalDetails.durationMs), reason: terminalReasonLabel(terminalReason(state), p) })}</p>}
+              {!adminMode && state.status === 'won' && <p className="mt-2 text-xs text-[var(--muted)]">{fmt(p.rewardBalance, { n: save.fragments.universal })}</p>}
+              {!adminMode && state.status === 'won' && nextWolfSkin?.kind === 'wolf_set' && nextWolfSkin.unlock.type === 'cost' && <p className="mt-1 text-xs text-[var(--muted)]">{fmt(p.nextRewardTarget, { name: skinDisplayName(nextWolfSkin, locale), cost: nextWolfSkin.unlock.universal })}</p>}
+              <div className="mt-3 flex flex-wrap justify-center gap-3 text-sm">
+                {state.status === 'won' && <button type="button" onClick={restartAttempt} className="underline-offset-2 hover:underline">{p.again}</button>}
+                <button type="button" disabled={shareBusy || adBusy} onClick={() => void shareTerminalResult()} className="underline-offset-2 hover:underline disabled:opacity-50">{shareBusy ? p.sharePreparing : p.share}</button>
+                {!adminMode && state.status === 'won' && !isDoubleDropActive(save) && <button type="button" disabled={adBusy} onClick={() => void watchDouble()} className="underline-offset-2 hover:underline disabled:opacity-50">{p.doubleAd}</button>}
+                <LocaleLink href={backHref} locale={locale} className="underline-offset-2 hover:underline">{p.levelList}</LocaleLink>
+                <button type="button" onClick={reportCurrentGame} className="underline-offset-2 hover:underline">{p.reportGame}</button>
+              </div>
+              {adBusy && <p className="mt-2 text-center text-xs text-[var(--muted)]">{p.preparing}</p>}
+              {adError && <p role="status" className="mt-2 text-center text-xs text-[#8b2e22]">{p.adFailed}</p>}
+              {shareStatus && <p role="status" className="mt-2 text-center text-xs text-[var(--muted)]">{shareStatus === 'shared' ? p.shareShared : shareStatus === 'copied' ? p.shareCopied : shareStatus === 'downloaded' ? p.shareDownloaded : p.shareFailed}</p>}
+            </details>
           </div>
         </div>
+      )}
+
+      {uiPhase === 'terminal' && !terminalOpen && (
+        <div className="game-panel grid gap-3 p-3 text-center sm:grid-cols-[1fr_auto] sm:items-center sm:text-left">
+          <div><p className="font-medium text-[var(--ink)]">{state.status === 'won' ? p.win : state.status === 'draw' ? p.draw : p.lose}</p><p className="mt-1 text-xs text-[var(--muted)]">{terminalReasonLabel(terminalReason(state), p)}</p><button type="button" onClick={() => setTerminalOpen(true)} className="mt-1 text-sm text-[var(--muted)] underline">{p.viewResult}</button></div>
+          {!adminMode && state.status === 'won' && nextLevel ? <LocaleLink href={`/play/${nextLevel.id}`} locale={locale} className="primary-action justify-center">{p.nextLevel}</LocaleLink> : !adminMode && state.status === 'won' ? <LocaleLink href="/chapters" locale={locale} className="primary-action justify-center">{p.allSeasons}</LocaleLink> : <button type="button" onClick={restartAttempt} className="primary-action justify-center">{p.again}</button>}
         </div>
       )}
 
@@ -721,7 +705,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
         </div>
       )}
 
-      <footer className="mt-auto grid grid-cols-3 items-center rounded-xl border border-[var(--line)] bg-[var(--paper)]/90 p-1 shadow-sm">
+      {uiPhase !== 'terminal' && <footer className="mt-auto grid grid-cols-3 items-center rounded-xl border border-[var(--line)] bg-[var(--paper)]/90 p-1 shadow-sm">
         <button type="button" onClick={openHint} className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm">{p.hint}</button>
         <button
           type="button"
@@ -731,7 +715,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           {p.help}
         </button>
         <button type="button" onClick={() => setMoreOpen(true)} className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm">{p.more}</button>
-      </footer>
+      </footer>}
 
       {moreOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center">
@@ -753,6 +737,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               <button type="button" onClick={toggleMute} className="min-h-11 rounded-lg border border-[var(--line)] px-3 py-2 text-left text-sm text-[var(--ink)]" aria-pressed={muted}>
                 {muted ? p.unmute : p.mute}
               </button>
+              <button type="button" onClick={reportCurrentGame} className="min-h-11 rounded-lg border border-[var(--line)] px-3 py-2 text-left text-sm text-[var(--ink)]">{p.reportGame}</button>
               {!adminMode && <div className="rounded-lg border border-[var(--line)] px-2 py-1"><LocaleSwitcher locale={locale} /></div>}
               <LocaleLink href={adminMode ? '/admin/levels' : '/'} locale={locale} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--danger)]/35 px-3 py-2 text-sm text-[#8b2e22]">
                 {p.exit}
@@ -882,11 +867,16 @@ function doubleDropLabel(until: number | null): string | null {
 }
 
 function terminalReason(state: BoardState): 'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition' | 'unexpected' {
+  if (state.terminalReason) return state.terminalReason
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
   if (state.plyCount >= state.maxPlies) return 'maxPlies'
   if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= 3) return 'repetition'
   return 'unexpected'
+}
+
+function drawSubtitle(state: BoardState, p: MessageTree['play']) {
+  return state.terminalReason === 'repetition' ? p.drawRepetitionSub : p.drawMaxSub
 }
 
 function terminalReasonLabel(reason: ReturnType<typeof terminalReason>, p: MessageTree['play']): string {

@@ -1,5 +1,5 @@
-import type { BoardState } from '../types'
-import { listLegalActions, getWolfLegalSummary } from '../rules'
+import type { Action, BoardState } from '../types'
+import { applyAction, listLegalActions, getWolfLegalSummary, listWolfActionsAsIfTurn } from '../rules'
 import { posKey } from '../board'
 
 /**
@@ -87,7 +87,8 @@ function safetyScore(wolfJumps: number): number {
 /** Keep sheep from choosing moves that leave the flock with no useful exits. */
 function sheepMobilityScore(state: BoardState): number {
   if (state.status !== 'playing') return 0
-  return listLegalActions({ ...state, toMove: 'sheep' as const, chain: null }).length
+  return listLegalActions({ ...state, toMove: 'sheep' as const, chain: null })
+    .filter((action) => action.type === 'step').length
 }
 
 export function evaluate(state: BoardState): EvalBreakdown {
@@ -132,4 +133,56 @@ export function evaluate(state: BoardState): EvalBreakdown {
 
 export function evaluateScore(state: BoardState): number {
   return evaluate(state).total
+}
+
+export type SheepActionAnalysis = {
+  action: Action
+  score: number
+  directCaptures: number
+  threatenedSheep: string[]
+  movedThreatenedSheep: boolean
+  dominated: boolean
+  explanation: 'pass' | 'escape' | 'block' | 'sacrifice' | 'equivalent' | 'blunder'
+}
+
+export function analyzeSheepActions(state: BoardState): SheepActionAnalysis[] {
+  const beforeThreatened = threatenedSheepIds(state)
+  const candidates = listLegalActions(state).flatMap((action) => {
+    const result = applyAction(state, action)
+    if (!result.ok) return []
+    const threatenedSheep = [...threatenedSheepIds(result.state)]
+    return [{
+      action,
+      score: evaluateScore(result.state),
+      directCaptures: listWolfActionsAsIfTurn(result.state).filter((candidate) => candidate.type === 'jump').length,
+      threatenedSheep,
+      movedThreatenedSheep: action.type !== 'pass' && beforeThreatened.has(action.pieceId),
+    }]
+  })
+
+  return candidates.map((candidate) => {
+    const dominated = candidates.some((other) => other !== candidate
+      && other.directCaptures < candidate.directCaptures
+      && other.score >= candidate.score)
+    const explanation: SheepActionAnalysis['explanation'] = candidate.action.type === 'pass'
+      ? 'pass'
+      : dominated
+        ? 'blunder'
+        : candidate.threatenedSheep.length === 0 && candidate.movedThreatenedSheep
+          ? 'escape'
+          : candidate.directCaptures === 0
+            ? 'block'
+            : candidate.score > Math.max(...candidates.filter((other) => other !== candidate).map((other) => other.score), -Infinity)
+              ? 'sacrifice'
+              : 'equivalent'
+    return { ...candidate, dominated, explanation }
+  })
+}
+
+function threatenedSheepIds(state: BoardState) {
+  const byPosition = new Map(state.pieces.filter((piece) => piece.side === 'sheep').map((piece) => [`${piece.r},${piece.c}`, piece.id]))
+  return new Set(listWolfActionsAsIfTurn(state)
+    .filter((action) => action.type === 'jump')
+    .map((action) => byPosition.get(`${action.to.r},${action.to.c}`))
+    .filter((id): id is string => Boolean(id)))
 }

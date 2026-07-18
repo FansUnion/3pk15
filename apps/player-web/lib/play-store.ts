@@ -6,13 +6,14 @@ import {
   endWolfTurn,
   listLegalActions,
   pickSheepAction,
+  listWolfActionsAsIfTurn,
   type Action,
   type BoardState,
   type Difficulty,
   type OpeningLayout,
   type Pos,
 } from '@wolf-sheep/game-core'
-import { clearActiveGame, loadActiveGame, saveActiveGame, type ActiveGameConfig } from '@/lib/active-game'
+import { clearActiveGame, loadActiveGame, saveActiveGame, type ActiveGameConfig, type RecordedGameAction } from '@/lib/active-game'
 import { consumeNextAiFailure } from '@/lib/ai-fault'
 
 /** 商业体验时序标准：docs/游戏创意/产品定位和商业成功/03 */
@@ -33,6 +34,7 @@ export type JuiceFlash = {
   from: Pos
   to: Pos
   through?: Pos
+  newThreat?: boolean
 } | null
 
 const EMPTY_HIGHLIGHTS: MoveHighlights = { steps: [], jumps: [], throughs: [] }
@@ -45,6 +47,8 @@ type PlayStore = {
   juice: JuiceFlash
   difficulty: Difficulty
   seed: number
+  initialSeed: number
+  actionHistory: RecordedGameAction[]
   resumed: boolean
   aiError: string | null
   init: (levelId: string, rocks: Pos[], difficulty: Difficulty, targetEaten?: number, maxPlies?: number, opening?: OpeningLayout, resume?: boolean) => void
@@ -59,7 +63,7 @@ function highlightsFor(state: BoardState, wolfId: string | null): MoveHighlights
   if (!wolfId || state.toMove !== 'wolf' || state.status !== 'playing') {
     return EMPTY_HIGHLIGHTS
   }
-  const legal = listLegalActions(state).filter((a) => a.pieceId === wolfId)
+  const legal = listLegalActions(state).filter((a) => a.type !== 'pass' && a.pieceId === wolfId)
   return {
     steps: legal.filter((a) => a.type === 'step').map((a) => a.to),
     jumps: legal.filter((a) => a.type === 'jump').map((a) => a.to),
@@ -68,7 +72,7 @@ function highlightsFor(state: BoardState, wolfId: string | null): MoveHighlights
 }
 
 function findAction(state: BoardState, wolfId: string, pos: Pos): Action | null {
-  const legal = listLegalActions(state).filter((a) => a.pieceId === wolfId)
+  const legal = listLegalActions(state).filter((a) => a.type !== 'pass' && a.pieceId === wolfId)
   for (const a of legal) {
     if (a.type === 'jump') {
       if (a.to.r === pos.r && a.to.c === pos.c) return a
@@ -88,6 +92,7 @@ function delay(ms: number) {
 }
 
 function juiceFromAction(state: BoardState, action: Action): JuiceFlash {
+  if (action.type === 'pass') return null
   const piece = state.pieces.find((p) => p.id === action.pieceId)
   if (!piece) return null
   if (action.type === 'jump') {
@@ -112,9 +117,9 @@ function activeConfig(): ActiveGameConfig {
   return { levelId: levelMeta.levelId, rocks: levelMeta.rocks, targetEaten: levelMeta.targetEaten, maxPlies: levelMeta.maxPlies, opening: levelMeta.opening }
 }
 
-function syncActiveGame(state: BoardState) {
+function syncActiveGame(state: BoardState, aiSeed: number, initialAiSeed: number, actions: RecordedGameAction[]) {
   if (!levelMeta.resume) return
-  if (state.status === 'playing') saveActiveGame(activeConfig(), state)
+  if (state.status === 'playing') saveActiveGame(activeConfig(), { board: state, aiSeed, initialAiSeed, actions })
   else clearActiveGame()
 }
 
@@ -126,6 +131,8 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
   juice: null,
   difficulty: 'easy',
   seed: 1,
+  initialSeed: 1,
+  actionHistory: [],
   resumed: false,
   aiError: null,
 
@@ -134,8 +141,11 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     turnSeq += 1
     const config = activeConfig()
     const restored = resume ? loadActiveGame(config) : null
-    const state = restored ?? createInitialState(levelId, rocks, targetEaten, maxPlies, opening)
-    syncActiveGame(state)
+    const state = restored?.board ?? createInitialState(levelId, rocks, targetEaten, maxPlies, opening)
+    const initialSeed = restored?.initialAiSeed ?? Date.now() % 1_000_000
+    const seed = restored?.aiSeed ?? initialSeed
+    const actionHistory = restored?.actions ?? []
+    syncActiveGame(state, seed, initialSeed, actionHistory)
     const selectedWolfId = state.chain?.wolfId ?? null
     const seq = turnSeq
     set({
@@ -145,7 +155,9 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
       uiPhase: state.status !== 'playing' ? 'terminal' : state.toMove === 'sheep' ? 'aiThinking' : 'playing',
       juice: null,
       difficulty,
-      seed: Date.now() % 1_000_000,
+      seed,
+      initialSeed,
+      actionHistory,
       resumed: Boolean(restored),
       aiError: null,
     })
@@ -186,7 +198,11 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     if (!result.ok) return
 
     const next = result.state
-    syncActiveGame(next)
+    if (juice?.kind === 'step' && state.toMove === 'wolf') {
+      juice.newThreat = listWolfActionsAsIfTurn(next).some((candidate) => candidate.type === 'jump')
+    }
+    const actionHistory = [...get().actionHistory, action]
+    syncActiveGame(next, get().seed, get().initialSeed, actionHistory)
     const seq = ++turnSeq
 
     void (async () => {
@@ -196,6 +212,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
         highlights: EMPTY_HIGHLIGHTS,
         uiPhase: 'animating',
         juice,
+        actionHistory,
         aiError: null,
       })
 
@@ -242,7 +259,8 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     const result = endWolfTurn(state)
     if (!result.ok) return
     const next = result.state
-    syncActiveGame(next)
+    const actionHistory = [...get().actionHistory, { type: 'end-chain' as const }]
+    syncActiveGame(next, get().seed, get().initialSeed, actionHistory)
     const seq = ++turnSeq
 
     void (async () => {
@@ -253,6 +271,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
           highlights: EMPTY_HIGHLIGHTS,
           uiPhase: 'terminal',
           juice: null,
+          actionHistory,
         })
         return
       }
@@ -262,6 +281,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
         highlights: EMPTY_HIGHLIGHTS,
         uiPhase: 'aiThinking',
         juice: null,
+        actionHistory,
       })
       await delay(THINK_MS)
       if (seq !== turnSeq) return
@@ -313,14 +333,17 @@ async function runAiTurn(
       return
     }
     const next = result.state
-    syncActiveGame(next)
+    const actionHistory = [...get().actionHistory, action]
+    const nextSeed = seed + 1
+    syncActiveGame(next, nextSeed, get().initialSeed, actionHistory)
     set({
       state: next,
       selectedWolfId: null,
       highlights: EMPTY_HIGHLIGHTS,
       uiPhase: 'animating',
       juice,
-      seed: seed + 1,
+      seed: nextSeed,
+      actionHistory,
       aiError: null,
     })
     await delay(FEEDBACK_MS)

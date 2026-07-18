@@ -1,9 +1,20 @@
 /** Prefer short sample buffers; fall back to richer procedural tones. */
 
-type SfxKind = 'step' | 'jump' | 'chain' | 'win' | 'lose' | 'select' | 'invalid' | 'ai'
+export type SfxKind = 'step' | 'jump' | 'chain' | 'win' | 'lose' | 'select' | 'invalid' | 'ai' | 'threat'
+
+export type AudioDiagnostics = {
+  requested: number
+  samplePlayed: number
+  fallbackPlayed: number
+  blocked: number
+  lastKind: SfxKind | null
+  lastMode: 'sample' | 'fallback' | 'blocked' | null
+  contextState: string
+}
 
 let ctx: AudioContext | null = null
 const bufferCache = new Map<SfxKind, AudioBuffer>()
+const diagnostics = { requested: 0, samplePlayed: 0, fallbackPlayed: 0, blocked: 0, lastKind: null as SfxKind | null, lastMode: null as AudioDiagnostics['lastMode'] }
 
 function getCtx(): AudioContext | null {
   if (typeof window === 'undefined') return null
@@ -30,6 +41,7 @@ async function loadBuffer(kind: SfxKind): Promise<AudioBuffer | null> {
     select: null,
     invalid: null,
     ai: null,
+    threat: null,
   }
   const source = map[kind]
   if (!source) return null
@@ -106,6 +118,10 @@ function playFallback(kind: SfxKind) {
       beep(190, 90, 'sine', 0.018)
       beep(260, 120, 'sine', 0.014, 0.08)
       break
+    case 'threat':
+      beep(620, 55, 'sine', 0.035)
+      beep(760, 80, 'triangle', 0.04, 0.055)
+      break
   }
 }
 
@@ -123,11 +139,51 @@ function playBuffer(buf: AudioBuffer) {
 }
 
 export function playSfx(kind: SfxKind) {
+  diagnostics.requested += 1
+  diagnostics.lastKind = kind
   void (async () => {
+    const audio = getCtx()
+    if (!audio) {
+      diagnostics.blocked += 1
+      diagnostics.lastMode = 'blocked'
+      return
+    }
+    try {
+      await audio.resume()
+    } catch {
+      diagnostics.blocked += 1
+      diagnostics.lastMode = 'blocked'
+      return
+    }
     const buf = await loadBuffer(kind)
-    if (buf) playBuffer(buf)
-    else playFallback(kind)
+    if (buf) {
+      playBuffer(buf)
+      diagnostics.samplePlayed += 1
+      diagnostics.lastMode = 'sample'
+    } else {
+      playFallback(kind)
+      diagnostics.fallbackPlayed += 1
+      diagnostics.lastMode = 'fallback'
+    }
   })()
+}
+
+export function getAudioDiagnostics(): AudioDiagnostics {
+  return { ...diagnostics, contextState: ctx?.state ?? 'uninitialized' }
+}
+
+export async function prepareSfx() {
+  const audio = getCtx()
+  if (!audio) return false
+  try {
+    await audio.resume()
+    void Promise.all((['step', 'jump', 'chain', 'win', 'lose'] as SfxKind[]).map(loadBuffer))
+    return true
+  } catch {
+    diagnostics.blocked += 1
+    diagnostics.lastMode = 'blocked'
+    return false
+  }
 }
 
 export async function suspendSfx() {

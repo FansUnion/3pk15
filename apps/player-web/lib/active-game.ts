@@ -5,6 +5,7 @@ import {
   deserialize,
   serialize,
   type BoardState,
+  type Action,
   type OpeningLayout,
   type Pos,
   type SerializedBoard,
@@ -21,7 +22,16 @@ export type ActiveGameConfig = {
   opening?: OpeningLayout
 }
 
-export function loadActiveGame(config: ActiveGameConfig): BoardState | null {
+export type RecordedGameAction = Action | { type: 'end-chain' }
+
+export type ActiveGameSession = {
+  board: BoardState
+  initialAiSeed: number
+  aiSeed: number
+  actions: RecordedGameAction[]
+}
+
+export function loadActiveGame(config: ActiveGameConfig): ActiveGameSession | null {
   if (typeof window === 'undefined') return null
   try {
     const raw = window.localStorage.getItem(ACTIVE_GAME_KEY)
@@ -34,22 +44,35 @@ export function loadActiveGame(config: ActiveGameConfig): BoardState | null {
   }
 }
 
-export function parseActiveGameSnapshot(raw: string | null, config: ActiveGameConfig): BoardState | null {
+export function parseActiveGameSnapshot(raw: string | null, config: ActiveGameConfig): ActiveGameSession | null {
   try {
-    const parsed = JSON.parse(raw ?? 'null') as { signature?: string; board?: SerializedBoard } | null
+    const parsed = JSON.parse(raw ?? 'null') as { signature?: string; board?: SerializedBoard; initialAiSeed?: number; aiSeed?: number; actions?: RecordedGameAction[] } | null
     if (!parsed?.board || parsed.signature !== activeGameSignature(config)) return null
     const state = deserialize(parsed.board)
     assertInvariants(state)
-    return state.status === 'playing' && state.levelId === config.levelId ? state : null
+    if (state.status !== 'playing' || state.levelId !== config.levelId) return null
+    const fallbackSeed = stableLegacySeed(state)
+    return {
+      board: state,
+      initialAiSeed: Number.isSafeInteger(parsed.initialAiSeed) ? parsed.initialAiSeed! : fallbackSeed,
+      aiSeed: Number.isSafeInteger(parsed.aiSeed) ? parsed.aiSeed! : fallbackSeed,
+      actions: Array.isArray(parsed.actions) ? parsed.actions : [],
+    }
   } catch {
     return null
   }
 }
 
-export function saveActiveGame(config: ActiveGameConfig, state: BoardState): void {
+export function saveActiveGame(config: ActiveGameConfig, session: ActiveGameSession): void {
   if (typeof window === 'undefined') return
   try {
-    window.localStorage.setItem(ACTIVE_GAME_KEY, JSON.stringify({ signature: activeGameSignature(config), board: serialize(state) }))
+    window.localStorage.setItem(ACTIVE_GAME_KEY, JSON.stringify({
+      signature: activeGameSignature(config),
+      board: serialize(session.board),
+      initialAiSeed: session.initialAiSeed,
+      aiSeed: session.aiSeed,
+      actions: session.actions,
+    }))
   } catch {
     // A failed activity snapshot must never interrupt the match.
   }
@@ -67,4 +90,14 @@ export function clearActiveGame(): void {
 export function activeGameSignature(config: ActiveGameConfig): string {
   const rocks = [...config.rocks].sort((a, b) => a.r - b.r || a.c - b.c)
   return JSON.stringify([config.levelId, rocks, config.targetEaten ?? 8, config.maxPlies ?? 300, config.opening ?? null])
+}
+
+function stableLegacySeed(state: BoardState) {
+  let hash = 2166136261
+  const text = `${state.levelId}:${state.plyCount}:${state.eatenSheep}`
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index)
+    hash = Math.imul(hash, 16777619)
+  }
+  return hash >>> 0
 }

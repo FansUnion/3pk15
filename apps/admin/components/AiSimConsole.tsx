@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   applyAction,
+  analyzeSheepActions,
   boardPositionKey,
   chooseDiagnosticWolfAction,
   createLevelInitialState,
@@ -117,8 +118,8 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
   const [replayIndex, setReplayIndex] = useState(0)
   const [takeover, setTakeover] = useState(false)
   const [selectedWolfId, setSelectedWolfId] = useState<string | null>(null)
-  const [maxNodes, setMaxNodes] = useState(4000)
-  const [maxMs, setMaxMs] = useState(12)
+  const [maxNodes, setMaxNodes] = useState(80)
+  const [maxMs, setMaxMs] = useState(0)
   const [lastHardMeta, setLastHardMeta] = useState<{
     degraded: boolean
     nodes: number
@@ -129,13 +130,16 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
   const appliedUrl = useRef(false)
 
   const hardBudgets: HardBudgets = useMemo(
-    () => ({ maxNodes: Math.max(1, maxNodes), maxMs: Math.max(1, maxMs) }),
+    () => maxMs > 0 ? ({ maxNodes: Math.max(1, maxNodes), maxMs }) : ({ maxNodes: Math.max(1, maxNodes) }),
     [maxNodes, maxMs],
   )
 
   const breakdown = useMemo(() => evaluate(state), [state])
+  const sheepCandidates = useMemo(() => state.status === 'playing' && state.toMove === 'sheep'
+    ? analyzeSheepActions(state).sort((left, right) => Number(left.dominated) - Number(right.dominated) || right.score - left.score)
+    : [], [state])
   const takeoverActions = useMemo(() => takeover && selectedWolfId && state.toMove === 'wolf'
-    ? listLegalActions(state).filter((action) => action.pieceId === selectedWolfId)
+    ? listLegalActions(state).filter((action): action is Exclude<Action, { type: 'pass' }> => action.type !== 'pass' && action.pieceId === selectedWolfId)
     : [], [selectedWolfId, state, takeover])
 
   const pushLog = useCallback((line: string) => {
@@ -188,6 +192,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       toMove,
       chain: clearChain ? null : s.chain,
       status: 'playing',
+      terminalReason: null,
     }))
   }
 
@@ -230,7 +235,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     try {
       let s = state
       if (s.toMove !== 'sheep') {
-        s = { ...s, toMove: 'sheep', chain: null, status: 'playing' }
+        s = { ...s, toMove: 'sheep', chain: null, status: 'playing', terminalReason: null }
       }
       if (s.status !== 'playing') {
         pushLog('game not playing')
@@ -465,12 +470,27 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     URL.revokeObjectURL(url)
   }
 
-  function importJson() {
+  function importJsonText(text = importText) {
     try {
-      const data = JSON.parse(importText)
-      const next = deserialize(data)
+      const data = JSON.parse(text)
+      const reproduction = data?.kind === 'fangrush-player-reproduction' ? data : null
+      const next = deserialize(reproduction?.board ?? data)
       setState(next)
-      pushLog('imported board JSON')
+      if (reproduction) {
+        if (reproduction.difficulty === 'easy' || reproduction.difficulty === 'normal' || reproduction.difficulty === 'hard') setDifficulty(reproduction.difficulty)
+        if (Number.isSafeInteger(reproduction.nextAiSeed)) setSeed(reproduction.nextAiSeed)
+        if (Number.isSafeInteger(reproduction.hardBudget?.maxNodes)) setMaxNodes(reproduction.hardBudget.maxNodes)
+        if (reproduction.hardBudget?.maxMs === null) setMaxMs(0)
+        else if (Number.isSafeInteger(reproduction.hardBudget?.maxMs)) setMaxMs(reproduction.hardBudget.maxMs)
+        const importedReplay = buildPlayerReportReplay(reproduction)
+        if (importedReplay) {
+          setReplay(importedReplay)
+          setReplayIndex(importedReplay.states.length - 1)
+        }
+        pushLog(`imported player report level=${reproduction.levelId} actions=${reproduction.actions?.length ?? 0} seed=${reproduction.nextAiSeed} terminal=${next.terminalReason ?? '-'}`)
+      } else {
+        pushLog('imported board JSON')
+      }
     } catch (e) {
       pushLog(`import fail: ${e instanceof Error ? e.message : String(e)}`)
     }
@@ -529,7 +549,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
           <div className="rounded border border-[#5c6b52]/25 bg-[#f7f5ef] p-2 text-xs text-[#5c6b52]">
             <p className="font-medium text-[#2c3328]">困难 AI 计算上限</p>
             <label className="mt-1 flex items-center gap-2">
-              maxNodes
+              最多比较节点
               <input
                 type="number"
                 min={1}
@@ -539,12 +559,12 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
               />
             </label>
             <label className="mt-1 flex items-center gap-2">
-              maxMs
+              时间截断（毫秒，0=关闭）
               <input
                 type="number"
-                min={1}
+                min={0}
                 value={maxMs}
-                onChange={(e) => setMaxMs(Number(e.target.value) || 1)}
+                onChange={(e) => setMaxMs(Math.max(0, Number(e.target.value) || 0))}
                 className="w-20 rounded border border-[#5c6b52]/40 bg-white px-1 py-0.5"
               />
             </label>
@@ -552,7 +572,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
               <p
                 className={`mt-1 ${lastHardMeta.degraded ? 'text-amber-800' : 'text-green-800'}`}
               >
-                上次 hard：degraded={String(lastHardMeta.degraded)} · nodes=
+                上次困难 AI：{lastHardMeta.degraded ? '预算不足，已用标准防守' : '完成候选比较'} · 节点
                 {lastHardMeta.nodes} · {lastHardMeta.elapsedMs.toFixed(1)}ms
               </p>
             ) : (
@@ -661,10 +681,27 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             placeholder="粘贴别人发来的局面数据"
             className="h-24 rounded border border-[#5c6b52]/40 bg-[#f7f5ef] p-2 font-mono text-xs"
           />
+          <label className="rounded border border-[#5c6b52]/40 bg-[#f7f5ef] px-2 py-2 text-center text-xs">
+            选择玩家问题记录
+            <input
+              type="file"
+              accept="application/json,.json"
+              className="sr-only"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (!file) return
+                void file.text().then((text) => {
+                  setImportText(text)
+                  importJsonText(text)
+                })
+                event.currentTarget.value = ''
+              }}
+            />
+          </label>
           <button
             type="button"
             className="rounded border border-[#5c6b52]/40 bg-[#f7f5ef] px-2 py-1 text-xs"
-            onClick={importJson}
+            onClick={() => importJsonText()}
           >
             导入并复现局面
           </button>
@@ -710,6 +747,16 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
               <li>羊方合法行动 {breakdown.sheepMobility.toFixed(0)}</li>
             </ul>
           </div>
+          {sheepCandidates.length > 0 && <div className="rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-3">
+            <p className="font-medium">羊为什么这样走？</p>
+            <p className="mt-1 text-xs text-[#5c6b52]">比较当前全部合法动作。标记“疑似送子”的动作同时比另一动作暴露更多捕食，并且战略评分不更好。</p>
+            <div className="mt-2 max-h-64 space-y-2 overflow-auto">
+              {sheepCandidates.slice(0, 8).map((candidate, index) => <div key={`${candidate.action.type}-${index}`} className={`border p-2 text-xs ${candidate.dominated ? 'border-red-200 bg-red-50' : 'border-[#5c6b52]/15 bg-white'}`}>
+                <p className="font-medium">{sheepExplanation(candidate.explanation)} · {actionText(candidate.action)}</p>
+                <p className="mt-1 text-[#5c6b52]">直接捕食机会 {candidate.directCaptures} · 局面分 {candidate.score.toFixed(1)}{candidate.movedThreatenedSheep ? ' · 移动了受威胁羊' : ''}</p>
+              </div>)}
+            </div>
+          </div>}
           <div className="max-h-[420px] overflow-auto rounded-lg border border-[#5c6b52]/25 bg-[#1e261c] p-3 font-mono text-xs text-[#dfe8d8]">
             {logs.length === 0 ? <p className="opacity-60">日志空</p> : logs.map((l, i) => <p key={i}>{l}</p>)}
           </div>
@@ -916,6 +963,54 @@ function terminalReasonLabel(reason: TerminalReason) {
   return labels[reason]
 }
 
+function sheepExplanation(explanation: 'pass' | 'escape' | 'block' | 'sacrifice' | 'equivalent' | 'blunder') {
+  return {
+    pass: '全体无路，跳过',
+    escape: '受威胁羊脱险',
+    block: '封锁且无直接损失',
+    sacrifice: '可能的战术牺牲',
+    equivalent: '近似等价选择',
+    blunder: '疑似送子',
+  }[explanation]
+}
+
+function actionText(action: Action) {
+  if (action.type === 'pass') return '跳过行动'
+  return `${action.pieceId} → (${action.to.r},${action.to.c})`
+}
+
+function buildPlayerReportReplay(data: any): ReplayData | null {
+  const level = getLevel(data.levelId)
+  if (!level || !Array.isArray(data.actions)) return null
+  let current = createLevelInitialState(level)
+  const states = [JSON.stringify(serialize(current))]
+  const actions: string[] = []
+  for (const action of data.actions) {
+    const result = action?.type === 'end-chain' ? endWolfTurn(current) : applyAction(current, action as Action)
+    if (!result.ok) return null
+    current = result.state
+    actions.push(JSON.stringify(action))
+    states.push(JSON.stringify(serialize(current)))
+  }
+  const reason = current.terminalReason ?? 'unexpected'
+  return {
+    record: {
+      index: 0,
+      levelId: level.id,
+      seed: Number.isSafeInteger(data.initialAiSeed) ? data.initialAiSeed : 0,
+      outcome: current.status === 'won' ? 'wolf_win' : current.status === 'lost' ? 'sheep_win' : 'timeout',
+      reason,
+      plies: current.plyCount,
+      eatenSheep: current.eatenSheep,
+      firstCapturePly: null,
+      wolfStrategy: 'mixed',
+      sheepDifficulty: data.difficulty ?? level.ai,
+    },
+    states,
+    actions,
+  }
+}
+
 function batchInterpretation(result: BatchResult) {
   const wolfRate = gameRate(result.wolfWins, result.games)
   const unresolved = result.records.filter((record) => ['maxPlies', 'repetition', 'stepLimit'].includes(record.reason)).length
@@ -1001,6 +1096,7 @@ function simulateOneGame(
 }
 
 function terminalReason(state: BoardState, hitStepLimit: boolean): TerminalReason {
+  if (state.terminalReason) return state.terminalReason
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
   if (state.plyCount >= state.maxPlies) return 'maxPlies'

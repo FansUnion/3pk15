@@ -1,6 +1,6 @@
 import type { Action, BoardState } from '../types'
-import { applyAction, listLegalActions } from '../rules'
-import { evaluateScore } from './evaluate'
+import { listLegalActions } from '../rules'
+import { analyzeSheepActions } from './evaluate'
 import type { Rng } from './rng'
 import { pickIndex } from './rng'
 
@@ -11,10 +11,9 @@ export function pickNormal(state: BoardState, rng: Rng): Action {
 
   let best = -Infinity
   const tops: Action[] = []
-  for (const action of actions) {
-    const result = applyAction(state, action)
-    if (!result.ok) continue
-    const score = evaluateScore(result.state)
+  const analyses = analyzeSheepActions(state)
+  const safePool = analyses.some((analysis) => !analysis.dominated) ? analyses.filter((analysis) => !analysis.dominated) : analyses
+  for (const { action, score } of safePool) {
     if (score > best) {
       best = score
       tops.length = 0

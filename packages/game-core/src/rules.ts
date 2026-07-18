@@ -84,6 +84,7 @@ export function createInitialState(
     toMove: 'wolf',
     chain: null,
     status: 'playing',
+    terminalReason: null,
     levelId,
     targetEaten,
     plyCount: 0,
@@ -186,7 +187,7 @@ export function listLegalActions(state: BoardState): Action[] {
   for (const s of sheep) {
     actions.push(...listSheepSteps(state, s, occ))
   }
-  return actions
+  return actions.length > 0 ? actions : [{ type: 'pass' }]
 }
 
 /** Hypothetical wolf legal moves with chain cleared (for loss detection). */
@@ -196,6 +197,7 @@ export function listWolfActionsAsIfTurn(state: BoardState): Action[] {
     toMove: 'wolf',
     chain: null,
     status: 'playing',
+    terminalReason: null,
   }
   return listLegalActions(probe)
 }
@@ -208,6 +210,7 @@ export function getWolfLegalSummary(
     toMove: 'wolf',
     chain: null,
     status: 'playing',
+    terminalReason: null,
   }
   const occ = occupancy(probe)
   return probe.pieces
@@ -221,12 +224,14 @@ export function getWolfLegalSummary(
 
 /** Position identity used for threefold-repetition detection. */
 export function boardPositionKey(state: BoardState): string {
-  const pieces = [...state.pieces]
-    .sort((a, b) => a.id.localeCompare(b.id))
-    .map((piece) => `${piece.id}:${piece.r},${piece.c}`)
+  const positions = (side: Side) => state.pieces
+    .filter((piece) => piece.side === side)
+    .map((piece) => `${piece.r},${piece.c}`)
+    .sort()
     .join('|')
-  const chain = state.chain ? `${state.chain.wolfId}:${state.chain.count}` : '-'
-  return `${pieces}::${[...state.rocks].sort().join(',')}::${state.toMove}::${chain}`
+  const chainWolf = state.chain ? state.pieces.find((piece) => piece.id === state.chain?.wolfId) : null
+  const chain = state.chain && chainWolf ? `${chainWolf.r},${chainWolf.c}:${state.chain.count}` : '-'
+  return `w:${positions('wolf')}::s:${positions('sheep')}::r:${[...state.rocks].sort().join('|')}::${state.toMove}::${chain}`
 }
 
 function recordPosition(state: BoardState): BoardState {
@@ -236,22 +241,22 @@ function recordPosition(state: BoardState): BoardState {
   const count = (repetitionCounts.get(key) ?? 0) + 1
   repetitionCounts.set(key, count)
   if (count >= 3) {
-    return { ...state, repetitionCounts, status: 'draw', chain: null }
+    return { ...state, repetitionCounts, status: 'draw', terminalReason: 'repetition', chain: null }
   }
   return { ...state, repetitionCounts }
 }
 
-export function evaluateTerminal(state: BoardState): BoardState['status'] {
-  if (state.eatenSheep >= state.targetEaten) return 'won'
-  if (listWolfActionsAsIfTurn(state).length === 0) return 'lost'
-  if (state.plyCount >= state.maxPlies) return 'draw'
-  return 'playing'
+export function evaluateTerminal(state: BoardState): { status: BoardState['status']; reason: BoardState['terminalReason'] } {
+  if (state.eatenSheep >= state.targetEaten) return { status: 'won', reason: 'targetEaten' }
+  if (listWolfActionsAsIfTurn(state).length === 0) return { status: 'lost', reason: 'wolvesTrapped' }
+  if (state.plyCount >= state.maxPlies) return { status: 'draw', reason: 'maxPlies' }
+  return { status: 'playing', reason: null }
 }
 
 export function refreshStatus(state: BoardState): BoardState {
-  const status = evaluateTerminal(state)
-  if (status === state.status) return state
-  return { ...state, status, chain: status === 'playing' ? state.chain : null }
+  const terminal = evaluateTerminal(state)
+  if (terminal.status === state.status && terminal.reason === state.terminalReason) return state
+  return { ...state, status: terminal.status, terminalReason: terminal.reason, chain: terminal.status === 'playing' ? state.chain : null }
 }
 
 function samePos(a: Pos, b: Pos): boolean {
@@ -259,7 +264,9 @@ function samePos(a: Pos, b: Pos): boolean {
 }
 
 function actionEquals(a: Action, b: Action): boolean {
-  if (a.type !== b.type || a.pieceId !== b.pieceId) return false
+  if (a.type !== b.type) return false
+  if (a.type === 'pass' && b.type === 'pass') return true
+  if (a.type === 'pass' || b.type === 'pass' || a.pieceId !== b.pieceId) return false
   if (a.type === 'step' && b.type === 'step') return samePos(a.to, b.to)
   if (a.type === 'jump' && b.type === 'jump') {
     return samePos(a.to, b.to) && samePos(a.through, b.through)
@@ -293,6 +300,11 @@ export function applyAction(state: BoardState, action: Action): ApplyResult {
 
   let next = cloneState(state)
   next.plyCount += 1
+  if (action.type === 'pass') {
+    next.chain = null
+    next.toMove = 'wolf'
+    return { ok: true, state: recordPosition(refreshStatus(next)) }
+  }
   const piece = next.pieces.find((p) => p.id === action.pieceId)
   if (!piece) return { ok: false, error: 'Piece not found' }
 
@@ -323,6 +335,7 @@ export function applyAction(state: BoardState, action: Action): ApplyResult {
   if (next.eatenSheep >= next.targetEaten) {
     next.chain = null
     next.status = 'won'
+    next.terminalReason = 'targetEaten'
     return { ok: true, state: next }
   }
 

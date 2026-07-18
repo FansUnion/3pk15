@@ -8,8 +8,8 @@ export function buildShareText(data: ShareResultData, locale: 'en' | 'zh') {
     ? data.result === 'won' ? '狼方获胜' : data.result === 'draw' ? '和局' : '挑战失败'
     : data.result === 'won' ? 'Wolves win' : data.result === 'draw' ? 'Draw' : 'Challenge failed'
   return locale === 'zh'
-    ? `Fangrush · ${data.levelName}\n${result}，${data.plies} plies，捕食 ${data.eatenSheep} 只羊\n${data.url}`
-    : `Fangrush · ${data.levelName}\n${result} in ${data.plies} plies with ${data.eatenSheep} sheep captured\n${data.url}`
+    ? `Fangrush · ${data.levelName}\n${result}，行动 ${data.plies} 次，捕获 ${data.eatenSheep}/${data.state.targetEaten}\n${data.url}`
+    : `Fangrush · ${data.levelName}\n${result} after ${data.plies} actions, captured ${data.eatenSheep}/${data.state.targetEaten}\n${data.url}`
 }
 
 export function renderResultCard(data: ShareResultData, locale: 'en' | 'zh') {
@@ -21,7 +21,10 @@ export function renderResultCard(data: ShareResultData, locale: 'en' | 'zh') {
   ctx.fillStyle = '#263126'; ctx.font = '700 54px serif'; ctx.fillText('Fangrush', 72, 86)
   ctx.font = '600 34px sans-serif'; ctx.fillText(data.levelName, 72, 142)
   const result = locale === 'zh' ? (data.result === 'won' ? '狼方获胜' : data.result === 'draw' ? '和局' : '挑战失败') : (data.result === 'won' ? 'Wolves win' : data.result === 'draw' ? 'Draw' : 'Challenge failed')
-  ctx.font = '26px sans-serif'; ctx.fillStyle = '#5c6b52'; ctx.fillText(`${result}  ·  ${data.plies} plies  ·  ${data.eatenSheep}/15`, 72, 194)
+  const score = locale === 'zh'
+    ? `捕获 ${data.eatenSheep}/${data.state.targetEaten}`
+    : `Captured ${data.eatenSheep}/${data.state.targetEaten}`
+  ctx.font = '26px sans-serif'; ctx.fillStyle = '#5c6b52'; ctx.fillText(`${result}  ·  ${data.plies} actions  ·  ${score}`, 72, 194)
   ctx.font = '22px sans-serif'; ctx.fillText(data.reason, 72, 232)
   const left = 665, top = 58, cell = 96
   ctx.fillStyle = '#f7f5ef'; ctx.fillRect(left - 26, top - 26, cell * 5 + 52, cell * 5 + 52)

@@ -67,11 +67,13 @@ function percentile(values: number[], ratio: number) {
 }
 
 function actionLabel(action: Action) {
+  if (action.type === 'pass') return 'pass'
   const through = action.type === 'jump' ? ` via ${action.through.r},${action.through.c}` : ''
   return `${action.type}:${action.pieceId}>${action.to.r},${action.to.c}${through}`
 }
 
 function terminalReason(state: BoardState): CandidateGameEvidence['reason'] {
+  if (state.terminalReason) return state.terminalReason
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
   if (state.plyCount >= state.maxPlies) return 'maxPlies'

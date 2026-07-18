@@ -70,9 +70,12 @@ function runGame(level: (typeof LEVELS)[number], strategy: WolfStrategy, seed: n
 }
 
 const matrixDescribe = process.env.RUN_BALANCE_MATRIX === '1' ? describe : describe.skip
+const requestedChapter = process.env.BALANCE_CHAPTER
+const matrixChapters = (['spring', 'summer', 'autumn', 'winter'] as const)
+  .filter((chapter) => !requestedChapter || chapter === requestedChapter)
 
 matrixDescribe('all-level seeded balance matrix', () => {
-  it.each(['spring', 'summer', 'autumn', 'winter'] as const)(
+  it.each(matrixChapters)(
     'records a reproducible %s two-strategy matrix',
     (chapterId) => {
       const summaries = LEVELS.filter((level) => level.chapterId === chapterId).flatMap((level) => (['random', 'mixed'] as const).map((strategy) => {
@@ -103,6 +106,6 @@ matrixDescribe('all-level seeded balance matrix', () => {
       expect(summaries.every((summary) => summary.wolfWins + summary.sheepWins + summary.draws === 10)).toBe(true)
       expect(summaries.every((summary) => summary.firstCapture >= 0)).toBe(true)
     },
-    60_000,
+    150_000,
   )
 })

@@ -15,9 +15,22 @@ describe('active game recovery', () => {
   it('restores only a matching playing position', () => {
     const state = createLevelInitialState(level)
     const raw = JSON.stringify({ signature: activeGameSignature(config), board: serialize(state) })
-    expect(parseActiveGameSnapshot(raw, config)).toEqual(state)
+    expect(parseActiveGameSnapshot(raw, config)?.board).toEqual(state)
     const terminal = { ...state, status: 'won' as const }
     const terminalRaw = JSON.stringify({ signature: activeGameSignature(config), board: serialize(terminal) })
     expect(parseActiveGameSnapshot(terminalRaw, config)).toBeNull()
+  })
+
+  it('restores AI seed progress and action history', () => {
+    const state = createLevelInitialState(level)
+    const raw = JSON.stringify({
+      signature: activeGameSignature(config),
+      board: serialize(state),
+      initialAiSeed: 71,
+      aiSeed: 73,
+      actions: [{ type: 'step', pieceId: 'wolf-1', to: { r: 5, c: 1 } }],
+    })
+    expect(parseActiveGameSnapshot(raw, config)).toMatchObject({ initialAiSeed: 71, aiSeed: 73 })
+    expect(parseActiveGameSnapshot(raw, config)?.actions).toHaveLength(1)
   })
 })

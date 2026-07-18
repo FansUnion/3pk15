@@ -3,12 +3,14 @@ import { boardPositionKey } from './rules'
 import type { BoardState, ChainContext, Piece } from './types'
 
 export type SerializedBoard = {
+  positionKeyVersion?: 2
   pieces: Piece[]
   rocks: string[]
   eatenSheep: number
   toMove: BoardState['toMove']
   chain: ChainContext | null
   status: BoardState['status']
+  terminalReason?: BoardState['terminalReason']
   levelId: string
   targetEaten?: number
   plyCount?: number
@@ -18,12 +20,14 @@ export type SerializedBoard = {
 
 export function serialize(state: BoardState): SerializedBoard {
   return {
+    positionKeyVersion: 2,
     pieces: state.pieces.map((p) => ({ ...p })),
     rocks: [...state.rocks],
     eatenSheep: state.eatenSheep,
     toMove: state.toMove,
     chain: state.chain ? { ...state.chain } : null,
     status: state.status,
+    terminalReason: state.terminalReason,
     levelId: state.levelId,
     targetEaten: state.targetEaten,
     plyCount: state.plyCount,
@@ -40,13 +44,14 @@ export function deserialize(data: SerializedBoard): BoardState {
     toMove: data.toMove,
     chain: data.chain ? { ...data.chain } : null,
     status: data.status,
+    terminalReason: data.terminalReason ?? inferLegacyTerminalReason(data),
     levelId: data.levelId,
     targetEaten: data.targetEaten ?? 8,
     plyCount: data.plyCount ?? 0,
     maxPlies: data.maxPlies ?? 300,
-    repetitionCounts: new Map(data.repetitionCounts),
+    repetitionCounts: data.positionKeyVersion === 2 ? new Map(data.repetitionCounts) : new Map(),
   }
-  if (data.repetitionCounts) return state
+  if (data.positionKeyVersion === 2 && data.repetitionCounts) return state
   return { ...state, repetitionCounts: new Map([[boardPositionKey(state), 1]]) }
 }
 
@@ -58,6 +63,7 @@ export function makeState(partial: {
   toMove?: BoardState['toMove']
   chain?: ChainContext | null
   status?: BoardState['status']
+  terminalReason?: BoardState['terminalReason']
   levelId?: string
   targetEaten?: number
   plyCount?: number
@@ -71,6 +77,7 @@ export function makeState(partial: {
     toMove: partial.toMove ?? 'wolf',
     chain: partial.chain ?? null,
     status: partial.status ?? 'playing',
+    terminalReason: partial.terminalReason ?? null,
     levelId: partial.levelId ?? 'test',
     targetEaten: partial.targetEaten ?? 8,
     plyCount: partial.plyCount ?? 0,
@@ -82,3 +89,11 @@ export function makeState(partial: {
 }
 
 export { parseKey }
+
+function inferLegacyTerminalReason(data: SerializedBoard): BoardState['terminalReason'] {
+  if (data.status === 'playing') return null
+  if (data.status === 'won') return 'targetEaten'
+  if (data.status === 'lost') return 'wolvesTrapped'
+  if ((data.repetitionCounts ?? []).some(([, count]) => count >= 3)) return 'repetition'
+  return 'maxPlies'
+}

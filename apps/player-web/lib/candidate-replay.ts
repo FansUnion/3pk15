@@ -44,6 +44,7 @@ export function buildCandidateReplay(level: LevelConfig, trace: string[]): Candi
 }
 
 function parseTraceAction(payload: string): Action | null {
+  if (payload === 'pass') return { type: 'pass' }
   const match = /^(step|jump):([^>]+)>(\d+),(\d+)(?: via (\d+),(\d+))?$/.exec(payload)
   if (!match) return null
   const [, type, pieceId, row, column, throughRow, throughColumn] = match

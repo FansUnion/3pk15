@@ -1,6 +1,7 @@
 export type Side = 'wolf' | 'sheep'
 export type Difficulty = 'easy' | 'normal' | 'hard'
 export type GameStatus = 'playing' | 'won' | 'lost' | 'draw'
+export type TerminalReason = 'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition'
 
 export type Pos = { r: number; c: number }
 
@@ -30,6 +31,7 @@ export type BoardState = {
   toMove: Side
   chain: ChainContext | null
   status: GameStatus
+  terminalReason: TerminalReason | null
   levelId: string
   targetEaten: number
   plyCount: number
@@ -54,7 +56,12 @@ export type JumpMove = {
   to: Pos
 }
 
-export type Action = StepMove | JumpMove
+/** Only legal for sheep when the entire flock has no step. */
+export type PassAction = {
+  type: 'pass'
+}
+
+export type Action = StepMove | JumpMove | PassAction
 
 export type ApplyResult =
   | { ok: true; state: BoardState }
