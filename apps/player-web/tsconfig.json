@@ -22,8 +22,7 @@
     ],
     "paths": {
       "@/*": [
-        "./*",
-        "../web/src/*"
+        "./*"
       ]
     },
     "allowJs": true,
@@ -34,12 +33,11 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    "../web/src/**/*.ts",
-    "../web/src/**/*.tsx"
+    "**/*.ts",
+    "**/*.tsx"
   ],
   "exclude": [
     "node_modules",
-    "../web/src/app/admin",
-    "../web/src/app/api/admin"
+    "node_modules"
   ]
 }
