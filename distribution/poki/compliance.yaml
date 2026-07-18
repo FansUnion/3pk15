@@ -301,11 +301,12 @@ requirements:
     requirement_zh: 奖励 UI 层级——始终有绿色普通继续且不小于激励按钮；激励按钮用影片图标且不可用绿色。
     level: required
     applicability: applicable
-    status: missing
+    status: partial
     official_url: https://sdk.poki.com/new-requirements.html
     last_verified: 2026-07-17
-    evidence: []
-    gap_zh: 未按 Poki 视觉规则实现激励/继续按钮。
+    evidence:
+      - apps/player-web/components/PlayScreen.tsx
+    gap_zh: 普通再来一局保持主按钮，激励操作独立且非绿色；仍需按Poki最新图标、尺寸和Inspector规则复核。
 
   - id: POKI-UX-002
     category: ux
