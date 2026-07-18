@@ -14,6 +14,8 @@
     "check:skins": "pnpm --filter @wolf-sheep/game-core check:skins",
     "check:assets": "pnpm --filter @wolf-sheep/web check:assets",
     "check:platform-boundaries": "node ./scripts/check-platform-boundaries.mjs",
+    "audit:web-artifact": "node ./scripts/audit-web-artifact.mjs",
+    "audit:portal-artifact": "node ./scripts/audit-web-artifact.mjs --strict",
     "release:check": "node ./scripts/release-check.mjs"
   },
   "engines": {

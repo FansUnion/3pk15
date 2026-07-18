@@ -57,6 +57,8 @@ pnpm build:crazygames
 
 当前限制：Next.js仍会在构建清单中编译Admin页面和API，但portal运行时会统一阻断访问。平台正式提交前还需要建立物理剔除或独立导出流程，并检查最终包中不含Admin代码；当前不能把“运行时关闭”表述成“已从包体移除”。
 
+构建后可执行 `pnpm audit:web-artifact` 查看残留；`pnpm audit:portal-artifact` 是平台提交前的严格门槛，当前预期失败，直到玩家入口与Admin构建被物理拆分。
+
 真实平台 SDK、广告回调、平台生命周期和提交包必须等官方接入条件明确后再开发和验收。
 
 ## 5. 发布前门禁
