@@ -29,6 +29,8 @@ pnpm --filter @wolf-sheep/player-web start
 
 玩家项目和 Admin 项目必须分别配置环境变量、部署权限和回滚版本。玩家项目不能配置 Admin 的公开客户端变量，也不能把 Admin/API 路由纳入产物。
 
+当前部署状态：Player `fangrush.com` 和 Admin `admin.fangrush.com` 已部署成功。后续发布按各自 Vercel Project 独立验证和回滚。
+
 ## Vercel 控制台维护方式
 
 以下配置以 Vercel 控制台当前字段为准；仓库脚本和构建审计是项目内的事实来源，控制台配置不能替代它们。
