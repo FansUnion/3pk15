@@ -29,6 +29,18 @@ export const localeLabels: Record<SupportedLocale, string> = { en: 'English', zh
 export const localeNavbarLabels: Record<SupportedLocale, string> = { en: 'English', zh: '中文' }
 export const LOCALE_COOKIE = 'NEXT_LOCALE'
 
+export type LevelReviewStatus = 'unreviewed' | 'passed' | 'needs_changes'
+export type ReviewUnderstanding = 'clear' | 'partial' | 'unclear'
+export type ReviewDevice = 'mobile' | 'tablet' | 'desktop'
+export type PlayerExperience = 'new' | 'casual' | 'strategy'
+export type ReviewIssueCategory = 'none' | 'rule' | 'map_opening' | 'sheep_ai' | 'ui_guidance' | 'reward' | 'technical'
+export type ReviewSeverity = 'none' | 'p0' | 'p1' | 'p2'
+export type LevelReview = { levelId: string; levelVersion: string; status: LevelReviewStatus; difficultyRating?: 1 | 2 | 3 | 4 | 5; device?: ReviewDevice; playerExperience?: PlayerExperience; strategyUnderstanding?: ReviewUnderstanding; teachingUnderstanding?: ReviewUnderstanding; boardReadability?: ReviewUnderstanding; rewardUnderstanding?: ReviewUnderstanding; issueCategory?: ReviewIssueCategory; severity?: ReviewSeverity; reproduction?: string; attempts: number; result?: 'wolf' | 'sheep' | 'draw'; terminalReason?: string; plies?: number; eatenSheep?: number; firstCapturePly?: number | null; durationMs?: number; notes: string; reviewedAt: string }
+export type LevelReviewMap = Record<string, LevelReview>
+export type PlayAttemptResult = 'playing' | 'wolf' | 'sheep' | 'draw'
+export type PlayAttemptMetric = { id: string; levelId: string; attemptNumber: number; startedAt: string; endedAt?: string; durationMs?: number; result: PlayAttemptResult; terminalReason?: string; plies?: number; eatenSheep?: number; firstCapturePly?: number | null }
+export type TerminalAttemptDetails = { durationMs: number; firstCapturePly: number | null; attemptNumber: number }
+
 export function isSupportedLocale(value: string): value is SupportedLocale {
   return (supportedLocales as readonly string[]).includes(value)
 }

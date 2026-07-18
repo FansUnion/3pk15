@@ -1,28 +1,9 @@
 'use client'
 
 export const PLAY_METRICS_KEY = 'wolf-sheep:play-metrics:v1'
+import type { PlayAttemptResult, PlayAttemptMetric, TerminalAttemptDetails } from '@wolf-sheep/web-shared'
+export type { PlayAttemptResult, PlayAttemptMetric, TerminalAttemptDetails } from '@wolf-sheep/web-shared'
 
-export type PlayAttemptResult = 'playing' | 'wolf' | 'sheep' | 'draw'
-
-export type PlayAttemptMetric = {
-  id: string
-  levelId: string
-  attemptNumber: number
-  startedAt: string
-  endedAt?: string
-  durationMs?: number
-  result: PlayAttemptResult
-  terminalReason?: string
-  plies?: number
-  eatenSheep?: number
-  firstCapturePly?: number | null
-}
-
-export type TerminalAttemptDetails = {
-  durationMs: number
-  firstCapturePly: number | null
-  attemptNumber: number
-}
 
 export function beginPlayAttempt(levelId: string): PlayAttemptMetric {
   const records = loadPlayMetrics()
