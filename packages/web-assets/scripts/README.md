@@ -3,8 +3,8 @@
 Run from repo root:
 
 ```bash
-node apps/web/scripts/assets/gen-boards.mjs
-node apps/web/scripts/assets/gen-sfx.mjs
+pnpm --filter @wolf-sheep/web-assets generate:boards
+pnpm --filter @wolf-sheep/web-assets generate:sfx
 ```
 
 Outputs land in `packages/web-assets/public/skins/boards/` and `packages/web-assets/public/sfx/`.

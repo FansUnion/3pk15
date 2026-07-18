@@ -2,7 +2,7 @@
 
 非对称围猎棋（3 狼 vs 15 羊）的 Web 游戏。玩法与规格见 [`docs/`](docs/)。
 
-**边界**：业务代码 = `game-core` + `apps/player-web` + `apps/admin`；`apps/web` 仅保留兼容入口。玩家端和 Admin 是两个独立 Next 应用，共享核心与 Web 契约；App（Capacitor）一期不上，仅有预留方案。
+**边界**：业务代码 = `game-core` + `apps/player-web` + `apps/admin`。玩家端和 Admin 是两个独立 Next 应用，共享核心、Web 契约和资源包；App（Capacitor）一期不上，仅有预留方案。
 
 ---
 
@@ -66,9 +66,8 @@
 | `packages/game-core` | 玩法内核（纯 TS，无 DOM） |
 | `apps/player-web` | 玩家 Next 应用、公开页面、H5 构建入口 |
 | `apps/admin` | Admin Next 应用、内部页面和管理 API |
-| `apps/web` | 兼容入口和兼容导出，等待线上回归后评估退役 |
 | `packages/web-shared` | 跨应用契约、共享样式和平台边界 |
-| `apps/web/public` | 当前资源源目录，构建时同步到玩家端 |
+| `packages/web-assets` | 玩家与 Admin 共享的资源源文件和资源检查工具 |
 | `docs/` | 产品 / 技术文档（非运行时） |
 | `.github/workflows/ci.yml` | CI |
 | 根 `package.json` | 统一脚本入口 |
@@ -113,14 +112,14 @@ pnpm check:skins         # 皮肤齐套（CI 用）
 
 Admin `AiSimConsole` 是人工校准，不是自动化测试。壳层回归靠 `/admin/checklist`；补测优先加 core fixture。
 
-**CI**（`.github/workflows/ci.yml`）：game-core test + lint → web build → `build:portal` → `check:skins`。
+**CI**（`.github/workflows/ci.yml`）：game-core test/lint → Player/Admin test/build → 资源与皮肤检查。
 
 | 脚本 | 用途 |
 |------|------|
 | `packages/game-core/scripts/check-skins.mjs` | 皮肤齐套 |
 | `packages/game-core/scripts/balance-deep.mjs` | 深度平衡模拟 |
 | `apps/player-web/scripts/build-target.mjs` | Standalone/Poki/CrazyGames 玩家端构建 |
-| `apps/web/scripts/assets/gen-boards.mjs` / `gen-sfx.mjs` | 资源生成辅助 |
+| `packages/web-assets/scripts/` | 资源检查与生成辅助 |
 
 ---
 

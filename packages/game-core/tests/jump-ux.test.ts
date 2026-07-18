@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { applyAction, listLegalActions, makeState, type Action, type BoardState, type Pos } from '../src/index'
 
-/** Mirrors apps/web play-store highlightsFor + findAction (through + sheep to). */
+/** Mirrors player-web play-store highlightsFor + findAction (through + sheep to). */
 function highlightsFor(state: BoardState, wolfId: string) {
   const legal = listLegalActions(state).filter((a) => a.pieceId === wolfId)
   return {

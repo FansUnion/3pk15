@@ -6,12 +6,13 @@ import { fileURLToPath } from 'node:url'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const gates = [
   ['game-core tests', ['--filter', '@wolf-sheep/game-core', 'test']],
-  ['web tests', ['--filter', '@wolf-sheep/web', 'test']],
+  ['player tests', ['--filter', '@wolf-sheep/player-web', 'test']],
+  ['admin tests', ['--filter', '@wolf-sheep/admin', 'test']],
   ['platform boundaries', ['check:platform-boundaries']],
   ['player boundaries', ['check:player-boundaries']],
   ['application source boundaries', ['check:app-source-boundaries']],
   ['deployment contract', ['check:deployment-contract']],
-  ['public assets', ['--filter', '@wolf-sheep/web', 'check:assets']],
+  ['public assets', ['--filter', '@wolf-sheep/web-assets', 'check']],
   ['production build', ['build:standalone']],
   ['player build report', ['report:player-build', '--', '--expect=standalone']],
   ['player artifact', ['audit:player-artifact']],

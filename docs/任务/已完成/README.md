@@ -6,6 +6,8 @@
 
 截至 2026-07-18，独立玩家端 `fangrush.com` 与 Admin `admin.fangrush.com` 已完成 Vercel 部署；两个应用使用同一 GitHub 仓库的独立 Project、独立环境变量和独立回滚。
 
+旧 `apps/web` 兼容应用已退役：Player/Admin 测试归属各自应用，共享资源与资源工具迁移到 `packages/web-assets`，根命令和 CI 不再引用旧应用。
+
 - 固定关卡开局在正式对局、重开、序列化恢复、Admin和模拟入口的一致链路。
 - 核心规则、岩石、连吃、终局、重复局面和回合上限的自动化测试。
 - 可复现的羊 AI 分析模式、狼方模拟策略和关卡候选验收器。

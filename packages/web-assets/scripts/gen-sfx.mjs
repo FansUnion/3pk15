@@ -1,13 +1,13 @@
 /**
  * Foley-ish WAV samples: wood tap + soft whoosh (not phone beeps).
- * Run: node apps/web/scripts/assets/gen-sfx.mjs
+ * Run: pnpm --filter @wolf-sheep/web-assets generate:sfx
  */
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const outDir = path.resolve(__dirname, '../../../packages/web-assets/public/sfx')
+const outDir = path.resolve(__dirname, '../public/sfx')
 
 function writeWav(file, samples, sampleRate = 22050) {
   const dataSize = samples.length * 2

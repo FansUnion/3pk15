@@ -111,7 +111,7 @@ requirements:
     last_verified: 2026-07-17
     evidence:
       - apps/player-web/lib/storage.ts
-      - apps/web/src/lib/storage.test.ts
+      - apps/player-web/lib/storage.test.ts
       - apps/player-web/lib/active-game.ts
     gap_zh: 主存档有降级；play-metrics / ads mock 仍可能在禁用存储时抛错。
 
@@ -195,7 +195,7 @@ requirements:
     evidence:
       - apps/player-web/lib/platform.ts
       - apps/player-web/components/PlayScreen.tsx
-      - apps/web/src/lib/platform.test.ts
+      - apps/player-web/lib/platform.test.ts
     gap_zh: 玩家对局挂载后已去重调用loadingFinished；仍缺真实Poki SDK适配器和Inspector事件证据。
 
   - id: POKI-SDK-003
@@ -210,7 +210,7 @@ requirements:
     evidence:
       - apps/player-web/lib/platform.ts
       - apps/player-web/components/PlayScreen.tsx
-      - apps/web/src/lib/platform.test.ts
+      - apps/player-web/lib/platform.test.ts
     gap_zh: 首次有效玩家输入、终局、离页、重开和页面可见性已接入去重start/stop；仍缺真实SDK和Inspector证据。
 
   - id: POKI-SDK-004
@@ -237,7 +237,7 @@ requirements:
     last_verified: 2026-07-17
     evidence:
       - apps/player-web/lib/ads.ts
-      - apps/web/src/lib/ads.test.ts
+      - apps/player-web/lib/ads.test.ts
     gap_zh: Mock 路径已做到成功才发奖；真实 rewardedBreak 与奖励按钮视觉层级未接。
 
   - id: POKI-SDK-006
@@ -279,7 +279,7 @@ requirements:
     last_verified: 2026-07-17
     evidence:
       - apps/player-web/lib/share-result.ts
-      - apps/web/src/lib/share-result.test.ts
+      - apps/player-web/lib/share-result.test.ts
     gap_zh: 现有分享指向自有 origin，未接 Poki shareableURL。
 
   - id: POKI-SDK-009

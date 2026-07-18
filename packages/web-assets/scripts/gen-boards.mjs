@@ -1,13 +1,13 @@
 /**
  * Seasonal meadow / frost board backgrounds — readable field, not Excel.
- * Run: node apps/web/scripts/assets/gen-boards.mjs
+ * Run: pnpm --filter @wolf-sheep/web-assets generate:boards
  */
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const dir = path.resolve(__dirname, '../../../packages/web-assets/public/skins/boards')
+const dir = path.resolve(__dirname, '../public/skins/boards')
 
 function board(id, { base, mid, deep, line, accent, frost = false }) {
   const blades = frost

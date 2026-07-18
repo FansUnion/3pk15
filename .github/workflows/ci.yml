@@ -20,6 +20,8 @@ jobs:
       - run: pnpm install
       - run: pnpm --filter @wolf-sheep/game-core test
       - run: pnpm --filter @wolf-sheep/game-core lint
-      - run: pnpm --filter @wolf-sheep/web build
-      - run: pnpm build:portal
+      - run: pnpm test:web
+      - run: pnpm build:standalone
+      - run: pnpm build:admin
+      - run: pnpm check:assets
       - run: pnpm check:skins

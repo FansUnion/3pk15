@@ -98,7 +98,7 @@ apps/player-web/.env.local    # 玩家端本地初始值，当前纳入 Git
 apps/admin/.env.local          # Admin 本地初始值，当前纳入 Git
 ```
 
-两个应用的 `.env.local` 只维护可公开的本地初始值，不得写入真实平台密钥、生产凭据或个人数据。Vercel Secret 和生产 `ADMIN_ACCESS_KEY` 不纳入 Git。根目录 `.env.example` 已废弃；`apps/web/.env.example` 只为尚未退役的兼容入口保留，不作为两个新 Vercel Project 的配置来源。
+两个应用的 `.env.local` 只维护可公开的本地初始值，不得写入真实平台密钥、生产凭据或个人数据。Vercel Secret 和生产 `ADMIN_ACCESS_KEY` 不纳入 Git。根目录环境变量文件和旧兼容应用均已废弃。
 
 本地复制对应应用的模板为 `.env.local`，例如：
 

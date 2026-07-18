@@ -5,8 +5,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
 const rules = [
-  { app: 'player-web', forbidden: [/apps[\\/]web[\\/]src/, /\.\.[\\/]web[\\/]src/, /apps[\\/]admin/, /\.\.[\\/]admin/] },
-  { app: 'admin', forbidden: [/apps[\\/]web[\\/]src/, /\.\.[\\/]web[\\/]src/] },
+  { app: 'player-web', forbidden: [/apps[\\/]admin/, /\.\.[\\/]admin/] },
 ]
 const extensions = /\.(?:ts|tsx|js|mjs)$/
 const violations = []
@@ -36,4 +35,4 @@ if (violations.length) {
   process.exit(1)
 }
 
-console.log('check:app-source-boundaries: OK (player-web and admin do not import legacy app sources)')
+console.log('check:app-source-boundaries: OK (player-web does not import Admin sources)')

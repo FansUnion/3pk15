@@ -12,6 +12,7 @@
     "build:standalone": "node ./scripts/build-target.mjs standalone",
     "build:poki": "node ./scripts/build-target.mjs poki",
     "build:crazygames": "node ./scripts/build-target.mjs crazygames",
+    "test": "vitest run",
     "start": "next start -p 5001"
   },
   "dependencies": {
@@ -29,6 +30,7 @@
     "tailwindcss": "^3.4.19",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   }
 }

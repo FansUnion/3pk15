@@ -3,9 +3,18 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const webRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
-const publicRoot = join(webRoot, '../../packages/web-assets/public')
-const scanRoots = [join(webRoot, 'src'), join(webRoot, '../../packages/game-core/src')]
+const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
+const repoRoot = join(packageRoot, '../..')
+const publicRoot = join(packageRoot, 'public')
+const scanRoots = [
+  join(repoRoot, 'apps/player-web/app'),
+  join(repoRoot, 'apps/player-web/components'),
+  join(repoRoot, 'apps/player-web/lib'),
+  join(repoRoot, 'apps/admin/app'),
+  join(repoRoot, 'apps/admin/components'),
+  join(repoRoot, 'apps/admin/lib'),
+  join(repoRoot, 'packages/game-core/src'),
+]
 const sourceExtensions = new Set(['.ts', '.tsx', '.js', '.mjs'])
 const assetPattern = /['"](\/[A-Za-z0-9_./-]+\.(?:svg|png|jpe?g|webp|wav|mp3|ogg))['"]/g
 const referenced = new Set()

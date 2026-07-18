@@ -221,7 +221,7 @@ CREATE TABLE fangrush.player_saves (
 | 端 | 做账号？ |
 |----|----------|
 | 独立站 `standalone` | 是 |
-| `pnpm build:portal` | **否**（无按钮、云 API 可拒） |
+| `pnpm build:poki` / `pnpm build:crazygames` | **否**（无按钮、云 API 可拒） |
 | 日后 App | **同一** users / player_saves；再加 Apple（后置） |
 
 多渠道说明：FR `docs/技术设计/07-游戏架构总览.md` §3.3。
@@ -251,7 +251,7 @@ CREATE TABLE fangrush.player_saves (
 
 ### 阶段 C — 壳与后置
 
-11. [ ] `build:portal` 无登录入口  
+11. [ ] `build:poki` / `build:crazygames` 无登录入口  
 12. [ ]（后）Apple：新 provider，仍绑同一 `users.id`  
 13. [ ]（后）Capacitor 同一套 API  
 

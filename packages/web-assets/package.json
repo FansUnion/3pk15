@@ -1,0 +1,10 @@
+{
+  "name": "@wolf-sheep/web-assets",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "check": "node ./scripts/check-public-assets.mjs",
+    "generate:boards": "node ./scripts/gen-boards.mjs",
+    "generate:sfx": "node ./scripts/gen-sfx.mjs"
+  }
+}
