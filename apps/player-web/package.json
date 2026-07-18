@@ -3,8 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "pnpm --filter @wolf-sheep/web-shared build",
     "dev": "next dev -p 5001",
     "build": "next build",
+    "prebuild:standalone": "pnpm --filter @wolf-sheep/web-shared build",
+    "prebuild:poki": "pnpm --filter @wolf-sheep/web-shared build",
+    "prebuild:crazygames": "pnpm --filter @wolf-sheep/web-shared build",
     "build:standalone": "node ./scripts/build-target.mjs standalone",
     "build:poki": "node ./scripts/build-target.mjs poki",
     "build:crazygames": "node ./scripts/build-target.mjs crazygames",

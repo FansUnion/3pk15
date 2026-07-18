@@ -1,6 +1,5 @@
 import { getAds, type IAds } from './ads'
-
-export type PlatformKind = 'standalone' | 'poki' | 'crazygames'
+import type { PlatformKind } from '@wolf-sheep/web-shared'
 
 export interface GamePlatform {
   readonly kind: PlatformKind

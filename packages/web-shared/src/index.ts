@@ -2,6 +2,18 @@ export type WebShell = 'standalone' | 'portal' | 'admin'
 export type PlatformTarget = 'standalone' | 'poki' | 'crazygames' | 'admin'
 export type AdsProvider = 'none' | 'mock' | 'portal_sdk' | 'native'
 
+export type AdFailureReason = 'cancelled' | 'failed' | 'unavailable' | 'unfilled' | 'cooldown'
+export type AdResult = { ok: true } | { ok: false; reason: AdFailureReason }
+export type AdPlacement = 'fragment_topup' | 'double_drop'
+export type AdLifecycle = { onStart?: () => void | Promise<void>; onFinish?: () => void | Promise<void> }
+export interface AdsContract {
+  showInterstitial(lifecycle?: AdLifecycle): Promise<AdResult>
+  showRewarded(placement: AdPlacement, lifecycle?: AdLifecycle): Promise<AdResult>
+  preload?(): void
+}
+
+export type PlatformKind = 'standalone' | 'poki' | 'crazygames'
+
 export type WebTargetConfig = {
   shell: WebShell
   platform: PlatformTarget

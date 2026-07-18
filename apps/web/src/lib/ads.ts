@@ -1,24 +1,7 @@
-export type AdFailureReason =
-  | 'cancelled'
-  | 'failed'
-  | 'unavailable'
-  | 'unfilled'
-  | 'cooldown'
-
-export type AdResult = { ok: true } | { ok: false; reason: AdFailureReason }
-export type AdPlacement = 'fragment_topup' | 'double_drop'
+import type { AdFailureReason, AdPlacement, AdResult, AdsContract, AdLifecycle } from '@wolf-sheep/web-shared'
+export type { AdFailureReason, AdPlacement, AdResult, AdLifecycle } from '@wolf-sheep/web-shared'
 export type MockAdOutcome = 'success' | AdFailureReason
-
-export type AdLifecycle = {
-  onStart?: () => void | Promise<void>
-  onFinish?: () => void | Promise<void>
-}
-
-export interface IAds {
-  showInterstitial(lifecycle?: AdLifecycle): Promise<AdResult>
-  showRewarded(placement: AdPlacement, lifecycle?: AdLifecycle): Promise<AdResult>
-  preload?(): void
-}
+export type IAds = AdsContract
 
 export const MOCK_AD_OUTCOME_KEY = 'fangrush:mock-ad-outcome'
 export const MOCK_AD_OUTCOMES: readonly MockAdOutcome[] = [
