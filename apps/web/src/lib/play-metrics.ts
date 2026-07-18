@@ -1,7 +1,7 @@
 'use client'
 
 export const PLAY_METRICS_KEY = 'wolf-sheep:play-metrics:v1'
-import type { PlayAttemptResult, PlayAttemptMetric, TerminalAttemptDetails } from '@wolf-sheep/web-shared'
+import type { PlayAttemptMetric } from '@wolf-sheep/web-shared'
 export type { PlayAttemptResult, PlayAttemptMetric, TerminalAttemptDetails } from '@wolf-sheep/web-shared'
 
 

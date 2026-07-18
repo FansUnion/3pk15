@@ -1,5 +1,5 @@
 export const ADMIN_LEVEL_REVIEWS_KEY = 'wolf-sheep:admin-level-reviews:v1'
-import type { LevelReview, LevelReviewMap, LevelReviewStatus, ReviewUnderstanding, ReviewDevice, PlayerExperience, ReviewIssueCategory, ReviewSeverity } from '@wolf-sheep/web-shared'
+import type { LevelReview, LevelReviewMap } from '@wolf-sheep/web-shared'
 export type { LevelReview, LevelReviewMap, LevelReviewStatus, ReviewUnderstanding, ReviewDevice, PlayerExperience, ReviewIssueCategory, ReviewSeverity } from '@wolf-sheep/web-shared'
 
 
