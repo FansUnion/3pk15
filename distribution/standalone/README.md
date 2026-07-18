@@ -16,6 +16,19 @@ pnpm --filter @wolf-sheep/player-web start
 
 独立站由 `apps/player-web` 独立构建。严格产物审计确认玩家包不包含 Admin/API；Admin 使用单独的 `pnpm build:admin` 构建，不进入独立站发布产物。
 
+## Vercel 部署边界
+
+推荐使用同一 Git 仓库中的两个 Vercel Project，而不是把玩家端和 Admin 合并到一个公开项目：
+
+| Project | Root Directory | 本地端口 | 生产域名 | 用途 |
+|---|---|---:|---|---|
+| Player | `apps/player-web` | `5003` | `fangrush.com` | 公开、无广告玩家演示站 |
+| Admin | `apps/admin` | `5002` | `admin.fangrush.com` | 受保护的内部验收工具 |
+
+本地端口只用于开发。Vercel 使用 HTTPS 域名和平台分配的运行端口，不应把 `5002` 或 `5003` 作为生产配置。Admin 是否部署到公网可后置；未部署时继续使用本地 `5002`。
+
+玩家项目和 Admin 项目必须分别配置环境变量、部署权限和回滚版本。玩家项目不能配置 Admin 的公开客户端变量，也不能把 Admin/API 路由纳入产物。
+
 ## 生产配置
 
 | 配置 | 要求 |
