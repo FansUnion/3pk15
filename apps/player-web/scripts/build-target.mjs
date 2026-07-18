@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { rmSync } from 'node:fs'
+import { cpSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -12,6 +12,7 @@ if (!supported.includes(platform)) {
 }
 
 rmSync(join(appRoot, '.next'), { recursive: true, force: true })
+cpSync(join(appRoot, '../web/public'), join(appRoot, 'public'), { recursive: true })
 
 const result = spawnSync('pnpm', ['exec', 'next', 'build'], {
   cwd: appRoot,
