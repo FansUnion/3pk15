@@ -4,6 +4,7 @@ import { join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
+const buildRoot = join(root, 'apps/web/.next')
 const serverApp = join(root, 'apps/web/.next/server/app')
 const strict = process.argv.includes('--strict')
 const externalStrict = process.argv.includes('--external-strict')
@@ -18,6 +19,15 @@ function walk(directory, files = []) {
     const path = join(directory, entry.name)
     if (entry.isDirectory()) walk(path, files)
     else files.push(relative(serverApp, path).split(sep).join('/'))
+  }
+  return files
+}
+
+function walkBuild(directory, files = []) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name)
+    if (entry.isDirectory()) walkBuild(path, files)
+    else files.push(path)
   }
   return files
 }
@@ -41,7 +51,9 @@ if (forbidden.length) {
 if (!forbidden.length) console.log('audit:web-artifact: PASS')
 
 if (externalStrict) {
-  const allFiles = files.map((file) => readFileSync(join(serverApp, file), 'utf8')).join('\n')
+  const allFiles = walkBuild(buildRoot)
+    .map((file) => readFileSync(file, 'utf8'))
+    .join('\n')
   const forbiddenExternal = ['googletagmanager.com', 'google-analytics.com']
     .filter((host) => allFiles.includes(host))
   if (forbiddenExternal.length) {
