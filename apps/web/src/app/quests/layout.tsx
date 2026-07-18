@@ -1,9 +1,1 @@
-import type { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
-
-export default function QuestsLayout({ children }: { children: React.ReactNode }) {
-  return children
-}
+export { default, metadata } from '../../../../player-web/app/quests/layout'
