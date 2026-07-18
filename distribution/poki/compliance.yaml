@@ -14,7 +14,7 @@ meta:
   source_capture: docs/文档整理todo/poki内容/
   checklist_entry: distribution/poki/README.md
   early_access_form: distribution/poki/early-access-form.md
-  matrix_updated: 2026-07-17
+  matrix_updated: 2026-07-18
   notes_zh: >
     本文件供 AI 与验收使用。政策以官网英文为准；分成与独家年限不以本文件为合同事实。
     verified 仅在 Inspector / 测试 / 截图 / 构建报告等证据齐全时使用。
@@ -84,8 +84,8 @@ requirements:
     official_url: https://sdk.poki.com/new-requirements.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/components/BoardSvg.tsx
-      - apps/web/src/components/PlayScreen.tsx
+      - apps/player-web/components/BoardSvg.tsx
+      - apps/player-web/components/PlayScreen.tsx
     gap_zh: 有触控/键盘基础，缺平台级 16:9 画布与 Inspector/设备矩阵证据。
 
   - id: POKI-TECH-002
@@ -110,9 +110,9 @@ requirements:
     official_url: https://sdk.poki.com/new-requirements.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/lib/storage.ts
+      - apps/player-web/lib/storage.ts
       - apps/web/src/lib/storage.test.ts
-      - apps/web/src/lib/active-game.ts
+      - apps/player-web/lib/active-game.ts
     gap_zh: 主存档有降级；play-metrics / ads mock 仍可能在禁用存储时抛错。
 
   - id: POKI-TECH-004
@@ -121,11 +121,13 @@ requirements:
     requirement_zh: 初始下载目标小于 8 MB；干净构建，无调试工具。
     level: required
     applicability: applicable
-    status: missing
+    status: partial
     official_url: https://sdk.poki.com/new-requirements.html
     last_verified: 2026-07-17
-    evidence: []
-    gap_zh: 缺静态上传包体积报告；portal 构建仍可能携带 Admin 相关编译产物。
+    evidence:
+      - scripts/report-player-build.mjs
+      - scripts/audit-web-artifact.mjs
+    gap_zh: Next 玩家部署口径为146个文件、约5.02MiB且无Admin/API；仍缺平台静态上传ZIP及其初始下载口径报告。
 
   - id: POKI-TECH-005
     category: tech
@@ -137,10 +139,9 @@ requirements:
     official_url: https://sdk.poki.com/new-requirements.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/components/Ga4.tsx
-      - apps/web/scripts/build-portal.mjs
-      - apps/web/src/middleware.ts
-    gap_zh: Portal 已关 GA/Admin 入口；隐私页等外链与最终静态包内容仍需复核。
+      - apps/player-web/scripts/build-target.mjs
+      - scripts/audit-web-artifact.mjs
+    gap_zh: 玩家平台构建已物理排除Admin/API和外部统计域名；隐私页等出站能力与最终静态包仍需按平台规则复核。
 
   - id: POKI-TECH-006
     category: tech
@@ -152,7 +153,7 @@ requirements:
     official_url: https://sdk.poki.com/new-requirements.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/lib/ads.ts
+      - apps/player-web/lib/ads.ts
     gap_zh: 当前无广告拦截自定义提示；真实 SDK 接入后需回归。
 
   - id: POKI-PRIVACY-001
@@ -165,9 +166,9 @@ requirements:
     official_url: https://sdk.poki.com/external-resources.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/components/Ga4.tsx
-      - apps/web/scripts/build-portal.mjs
-    gap_zh: Portal 壳关闭 GA；需对最终静态包做网络白名单/HAR 验证。
+      - apps/player-web/scripts/build-target.mjs
+      - scripts/audit-web-artifact.mjs
+    gap_zh: 构建产物外部统计域名审计通过；仍需对最终平台静态包做网络白名单/HAR验证。
 
   - id: POKI-SDK-001
     category: sdk
@@ -179,7 +180,7 @@ requirements:
     official_url: https://sdk.poki.com/html5.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/lib/platform.ts
+      - apps/player-web/lib/platform.ts
     gap_zh: 无真实 Poki SDK 脚本与适配器。
 
   - id: POKI-SDK-002
@@ -192,7 +193,7 @@ requirements:
     official_url: https://sdk.poki.com/html5.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/lib/platform.ts
+      - apps/player-web/lib/platform.ts
     gap_zh: loadingFinished 为空实现且业务未调用。
 
   - id: POKI-SDK-003
@@ -205,8 +206,8 @@ requirements:
     official_url: https://sdk.poki.com/new-requirements.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/lib/platform.ts
-      - apps/web/src/components/PlayScreen.tsx
+      - apps/player-web/lib/platform.ts
+      - apps/player-web/components/PlayScreen.tsx
     gap_zh: 生命周期事件未接入业务。
 
   - id: POKI-SDK-004
@@ -219,7 +220,7 @@ requirements:
     official_url: https://sdk.poki.com/html5.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/lib/ads.ts
+      - apps/player-web/lib/ads.ts
     gap_zh: PortalAds 实际落到 UnavailableAds，无 commercialBreak。
 
   - id: POKI-SDK-005
@@ -232,7 +233,7 @@ requirements:
     official_url: https://sdk.poki.com/html5.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/lib/ads.ts
+      - apps/player-web/lib/ads.ts
       - apps/web/src/lib/ads.test.ts
     gap_zh: Mock 路径已做到成功才发奖；真实 rewardedBreak 与奖励按钮视觉层级未接。
 
@@ -246,8 +247,8 @@ requirements:
     official_url: https://sdk.poki.com/html5.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/lib/ads.ts
-      - apps/web/src/lib/sfx.ts
+      - apps/player-web/lib/ads.ts
+      - apps/player-web/lib/sfx.ts
     gap_zh: 有音频暂停回调雏形；缺统一输入锁定与 AI/对局状态冻结。
 
   - id: POKI-SDK-007
@@ -272,7 +273,7 @@ requirements:
     official_url: https://sdk.poki.com/html5.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/lib/share-result.ts
+      - apps/player-web/lib/share-result.ts
       - apps/web/src/lib/share-result.test.ts
     gap_zh: 现有分享指向自有 origin，未接 Poki shareableURL。
 
@@ -286,7 +287,7 @@ requirements:
     official_url: https://sdk.poki.com/html5.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/lib/storage.ts
+      - apps/player-web/lib/storage.ts
     gap_zh: 首发以本地存档为主，未接 Poki 账号/云同步；若启用需设计体积与忽略键。
 
   - id: POKI-UX-001
@@ -311,8 +312,8 @@ requirements:
     official_url: https://sdk.poki.com/new-requirements.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/components/PlayScreen.tsx
-      - apps/web/src/components/BoardSvg.tsx
+      - apps/player-web/components/PlayScreen.tsx
+      - apps/player-web/components/BoardSvg.tsx
     gap_zh: 有基础教学/触控；平板强制移动控制与 ESC 暂停等需对照验收。
 
   - id: POKI-I18N-001
@@ -325,8 +326,8 @@ requirements:
     official_url: https://sdk.poki.com/localization.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/src/i18n/messages.ts
-      - apps/web/src/config/locales.ts
+      - apps/player-web/i18n/messages.ts
+      - apps/player-web/config/locales.ts
     gap_zh: 已有 en/zh；未覆盖 EFIGS 全组与长译文布局压测。
 
   - id: POKI-ASSET-001
@@ -364,8 +365,9 @@ requirements:
     official_url: https://sdk.poki.com/what-is-p4d.html
     last_verified: 2026-07-17
     evidence:
-      - apps/web/scripts/build-portal.mjs
-    gap_zh: build:poki/portal 仍偏 Next 构建，未证明可直接上传的静态 ZIP。
+      - apps/player-web/scripts/build-target.mjs
+      - scripts/report-player-build.mjs
+    gap_zh: build:poki 已使用独立玩家入口，但仍是Next构建，未证明可直接上传的静态ZIP。
 
   - id: POKI-MP-001
     category: community
