@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     config.resolve.alias['@/components/admin/adminBoardTheme'] = join(process.cwd(), 'components/adminBoardTheme.ts')
     config.resolve.alias['@/components/admin/SkinBoardPreview'] = join(process.cwd(), 'components/SkinBoardPreview.tsx')
     config.resolve.alias['@/components/admin/aiFixtures'] = join(process.cwd(), 'components/aiFixtures.ts')
+    config.resolve.alias['@/components/admin/AdminPlayScreen'] = join(process.cwd(), 'components/AdminPlayScreen.tsx')
     return config
   },
 }
