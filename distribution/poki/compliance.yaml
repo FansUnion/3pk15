@@ -189,12 +189,14 @@ requirements:
     requirement_zh: 加载完成后触发 gameLoadingFinished。
     level: required
     applicability: applicable
-    status: missing
+    status: partial
     official_url: https://sdk.poki.com/html5.html
     last_verified: 2026-07-17
     evidence:
       - apps/player-web/lib/platform.ts
-    gap_zh: loadingFinished 为空实现且业务未调用。
+      - apps/player-web/components/PlayScreen.tsx
+      - apps/web/src/lib/platform.test.ts
+    gap_zh: 玩家对局挂载后已去重调用loadingFinished；仍缺真实Poki SDK适配器和Inspector事件证据。
 
   - id: POKI-SDK-003
     category: sdk
@@ -202,13 +204,14 @@ requirements:
     requirement_zh: 首次玩家输入触发 gameplayStart；禁止连续重复 start/stop；暂停/菜单/关卡结束触发 stop。
     level: required
     applicability: applicable
-    status: missing
+    status: partial
     official_url: https://sdk.poki.com/new-requirements.html
     last_verified: 2026-07-17
     evidence:
       - apps/player-web/lib/platform.ts
       - apps/player-web/components/PlayScreen.tsx
-    gap_zh: 生命周期事件未接入业务。
+      - apps/web/src/lib/platform.test.ts
+    gap_zh: 首次有效玩家输入、终局、离页和重开已接入去重start/stop；仍缺菜单/页面可见性细化、真实SDK和Inspector证据。
 
   - id: POKI-SDK-004
     category: sdk

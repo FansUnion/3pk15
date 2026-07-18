@@ -111,6 +111,13 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }, [hydrate])
 
   useEffect(() => {
+    if (adminMode) return
+    const platform = getPlatform()
+    platform.loadingFinished()
+    return () => platform.gameplayStop()
+  }, [adminMode])
+
+  useEffect(() => {
     if (muted || !juice) return
     if (juice.kind === 'jump') {
       playSfx(state.chain && state.chain.count >= 2 ? 'chain' : 'jump')
@@ -223,6 +230,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
 
   useEffect(() => {
     if (uiPhase !== 'terminal' || terminalReportedRef.current) return
+    if (!adminMode) getPlatform().gameplayStop()
     terminalReportedRef.current = true
     const details: TerminalAttemptDetails = {
       durationMs: Math.max(0, Date.now() - attemptStartedAtRef.current),
@@ -328,7 +336,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     setAdError(false)
     setAdBusy(true)
     const res = await getPlatform().ads.showRewarded('double_drop', {
-      onStart: suspendSfx,
+      onStart: async () => {
+        getPlatform().gameplayStop()
+        await suspendSfx()
+      },
       onFinish: () => muted ? undefined : resumeSfx(),
     })
     setAdBusy(false)
@@ -370,6 +381,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       return
     }
     if (resetArmTimer.current) clearTimeout(resetArmTimer.current)
+    if (!adminMode) getPlatform().gameplayStop()
     setResetArmed(false)
     rewardedRef.current = false
     playCountedRef.current = false
@@ -399,6 +411,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }
 
   function handleSelectWolf(wolfId: string) {
+    if (interactive && !adminMode) getPlatform().gameplayStart()
     if (interactive && wolfId !== selectedWolfId) playSfx('select')
     selectWolf(wolfId)
     if (interactive) showNotice(p.wolfSelected)
@@ -420,6 +433,11 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       return
     }
     clickCell(pos)
+  }
+
+  function handleEndChain() {
+    if (!adminMode) getPlatform().gameplayStart()
+    endChain()
   }
 
   function showNotice(message: string) {
@@ -490,7 +508,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           <p className="text-center text-sm leading-relaxed text-[var(--ink)]">{p.chainDecision}</p>
           <button
             type="button"
-            onClick={endChain}
+            onClick={handleEndChain}
             className="rounded-lg bg-[var(--accent)] px-4 py-3 text-center text-sm font-medium text-[#f4f1ea] active:scale-[0.97]"
           >
             {fmt(p.endChainCount, { n: state.chain.count })}

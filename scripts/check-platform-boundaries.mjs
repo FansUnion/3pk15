@@ -4,20 +4,25 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
-const buildScript = readFileSync(join(root, 'apps/web/scripts/build-portal.mjs'), 'utf8')
-const envExample = readFileSync(join(root, 'apps/web/.env.example'), 'utf8')
+const buildScript = readFileSync(join(root, 'apps/player-web/scripts/build-target.mjs'), 'utf8')
+const playScreen = readFileSync(join(root, 'apps/player-web/components/PlayScreen.tsx'), 'utf8')
+const envExample = readFileSync(join(root, 'apps/player-web/.env.example'), 'utf8')
+const rootPackage = readFileSync(join(root, 'package.json'), 'utf8')
 
 const checks = [
-  ['unsupported platform targets fail explicitly', buildScript, /if \(!supportedPlatforms\.includes\(requestedPlatform\)\)/],
-  ['standalone uses the standalone shell', buildScript, /NEXT_PUBLIC_APP_SHELL:\s*platform === 'standalone' \? 'standalone' : 'portal'/],
-  ['standalone is ad-free in production builds', buildScript, /NEXT_PUBLIC_ADS_PROVIDER:\s*platform === 'standalone' \? 'unavailable' : 'portal_sdk'/],
-  ['portal builds disable Admin', buildScript, /ADMIN_ENABLED:\s*'false'/],
-  ['environment example defaults to no ads', envExample, /NEXT_PUBLIC_ADS_PROVIDER=none/],
-  ['standalone alias is available', readFileSync(join(root, 'package.json'), 'utf8'), /"build:standalone"/],
+  ['unsupported platform targets fail explicitly', buildScript, /if \(!supported\.includes\(platform\)\)/],
+  ['standalone uses the standalone shell', buildScript, /platform === 'standalone' \? 'standalone' : 'portal'/],
+  ['standalone is ad-free', buildScript, /platform === 'standalone' \? 'none' : 'portal_sdk'/],
+  ['player builds disable Admin', buildScript, /ADMIN_ENABLED: 'false'/],
+  ['target manifest is written', buildScript, /fangrush-build\.json/],
+  ['loading completion reaches gameplay', playScreen, /platform\.loadingFinished\(\)/],
+  ['gameplay start reaches player input', playScreen, /getPlatform\(\)\.gameplayStart\(\)/],
+  ['gameplay stop reaches terminal or cleanup', playScreen, /getPlatform\(\)\.gameplayStop\(\)/],
+  ['player environment defaults to no ads', envExample, /NEXT_PUBLIC_ADS_PROVIDER=none/],
+  ['all target verification aliases exist', rootPackage, /verify:player:standalone[\s\S]*verify:player:poki[\s\S]*verify:player:crazygames/],
 ]
 
 const failures = checks.filter(([, source, pattern]) => !pattern.test(source))
-
 if (failures.length) {
   for (const [label] of failures) console.error(`FAIL ${label}`)
   process.exit(1)
