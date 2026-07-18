@@ -85,6 +85,26 @@ pnpm check:runtime-routes
 
 线上还需分别检查 Player 的公开路由和 Admin 的 gate/关卡/AI 路由。`check:runtime-routes` 默认检查本地 `5003`/`5002`；线上检查时使用 `PLAYER_URL` 和 `ADMIN_URL` 环境变量覆盖地址。
 
+## 环境变量文件与生产配置
+
+环境变量模板按应用维护并纳入 Git：
+
+```text
+apps/player-web/.env.example  # 玩家端模板，可提交
+apps/admin/.env.example       # Admin 模板，可提交
+```
+
+真实 `.env.local`、Vercel Secret 和 `ADMIN_ACCESS_KEY` 不纳入 Git。根目录 `.env.example` 已废弃；`apps/web/.env.example` 只为尚未退役的兼容入口保留，不作为两个新 Vercel Project 的配置来源。
+
+本地复制对应应用的模板为 `.env.local`，例如：
+
+```text
+apps/player-web/.env.local
+apps/admin/.env.local
+```
+
+模板中的空密钥只能用于本地无保护调试；部署 Admin 时必须在 Vercel 中填写强随机 Secret。
+
 ## 生产配置
 
 | 配置 | 要求 |
