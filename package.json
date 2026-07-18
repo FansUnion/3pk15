@@ -13,6 +13,7 @@
     "lint": "pnpm -r lint",
     "check:skins": "pnpm --filter @wolf-sheep/game-core check:skins",
     "check:assets": "pnpm --filter @wolf-sheep/web check:assets",
+    "check:platform-boundaries": "node ./scripts/check-platform-boundaries.mjs",
     "release:check": "node ./scripts/release-check.mjs"
   },
   "engines": {

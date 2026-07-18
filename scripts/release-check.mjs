@@ -7,6 +7,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const gates = [
   ['game-core tests', ['--filter', '@wolf-sheep/game-core', 'test']],
   ['web tests', ['--filter', '@wolf-sheep/web', 'test']],
+  ['platform boundaries', ['check:platform-boundaries']],
   ['public assets', ['--filter', '@wolf-sheep/web', 'check:assets']],
   ['production build', ['-r', 'build']],
 ]
