@@ -251,7 +251,7 @@ CREATE TABLE fangrush.player_saves (
 
 ### 阶段 C — 壳与后置
 
-11. [ ] `build:poki` / `build:crazygames` 无登录入口  
+11. [ ] `build:poki` / `build:crazygames` 无登录入口
 12. [ ]（后）Apple：新 provider，仍绑同一 `users.id`  
 13. [ ]（后）Capacitor 同一套 API  
 
