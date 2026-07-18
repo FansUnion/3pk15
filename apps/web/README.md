@@ -65,6 +65,7 @@ pnpm build:crazygames
 
 ```bash
 pnpm check:platform-boundaries
+pnpm check:deployment-contract
 pnpm check:assets
 pnpm test
 pnpm test:web

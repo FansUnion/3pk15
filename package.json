@@ -16,6 +16,7 @@
     "check:platform-boundaries": "node ./scripts/check-platform-boundaries.mjs",
     "audit:web-artifact": "node ./scripts/audit-web-artifact.mjs",
     "audit:portal-artifact": "node ./scripts/audit-web-artifact.mjs --strict",
+    "check:deployment-contract": "node ./scripts/check-deployment-contract.mjs",
     "release:check": "node ./scripts/release-check.mjs"
   },
   "engines": {
