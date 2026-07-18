@@ -9,7 +9,7 @@
 在仓库根目录执行：
 
 ```bash
-pnpm build:portal
+pnpm build:standalone
 pnpm audit:web-artifact
 ```
 

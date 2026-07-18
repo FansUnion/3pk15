@@ -6,6 +6,7 @@
     "dev": "pnpm --filter @wolf-sheep/web dev",
     "build": "pnpm -r build",
     "build:portal": "pnpm --filter @wolf-sheep/web build:portal",
+    "build:standalone": "pnpm --filter @wolf-sheep/web build:portal",
     "build:poki": "pnpm --filter @wolf-sheep/web build:poki",
     "build:crazygames": "pnpm --filter @wolf-sheep/web build:crazygames",
     "test": "pnpm --filter @wolf-sheep/game-core test",
@@ -16,6 +17,7 @@
     "check:platform-boundaries": "node ./scripts/check-platform-boundaries.mjs",
     "audit:web-artifact": "node ./scripts/audit-web-artifact.mjs",
     "audit:portal-artifact": "node ./scripts/audit-web-artifact.mjs --strict",
+    "audit:portal-external": "node ./scripts/audit-web-artifact.mjs --external-strict",
     "check:deployment-contract": "node ./scripts/check-deployment-contract.mjs",
     "check:player-boundaries": "node ./scripts/check-player-boundaries.mjs",
     "release:check": "node ./scripts/release-check.mjs"

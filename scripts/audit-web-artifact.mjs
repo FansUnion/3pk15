@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
 const serverApp = join(root, 'apps/web/.next/server/app')
 const strict = process.argv.includes('--strict')
+const externalStrict = process.argv.includes('--external-strict')
 
 if (!existsSync(serverApp)) {
   console.error('No web build artifact found. Run a web production build first.')
@@ -38,3 +39,14 @@ if (forbidden.length) {
 }
 
 if (!forbidden.length) console.log('audit:web-artifact: PASS')
+
+if (externalStrict) {
+  const allFiles = files.map((file) => readFileSync(join(serverApp, file), 'utf8')).join('\n')
+  const forbiddenExternal = ['googletagmanager.com', 'google-analytics.com']
+    .filter((host) => allFiles.includes(host))
+  if (forbiddenExternal.length) {
+    for (const host of forbiddenExternal) console.error(`FORBIDDEN_EXTERNAL ${host}`)
+    process.exit(1)
+  }
+  console.log('audit:web-artifact: external analytics hosts absent')
+}

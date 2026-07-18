@@ -13,6 +13,7 @@ const checks = [
   ['standalone is ad-free in production builds', buildScript, /NEXT_PUBLIC_ADS_PROVIDER:\s*platform === 'standalone' \? 'unavailable' : 'portal_sdk'/],
   ['portal builds disable Admin', buildScript, /ADMIN_ENABLED:\s*'false'/],
   ['environment example defaults to no ads', envExample, /NEXT_PUBLIC_ADS_PROVIDER=none/],
+  ['standalone alias is available', readFileSync(join(root, 'package.json'), 'utf8'), /"build:standalone"/],
 ]
 
 const failures = checks.filter(([, source, pattern]) => !pattern.test(source))

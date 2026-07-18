@@ -6,7 +6,7 @@
 
 | 命令 | 目标 | 广告 | Admin |
 |---|---|---|---|
-| `pnpm build:portal` | 独立站生产 Demo | 关闭 | 关闭 |
+| `pnpm build:standalone` | 独立站生产 Demo | 关闭 | 关闭 |
 | `pnpm build:poki` | Poki 平台构建边界 | 仅保留平台适配入口 | 关闭 |
 | `pnpm build:crazygames` | CrazyGames 平台构建边界 | 仅保留平台适配入口 | 关闭 |
 
@@ -25,7 +25,7 @@ pnpm dev
 ## 3. 独立站生产构建
 
 ```bash
-pnpm build:portal
+pnpm build:standalone
 pnpm --filter @wolf-sheep/web start
 ```
 
@@ -57,7 +57,7 @@ pnpm build:crazygames
 
 当前限制：Next.js仍会在构建清单中编译Admin页面和API，但portal运行时会统一阻断访问。平台正式提交前还需要建立物理剔除或独立导出流程，并检查最终包中不含Admin代码；当前不能把“运行时关闭”表述成“已从包体移除”。
 
-构建后可执行 `pnpm audit:web-artifact` 查看残留；`pnpm audit:portal-artifact` 是平台提交前的严格门槛，当前预期失败，直到玩家入口与Admin构建被物理拆分。
+构建后可执行 `pnpm audit:web-artifact` 查看残留；`pnpm audit:portal-artifact` 是平台提交前的严格门槛，当前预期失败，直到玩家入口与Admin构建被物理拆分。`pnpm audit:portal-external` 用于确认平台构建没有独立站统计域名。
 
 真实平台 SDK、广告回调、平台生命周期和提交包必须等官方接入条件明确后再开发和验收。
 
@@ -70,7 +70,7 @@ pnpm check:player-boundaries
 pnpm check:assets
 pnpm test
 pnpm test:web
-pnpm build:portal
+pnpm build:standalone
 pnpm release:check
 ```
 
