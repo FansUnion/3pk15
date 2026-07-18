@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fangrush Web 部署说明
 
-## Getting Started
+## 1. 目标
 
-First, run the development server:
+`apps/web` 生成三类 Web 构建：
+
+| 命令 | 目标 | 广告 | Admin |
+|---|---|---|---|
+| `pnpm build:portal` | 独立站生产 Demo | 关闭 | 关闭 |
+| `pnpm build:poki` | Poki 平台构建边界 | 仅保留平台适配入口 | 关闭 |
+| `pnpm build:crazygames` | CrazyGames 平台构建边界 | 仅保留平台适配入口 | 关闭 |
+
+`build:poki` 和 `build:crazygames` 当前只是平台构建变体，不代表真实 SDK 已接入。
+
+## 2. 本地开发
+
+在仓库根目录执行：
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+默认地址为 `http://localhost:5000`。本地 `.env.local` 可以使用 Mock 广告和 Admin，但不得把本地密钥提交到仓库。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 3. 独立站生产构建
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm build:portal
+pnpm --filter @wolf-sheep/web start
+```
 
-## Learn More
+独立站生产环境必须满足：
 
-To learn more about Next.js, take a look at the following resources:
+- `NEXT_PUBLIC_APP_SHELL=standalone`
+- `NEXT_PUBLIC_PLATFORM=standalone`
+- `NEXT_PUBLIC_ADS_PROVIDER=none`
+- `ADMIN_ENABLED=false`
+- 配置真实 `NEXT_PUBLIC_SITE_URL`
+- 不暴露 `ADMIN_ACCESS_KEY` 到客户端环境变量
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+独立站是无广告 Demo 和项目展示入口。GA4 是否启用必须与隐私政策和部署环境保持一致；平台包默认不加载独立站统计。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 4. H5平台构建
 
-## Deploy on Vercel
+```bash
+pnpm build:poki
+pnpm build:crazygames
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+当前构建只完成：
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 平台标识区分。
+- portal 外壳区分。
+- Admin 关闭。
+- 平台广告适配边界保留。
+- 独立站统计关闭。
+
+真实平台 SDK、广告回调、平台生命周期和提交包必须等官方接入条件明确后再开发和验收。
+
+## 5. 发布前门禁
+
+```bash
+pnpm check:platform-boundaries
+pnpm check:assets
+pnpm test
+pnpm test:web
+pnpm build:portal
+pnpm release:check
+```
+
+`release:check` 会依次检查核心测试、Web测试、平台边界、资源引用和生产构建。任何一项失败都不能把构建标记为发布通过。
+
+## 6. 环境变量原则
+
+- `.env.example` 只保存无密钥示例。
+- `NEXT_PUBLIC_*` 会进入浏览器，不得放置密钥、签名或后台凭据。
+- `ADMIN_ACCESS_KEY` 只用于受保护的 Admin 服务端流程。
+- 生产、平台预览和本地 Mock 使用不同环境变量，不共用生产密钥。
+- 平台 SDK 密钥和广告网络凭据等真实接入后，使用平台部署系统的 Secret 管理，不进入 Git。
+
+## 7. 回滚
+
+部署前保留上一份可运行的生产构建版本。出现白屏、核心对局失败、资源大面积缺失、存档恢复异常或 Admin 暴露时，立即回滚到上一版本；不要在生产环境临时修改关卡或规则。
+
+## 8. 代码边界
+
+- 规则、AI、关卡和奖励：`packages/game-core`。
+- 页面和 Web 交互：`apps/web/src`。
+- 平台生命周期：`apps/web/src/lib/platform.ts`。
+- 广告接口与 Mock：`apps/web/src/lib/ads.ts`。
+- 平台提交资料：`distribution/`。
+- 总体架构：[工程边界与最终架构准备](../../docs/普通文档ing/工程边界总览.md)。
