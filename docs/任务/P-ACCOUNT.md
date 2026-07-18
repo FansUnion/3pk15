@@ -29,7 +29,7 @@ Supabase 在 SS 里 = **带 schema 的 Postgres**（`SUPABASE_SERVICE_ROLE_KEY` 
 
 现行 Fangrush 进度只在浏览器：
 
-- FR: `apps/web/src/lib/storage.ts`（键 `wolf-sheep-save-v1`）
+- FR: `apps/player-web/lib/storage.ts`（键 `wolf-sheep-save-v1`）
 - FR: `packages/game-core/src/content/save.ts`（类型 `SaveGame`）
 
 ---
@@ -121,7 +121,7 @@ Fangrush **不要**抄里面的 `credits` / `grantSignupBonus` / activity 日志
 | `packages/game-core/src/content/merge-save.ts` | **SS 没有** | `mergeSaveGames` + 单测 |
 
 壳：仅当 `process.env.NEXT_PUBLIC_APP_SHELL !== 'portal'`（或 `=== 'standalone'`）渲染登录按钮。  
-现有本地存档继续用 FR: `apps/web/src/lib/storage.ts`、`save-store.ts`。
+现有本地存档继续用 FR: `apps/player-web/lib/storage.ts`、`save-store.ts`；未来云存档通过独立服务端适配，不把账号逻辑写入 `game-core`。
 
 ---
 
@@ -260,7 +260,7 @@ CREATE TABLE fangrush.player_saves (
 ## 9. 依赖包（与 SS 对齐的最小集）
 
 ```bash
-# 在 apps/web
+# 在 apps/player-web
 pnpm add @react-oauth/google jsonwebtoken @supabase/supabase-js
 pnpm add -D @types/jsonwebtoken
 ```
