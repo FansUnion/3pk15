@@ -8,6 +8,7 @@ dist
 .next-dev
 out
 apps/player-web/public
+apps/admin/public
 *.tsbuildinfo
 
 # Env
