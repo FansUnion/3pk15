@@ -116,5 +116,13 @@ export type {
   CandidateVerdict,
   CandidateWolfStrategy,
 } from './analysis/candidateAcceptance'
-export { chooseDiagnosticWolfAction } from './analysis/diagnosticWolf'
+export { chooseDiagnosticWolfAction, shouldContinueDiagnosticChain } from './analysis/diagnosticWolf'
 export type { DiagnosticWolfStrategy } from './analysis/diagnosticWolf'
+export { analyzeLevelTopology, topologySignatureGroup } from './analysis/topology'
+export type { LevelTopology, RockGap } from './analysis/topology'
+export { measureSheepAdvantage } from './analysis/sheepAdvantage'
+export type { SheepAdvantageMetrics } from './analysis/sheepAdvantage'
+export { solveFinitePosition } from './analysis/finiteSolver'
+export type { FiniteSolveOptions, FiniteSolveResult, SolverVerdict } from './analysis/finiteSolver'
+export { auditLevel, auditLevels } from './analysis/levelAudit'
+export type { LevelAuditOptions, LevelAuditReport, LevelAuditVerdict } from './analysis/levelAudit'

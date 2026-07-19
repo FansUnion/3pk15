@@ -31,7 +31,7 @@ export default function SkinsPage() {
       replace(result.save)
       setMessage(t.skins.unlockSuccess)
     } else {
-      setMessage(t.skins.insufficient)
+      setMessage(result.error.startsWith('insufficient') ? t.skins.insufficient : t.skins.unavailable)
     }
   }
 
@@ -40,7 +40,7 @@ export default function SkinsPage() {
       <main className="page-shell flex flex-1 flex-col gap-6 py-8">
         <header className="grid grid-cols-[auto_1fr] items-center gap-3 sm:grid-cols-[1fr_auto_1fr]">
           <LocaleLink href="/" locale={locale} className="quiet-action text-sm">{t.nav.home}</LocaleLink>
-          <div className="text-center"><p className="eyebrow">Collection</p><h1 className="display-title text-3xl">{t.skins.title}</h1></div>
+          <div className="text-center"><p className="eyebrow">{t.skins.eyebrow}</p><h1 className="display-title text-3xl">{t.skins.title}</h1></div>
           <div className="col-span-2 text-left text-xs text-[var(--muted)] sm:col-span-1 sm:text-right">
             <p className="font-bold">✦ {save.fragments.universal}</p>
             <p className="mt-1">{t.skins.seasonBalances}</p>

@@ -10,9 +10,9 @@ export async function GET() {
   const lines = [
     '# Fangrush',
     '',
-    '> Browser strategy board game: three wolves hunt sheep on a grid with gap-rush chain captures. Short sessions, local save, no forced account.',
+    '> Browser strategy board game: three wolves hunt sheep with leap captures and coordinated positioning. Short sessions, local save, no forced account.',
     '',
-    'Fangrush (三狼连猎) is an original abstract strategy game you play in the browser. Control three wolves, use gap-rush rules to chain-capture sheep, and progress through seasonal chapters.',
+    'Fangrush (三狼连猎) is an original abstract strategy game you play in the browser. Control three wolves, make leap captures, and progress through seasonal chapters.',
     '',
     '## Product',
     `- [Home](${url('/')}): Play Fangrush in the browser.`,

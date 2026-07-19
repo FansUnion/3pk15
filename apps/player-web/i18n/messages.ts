@@ -18,6 +18,8 @@ export type MessageTree = {
     howToPlay: string
   }
   home: {
+    eyebrow: string
+    heroAlt: string
     howTitle: string
     how: [string, string, string, string]
     howMore: string
@@ -30,6 +32,7 @@ export type MessageTree = {
   }
   chapters: { title: string; locked: string; unlocked: string; howLink: string }
   howTo: {
+    eyebrow: string
     title: string
     metaDescription: string
     intro: string
@@ -67,6 +70,8 @@ export type MessageTree = {
     prev: string
     next: string
     rocksLabel: string
+    noRocks: string
+    oneRock: string
     guideLink: string
   }
   play: {
@@ -112,6 +117,12 @@ export type MessageTree = {
     allSeasons: string
     resultMetrics: string
     none: string
+    noCaptures: string
+    firstCaptureAt: string
+    boardLabel: string
+    rockLabel: string
+    sheepLabel: string
+    wolfLabel: string
     terminalReasons: Record<'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition' | 'unexpected', string>
     tip: string
     reset: string
@@ -180,15 +191,16 @@ export type MessageTree = {
     p4: string
   }
   skins: {
+    eyebrow: string
     title: string; equip: string; equipped: string; unlocked: string; unlock: string
     universalCost: string; seasonCost: string; chapterUnlock: string; intro: string
     wolfSets: string; boards: string; preview: string; previewActive: string
-    unlockSuccess: string; insufficient: string; costProgress: string; remaining: string; readyUnlock: string
+    unlockSuccess: string; insufficient: string; unavailable: string; costProgress: string; remaining: string; readyUnlock: string
     seasonBalances: string; seasonBalance: string
   }
   quests: {
     title: string; claim: string; claimed: string; empty: string; daily: string; weekly: string
-    reward: string; claimSuccess: string
+    reward: string; claimSuccess: string; balance: string; error: string
   }
   common: { back: string; loading: string }
   locale: { switchLabel: string }
@@ -222,20 +234,22 @@ export const en: MessageTree = {
     howToPlay: 'How to play',
   },
   home: {
+    eyebrow: 'Three wolves · one moving flock',
+    heroAlt: 'Three wolves face a flock of sheep on the Fangrush board.',
     howTitle: 'How to play',
     how: [
       'Select a wolf and step to an empty adjacent point.',
       'Leap-capture: wolf — empty — sheep on a line; land on the sheep.',
-      'Chain up to 5 eats per turn — or end the chain early.',
-      'Eat 8 sheep to clear; lose if all three wolves have no moves.',
+      'Chain up to 5 captures per turn — or end the chain early.',
+      'Capture 8 sheep to clear; lose if all three wolves have no moves.',
     ],
     howMore: 'Full rules',
     seasonsTitle: 'Seasons',
     seasons: {
-      spring: 'Learn the hunt · gentle flock',
+      spring: 'Learn movement · build confidence',
       summer: 'Real blocking · real pressure',
-      autumn: 'Same AI tier · rocks crack the line',
-      winter: 'Master surround · empty-board duel',
+      autumn: 'Read routes · time the attack',
+      winter: 'Master spacing · coordinate all three wolves',
     },
     trust: 'Progress stays in this browser · no account',
     faqTitle: 'FAQ',
@@ -257,6 +271,7 @@ export const en: MessageTree = {
     howLink: 'How to play Fangrush',
   },
   howTo: {
+    eyebrow: 'Fangrush field guide',
     title: 'How to play Fangrush',
     metaDescription:
       'Learn Fangrush rules: leap across one empty point to capture, chain up to 5 times, and navigate rock-blocked seasonal boards.',
@@ -272,10 +287,10 @@ export const en: MessageTree = {
       'After a leap-capture you may capture again, up to 5 times in one turn, or stop early to keep a safer position.',
     sheepTitle: 'Sheep AI',
     sheepBody:
-      'Sheep move by AI, never capture, and cannot retreat toward row 1. If the whole flock is blocked, it passes the turn.',
+      'The computer moves the sheep. They move sideways or toward the wolves, never back toward their starting edge, and never capture. If the whole flock is blocked, it passes the turn.',
     rocksTitle: 'Rocks and seasons',
     rocksBody:
-      'Rocks block landing points. Spring teaches rules; summer adds pressure; autumn packs rocks; winter is an empty-board hard duel.',
+      'Rocks block landing points. Spring teaches movement, summer adds defensive pressure, autumn tests routes and timing, and winter tests spacing and teamwork.',
     saveTitle: 'Local progress',
     saveBody: 'Clears, shards, and skins stay in this browser. No account. Clearing site data resets everything.',
     basicsTitle: 'Rules at a glance',
@@ -297,7 +312,7 @@ export const en: MessageTree = {
   },
   hunt: {
     playCta: 'Play this hunt',
-    seasonLine: '{season} · {rocks} rocks',
+    seasonLine: '{season} · {rocks}',
     goalLine: 'Goal: capture {n} sheep before all wolves are blocked',
     teachingLabel: 'This hunt teaches',
     levelsLink: 'All levels in this season',
@@ -305,6 +320,8 @@ export const en: MessageTree = {
     prev: 'Previous',
     next: 'Next',
     rocksLabel: '{n} rocks',
+    noRocks: 'No rocks',
+    oneRock: '1 rock',
     guideLink: 'Guide',
   },
   play: {
@@ -314,7 +331,7 @@ export const en: MessageTree = {
     turnWolf: 'Wolf turn',
     turnSheep: 'Sheep turn',
     chain: 'Chain {n}/5',
-    doubleLeft: 'Double drop {t}',
+    doubleLeft: 'Double shard drops · {t} left',
     endChain: 'End chain',
     endChainCount: 'End chain · {n}/5 captured',
     chainDecision: 'Red rings continue this chain. End now to keep this position and let the sheep respond.',
@@ -322,7 +339,7 @@ export const en: MessageTree = {
     lose: 'Defeat',
     winSub: 'Capture target reached: {target}',
     loseSub: 'No moves for the wolves',
-    draw: 'Stalemate',
+    draw: 'Draw',
     drawRepetitionSub: 'Challenge incomplete: the same position occurred three times.',
     drawMaxSub: 'Challenge incomplete: the action limit was reached.',
     gameEnded: 'Game ended',
@@ -346,14 +363,20 @@ export const en: MessageTree = {
     viewResult: 'View result',
     closeResult: 'View final board',
     reportGame: 'Report this game',
-    reportReady: 'Problem report downloaded.',
+    reportReady: 'Game report downloaded. Attach this file when sending feedback.',
     allSeasons: 'All seasons',
-    resultMetrics: 'Attempt {attempt} · {time} · {plies} actions · first capture {first} · {reason}',
+    resultMetrics: 'Attempt {attempt} · {time} · {plies} actions · {capture} · {reason}',
     none: 'none',
+    noCaptures: 'no captures',
+    firstCaptureAt: 'first capture at action {n}',
+    boardLabel: 'Fangrush board',
+    rockLabel: 'Rock at row {r}, column {c}',
+    sheepLabel: 'Sheep',
+    wolfLabel: 'Wolf',
     terminalReasons: {
       targetEaten: 'capture target',
       wolvesTrapped: 'wolves trapped',
-      maxPlies: 'move limit',
+      maxPlies: 'action limit',
       repetition: 'threefold repetition',
       unexpected: 'unexpected ending',
     },
@@ -367,11 +390,11 @@ export const en: MessageTree = {
     moreTitle: 'Hunt options',
     restart: 'Restart hunt',
     nextPreview: 'Up next',
-    difficulty: 'Difficulty {n}/5',
+    difficulty: 'Challenge {n}/5',
     guideTitle: 'Spring lesson',
     guideStep1: 'Select a dark wolf, then tap a green empty point to step.',
     guideStep2:
-      'Gap-eat: on a line wolf — empty — sheep, tap the red-ringed sheep or the empty middle. Chain up to 5.',
+      'Leap capture: when wolf — empty point — sheep share a line, tap the red-ringed sheep. Chain up to 5 captures.',
     guideSkip: 'Skip',
     guideNext: 'Next',
     guideStart: 'Start hunt',
@@ -391,7 +414,7 @@ export const en: MessageTree = {
     doubled: '(doubled)',
     universal: 'Universal shards {n}',
     rewardBalance: 'Current balance: {n} universal shards',
-    nextRewardTarget: 'Next skin: {name} · costs {cost}',
+    nextRewardTarget: 'Next skin: {name} · {cost} universal shards',
     rewardRemaining: '{n} more shards needed',
     rewardReady: 'Enough shards — ready to unlock',
     openSkins: 'View and equip skins',
@@ -416,21 +439,22 @@ export const en: MessageTree = {
     close: 'Close',
     quickTips: 'Quick tips',
     helpBody: [
-      'Command 3 wolves. Gap-eat sheep; eat 8 to win.',
-      'Move orthogonally one step. Gap-eat is wolf — empty — sheep; land on the sheep.',
-      'Chain up to 5 eats; you may end the chain early.',
-      'Sheep move by AI, cannot retreat toward row 1, never capture.',
+      'Command 3 wolves. Capture 8 sheep to win.',
+      'Move one point orthogonally. For a leap capture, line up wolf — empty point — sheep and land on the sheep.',
+      'Chain up to 5 captures; you may end the chain early.',
+      'The computer moves sheep sideways or toward the wolves, never back toward their starting edge. Sheep never capture.',
       'Lose if all three wolves have no moves. Rocks are blocked.',
     ],
   },
   privacy: {
     title: 'Privacy',
-    p1: 'Fangrush stores progress in your browser (localStorage). There is no account login in this version.',
+    p1: 'Fangrush stores progress only in this browser. There is no account login in this version.',
     p2: 'We do not upload your game saves or move lists to our own servers.',
     p3: 'Ads (when enabled) follow the ad provider’s privacy policy. Analytics may use anonymous page views.',
-    p4: 'Clearing site data resets progress. Contact: via the domain WHOIS / site operator email when published.',
+    p4: 'Clearing site data resets progress. Contact the site operator through the email published on fangrush.com.',
   },
   skins: {
+    eyebrow: 'Collection',
     title: 'Skins',
     equip: 'Equip',
     equipped: 'Equipped',
@@ -438,7 +462,7 @@ export const en: MessageTree = {
     unlock: 'Unlock',
     universalCost: '{n} universal shards',
     seasonCost: '{n} {season} shards',
-    chapterUnlock: 'Clear its season to unlock',
+    chapterUnlock: 'Unlocked when this season opens',
     intro: 'The field preview updates immediately. Wolf, sheep, and board belong to one theme.',
     wolfSets: 'Wolf sets',
     boards: 'Field boards',
@@ -446,6 +470,7 @@ export const en: MessageTree = {
     previewActive: 'Changes apply immediately',
     unlockSuccess: 'Unlocked and ready to equip.',
     insufficient: 'Not enough shards. Clear more hunts first.',
+    unavailable: 'This skin could not be unlocked. Refresh and try again.',
     costProgress: '{current}/{cost} shards',
     remaining: '{n} more needed',
     readyUnlock: 'Ready to unlock',
@@ -461,6 +486,8 @@ export const en: MessageTree = {
     weekly: 'Weekly',
     reward: '+{n} universal shards',
     claimSuccess: 'Claimed +{n} universal shards',
+    balance: '{n} universal shards',
+    error: 'Quest status changed. Refresh and try again.',
   },
   common: { back: 'Back', loading: '…' },
   locale: { switchLabel: 'Language' },
@@ -482,7 +509,7 @@ export const zh: MessageTree = {
     play: '开始冒险',
     continue: '继续狩猎',
     continueNamed: '继续 · {name}',
-    skins: '图鉴',
+    skins: '装扮',
     quests: '任务',
     settings: '设置',
     home: '首页',
@@ -493,6 +520,8 @@ export const zh: MessageTree = {
     howToPlay: '怎么玩',
   },
   home: {
+    eyebrow: '三狼迎战 · 羊群应变',
+    heroAlt: 'Fangrush 棋盘上，三只狼正在围猎羊群。',
     howTitle: '怎么玩',
     how: [
       '点选一只狼，走到相邻空点。',
@@ -503,10 +532,10 @@ export const zh: MessageTree = {
     howMore: '完整规则',
     seasonsTitle: '四季猎场',
     seasons: {
-      spring: '学规则 · 简易羊群',
+      spring: '基础走位 · 逐步学习',
       summer: '标准合围 · 开始吃力',
-      autumn: '同档 AI · 岩石破阵爽感',
-      winter: '大师合围 · 空板硬仗',
+      autumn: '判断路线 · 把握时机',
+      winter: '控制间距 · 三狼协作',
     },
     trust: '进度保存在本机浏览器 · 无需登录',
     faqTitle: '常见问题',
@@ -514,7 +543,7 @@ export const zh: MessageTree = {
       { q: '要下载吗？', a: '不用。浏览器打开即可玩。' },
       { q: '进度会丢吗？', a: '存在本机。清站点数据或换设备会丢。' },
       { q: '手机能玩吗？', a: '可以。竖屏为主，棋盘等比缩放。' },
-      { q: '有没有账号？', a: '一期无账号、无云存档。' },
+      { q: '有没有账号？', a: '当前版本暂无账号和云存档。' },
     ],
     secondary: '快捷入口',
   },
@@ -525,6 +554,7 @@ export const zh: MessageTree = {
     howLink: 'Fangrush 怎么玩',
   },
   howTo: {
+    eyebrow: 'Fangrush 猎场指南',
     title: '三狼连猎怎么玩',
     metaDescription: 'Fangrush（三狼连猎）规则：隔空吃、连吃最多 5 次、岩石与四季猎场。浏览器免费玩。',
     intro: 'Fangrush 是不对称猎杀棋：你操控三狼，对阵十五羊，棋盘为 6×6 交点。',
@@ -535,9 +565,9 @@ export const zh: MessageTree = {
     chainTitle: '连吃',
     chainBody: '隔空吃后可同回合继续连吃，最多 5 次；也可主动结束连吃以保全站位。',
     sheepTitle: '羊群 AI',
-    sheepBody: '羊由电脑移动，不吃子，不能向第 1 行后退。若全体羊都无路可走，羊方跳过一次。',
+    sheepBody: '羊由电脑移动，可以横向走或朝狼方前进，不能退回开局所在的一侧，也不能吃子。若全体羊都无路可走，羊方跳过一次。',
     rocksTitle: '岩石与四季',
-    rocksBody: '岩石不可落子。春学规则、夏承压、秋密岩破阵、冬空盘硬仗。',
+    rocksBody: '岩石不可落子。春季学习走位，夏季面对封锁，秋季判断路线与时机，冬季考验间距和三狼配合。',
     saveTitle: '本地进度',
     saveBody: '通关、碎片与皮肤存在本机浏览器；无账号。清除站点数据会清空进度。',
     basicsTitle: '基础规则',
@@ -559,14 +589,16 @@ export const zh: MessageTree = {
   },
   hunt: {
     playCta: '开始本关',
-    seasonLine: '{season} · {rocks} 枚岩石',
+    seasonLine: '{season} · {rocks}',
     goalLine: '目标：在三狼被封住前捕获 {n} 只羊',
     teachingLabel: '本关学习',
     levelsLink: '本章全部关卡',
     howLink: '怎么玩',
     prev: '上一关',
     next: '下一关',
-    rocksLabel: '{n} 石',
+    rocksLabel: '{n} 枚岩石',
+    noRocks: '无岩石',
+    oneRock: '1 枚岩石',
     guideLink: '说明',
   },
   play: {
@@ -576,7 +608,7 @@ export const zh: MessageTree = {
     turnWolf: '狼回合',
     turnSheep: '羊回合',
     chain: '连吃 {n}/5',
-    doubleLeft: '双倍掉落 {t}',
+    doubleLeft: '碎片双倍 · 剩余 {t}',
     endChain: '结束连吃',
     endChainCount: '结束连吃 · 已连吃 {n}/5',
     chainDecision: '点红圈可继续连吃；现在收手会保留当前位置，并交给羊方行动。',
@@ -584,7 +616,7 @@ export const zh: MessageTree = {
     lose: '失败',
     winSub: '已达到捕食目标：{target} 只',
     loseSub: '三狼无路可走',
-    draw: '僵局',
+    draw: '和局',
     drawRepetitionSub: '挑战未完成：同一局面已经重复三次。',
     drawMaxSub: '挑战未完成：本局已达到行动上限。',
     gameEnded: '对局已结束',
@@ -608,10 +640,16 @@ export const zh: MessageTree = {
     viewResult: '查看结果',
     closeResult: '查看终局棋盘',
     reportGame: '报告本局问题',
-    reportReady: '问题记录已下载，请将 JSON 文件发给开发者。',
+    reportReady: '问题记录已下载。反馈时请附上这个文件。',
     allSeasons: '返回四季总览',
-    resultMetrics: '第 {attempt} 次 · 用时 {time} · {plies} 次行动 · 首次捕食 {first} · {reason}',
+    resultMetrics: '第 {attempt} 次 · 用时 {time} · {plies} 次行动 · {capture} · {reason}',
     none: '无',
+    noCaptures: '本局未捕获',
+    firstCaptureAt: '第 {n} 次行动首次捕获',
+    boardLabel: 'Fangrush 棋盘',
+    rockLabel: '第 {r} 行第 {c} 列的岩石',
+    sheepLabel: '羊',
+    wolfLabel: '狼',
     terminalReasons: {
       targetEaten: '达到捕食目标',
       wolvesTrapped: '三狼无合法行动',
@@ -629,10 +667,10 @@ export const zh: MessageTree = {
     moreTitle: '本局选项',
     restart: '重新开始本局',
     nextPreview: '下一关',
-    difficulty: '难度 {n}/5',
+    difficulty: '挑战难度 {n}/5',
     guideTitle: '春日第一课',
     guideStep1: '点选深色狼，再点绿色高亮空格，即可走一格。',
-    guideStep2: '隔空吃：同线「狼—空—羊」时，点红圈羊或中间空即可冲吃。连吃可继续，最多 5 次。',
+    guideStep2: '隔空吃：同线「狼—空—羊」时，点红圈中的羊。完成后可继续连吃，最多 5 次。',
     guideSkip: '跳过',
     guideNext: '下一步',
     guideStart: '开始猎食',
@@ -652,7 +690,7 @@ export const zh: MessageTree = {
     doubled: '（双倍）',
     universal: '通用碎片 {n}',
     rewardBalance: '当前通用碎片：{n}',
-    nextRewardTarget: '下一件皮肤：{name} · 需要 {cost}',
+    nextRewardTarget: '下一件皮肤：{name} · 需要 {cost} 通用碎片',
     rewardRemaining: '还差 {n} 碎片',
     rewardReady: '碎片已足够，可以兑换',
     openSkins: '查看并装备皮肤',
@@ -680,33 +718,35 @@ export const zh: MessageTree = {
       '操控 3 狼，隔空吃绵羊；吃满 8 只获胜。',
       '横竖走一格；隔空吃为「狼—空—羊」同线，狼移到羊位。',
       '连吃最多 5 次，可主动结束连吃。',
-      '羊由电脑走，不能往第 1 行退，不吃子。',
+      '羊由电脑走，可横移或朝狼方前进，不能退回开局一侧，也不能吃子。',
       '三狼皆无合法步则失败。岩石不可落子。',
     ],
   },
   privacy: {
     title: '隐私说明',
-    p1: '三狼连猎（Fangrush）将进度保存在本机浏览器（localStorage）。本期无账号登录。',
+    p1: '三狼连猎（Fangrush）只把进度保存在当前浏览器。当前版本暂无账号登录。',
     p2: '我们不会把你的存档或棋谱上传到自建服务器。',
     p3: '启用广告时适用广告商隐私政策。统计可能使用匿名页面浏览。',
     p4: '清除站点数据会重置进度。联系方式见站点运营方公示邮箱。',
   },
   skins: {
-    title: '图鉴',
+    eyebrow: '装扮收藏',
+    title: '装扮',
     equip: '穿戴',
     equipped: '已穿戴',
     unlocked: '已解锁',
     unlock: '兑换',
     universalCost: '{n} 通用碎片',
     seasonCost: '{n} {season}碎片',
-    chapterUnlock: '通关对应季节解锁',
+    chapterUnlock: '解锁对应季节后获得',
     intro: '选择皮肤后，猎场预览会立即更新。狼、羊与棋盘应属于同一个主题。',
-    wolfSets: '狼群套装',
+    wolfSets: '狼羊套装',
     boards: '猎场棋盘',
     preview: '猎场预览',
     previewActive: '装备后立即生效',
     unlockSuccess: '已解锁，可立即装备。',
     insufficient: '碎片不足，先完成更多猎场。',
+    unavailable: '暂时无法解锁这件装扮，请刷新后重试。',
     costProgress: '已有 {current}/{cost} 碎片',
     remaining: '还差 {n}',
     readyUnlock: '可以兑换',
@@ -722,6 +762,8 @@ export const zh: MessageTree = {
     weekly: '每周',
     reward: '+{n} 通用碎片',
     claimSuccess: '领取 +{n} 通用碎片',
+    balance: '通用碎片 {n}',
+    error: '任务状态已更新，请刷新后重试。',
   },
   common: { back: '返回', loading: '…' },
   locale: { switchLabel: '语言' },
@@ -735,4 +777,10 @@ export function getMessages(locale: SupportedLocale): MessageTree {
 
 export function fmt(template: string, vars: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (_, key: string) => String(vars[key] ?? ''))
+}
+
+export function formatRockCount(count: number, locale: SupportedLocale, t: MessageTree): string {
+  if (count === 0) return t.hunt.noRocks
+  if (count === 1) return t.hunt.oneRock
+  return fmt(t.hunt.rocksLabel, { n: count })
 }

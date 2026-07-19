@@ -12,7 +12,7 @@ import {
 } from '@wolf-sheep/game-core'
 import { SiteFooter, SiteHeader } from '@/components/SiteChrome'
 import { LocaleLink } from '@/components/LocaleSwitcher'
-import { fmt } from '@/i18n/messages'
+import { fmt, formatRockCount } from '@/i18n/messages'
 import { getT } from '@/i18n/get-locale'
 
 export function generateStaticParams() {
@@ -57,7 +57,7 @@ export default async function HuntPage({
       <main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-8">
         <header>
           <p className="text-xs text-[var(--muted)]">
-            {fmt(t.hunt.seasonLine, { season, rocks: level.rocks.length })}
+            {fmt(t.hunt.seasonLine, { season, rocks: formatRockCount(level.rocks.length, locale, t) })}
           </p>
           <h1 className="mt-1 font-serif text-3xl text-[var(--ink)]">{name}</h1>
         <p className="mt-1 text-sm text-[var(--muted)]">Fangrush</p>

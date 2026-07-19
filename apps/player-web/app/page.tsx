@@ -44,7 +44,7 @@ export default async function HomePage() {
             }}
           />
           <div className="relative content-shell flex flex-col px-6 pb-12 pt-8">
-            <p className="eyebrow">Three wolves · one moving flock</p>
+            <p className="eyebrow">{t.home.eyebrow}</p>
             <h1 className="display-title mt-3 text-5xl leading-[.92] sm:text-6xl">
               {t.brand.name}
             </h1>
@@ -55,7 +55,7 @@ export default async function HomePage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/og.png"
-              alt="Fangrush — three wolves face the flock"
+              alt={t.home.heroAlt}
               width={1536}
               height={1024}
               className="hunter-breathe mt-7 w-full rounded-[1.4rem] border border-white/50 bg-white/20 shadow-[0_24px_50px_rgba(56,76,48,.18)]"

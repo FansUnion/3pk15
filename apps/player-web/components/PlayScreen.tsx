@@ -8,8 +8,6 @@ import {
   createSeededRng,
   isDoubleDropActive,
   levelDisplayName,
-  levelTeachingPoint,
-  getWolfStrategy,
   boardPositionKey,
   listWolfActionsAsIfTurn,
   recordPlayStarted,
@@ -41,6 +39,7 @@ import {
   type TerminalAttemptDetails,
 } from '@/lib/play-metrics'
 import { fmt, getMessages, type MessageTree } from '@/i18n/messages'
+import { buildLevelGuidance } from '@/i18n/level-guidance'
 import { useClientMessages } from '@/i18n/use-client-locale'
 
 type Props = {
@@ -368,15 +367,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           : p.guideFindCapture
     : p.tip
   const failureStreak = save.guide.failureStreak[level.id] ?? 0
-  const primaryStrategy = getWolfStrategy(level.strategy.primary)
-  const secondaryStrategy = getWolfStrategy(level.strategy.secondary)
-  const guidancePoints = [
-    `${levelTeachingPoint(level, locale)} ${locale === 'zh' ? primaryStrategy.signalZh : primaryStrategy.signalEn}`,
-    locale === 'zh' ? level.playerGoalZh : primaryStrategy.objectiveEn,
-    locale === 'zh'
-      ? `${level.wolfStrategyZh} 辅助原则：${secondaryStrategy.summaryZh}`
-      : `${primaryStrategy.summaryEn} Support principle: ${secondaryStrategy.summaryEn}`,
-  ]
+  const guidancePoints = buildLevelGuidance(level, locale)
   const hintTemplates = [p.hintObserve, p.hintGoal, p.hintStrategy]
 
   function openHint() {
@@ -667,7 +658,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
 
             <details className="mt-3 border-t border-[var(--line)] pt-3 text-left">
               <summary className="cursor-pointer text-center text-sm text-[var(--muted)]">{p.resultDetails}</summary>
-              {terminalDetails && <p className="mt-3 text-xs tabular-nums text-[var(--muted)]">{fmt(p.resultMetrics, { attempt: terminalDetails.attemptNumber, plies: state.plyCount, eaten: state.eatenSheep, first: terminalDetails.firstCapturePly ?? p.none, time: formatDuration(terminalDetails.durationMs), reason: terminalReasonLabel(terminalReason(state), p) })}</p>}
+              {terminalDetails && <p className="mt-3 text-xs tabular-nums text-[var(--muted)]">{fmt(p.resultMetrics, { attempt: terminalDetails.attemptNumber, plies: state.plyCount, eaten: state.eatenSheep, capture: terminalDetails.firstCapturePly === null ? p.noCaptures : fmt(p.firstCaptureAt, { n: terminalDetails.firstCapturePly }), time: formatDuration(terminalDetails.durationMs), reason: terminalReasonLabel(terminalReason(state), p) })}</p>}
               {!adminMode && state.status === 'won' && <p className="mt-2 text-xs text-[var(--muted)]">{fmt(p.rewardBalance, { n: save.fragments.universal })}</p>}
               {!adminMode && state.status === 'won' && nextWolfSkin?.kind === 'wolf_set' && nextWolfSkin.unlock.type === 'cost' && <p className="mt-1 text-xs text-[var(--muted)]">{fmt(p.nextRewardTarget, { name: skinDisplayName(nextWolfSkin, locale), cost: nextWolfSkin.unlock.universal })}</p>}
               <div className="mt-3 flex flex-wrap justify-center gap-3 text-sm">

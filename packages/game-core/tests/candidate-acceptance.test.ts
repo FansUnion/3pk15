@@ -17,10 +17,12 @@ describe('level candidate acceptance', () => {
     const second = assessLevelCandidate(LEVELS[0]!, options)
 
     expect(first).toEqual(second)
-    expect(first.games).toHaveLength(4)
+    expect(first.games).toHaveLength(6)
     expect(first.games.every((game) => game.trace.length > 0)).toBe(true)
+    expect(first.games.every((game) => game.finalSheepAdvantage.wolfMoveCount >= 0)).toBe(true)
     expect(first.summaries.random.wolfWins + first.summaries.random.sheepWins + first.summaries.random.draws).toBe(2)
-  })
+    expect(first.summaries['chain-aware'].wolfWins + first.summaries['chain-aware'].sheepWins + first.summaries['chain-aware'].draws).toBe(2)
+  }, 15_000)
 })
 
 const productionDescribe = process.env.RUN_CANDIDATE_ACCEPTANCE === '1' ? describe : describe.skip

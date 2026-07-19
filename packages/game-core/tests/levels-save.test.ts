@@ -113,6 +113,24 @@ describe('level table', () => {
     }
     expect(validateLevel(bad).some((e) => e.includes('adjacent'))).toBe(true)
   })
+
+  it('allows and uses sparse winter-rock layouts', () => {
+    const base = LEVELS.find((level) => level.id === 'winter-05')!
+    const candidate = { ...base, rocks: [{ r: 4, c: 2 }, { r: 4, c: 5 }] }
+    expect(validateLevel(candidate)).toEqual([])
+    const productionRockCounts = LEVELS.filter((level) => level.chapterId === 'winter').map((level) => level.rocks.length)
+    expect(productionRockCounts.every((count) => count >= 0 && count <= 2)).toBe(true)
+    expect(new Set(productionRockCounts).size).toBeGreaterThanOrEqual(3)
+  })
+
+  it('allows and uses low and medium density autumn layouts', () => {
+    const base = LEVELS.find((level) => level.id === 'autumn-01')!
+    expect(validateLevel({ ...base, rocks: [{ r: 4, c: 2 }, { r: 4, c: 5 }] })).toEqual([])
+    expect(validateLevel({ ...base, rocks: [{ r: 4, c: 1 }, { r: 4, c: 3 }, { r: 4, c: 5 }] })).toEqual([])
+    const productionRockCounts = LEVELS.filter((level) => level.chapterId === 'autumn').map((level) => level.rocks.length)
+    expect(Math.min(...productionRockCounts)).toBe(2)
+    expect(Math.max(...productionRockCounts)).toBe(3)
+  })
 })
 
 describe('save clear flow', () => {

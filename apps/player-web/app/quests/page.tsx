@@ -29,7 +29,7 @@ export default function QuestsPage() {
             {t.nav.home}
           </LocaleLink>
           <h1 className="font-serif text-2xl text-[#2c3328]">{t.quests.title}</h1>
-          <span className="text-xs text-[#7a8574]">{save.fragments.universal}</span>
+          <span className="text-xs text-[#7a8574]">{fmt(t.quests.balance, { n: save.fragments.universal })}</span>
         </header>
 
         {msg && <p className="text-sm text-[#5c6b52]">{msg}</p>}
@@ -54,7 +54,7 @@ export default function QuestsPage() {
                 onClaim={() => {
                   const r = claimQuest({ ...save, quests }, q.id)
                   if (!r.ok) {
-                    setMsg(r.error)
+                    setMsg(t.quests.error)
                     return
                   }
                   replace(r.save)
@@ -85,7 +85,7 @@ export default function QuestsPage() {
                 onClaim={() => {
                   const r = claimQuest({ ...save, quests }, q.id)
                   if (!r.ok) {
-                    setMsg(r.error)
+                    setMsg(t.quests.error)
                     return
                   }
                   replace(r.save)

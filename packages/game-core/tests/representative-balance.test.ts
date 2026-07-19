@@ -14,7 +14,7 @@ import {
   type BoardState,
 } from '../src/index'
 
-type WolfStrategy = 'random' | 'greedy'
+type WolfStrategy = 'random' | 'greedy' | 'chain-aware'
 
 type GameRecord = {
   level: string
@@ -25,6 +25,8 @@ type GameRecord = {
   plies: number
   eatenSheep: number
   firstCapturePly: number | null
+  captures: number
+  voluntaryEnds: number
   trace: string[]
 }
 
@@ -55,6 +57,26 @@ function chooseWolfAction(
   return candidates[Math.floor(rng.nextFloat() * candidates.length)]!.action
 }
 
+function shouldContinueChain(state: BoardState, rng: ReturnType<typeof createSeededRng>): boolean {
+  if (!state.chain) return false
+  const end = endWolfTurn(state)
+  if (!end.ok) return false
+  const continuations = listLegalActions(state)
+  if (continuations.length === 0) return false
+  const endScore = evaluateScore(end.state)
+  const scored = continuations
+    .map((action) => {
+      const result = applyAction(state, action)
+      return result.ok ? evaluateScore(result.state) : Infinity
+    })
+    .filter(Number.isFinite)
+  const bestContinuation = Math.min(...scored)
+  // Keep a chain only when it improves the positional score. A small random
+  // tie break keeps the strategy deterministic while allowing both decisions
+  // to appear in the matrix.
+  return bestContinuation < endScore || (bestContinuation === endScore && rng.nextFloat() >= 0.5)
+}
+
 function terminalReason(state: BoardState): GameRecord['reason'] {
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
@@ -69,6 +91,7 @@ function runGame(levelId: string, strategy: WolfStrategy, seed: number): GameRec
   const rng = createSeededRng(seed)
   let state = createLevelInitialState(level)
   let firstCapturePly: number | null = null
+  let voluntaryEnds = 0
   const trace: string[] = []
 
   while (state.status === 'playing') {
@@ -87,10 +110,14 @@ function runGame(levelId: string, strategy: WolfStrategy, seed: number): GameRec
     // A player may stop an optional capture chain. Use that legal action
     // deterministically so each run has one unambiguous chain policy.
     if (state.status === 'playing' && state.chain) {
-      const ended = endWolfTurn(state)
-      if (!ended.ok) throw new Error(ended.error)
-      state = ended.state
-      trace.push(`${state.plyCount}:end-chain`)
+      const continueChain = strategy === 'chain-aware' && shouldContinueChain(state, rng)
+      if (!continueChain) {
+        const ended = endWolfTurn(state)
+        if (!ended.ok) throw new Error(ended.error)
+        state = ended.state
+        voluntaryEnds += 1
+        trace.push(`${state.plyCount}:end-chain`)
+      }
     }
   }
 
@@ -103,6 +130,8 @@ function runGame(levelId: string, strategy: WolfStrategy, seed: number): GameRec
     plies: state.plyCount,
     eatenSheep: state.eatenSheep,
     firstCapturePly,
+    captures: state.eatenSheep,
+    voluntaryEnds,
     trace,
   }
 }
@@ -110,12 +139,13 @@ function runGame(levelId: string, strategy: WolfStrategy, seed: number): GameRec
 describe('representative seeded balance runs', () => {
   it('records reproducible games across the main board shapes', () => {
     const games = CASES.flatMap((levelId) =>
-      (['random', 'greedy'] as const).map((strategy) => runGame(levelId, strategy, 20260716)),
+      (['random', 'greedy', 'chain-aware'] as const).map((strategy) => runGame(levelId, strategy, 20260716)),
     )
     console.table(games.map(({ trace, ...row }) => ({ ...row, moves: trace.length })))
     for (const game of games) console.log(`TRACE ${game.level}/${game.strategy}: ${game.trace.join(' ')}`)
 
-    expect(games).toHaveLength(8)
+    expect(games).toHaveLength(12)
     expect(games.every((game) => game.reason !== 'unexpected')).toBe(true)
+    expect(games.filter((game) => game.strategy === 'chain-aware').every((game) => game.captures >= 0)).toBe(true)
   }, 60_000)
 })

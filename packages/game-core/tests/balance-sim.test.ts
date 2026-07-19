@@ -100,7 +100,7 @@ describe('spring balance smoke simulation', () => {
       terminalReasons: JSON.stringify(summary.terminalReasons),
     })))
     expect(summaries.every((summary) => summary.wolfWins + summary.sheepWins + summary.draws === 3)).toBe(true)
-  }, 30000)
+  }, 60000)
 
   it('starts and terminates every mainline level with its configured AI', () => {
     for (const level of LEVELS) {

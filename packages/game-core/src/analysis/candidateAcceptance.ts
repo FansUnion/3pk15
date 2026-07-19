@@ -1,5 +1,6 @@
 import { createSeededRng, pickSheepAction } from '../ai/index'
-import { chooseDiagnosticWolfAction, type DiagnosticWolfStrategy } from './diagnosticWolf'
+import { chooseDiagnosticWolfAction, shouldContinueDiagnosticChain, type DiagnosticWolfStrategy } from './diagnosticWolf'
+import { measureSheepAdvantage, type SheepAdvantageMetrics } from './sheepAdvantage'
 import { validateLevel, createLevelInitialState, type LevelConfig } from '../content/levels'
 import {
   applyAction,
@@ -28,6 +29,7 @@ export type CandidateGameEvidence = {
     terminalPly: number
     actions: string[]
   }
+  finalSheepAdvantage: SheepAdvantageMetrics
 }
 
 export type CandidateFinding = {
@@ -123,7 +125,7 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
     trace.push(`${state.plyCount}:${actionLabel(action)}`)
     observePosition()
     if (firstCapturePly === null && state.eatenSheep > eatenBefore) firstCapturePly = state.plyCount
-    if (state.status === 'playing' && state.chain) {
+    if (state.status === 'playing' && state.chain && (strategy !== 'chain-aware' || !shouldContinueDiagnosticChain(state, wolfRandom))) {
       const ended = endWolfTurn(state)
       if (!ended.ok) throw new Error(ended.error)
       state = ended.state
@@ -142,6 +144,7 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
     firstCapturePly,
     trace,
     repetitionCycle,
+    finalSheepAdvantage: measureSheepAdvantage(state),
   }
 }
 
@@ -150,7 +153,7 @@ export function assessLevelCandidate(level: LevelConfig, options: CandidateAccep
   const seeds = options.seeds ?? DEFAULT_SEEDS
   const hardMaxNodes = options.hardMaxNodes ?? 80
   const games = structuralErrors.length === 0
-    ? (['random', 'mixed'] as const).flatMap((strategy) => seeds.map((seed) => runCandidateGame(level, strategy, seed, hardMaxNodes)))
+    ? (['random', 'mixed', 'chain-aware'] as const).flatMap((strategy) => seeds.map((seed) => runCandidateGame(level, strategy, seed, hardMaxNodes)))
     : []
   const byStrategy = (strategy: CandidateWolfStrategy) => games.filter((game) => game.strategy === strategy)
   const summarize = (strategy: CandidateWolfStrategy) => {
@@ -165,7 +168,7 @@ export function assessLevelCandidate(level: LevelConfig, options: CandidateAccep
       firstCaptureCoverage: selected.filter((game) => game.firstCapturePly !== null).length / Math.max(1, selected.length),
     }
   }
-  const summaries = { random: summarize('random'), mixed: summarize('mixed') }
+  const summaries = { random: summarize('random'), mixed: summarize('mixed'), 'chain-aware': summarize('chain-aware') }
   const findings: CandidateFinding[] = []
   const mixed = byStrategy('mixed')
   const evidence = (predicate: (game: CandidateGameEvidence) => boolean) => mixed.filter(predicate).map((game) => game.seed)

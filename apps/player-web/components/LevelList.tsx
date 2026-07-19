@@ -5,7 +5,7 @@ import type { ChapterId } from '@wolf-sheep/game-core'
 import { useSaveStore } from '@/lib/save-store'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { SiteFooter } from '@/components/SiteChrome'
-import { fmt } from '@/i18n/messages'
+import { formatRockCount } from '@/i18n/messages'
 import { useClientMessages } from '@/i18n/use-client-locale'
 
 type LevelRow = {
@@ -72,7 +72,7 @@ export function LevelList({
                   >
                     {level.name}
                     <span className="ml-2 text-xs font-normal text-[#7a8574]">
-                      {fmt(t.hunt.rocksLabel, { n: level.rocks })}
+                      {formatRockCount(level.rocks, locale, t)}
                       {cleared ? ' · ✓' : ''}
                     </span>
                   </LocaleLink>

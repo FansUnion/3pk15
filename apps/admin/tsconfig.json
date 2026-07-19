@@ -22,6 +22,7 @@
     "paths": {
       "@/config/locales": ["../player-web/config/locales.ts"],
       "@/i18n/messages": ["../player-web/i18n/messages.ts"],
+      "@/i18n/level-guidance": ["../player-web/i18n/level-guidance.ts"],
       "@/i18n/use-client-locale": ["../player-web/i18n/use-client-locale.ts"],
       "@/lib/active-game": ["../player-web/lib/active-game.ts"],
       "@/lib/ads": ["../player-web/lib/ads.ts"],

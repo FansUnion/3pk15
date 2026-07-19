@@ -4,6 +4,8 @@ import type { CSSProperties } from 'react'
 import type { BoardState, Pos } from '@wolf-sheep/game-core'
 import { BOARD_MAX } from '@wolf-sheep/game-core'
 import type { JuiceFlash } from '@/lib/play-store'
+import { fmt } from '@/i18n/messages'
+import { useClientMessages } from '@/i18n/use-client-locale'
 
 const PAD = 28
 const CELL = 56
@@ -96,6 +98,7 @@ export function BoardSvg({
     sheepFill: '#f4f1ea',
   },
 }: Props) {
+  const { t } = useClientMessages()
   const rocks = [...state.rocks].map((k) => {
     const [r, c] = k.split(',').map(Number)
     return { r: r!, c: c! }
@@ -116,7 +119,7 @@ export function BoardSvg({
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         className="h-auto w-full touch-manipulation"
         role="img"
-        aria-label="Fangrush board"
+        aria-label={t.play.boardLabel}
       >
       <rect data-board-fallback x={0} y={0} width={SIZE} height={SIZE} fill={theme.boardFill} rx={12} />
       {theme.boardBgSrc && (
@@ -220,7 +223,7 @@ export function BoardSvg({
         const { x, y } = xy(p.r, p.c)
         return (
           <g key={`rock-${p.r}-${p.c}`}>
-            <title>Rock terrain at row {p.r}, column {p.c}</title>
+            <title>{fmt(t.play.rockLabel, { r: p.r, c: p.c })}</title>
             <RockShape
               x={x}
               y={y}
@@ -301,8 +304,8 @@ export function BoardSvg({
             style={moveStyle}
             className={isMover ? 'piece-slide' : 'piece-idle'}
           >
-            {p.side === 'sheep' && !selected && <title>Sheep</title>}
-            {p.side === 'wolf' && !selected && <title>Wolf</title>}
+            {p.side === 'sheep' && !selected && <title>{t.play.sheepLabel}</title>}
+            {p.side === 'wolf' && !selected && <title>{t.play.wolfLabel}</title>}
             {selected && (
               <>
                 <circle

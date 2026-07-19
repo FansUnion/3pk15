@@ -24,7 +24,8 @@ export function renderResultCard(data: ShareResultData, locale: 'en' | 'zh') {
   const score = locale === 'zh'
     ? `捕获 ${data.eatenSheep}/${data.state.targetEaten}`
     : `Captured ${data.eatenSheep}/${data.state.targetEaten}`
-  ctx.font = '26px sans-serif'; ctx.fillStyle = '#5c6b52'; ctx.fillText(`${result}  ·  ${data.plies} actions  ·  ${score}`, 72, 194)
+  const actions = locale === 'zh' ? `${data.plies} 次行动` : `${data.plies} actions`
+  ctx.font = '26px sans-serif'; ctx.fillStyle = '#5c6b52'; ctx.fillText(`${result}  ·  ${actions}  ·  ${score}`, 72, 194)
   ctx.font = '22px sans-serif'; ctx.fillText(data.reason, 72, 232)
   const left = 665, top = 58, cell = 96
   ctx.fillStyle = '#f7f5ef'; ctx.fillRect(left - 26, top - 26, cell * 5 + 52, cell * 5 + 52)
