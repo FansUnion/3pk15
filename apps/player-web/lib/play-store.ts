@@ -31,6 +31,7 @@ export type MoveHighlights = {
 /** 吃子/走子反馈高亮（juice） */
 export type JuiceFlash = {
   kind: 'step' | 'jump'
+  side: 'wolf' | 'sheep'
   from: Pos
   to: Pos
   through?: Pos
@@ -98,6 +99,7 @@ function juiceFromAction(state: BoardState, action: Action): JuiceFlash {
   if (action.type === 'jump') {
     return {
       kind: 'jump',
+      side: piece.side,
       from: { r: piece.r, c: piece.c },
       through: action.through,
       to: action.to,
@@ -105,9 +107,18 @@ function juiceFromAction(state: BoardState, action: Action): JuiceFlash {
   }
   return {
     kind: 'step',
+    side: piece.side,
     from: { r: piece.r, c: piece.c },
     to: action.to,
   }
+}
+
+function threatenedSheepIds(state: BoardState) {
+  return new Set(listWolfActionsAsIfTurn(state)
+    .filter((action) => action.type === 'jump')
+    .flatMap((action) => state.pieces
+      .filter((piece) => piece.side === 'sheep' && piece.r === action.to.r && piece.c === action.to.c)
+      .map((piece) => piece.id)))
 }
 
 let levelMeta = { levelId: 'spring-01', rocks: [] as Pos[], difficulty: 'easy' as Difficulty, targetEaten: undefined as number | undefined, maxPlies: undefined as number | undefined, opening: undefined as OpeningLayout | undefined, resume: true }
@@ -199,7 +210,8 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
 
     const next = result.state
     if (juice?.kind === 'step' && state.toMove === 'wolf') {
-      juice.newThreat = listWolfActionsAsIfTurn(next).some((candidate) => candidate.type === 'jump')
+      const before = threatenedSheepIds(state)
+      juice.newThreat = [...threatenedSheepIds(next)].some((id) => !before.has(id))
     }
     const actionHistory = [...get().actionHistory, action]
     syncActiveGame(next, get().seed, get().initialSeed, actionHistory)

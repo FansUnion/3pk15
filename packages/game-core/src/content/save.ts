@@ -193,6 +193,14 @@ export function isLevelCleared(save: SaveGame, levelId: string): boolean {
   return save.clearedLevels.includes(levelId)
 }
 
+export function isLevelUnlocked(save: SaveGame, level: LevelConfig): boolean {
+  if (!isChapterUnlocked(save, level.chapterId)) return false
+  const levels = levelsForChapter(level.chapterId)
+  const index = levels.findIndex((candidate) => candidate.id === level.id)
+  if (index < 0) return false
+  return index === 0 || isLevelCleared(save, levels[index - 1]!.id)
+}
+
 export function recomputeUnlockedChapters(save: SaveGame): ChapterId[] {
   const unlocked: ChapterId[] = ['spring']
   for (let i = 0; i < CHAPTER_ORDER.length - 1; i++) {

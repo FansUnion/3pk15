@@ -92,6 +92,8 @@ export type MessageTree = {
     draw: string
     drawRepetitionSub: string
     drawMaxSub: string
+    repetitionWarning: string
+    repetitionStrongWarning: string
     gameEnded: string
     winAdvice: string
     loseAdvice: string
@@ -340,8 +342,10 @@ export const en: MessageTree = {
     winSub: 'Capture target reached: {target}',
     loseSub: 'No moves for the wolves',
     draw: 'Draw',
-    drawRepetitionSub: 'Challenge incomplete: the same position occurred three times.',
+    drawRepetitionSub: 'Challenge incomplete: the same position occurred six times.',
     drawMaxSub: 'Challenge incomplete: the action limit was reached.',
+    repetitionWarning: 'This position has repeated {n}/6 times. Switch wolves or approach from another side.',
+    repetitionStrongWarning: 'One more return to this position will end the challenge.',
     gameEnded: 'Game ended',
     winAdvice: 'Your route worked. Continue while the three-wolf coordination is fresh.',
     loseAdvice: 'On the retry, keep two wolves mobile while the third creates contact.',
@@ -377,7 +381,7 @@ export const en: MessageTree = {
       targetEaten: 'capture target',
       wolvesTrapped: 'wolves trapped',
       maxPlies: 'action limit',
-      repetition: 'threefold repetition',
+      repetition: 'sixfold repetition',
       unexpected: 'unexpected ending',
     },
     tip: 'Select a wolf. Tap a green empty point to move, or a red-ringed sheep to capture.',
@@ -617,8 +621,10 @@ export const zh: MessageTree = {
     winSub: '已达到捕食目标：{target} 只',
     loseSub: '三狼无路可走',
     draw: '和局',
-    drawRepetitionSub: '挑战未完成：同一局面已经重复三次。',
+    drawRepetitionSub: '挑战未完成：同一局面已经重复六次。',
     drawMaxSub: '挑战未完成：本局已达到行动上限。',
+    repetitionWarning: '当前局面已重复 {n}/6 次。请换一只狼，或从另一侧建立接触。',
+    repetitionStrongWarning: '再回到当前局面一次，本局将以僵局结束。',
     gameEnded: '对局已结束',
     winAdvice: '这条狩猎路线有效。趁三狼分工还清楚，继续下一关。',
     loseAdvice: '重试时保留两狼机动，让第三只狼负责建立接触。',

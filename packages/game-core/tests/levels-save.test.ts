@@ -6,6 +6,7 @@ import {
   defaultSave,
   LEVELS,
   levelTeachingPoint,
+  isLevelUnlocked,
   migrate,
   recomputeUnlockedChapters,
   recordGuideHint,
@@ -134,6 +135,15 @@ describe('level table', () => {
 })
 
 describe('save clear flow', () => {
+  it('unlocks only the first level and the level after the latest clear', () => {
+    const base = defaultSave()
+    expect(isLevelUnlocked(base, LEVELS.find((level) => level.id === 'spring-01')!)).toBe(true)
+    expect(isLevelUnlocked(base, LEVELS.find((level) => level.id === 'spring-02')!)).toBe(false)
+    expect(isLevelUnlocked(base, LEVELS.find((level) => level.id === 'summer-01')!)).toBe(false)
+
+    const afterFirst = { ...base, clearedLevels: ['spring-01'] }
+    expect(isLevelUnlocked(afterFirst, LEVELS.find((level) => level.id === 'spring-02')!)).toBe(true)
+  })
   it('migrates and records guide usage without losing old saves', () => {
     const migrated = migrate({ schemaVersion: 1, guide: { spring1Done: true } })
     expect(migrated.guide).toEqual({ spring1Done: true, hintUsage: {}, failureStreak: {} })

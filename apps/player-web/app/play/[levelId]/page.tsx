@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getLevel, levelDisplayName, LEVELS } from '@wolf-sheep/game-core'
-import { PlayScreen } from '@/components/PlayScreen'
+import { LevelAccessGate } from '@/components/LevelAccessGate'
 import { getT } from '@/i18n/get-locale'
 
 export function generateStaticParams() {
@@ -30,5 +30,5 @@ export default async function PlayPage({
   const { levelId } = await params
   const level = getLevel(levelId)
   if (!level) notFound()
-  return <PlayScreen level={level} />
+  return <LevelAccessGate level={level} />
 }

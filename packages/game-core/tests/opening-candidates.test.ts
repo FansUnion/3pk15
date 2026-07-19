@@ -9,6 +9,7 @@ import {
   listLegalActions,
   listWolfActionsAsIfTurn,
   pickSheepAction,
+  REPETITION_DRAW_COUNT,
   type Action,
   type LevelConfig,
   type OpeningLayout,
@@ -90,7 +91,7 @@ function run(level: LevelConfig, seed: number, strategy: WolfStrategy) {
       ? 'targetEaten'
       : listWolfActionsAsIfTurn(state).length === 0
         ? 'wolvesTrapped'
-        : (state.repetitionCounts.values().some((count) => count >= 3) ? 'repetition' : 'maxPlies'),
+        : (state.repetitionCounts.values().some((count) => count >= REPETITION_DRAW_COUNT) ? 'repetition' : 'maxPlies'),
     plies: state.plyCount,
     eaten: state.eatenSheep,
     firstCapturePly,

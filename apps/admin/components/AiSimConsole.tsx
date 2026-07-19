@@ -21,6 +21,7 @@ import {
   pickHardWithMeta,
   pickSheepAction,
   posKey,
+  REPETITION_DRAW_COUNT,
   serialize,
   type BoardState,
   type Action,
@@ -1100,7 +1101,7 @@ function terminalReason(state: BoardState, hitStepLimit: boolean): TerminalReaso
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
   if (state.plyCount >= state.maxPlies) return 'maxPlies'
-  if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= 3) return 'repetition'
+  if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= REPETITION_DRAW_COUNT) return 'repetition'
   if (hitStepLimit) return 'stepLimit'
   return 'unexpected'
 }

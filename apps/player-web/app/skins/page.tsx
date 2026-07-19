@@ -9,6 +9,7 @@ import { SiteFooter } from '@/components/SiteChrome'
 import { useSaveStore } from '@/lib/save-store'
 import { useClientMessages } from '@/i18n/use-client-locale'
 import { fmt } from '@/i18n/messages'
+import { playSfx } from '@/lib/sfx'
 
 export default function SkinsPage() {
   const save = useSaveStore((s) => s.save)
@@ -22,7 +23,10 @@ export default function SkinsPage() {
 
   function equip(id: string) {
     const result = equipSkin(save, id)
-    if (result.ok) replace(result.save)
+    if (result.ok) {
+      replace(result.save)
+      if (!save.settings.muted) playSfx('equip')
+    }
   }
 
   function unlock(id: string) {
@@ -30,6 +34,7 @@ export default function SkinsPage() {
     if (result.ok) {
       replace(result.save)
       setMessage(t.skins.unlockSuccess)
+      if (!save.settings.muted) playSfx('unlock')
     } else {
       setMessage(result.error.startsWith('insufficient') ? t.skins.insufficient : t.skins.unavailable)
     }

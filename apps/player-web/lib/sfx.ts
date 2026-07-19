@@ -1,6 +1,6 @@
 /** Prefer short sample buffers; fall back to richer procedural tones. */
 
-export type SfxKind = 'step' | 'jump' | 'chain' | 'win' | 'lose' | 'select' | 'invalid' | 'ai' | 'threat'
+export type SfxKind = 'step' | 'sheepStep' | 'jump' | 'chain' | 'win' | 'lose' | 'draw' | 'select' | 'invalid' | 'ai' | 'threat' | 'unlock' | 'equip'
 
 export type AudioDiagnostics = {
   requested: number
@@ -34,14 +34,18 @@ async function loadBuffer(kind: SfxKind): Promise<AudioBuffer | null> {
   if (bufferCache.has(kind)) return bufferCache.get(kind)!
   const map: Record<SfxKind, string | null> = {
     step: '/sfx/step.wav',
+    sheepStep: null,
     jump: '/sfx/capture.wav',
     chain: '/sfx/chain.wav',
     win: '/sfx/win.wav',
     lose: '/sfx/lose.wav',
+    draw: null,
     select: null,
     invalid: null,
     ai: null,
     threat: null,
+    unlock: null,
+    equip: null,
   }
   const source = map[kind]
   if (!source) return null
@@ -90,6 +94,10 @@ function playFallback(kind: SfxKind) {
       beep(380, 55, 'triangle', 0.05)
       beep(220, 40, 'sine', 0.03, 0.02)
       break
+    case 'sheepStep':
+      beep(300, 45, 'triangle', 0.025)
+      beep(260, 55, 'sine', 0.018, 0.025)
+      break
     case 'jump':
       beep(480, 70, 'square', 0.04)
       beep(720, 110, 'sine', 0.06, 0.04)
@@ -108,6 +116,10 @@ function playFallback(kind: SfxKind) {
       beep(280, 140, 'triangle', 0.05)
       beep(200, 200, 'triangle', 0.045, 0.12)
       break
+    case 'draw':
+      beep(330, 120, 'triangle', 0.04)
+      beep(300, 160, 'triangle', 0.035, 0.12)
+      break
     case 'select':
       beep(460, 45, 'sine', 0.035)
       break
@@ -119,8 +131,19 @@ function playFallback(kind: SfxKind) {
       beep(260, 120, 'sine', 0.014, 0.08)
       break
     case 'threat':
-      beep(620, 55, 'sine', 0.035)
-      beep(760, 80, 'triangle', 0.04, 0.055)
+      // A short wobbling two-part bleat, deliberately distinct from UI beeps.
+      beep(520, 105, 'sawtooth', 0.025)
+      beep(430, 125, 'triangle', 0.045, 0.07)
+      beep(490, 90, 'sawtooth', 0.02, 0.16)
+      break
+    case 'unlock':
+      beep(523, 80, 'sine', 0.045)
+      beep(659, 90, 'sine', 0.045, 0.07)
+      beep(880, 130, 'sine', 0.05, 0.15)
+      break
+    case 'equip':
+      beep(440, 55, 'triangle', 0.035)
+      beep(660, 75, 'sine', 0.035, 0.045)
       break
   }
 }

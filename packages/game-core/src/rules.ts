@@ -37,6 +37,9 @@ export const DEFAULT_WOLF_OPENING: readonly Pos[] = [
 ]
 
 export const DEFAULT_MAX_PLIES = 300
+export const REPETITION_WARNING_COUNT = 3
+export const REPETITION_STRONG_WARNING_COUNT = 5
+export const REPETITION_DRAW_COUNT = 6
 
 export function createInitialState(
   levelId: string,
@@ -222,7 +225,7 @@ export function getWolfLegalSummary(
     }))
 }
 
-/** Position identity used for threefold-repetition detection. */
+/** Position identity used for repetition detection. */
 export function boardPositionKey(state: BoardState): string {
   const positions = (side: Side) => state.pieces
     .filter((piece) => piece.side === side)
@@ -240,7 +243,7 @@ function recordPosition(state: BoardState): BoardState {
   const key = boardPositionKey(state)
   const count = (repetitionCounts.get(key) ?? 0) + 1
   repetitionCounts.set(key, count)
-  if (count >= 3) {
+  if (count >= REPETITION_DRAW_COUNT) {
     return { ...state, repetitionCounts, status: 'draw', terminalReason: 'repetition', chain: null }
   }
   return { ...state, repetitionCounts }

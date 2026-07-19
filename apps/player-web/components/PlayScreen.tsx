@@ -13,6 +13,9 @@ import {
   recordPlayStarted,
   recordGuideHint,
   recordGuideResult,
+  REPETITION_DRAW_COUNT,
+  REPETITION_STRONG_WARNING_COUNT,
+  REPETITION_WARNING_COUNT,
   resolveSkin,
   rollClearReward,
   isSkinUnlocked,
@@ -109,6 +112,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const locale = localeOverride ?? clientMessages.locale
   const t = localeOverride ? getMessages(localeOverride) : clientMessages.t
   const p = t.play
+  const rewardedAdsAvailable = process.env.NEXT_PUBLIC_ADS_PROVIDER !== 'none'
   const nextWolfSkin = SKIN_CATALOG.find(
     (skin) => skin.kind === 'wolf_set' && skin.unlock.type === 'cost' && !isSkinUnlocked(save, skin),
   )
@@ -167,7 +171,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     if (juice.kind === 'jump') {
       playSfx(state.chain && state.chain.count >= 2 ? 'chain' : 'jump')
     } else {
-      playSfx('step')
+      playSfx(juice.side === 'sheep' ? 'sheepStep' : 'step')
       if (juice.newThreat) window.setTimeout(() => playSfx('threat'), 80)
     }
   }, [juice, muted, state.chain])
@@ -184,7 +188,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   useEffect(() => {
     if (uiPhase !== 'terminal' || muted || terminalSfxDone.current) return
     terminalSfxDone.current = true
-    playSfx(state.status === 'won' ? 'win' : 'lose')
+    playSfx(state.status === 'won' ? 'win' : state.status === 'draw' ? 'draw' : 'lose')
   }, [uiPhase, state.status, muted])
 
   useEffect(() => {
@@ -542,6 +546,13 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     showNotice(p.reportReady)
   }
 
+  const repetitionCount = state.repetitionCounts.get(boardPositionKey(state)) ?? 0
+  const repetitionMessage = repetitionCount >= REPETITION_STRONG_WARNING_COUNT
+    ? p.repetitionStrongWarning
+    : repetitionCount >= REPETITION_WARNING_COUNT
+      ? fmt(p.repetitionWarning, { n: repetitionCount })
+      : null
+
   return (
     <div className="mx-auto flex min-h-dvh max-w-lg flex-col gap-3 px-4 pb-4 pt-5">
       <header className="flex items-center justify-between gap-3">
@@ -581,6 +592,12 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
         )}
       </div>
 
+      {uiPhase === 'playing' && repetitionMessage && (
+        <div role="status" className="rounded-lg border border-[#b9872f]/35 bg-[#fff8df] px-3 py-2 text-center text-sm leading-relaxed text-[#6b4a16]">
+          {repetitionMessage}
+        </div>
+      )}
+
       <div className="relative flex flex-1 flex-col items-center justify-center py-2">
         <BoardSvg
           state={state}
@@ -590,6 +607,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           jumpThroughs={highlights.throughs}
           juice={juice}
           interactive={interactive}
+          actionBarVisible={Boolean(state.chain && uiPhase === 'playing')}
           onSelectWolf={handleSelectWolf}
           onClickCell={handleClickCell}
           theme={theme}
@@ -600,7 +618,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       </div>
 
       {state.chain && uiPhase === 'playing' && (
-        <div className="grid gap-2 rounded-lg border border-[var(--accent)]/35 bg-[var(--paper)] p-3">
+        <div className="fixed inset-x-3 bottom-[max(.75rem,env(safe-area-inset-bottom))] z-30 mx-auto grid max-w-lg gap-2 rounded-lg border border-[var(--accent)]/35 bg-[var(--paper)] p-3 shadow-xl">
           <p className="text-center text-sm leading-relaxed text-[var(--ink)]">{p.chainDecision}</p>
           <button
             type="button"
@@ -664,7 +682,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               <div className="mt-3 flex flex-wrap justify-center gap-3 text-sm">
                 {state.status === 'won' && <button type="button" onClick={restartAttempt} className="underline-offset-2 hover:underline">{p.again}</button>}
                 <button type="button" disabled={shareBusy || adBusy} onClick={() => void shareTerminalResult()} className="underline-offset-2 hover:underline disabled:opacity-50">{shareBusy ? p.sharePreparing : p.share}</button>
-                {!adminMode && state.status === 'won' && !isDoubleDropActive(save) && <button type="button" disabled={adBusy} onClick={() => void watchDouble()} className="underline-offset-2 hover:underline disabled:opacity-50">{p.doubleAd}</button>}
+                {!adminMode && rewardedAdsAvailable && state.status === 'won' && !isDoubleDropActive(save) && <button type="button" disabled={adBusy} onClick={() => void watchDouble()} className="underline-offset-2 hover:underline disabled:opacity-50">{p.doubleAd}</button>}
                 <LocaleLink href={backHref} locale={locale} className="underline-offset-2 hover:underline">{p.levelList}</LocaleLink>
                 <button type="button" onClick={reportCurrentGame} className="underline-offset-2 hover:underline">{p.reportGame}</button>
               </div>
@@ -862,7 +880,7 @@ function terminalReason(state: BoardState): 'targetEaten' | 'wolvesTrapped' | 'm
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
   if (state.plyCount >= state.maxPlies) return 'maxPlies'
-  if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= 3) return 'repetition'
+  if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= REPETITION_DRAW_COUNT) return 'repetition'
   return 'unexpected'
 }
 

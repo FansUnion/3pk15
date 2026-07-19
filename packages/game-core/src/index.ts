@@ -25,6 +25,7 @@ export {
   isChapterUnlocked,
   isDoubleDropActive,
   isLevelCleared,
+  isLevelUnlocked,
   migrate,
   recomputeUnlockedChapters,
   recordPlayStarted,
@@ -95,6 +96,9 @@ export {
   listLegalActions,
   listWolfActionsAsIfTurn,
   refreshStatus,
+  REPETITION_DRAW_COUNT,
+  REPETITION_STRONG_WARNING_COUNT,
+  REPETITION_WARNING_COUNT,
 } from './rules'
 export { deserialize, makeState, serialize } from './serialize'
 export type { SerializedBoard } from './serialize'

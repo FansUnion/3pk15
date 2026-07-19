@@ -1,5 +1,5 @@
 import { keyOf, parseKey } from './board'
-import { boardPositionKey } from './rules'
+import { boardPositionKey, REPETITION_DRAW_COUNT } from './rules'
 import type { BoardState, ChainContext, Piece } from './types'
 
 export type SerializedBoard = {
@@ -94,6 +94,6 @@ function inferLegacyTerminalReason(data: SerializedBoard): BoardState['terminalR
   if (data.status === 'playing') return null
   if (data.status === 'won') return 'targetEaten'
   if (data.status === 'lost') return 'wolvesTrapped'
-  if ((data.repetitionCounts ?? []).some(([, count]) => count >= 3)) return 'repetition'
+  if ((data.repetitionCounts ?? []).some(([, count]) => count >= REPETITION_DRAW_COUNT)) return 'repetition'
   return 'maxPlies'
 }

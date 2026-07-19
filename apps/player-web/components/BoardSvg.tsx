@@ -20,6 +20,7 @@ type Props = {
   jumpThroughs: Pos[]
   juice?: JuiceFlash
   interactive: boolean
+  actionBarVisible?: boolean
   onSelectWolf: (id: string) => void
   onClickCell: (pos: Pos) => void
   theme?: {
@@ -45,7 +46,7 @@ function hasPos(list: Pos[], r: number, c: number) {
   return list.some((p) => p.r === r && p.c === c)
 }
 
-function RockShape({
+export function RockShape({
   x,
   y,
   variant,
@@ -57,9 +58,9 @@ function RockShape({
   warm?: number
 }) {
   const shapes = [
-    `${x - 13},${y + 2} ${x - 8},${y - 12} ${x + 4},${y - 14} ${x + 13},${y - 4} ${x + 10},${y + 10} ${x - 4},${y + 13}`,
-    `${x - 12},${y - 4} ${x - 2},${y - 14} ${x + 11},${y - 10} ${x + 14},${y + 2} ${x + 6},${y + 12} ${x - 10},${y + 10}`,
-    `${x - 14},${y + 4} ${x - 10},${y - 10} ${x + 2},${y - 13} ${x + 12},${y - 6} ${x + 12},${y + 8} ${x - 2},${y + 13}`,
+    `${x - 16},${y + 9} ${x - 14},${y - 3} ${x - 7},${y - 13} ${x + 6},${y - 15} ${x + 15},${y - 7} ${x + 17},${y + 5} ${x + 9},${y + 12} ${x - 7},${y + 14}`,
+    `${x - 17},${y + 7} ${x - 13},${y - 7} ${x - 3},${y - 15} ${x + 11},${y - 11} ${x + 16},${y - 1} ${x + 12},${y + 11} ${x - 2},${y + 14} ${x - 12},${y + 12}`,
+    `${x - 16},${y + 11} ${x - 15},${y - 2} ${x - 9},${y - 12} ${x + 3},${y - 16} ${x + 14},${y - 9} ${x + 17},${y + 4} ${x + 7},${y + 13} ${x - 8},${y + 14}`,
   ]
   const pts = shapes[variant % shapes.length]!
   const base = warm > 0.3 ? '#7a6a58' : warm < -0.2 ? '#5a6270' : '#6e665c'
@@ -69,9 +70,9 @@ function RockShape({
     <g>
       <ellipse cx={x + 1} cy={y + 12} rx={12} ry={3.5} fill="#1a1f18" opacity={0.28} />
       <polygon points={pts} fill={base} stroke={dark} strokeWidth={1.4} strokeLinejoin="round" />
-      <polygon points={pts.split(' ').slice(0, 3).join(' ')} fill={lite} opacity={0.65} />
+      <path d={`M${x - 12} ${y - 3} Q${x - 4} ${y - 13} ${x + 7} ${y - 11}`} fill="none" stroke={lite} strokeWidth={4} opacity={0.5} strokeLinecap="round" />
       <path
-        d={`M${x - 5} ${y - 1} L${x + 1} ${y + 5} M${x + 1} ${y - 7} L${x + 7} ${y - 1}`}
+        d={`M${x - 5} ${y - 8} L${x} ${y - 2} L${x - 4} ${y + 5} M${x} ${y - 2} L${x + 8} ${y + 2} M${x + 5} ${y + 7} L${x + 10} ${y + 10}`}
         stroke={dark}
         strokeWidth={1.1}
         opacity={0.5}
@@ -89,6 +90,7 @@ export function BoardSvg({
   jumpThroughs,
   juice,
   interactive,
+  actionBarVisible = false,
   onSelectWolf,
   onClickCell,
   theme = {
@@ -114,7 +116,7 @@ export function BoardSvg({
   const dy = fromXy && toXy ? fromXy.y - toXy.y : 0
 
   return (
-    <div className="game-board-frame w-full max-w-[min(92vw,420px)]">
+    <div className={`game-board-frame w-full ${actionBarVisible ? 'max-w-[min(92vw,calc(100dvh-330px),420px)]' : 'max-w-[min(92vw,420px)]'}`}>
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         className="h-auto w-full touch-manipulation"
@@ -396,6 +398,9 @@ export function BoardSvg({
               style={{ cursor: isActionable ? 'pointer' : interactive ? 'not-allowed' : 'default' }}
               role={isActionable ? 'button' : undefined}
               tabIndex={isActionable ? 0 : -1}
+              className="outline-none focus-visible:stroke-[#c9a227]"
+              stroke="transparent"
+              strokeWidth={3}
               aria-disabled={interactive && !isActionable ? true : undefined}
               aria-label={piece?.side === 'wolf' ? `Wolf at row ${r}, column ${c}` : `Board position row ${r}, column ${c}`}
               onClick={() => {

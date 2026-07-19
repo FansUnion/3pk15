@@ -41,15 +41,15 @@ describe('opening (T01)', () => {
   })
 })
 
-describe('threefold repetition', () => {
-  it('draws when the same complete position occurs for the third time', () => {
+describe('repetition warnings and draw', () => {
+  it('warns from the third occurrence and draws on the sixth', () => {
     let state = makeState({
       pieces: [
         { id: 'wolf-1', side: 'wolf', r: 6, c: 1 },
         { id: 'sheep-1', side: 'sheep', r: 1, c: 1 },
       ],
       toMove: 'wolf',
-      maxPlies: 20,
+      maxPlies: 30,
     })
     const cycle = [
       { type: 'step' as const, pieceId: 'wolf-1', to: { r: 6, c: 2 } },
@@ -65,10 +65,20 @@ describe('threefold repetition', () => {
       state = result.state
     }
 
+    expect(state.status).toBe('playing')
+    expect(state.repetitionCounts.get(boardPositionKey(state))).toBe(3)
+
+    for (const action of [...cycle, ...cycle, ...cycle]) {
+      const result = applyAction(state, action)
+      expect(result.ok).toBe(true)
+      if (!result.ok) return
+      state = result.state
+    }
+
     expect(state.status).toBe('draw')
     expect(state.terminalReason).toBe('repetition')
     expect(state.chain).toBeNull()
-    expect(state.repetitionCounts.get(boardPositionKey(state))).toBe(3)
+    expect(state.repetitionCounts.get(boardPositionKey(state))).toBe(6)
   })
 
   it('treats same-side piece identities as strategically interchangeable', () => {

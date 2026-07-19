@@ -1,5 +1,8 @@
+'use client'
+
 import type { MessageTree } from '@/i18n/messages'
-import { WOLF_STRATEGIES } from '@wolf-sheep/game-core'
+import { makeState, WOLF_STRATEGIES } from '@wolf-sheep/game-core'
+import { BoardSvg } from '@/components/BoardSvg'
 
 export function HelpContent({ h, locale, compact = false }: { h: MessageTree['howTo']; locale: 'en' | 'zh'; compact?: boolean }) {
   const ruleSections = [
@@ -59,44 +62,44 @@ export function HelpContent({ h, locale, compact = false }: { h: MessageTree['ho
 }
 
 function RuleBoard({ kind, label }: { kind: 'move' | 'capture'; label: string }) {
-  const cells = kind === 'move'
-    ? { wolf: [2, 2], target: [1, 2], sheep: null, rock: [3, 3] }
-    : { wolf: [2, 1], target: [2, 3], sheep: [2, 3], rock: [3, 2] }
+  const state = kind === 'move'
+    ? makeState({
+        pieces: [{ id: 'wolf-help', side: 'wolf', r: 4, c: 3 }],
+        rocks: [{ r: 3, c: 5 }],
+      })
+    : makeState({
+        pieces: [
+          { id: 'wolf-help', side: 'wolf', r: 4, c: 1 },
+          { id: 'sheep-help', side: 'sheep', r: 4, c: 3 },
+        ],
+        rocks: [{ r: 2, c: 5 }],
+      })
 
   return (
     <figure className="rounded-lg border border-[var(--line)] bg-[var(--paper)] p-3">
-      <div
-        className="relative mx-auto aspect-square w-full max-w-48 rounded-lg bg-[#e8f0e4]"
-        role="img"
-        aria-label={label}
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, transparent 16%, #5c6b52 16%, #5c6b52 17%, transparent 17%, transparent 49%, #5c6b52 49%, #5c6b52 50%, transparent 50%, transparent 82%, #5c6b52 82%, #5c6b52 83%, transparent 83%), linear-gradient(to bottom, transparent 16%, #5c6b52 16%, #5c6b52 17%, transparent 17%, transparent 49%, #5c6b52 49%, #5c6b52 50%, transparent 50%, transparent 82%, #5c6b52 82%, #5c6b52 83%, transparent 83%)',
-        }}
-      >
-        <RulePiece src="/skins/default/wolf.svg" row={cells.wolf[0]!} col={cells.wolf[1]!} />
-        {cells.sheep && <RulePiece src="/skins/default/sheep.svg" row={cells.sheep[0]!} col={cells.sheep[1]!} />}
-        <span
-          aria-hidden
-          className={kind === 'move' ? 'absolute h-8 w-8 rounded-full bg-[#46825a]/45 ring-2 ring-[#376847]' : 'absolute h-11 w-11 rounded-full border-4 border-[#c44836]'}
-          style={cellPosition(cells.target[0]!, cells.target[1]!)}
+      <div className="mx-auto max-w-48" aria-label={label}>
+        <BoardSvg
+          state={state}
+          selectedWolfId="wolf-help"
+          stepHighlights={kind === 'move' ? [{ r: 3, c: 3 }] : []}
+          jumpHighlights={kind === 'capture' ? [{ r: 4, c: 3 }] : []}
+          jumpThroughs={kind === 'capture' ? [{ r: 4, c: 2 }] : []}
+          interactive={false}
+          onSelectWolf={noop}
+          onClickCell={noop}
+          theme={{
+            boardFill: '#e8f0e4',
+            lineStroke: '#5c6b52',
+            wolfFill: '#3d4a3a',
+            sheepFill: '#f4f1ea',
+            wolfSrc: '/skins/default/wolf.svg',
+            sheepSrc: '/skins/default/sheep.svg',
+          }}
         />
-        {kind === 'capture' && <span aria-hidden className="absolute left-[23%] top-1/2 h-1 w-[54%] -translate-y-1/2 bg-[#c44836]/60" />}
-        <span aria-hidden className="absolute h-8 w-9 rotate-6 rounded-[40%] bg-[#6e665c] shadow-sm" style={cellPosition(cells.rock[0]!, cells.rock[1]!)} />
       </div>
       <figcaption className="mt-2 text-xs leading-relaxed text-[var(--muted)]">{label}</figcaption>
     </figure>
   )
 }
 
-function RulePiece({ src, row, col }: { src: string; row: number; col: number }) {
-  return <img src={src} alt="" aria-hidden className="absolute z-10 h-12 w-12" style={cellPosition(row, col)} />
-}
-
-function cellPosition(row: number, col: number) {
-  return {
-    left: String(16.5 + (col - 1) * 33) + '%',
-    top: String(16.5 + (row - 1) * 33) + '%',
-    transform: 'translate(-50%, -50%)',
-  }
-}
+function noop() {}

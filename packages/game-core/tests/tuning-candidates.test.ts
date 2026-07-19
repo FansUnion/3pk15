@@ -10,6 +10,7 @@ import {
   listLegalActions,
   listWolfActionsAsIfTurn,
   pickSheepAction,
+  REPETITION_DRAW_COUNT,
   validateLevel,
   type Action,
   type BoardState,
@@ -180,7 +181,7 @@ function reason(state: BoardState) {
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
   if (state.plyCount >= state.maxPlies) return 'maxPlies'
-  if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= 3) return 'repetition'
+  if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= REPETITION_DRAW_COUNT) return 'repetition'
   return 'unexpected'
 }
 

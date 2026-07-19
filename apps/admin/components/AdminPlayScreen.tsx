@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { adjacentLevels, boardPositionKey, listWolfActionsAsIfTurn, type BoardState, type LevelConfig } from '@wolf-sheep/game-core'
+import { adjacentLevels, boardPositionKey, listWolfActionsAsIfTurn, REPETITION_DRAW_COUNT, type BoardState, type LevelConfig } from '@wolf-sheep/game-core'
 import { PlayScreen } from '@/components/PlayScreen'
 import type { TerminalAttemptDetails } from '@/lib/play-metrics'
 import {
@@ -195,7 +195,7 @@ function terminalReason(state: BoardState) {
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
   if (listWolfActionsAsIfTurn(state).length === 0) return 'wolvesTrapped'
   if (state.plyCount >= state.maxPlies) return 'maxPlies'
-  if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= 3) return 'repetition'
+  if ((state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= REPETITION_DRAW_COUNT) return 'repetition'
   return state.status
 }
 

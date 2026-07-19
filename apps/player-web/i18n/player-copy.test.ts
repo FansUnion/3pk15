@@ -54,4 +54,19 @@ describe('player-facing copy contract', () => {
       }
     }
   })
+
+  it('keeps locked access, help diagrams, machine links and ads on their intended surfaces', () => {
+    const gate = readFileSync(resolve(process.cwd(), 'components/LevelAccessGate.tsx'), 'utf8')
+    const list = readFileSync(resolve(process.cwd(), 'components/LevelList.tsx'), 'utf8')
+    const help = readFileSync(resolve(process.cwd(), 'components/HelpContent.tsx'), 'utf8')
+    const footer = readFileSync(resolve(process.cwd(), 'components/SiteChrome.tsx'), 'utf8')
+    const play = readFileSync(resolve(process.cwd(), 'components/PlayScreen.tsx'), 'utf8')
+
+    expect(gate).toContain('isLevelUnlocked')
+    expect(list).toContain('isLevelUnlocked')
+    expect(help).toContain('<BoardSvg')
+    expect(footer).toContain('<details')
+    expect(footer).toContain('/llms.txt')
+    expect(play).toContain("NEXT_PUBLIC_ADS_PROVIDER !== 'none'")
+  })
 })
