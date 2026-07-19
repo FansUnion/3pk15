@@ -15,6 +15,7 @@ import {
 } from '@wolf-sheep/game-core'
 import { clearActiveGame, loadActiveGame, saveActiveGame, type ActiveGameConfig, type RecordedGameAction } from '@/lib/active-game'
 import { consumeNextAiFailure } from '@/lib/ai-fault'
+import { newlyTrappedWolfIds } from './wolf-feedback'
 
 /** 商业体验时序标准：docs/游戏创意/产品定位和商业成功/03 */
 export const FEEDBACK_MS = 200
@@ -36,6 +37,7 @@ export type JuiceFlash = {
   to: Pos
   through?: Pos
   newThreat?: boolean
+  newlyTrappedWolfIds?: string[]
 } | null
 
 const EMPTY_HIGHLIGHTS: MoveHighlights = { steps: [], jumps: [], throughs: [] }
@@ -209,6 +211,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     if (!result.ok) return
 
     const next = result.state
+    if (juice) juice.newlyTrappedWolfIds = newlyTrappedWolfIds(state, next)
     if (juice?.kind === 'step' && state.toMove === 'wolf') {
       const before = threatenedSheepIds(state)
       juice.newThreat = [...threatenedSheepIds(next)].some((id) => !before.has(id))
@@ -345,6 +348,7 @@ async function runAiTurn(
       return
     }
     const next = result.state
+    if (juice) juice.newlyTrappedWolfIds = newlyTrappedWolfIds(state, next)
     const actionHistory = [...get().actionHistory, action]
     const nextSeed = seed + 1
     syncActiveGame(next, nextSeed, get().initialSeed, actionHistory)

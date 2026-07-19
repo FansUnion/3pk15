@@ -18,6 +18,7 @@ const scanRoots = [
 const sourceExtensions = new Set(['.ts', '.tsx', '.js', '.mjs'])
 const assetPattern = /['"](\/[A-Za-z0-9_./-]+\.(?:svg|png|jpe?g|webp|wav|mp3|ogg))['"]/g
 const referenced = new Set()
+const requiredSfx = ['step', 'sheep-step', 'capture', 'chain', 'threat', 'trapped', 'win', 'lose', 'draw', 'select', 'invalid', 'ai', 'unlock', 'equip']
 
 function scan(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -40,4 +41,23 @@ if (missing.length) {
   for (const asset of missing) console.error('MISSING', asset)
   process.exit(1)
 }
-console.log(`check:assets: OK (${referenced.size} referenced files)`)
+
+for (const name of requiredSfx) {
+  const file = join(publicRoot, 'sfx', `${name}.wav`)
+  if (!existsSync(file)) {
+    console.error('MISSING SFX', name)
+    process.exit(1)
+  }
+  const wav = readFileSync(file)
+  const validHeader = wav.length >= 48 && wav.toString('ascii', 0, 4) === 'RIFF' && wav.toString('ascii', 8, 12) === 'WAVE'
+  const sampleRate = validHeader ? wav.readUInt32LE(24) : 0
+  const dataSize = validHeader ? wav.readUInt32LE(40) : 0
+  const duration = sampleRate ? dataSize / 2 / sampleRate : 0
+  let peak = 0
+  for (let offset = 44; offset + 1 < wav.length; offset += 2) peak = Math.max(peak, Math.abs(wav.readInt16LE(offset)))
+  if (!validHeader || sampleRate !== 22050 || duration < 0.04 || duration > 1 || peak < 500) {
+    console.error('INVALID SFX', name, { sampleRate, duration, peak })
+    process.exit(1)
+  }
+}
+console.log(`check:assets: OK (${referenced.size} referenced files, ${requiredSfx.length} verified sounds)`)

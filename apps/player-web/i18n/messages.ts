@@ -175,6 +175,9 @@ export type MessageTree = {
     hintClose: string
     hintAvailable: string
     helpTitle: string
+    wolfTrapped: string
+    restoreSound: string
+    soundBlocked: string
   }
   settings: {
     title: string
@@ -184,6 +187,12 @@ export type MessageTree = {
     close: string
     quickTips: string
     helpBody: string[]
+    soundTitle: string
+    soundBody: string
+    soundPlay: string
+    soundReady: string
+    soundBlocked: string
+    soundLabels: Record<string, string>
   }
   privacy: {
     title: string
@@ -434,6 +443,9 @@ export const en: MessageTree = {
     hintClose: 'Return to hunt',
     hintAvailable: 'You have failed this hunt twice. A free strategy hint is available.',
     helpTitle: 'Field guide',
+    wolfTrapped: 'One wolf is trapped. Use the other wolves to reopen a route.',
+    restoreSound: 'Restore sound',
+    soundBlocked: 'Sound is paused by the browser.',
   },
   settings: {
     title: 'Settings',
@@ -449,6 +461,12 @@ export const en: MessageTree = {
       'The computer moves sheep sideways or toward the wolves, never back toward their starting edge. Sheep never capture.',
       'Lose if all three wolves have no moves. Rocks are blocked.',
     ],
+    soundTitle: 'Sound check',
+    soundBody: 'Play each game moment. The label describes when it is heard during a hunt.',
+    soundPlay: 'Play',
+    soundReady: 'Sound is ready.',
+    soundBlocked: 'Your browser paused sound. Press a sound button again to restore it.',
+    soundLabels: { step: 'Wolf moves', sheepStep: 'Sheep moves', jump: 'Capture', chain: 'Chain capture', threat: 'Sheep newly in danger', trapped: 'One wolf becomes trapped', win: 'Victory', lose: 'Defeat', draw: 'Repeated position or move limit', select: 'Select wolf', invalid: 'Invalid destination', ai: 'Sheep thinking', unlock: 'Unlock skin', equip: 'Equip skin' },
   },
   privacy: {
     title: 'Privacy',
@@ -712,6 +730,9 @@ export const zh: MessageTree = {
     hintClose: '返回对局',
     hintAvailable: '本关已连续失败两次，可以免费查看策略提示。',
     helpTitle: '猎场帮助',
+    wolfTrapped: '一只狼已被困住。调动其他狼，尝试重新打开路线。',
+    restoreSound: '恢复声音',
+    soundBlocked: '浏览器暂停了声音。',
   },
   settings: {
     title: '设置',
@@ -727,6 +748,12 @@ export const zh: MessageTree = {
       '羊由电脑走，可横移或朝狼方前进，不能退回开局一侧，也不能吃子。',
       '三狼皆无合法步则失败。岩石不可落子。',
     ],
+    soundTitle: '声音试听',
+    soundBody: '逐项试听真实游戏场景；名称表示它会在什么时候播放。',
+    soundPlay: '播放',
+    soundReady: '声音已恢复。',
+    soundBlocked: '浏览器暂停了声音，请再次点击任一试听按钮恢复。',
+    soundLabels: { step: '狼移动', sheepStep: '羊移动', jump: '第一次捕食', chain: '连续捕食', threat: '羊新进入危险', trapped: '一只狼新近受困', win: '胜利', lose: '失败', draw: '僵局或行动耗尽', select: '选中狼', invalid: '无效落点', ai: '羊方思考', unlock: '解锁皮肤', equip: '装备皮肤' },
   },
   privacy: {
     title: '隐私说明',

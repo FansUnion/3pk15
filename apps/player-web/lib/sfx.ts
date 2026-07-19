@@ -1,6 +1,8 @@
 /** Prefer short sample buffers; fall back to richer procedural tones. */
 
-export type SfxKind = 'step' | 'sheepStep' | 'jump' | 'chain' | 'win' | 'lose' | 'draw' | 'select' | 'invalid' | 'ai' | 'threat' | 'unlock' | 'equip'
+export type SfxKind = 'step' | 'sheepStep' | 'jump' | 'chain' | 'win' | 'lose' | 'draw' | 'select' | 'invalid' | 'ai' | 'threat' | 'trapped' | 'unlock' | 'equip'
+
+export const SFX_KINDS: SfxKind[] = ['step', 'sheepStep', 'jump', 'chain', 'threat', 'trapped', 'win', 'lose', 'draw', 'select', 'invalid', 'ai', 'unlock', 'equip']
 
 export type AudioDiagnostics = {
   requested: number
@@ -34,18 +36,19 @@ async function loadBuffer(kind: SfxKind): Promise<AudioBuffer | null> {
   if (bufferCache.has(kind)) return bufferCache.get(kind)!
   const map: Record<SfxKind, string | null> = {
     step: '/sfx/step.wav',
-    sheepStep: null,
+    sheepStep: '/sfx/sheep-step.wav',
     jump: '/sfx/capture.wav',
     chain: '/sfx/chain.wav',
     win: '/sfx/win.wav',
     lose: '/sfx/lose.wav',
-    draw: null,
-    select: null,
-    invalid: null,
-    ai: null,
-    threat: null,
-    unlock: null,
-    equip: null,
+    draw: '/sfx/draw.wav',
+    select: '/sfx/select.wav',
+    invalid: '/sfx/invalid.wav',
+    ai: '/sfx/ai.wav',
+    threat: '/sfx/threat.wav',
+    trapped: '/sfx/trapped.wav',
+    unlock: '/sfx/unlock.wav',
+    equip: '/sfx/equip.wav',
   }
   const source = map[kind]
   if (!source) return null
@@ -136,6 +139,10 @@ function playFallback(kind: SfxKind) {
       beep(430, 125, 'triangle', 0.045, 0.07)
       beep(490, 90, 'sawtooth', 0.02, 0.16)
       break
+    case 'trapped':
+      beep(180, 150, 'triangle', 0.045)
+      beep(110, 180, 'sine', 0.035, 0.08)
+      break
     case 'unlock':
       beep(523, 80, 'sine', 0.045)
       beep(659, 90, 'sine', 0.045, 0.07)
@@ -161,32 +168,34 @@ function playBuffer(buf: AudioBuffer) {
   src.start()
 }
 
-export function playSfx(kind: SfxKind) {
+export async function playSfx(kind: SfxKind): Promise<'sample' | 'fallback' | 'blocked'> {
   diagnostics.requested += 1
   diagnostics.lastKind = kind
-  void (async () => {
+  return (async () => {
     const audio = getCtx()
     if (!audio) {
       diagnostics.blocked += 1
       diagnostics.lastMode = 'blocked'
-      return
+      return 'blocked' as const
     }
     try {
       await audio.resume()
     } catch {
       diagnostics.blocked += 1
       diagnostics.lastMode = 'blocked'
-      return
+      return 'blocked' as const
     }
     const buf = await loadBuffer(kind)
     if (buf) {
       playBuffer(buf)
       diagnostics.samplePlayed += 1
       diagnostics.lastMode = 'sample'
+      return 'sample' as const
     } else {
       playFallback(kind)
       diagnostics.fallbackPlayed += 1
       diagnostics.lastMode = 'fallback'
+      return 'fallback' as const
     }
   })()
 }
@@ -200,7 +209,7 @@ export async function prepareSfx() {
   if (!audio) return false
   try {
     await audio.resume()
-    void Promise.all((['step', 'jump', 'chain', 'win', 'lose'] as SfxKind[]).map(loadBuffer))
+    await Promise.all(SFX_KINDS.map(loadBuffer))
     return true
   } catch {
     diagnostics.blocked += 1

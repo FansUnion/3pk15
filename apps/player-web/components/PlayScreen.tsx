@@ -95,6 +95,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const resetArmTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [interactionNotice, setInteractionNotice] = useState<string | null>(null)
+  const [audioBlocked, setAudioBlocked] = useState(false)
   const [, setTick] = useState(0)
   const prevEaten = useRef(0)
   const terminalSfxDone = useRef(false)
@@ -168,13 +169,22 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
 
   useEffect(() => {
     if (muted || !juice) return
-    if (juice.kind === 'jump') {
-      playSfx(state.chain && state.chain.count >= 2 ? 'chain' : 'jump')
-    } else {
-      playSfx(juice.side === 'sheep' ? 'sheepStep' : 'step')
-      if (juice.newThreat) window.setTimeout(() => playSfx('threat'), 80)
+    const timers: number[] = []
+    const play = async (kind: Parameters<typeof playSfx>[0]) => setAudioBlocked(await playSfx(kind) === 'blocked')
+    if (juice.kind === 'jump') void play(state.chain && state.chain.count >= 2 ? 'chain' : 'jump')
+    else void play(juice.side === 'sheep' ? 'sheepStep' : 'step')
+
+    const newlyTrapped = juice.newlyTrappedWolfIds?.length ?? 0
+    if (newlyTrapped > 0 && state.status === 'playing') {
+      setInteractionNotice(p.wolfTrapped)
+      if (noticeTimer.current) clearTimeout(noticeTimer.current)
+      noticeTimer.current = setTimeout(() => setInteractionNotice(null), 2400)
+      timers.push(window.setTimeout(() => void play('trapped'), 120))
+    } else if (juice.newThreat) {
+      timers.push(window.setTimeout(() => void play('threat'), 120))
     }
-  }, [juice, muted, state.chain])
+    return () => timers.forEach(window.clearTimeout)
+  }, [juice, muted, state.chain, state.status, p.wolfTrapped])
 
   useEffect(() => {
     if (muted) void suspendSfx()
@@ -182,13 +192,13 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }, [muted])
 
   useEffect(() => {
-    if (!muted && uiPhase === 'aiThinking') playSfx('ai')
+    if (!muted && uiPhase === 'aiThinking') void playSfx('ai')
   }, [muted, uiPhase])
 
   useEffect(() => {
     if (uiPhase !== 'terminal' || muted || terminalSfxDone.current) return
     terminalSfxDone.current = true
-    playSfx(state.status === 'won' ? 'win' : state.status === 'draw' ? 'draw' : 'lose')
+    void playSfx(state.status === 'won' ? 'win' : state.status === 'draw' ? 'draw' : 'lose')
   }, [uiPhase, state.status, muted])
 
   useEffect(() => {
@@ -706,6 +716,11 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           {failureStreak >= 2 && !interactionNotice && (
             <button type="button" onClick={openHint} className="rounded-lg border border-[var(--accent)]/35 bg-[var(--paper)] px-3 py-2 text-center text-xs font-medium text-[var(--ink)]">
               {p.hintAvailable}
+            </button>
+          )}
+          {audioBlocked && !muted && (
+            <button type="button" className="status-chip justify-center text-xs" onClick={async () => setAudioBlocked(!(await prepareSfx()))}>
+              {p.soundBlocked} {p.restoreSound}
             </button>
           )}
           <p className={`status-chip justify-center text-center text-xs ${firstLessonActive ? 'font-medium text-[var(--ink)]' : 'text-[var(--muted)]'}`}>

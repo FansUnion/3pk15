@@ -32,8 +32,10 @@ function writeWav(file, samples, sampleRate = 22050) {
   fs.writeFileSync(file, buf)
 }
 
+let noiseState = 0x51f15e
 function noise() {
-  return Math.random() * 2 - 1
+  noiseState = (Math.imul(noiseState, 1664525) + 1013904223) >>> 0
+  return (noiseState / 0xffffffff) * 2 - 1
 }
 
 function env(t, attack, decay) {
@@ -115,6 +117,57 @@ function genLose(sr) {
   return out
 }
 
+function genTone(sr, duration, voices) {
+  const out = new Float32Array(Math.floor(sr * duration))
+  for (let i = 0; i < out.length; i++) {
+    const t = i / sr
+    for (const voice of voices) {
+      const local = t - (voice.at ?? 0)
+      if (local < 0) continue
+      const frequency = voice.from + (voice.to - voice.from) * Math.min(1, local / voice.duration)
+      const phase = 2 * Math.PI * frequency * local
+      const wave = voice.wave === 'triangle'
+        ? (2 / Math.PI) * Math.asin(Math.sin(phase))
+        : voice.wave === 'saw' ? 2 * ((frequency * local) % 1) - 1 : Math.sin(phase)
+      out[i] += wave * env(local, voice.attack ?? 0.006, voice.decay) * voice.gain
+    }
+  }
+  return out
+}
+
+function genSheepStep(sr) {
+  const out = genTone(sr, 0.095, [{ from: 310, to: 250, duration: 0.08, decay: 0.035, gain: 0.22, wave: 'triangle' }])
+  for (let i = 0; i < out.length; i++) out[i] += noise() * Math.exp(-(i / sr) * 55) * 0.08
+  return out
+}
+
+function genThreat(sr) {
+  return genTone(sr, 0.32, [
+    { from: 610, to: 430, duration: 0.13, decay: 0.075, gain: 0.22, wave: 'saw' },
+    { at: 0.13, from: 570, to: 470, duration: 0.14, decay: 0.09, gain: 0.2, wave: 'triangle' },
+  ])
+}
+
+function genTrapped(sr) {
+  return genTone(sr, 0.28, [
+    { from: 190, to: 115, duration: 0.22, decay: 0.13, gain: 0.28, wave: 'triangle' },
+    { from: 95, to: 80, duration: 0.2, decay: 0.12, gain: 0.12, wave: 'sine' },
+  ])
+}
+
+function genUi(sr, kind) {
+  const specs = {
+    select: [0.07, [{ from: 470, to: 540, duration: 0.05, decay: 0.025, gain: 0.2, wave: 'sine' }]],
+    invalid: [0.1, [{ from: 180, to: 150, duration: 0.07, decay: 0.04, gain: 0.18, wave: 'triangle' }]],
+    ai: [0.16, [{ from: 210, to: 270, duration: 0.12, decay: 0.07, gain: 0.1, wave: 'sine' }]],
+    draw: [0.36, [{ from: 330, to: 320, duration: 0.14, decay: 0.1, gain: 0.2, wave: 'triangle' }, { at: 0.14, from: 294, to: 286, duration: 0.16, decay: 0.11, gain: 0.18, wave: 'triangle' }]],
+    unlock: [0.46, [{ from: 523, to: 523, duration: 0.1, decay: 0.1, gain: 0.18, wave: 'sine' }, { at: 0.09, from: 659, to: 659, duration: 0.11, decay: 0.1, gain: 0.18, wave: 'sine' }, { at: 0.2, from: 880, to: 880, duration: 0.18, decay: 0.14, gain: 0.22, wave: 'sine' }]],
+    equip: [0.18, [{ from: 420, to: 480, duration: 0.07, decay: 0.05, gain: 0.16, wave: 'triangle' }, { at: 0.06, from: 650, to: 680, duration: 0.08, decay: 0.06, gain: 0.16, wave: 'sine' }]],
+  }
+  const [duration, voices] = specs[kind]
+  return genTone(sr, duration, voices)
+}
+
 const sr = 22050
 fs.mkdirSync(outDir, { recursive: true })
 writeWav(path.join(outDir, 'step.wav'), genStep(sr), sr)
@@ -122,4 +175,10 @@ writeWav(path.join(outDir, 'capture.wav'), genCapture(sr), sr)
 writeWav(path.join(outDir, 'chain.wav'), genChain(sr), sr)
 writeWav(path.join(outDir, 'win.wav'), genWin(sr), sr)
 writeWav(path.join(outDir, 'lose.wav'), genLose(sr), sr)
+writeWav(path.join(outDir, 'sheep-step.wav'), genSheepStep(sr), sr)
+writeWav(path.join(outDir, 'threat.wav'), genThreat(sr), sr)
+writeWav(path.join(outDir, 'trapped.wav'), genTrapped(sr), sr)
+for (const kind of ['select', 'invalid', 'ai', 'draw', 'unlock', 'equip']) {
+  writeWav(path.join(outDir, `${kind}.wav`), genUi(sr, kind), sr)
+}
 console.log('sfx ok →', outDir)

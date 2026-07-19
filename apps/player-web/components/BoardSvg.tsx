@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from 'react'
 import type { BoardState, Pos } from '@wolf-sheep/game-core'
-import { BOARD_MAX } from '@wolf-sheep/game-core'
+import { BOARD_MAX, getWolfLegalSummary } from '@wolf-sheep/game-core'
 import type { JuiceFlash } from '@/lib/play-store'
 import { fmt } from '@/i18n/messages'
 import { useClientMessages } from '@/i18n/use-client-locale'
@@ -109,6 +109,9 @@ export function BoardSvg({
   const selectedWolf = selectedWolfId
     ? state.pieces.find((p) => p.id === selectedWolfId && p.side === 'wolf')
     : undefined
+  const trappedWolfIds = new Set(getWolfLegalSummary(state)
+    .filter((wolf) => wolf.steps + wolf.jumps === 0)
+    .map((wolf) => wolf.wolfId))
 
   const fromXy = juice ? xy(juice.from.r, juice.from.c) : null
   const toXy = juice ? xy(juice.to.r, juice.to.c) : null
@@ -252,6 +255,7 @@ export function BoardSvg({
       {state.pieces.map((p) => {
         const { x, y } = xy(p.r, p.c)
         const selected = p.side === 'wolf' && p.id === selectedWolfId
+        const trapped = p.side === 'wolf' && trappedWolfIds.has(p.id)
         const src = p.side === 'sheep' ? theme.sheepSrc : theme.wolfSrc
         const isMover =
           Boolean(juice) && juice!.to.r === p.r && juice!.to.c === p.c
@@ -328,6 +332,12 @@ export function BoardSvg({
                   pointerEvents="none"
                 />
               </>
+            )}
+            {trapped && (
+              <g pointerEvents="none">
+                <circle cx={x} cy={y} r={PIECE / 2 + 4} fill="none" stroke="#7a3328" strokeWidth={3} strokeDasharray="5 4" />
+                <path d={`M${x - 9} ${y + 19} L${x + 9} ${y + 19}`} stroke="#7a3328" strokeWidth={4} strokeLinecap="round" />
+              </g>
             )}
             {body}
           </g>

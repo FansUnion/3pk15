@@ -5,12 +5,14 @@ import { useSaveStore } from '@/lib/save-store'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { SiteFooter } from '@/components/SiteChrome'
 import { useClientMessages } from '@/i18n/use-client-locale'
+import { playSfx, prepareSfx, SFX_KINDS } from '@/lib/sfx'
 
 export default function SettingsPage() {
   const save = useSaveStore((s) => s.save)
   const replace = useSaveStore((s) => s.replace)
   const hydrate = useSaveStore((s) => s.hydrate)
   const [showHelp, setShowHelp] = useState(false)
+  const [soundStatus, setSoundStatus] = useState<'ready' | 'blocked' | null>(null)
   const { locale, t } = useClientMessages()
 
   useEffect(() => {
@@ -44,6 +46,33 @@ export default function SettingsPage() {
             }}
           />
         </label>
+
+        <section className="rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4">
+          <h2 className="font-serif text-xl text-[#2c3328]">{t.settings.soundTitle}</h2>
+          <p className="mt-1 text-sm leading-relaxed text-[#5c6b52]">{t.settings.soundBody}</p>
+          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {SFX_KINDS.map((kind) => (
+              <button
+                key={kind}
+                type="button"
+                className="flex min-h-11 items-center justify-between rounded-lg border border-[#5c6b52]/30 px-3 py-2 text-left text-sm"
+                onClick={async () => {
+                  if (muted) {
+                    const current = useSaveStore.getState().save
+                    replace({ ...current, settings: { ...current.settings, muted: false } })
+                  }
+                  const ready = await prepareSfx()
+                  const mode = ready ? await playSfx(kind) : 'blocked'
+                  setSoundStatus(mode === 'blocked' ? 'blocked' : 'ready')
+                }}
+              >
+                <span>{t.settings.soundLabels[kind]}</span>
+                <span className="text-xs text-[#5c6b52]">{t.settings.soundPlay}</span>
+              </button>
+            ))}
+          </div>
+          {soundStatus && <p role="status" className="mt-3 text-sm text-[#5c6b52]">{soundStatus === 'ready' ? t.settings.soundReady : t.settings.soundBlocked}</p>}
+        </section>
 
         <LocaleLink href={`/play/${save.lastPlayedLevelId ?? 'spring-01'}`} locale={locale} className="primary-action w-full justify-center">
           {save.lastPlayedLevelId ? t.nav.continue : t.nav.play}
