@@ -1,6 +1,6 @@
 import type { BoardState } from '@wolf-sheep/game-core'
 
-export type ShareOutcome = 'shared' | 'copied' | 'downloaded'
+export type ShareOutcome = 'shared' | 'copied' | 'downloaded' | 'cancelled'
 export type ShareResultData = { levelId: string; levelName: string; result: 'won' | 'lost' | 'draw'; plies: number; eatenSheep: number; reason: string; state: BoardState; url: string }
 
 export function buildShareText(data: ShareResultData, locale: 'en' | 'zh') {
@@ -66,7 +66,7 @@ export async function shareResult(data: ShareResultData, locale: 'en' | 'zh'): P
     } catch (error) {
       // User cancellation should not trigger a second share prompt; other platform
       // failures continue through clipboard/download fallbacks below.
-      if (error instanceof DOMException && error.name === 'AbortError') throw error
+      if (error instanceof DOMException && error.name === 'AbortError') return 'cancelled'
     }
   }
   if (navigator.clipboard?.writeText) {

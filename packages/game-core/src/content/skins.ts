@@ -143,6 +143,21 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     boardFill: '#1c3040',
     lineStroke: '#b7c8d4',
   },
+  {
+    id: 'board-spring-blossom', kind: 'board', name: '花汐猎场', nameEn: 'Blossom Tide', nameZh: '花汐猎场',
+    unlock: { type: 'cost', season: 'spring', amount: 30 }, assets: { boardBg: '/skins/boards/spring-blossom.svg' },
+    boardFill: '#dcefc9', lineStroke: '#41683c',
+  },
+  {
+    id: 'board-summer-stream', kind: 'board', name: '晴流猎场', nameEn: 'Sunstream Field', nameZh: '晴流猎场',
+    unlock: { type: 'cost', season: 'summer', amount: 30 }, assets: { boardBg: '/skins/boards/summer-stream.svg' },
+    boardFill: '#eadcaa', lineStroke: '#665426',
+  },
+  {
+    id: 'board-autumn-harvest', kind: 'board', name: '赤穗猎场', nameEn: 'Crimson Harvest', nameZh: '赤穗猎场',
+    unlock: { type: 'cost', season: 'autumn', amount: 30 }, assets: { boardBg: '/skins/boards/autumn-harvest.svg' },
+    boardFill: '#e8bd82', lineStroke: '#693d27',
+  },
 ]
 
 export function getSkin(id: string): SkinCatalogItem | undefined {

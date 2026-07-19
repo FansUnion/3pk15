@@ -7,6 +7,9 @@ export type MessageTree = {
     play: string
     continue: string
     continueNamed: string
+    nextNamed: string
+    replayNamed: string
+    startFirst: string
     skins: string
     quests: string
     settings: string
@@ -185,8 +188,6 @@ export type MessageTree = {
     help: string
     privacy: string
     close: string
-    quickTips: string
-    helpBody: string[]
     soundTitle: string
     soundBody: string
     soundPlay: string
@@ -234,6 +235,9 @@ export const en: MessageTree = {
     play: 'Play now',
     continue: 'Continue',
     continueNamed: 'Continue · {name}',
+    nextNamed: 'Next hunt · {name}',
+    replayNamed: 'Play again · {name}',
+    startFirst: 'Start from the first hunt',
     skins: 'Skins',
     quests: 'Quests',
     settings: 'Settings',
@@ -453,14 +457,6 @@ export const en: MessageTree = {
     help: 'How to play',
     privacy: 'Privacy',
     close: 'Close',
-    quickTips: 'Quick tips',
-    helpBody: [
-      'Command 3 wolves. Capture 8 sheep to win.',
-      'Move one point orthogonally. For a leap capture, line up wolf — empty point — sheep and land on the sheep.',
-      'Chain up to 5 captures; you may end the chain early.',
-      'The computer moves sheep sideways or toward the wolves, never back toward their starting edge. Sheep never capture.',
-      'Lose if all three wolves have no moves. Rocks are blocked.',
-    ],
     soundTitle: 'Sound check',
     soundBody: 'Play each game moment. The label describes when it is heard during a hunt.',
     soundPlay: 'Play',
@@ -472,7 +468,7 @@ export const en: MessageTree = {
     title: 'Privacy',
     p1: 'Fangrush stores progress only in this browser. There is no account login in this version.',
     p2: 'We do not upload your game saves or move lists to our own servers.',
-    p3: 'Ads (when enabled) follow the ad provider’s privacy policy. Analytics may use anonymous page views.',
+    p3: 'Ads, when enabled, follow the active platform or ad provider privacy policy.',
     p4: 'Clearing site data resets progress. Contact the site operator through the email published on fangrush.com.',
   },
   skins: {
@@ -531,6 +527,9 @@ export const zh: MessageTree = {
     play: '开始冒险',
     continue: '继续狩猎',
     continueNamed: '继续 · {name}',
+    nextNamed: '下一关 · {name}',
+    replayNamed: '再次挑战 · {name}',
+    startFirst: '从第一关开始',
     skins: '装扮',
     quests: '任务',
     settings: '设置',
@@ -678,7 +677,7 @@ export const zh: MessageTree = {
       targetEaten: '达到捕食目标',
       wolvesTrapped: '三狼无合法行动',
       maxPlies: '达到行动上限',
-      repetition: '三次重复局面',
+      repetition: '同一局面重复六次',
       unexpected: '异常终局',
     },
     tip: '先选一只狼。点绿色空位移动；点红圈中的羊捕食。',
@@ -740,14 +739,6 @@ export const zh: MessageTree = {
     help: '玩法说明',
     privacy: '隐私说明',
     close: '关闭',
-    quickTips: '快速提示',
-    helpBody: [
-      '操控 3 狼，隔空吃绵羊；吃满 8 只获胜。',
-      '横竖走一格；隔空吃为「狼—空—羊」同线，狼移到羊位。',
-      '连吃最多 5 次，可主动结束连吃。',
-      '羊由电脑走，可横移或朝狼方前进，不能退回开局一侧，也不能吃子。',
-      '三狼皆无合法步则失败。岩石不可落子。',
-    ],
     soundTitle: '声音试听',
     soundBody: '逐项试听真实游戏场景；名称表示它会在什么时候播放。',
     soundPlay: '播放',
@@ -759,7 +750,7 @@ export const zh: MessageTree = {
     title: '隐私说明',
     p1: '三狼连猎（Fangrush）只把进度保存在当前浏览器。当前版本暂无账号登录。',
     p2: '我们不会把你的存档或棋谱上传到自建服务器。',
-    p3: '启用广告时适用广告商隐私政策。统计可能使用匿名页面浏览。',
+    p3: '启用广告时，适用当前平台或广告服务商的隐私政策。',
     p4: '清除站点数据会重置进度。联系方式见站点运营方公示邮箱。',
   },
   skins: {

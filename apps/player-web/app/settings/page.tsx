@@ -11,7 +11,6 @@ export default function SettingsPage() {
   const save = useSaveStore((s) => s.save)
   const replace = useSaveStore((s) => s.replace)
   const hydrate = useSaveStore((s) => s.hydrate)
-  const [showHelp, setShowHelp] = useState(false)
   const [soundStatus, setSoundStatus] = useState<'ready' | 'blocked' | null>(null)
   const { locale, t } = useClientMessages()
 
@@ -86,14 +85,6 @@ export default function SettingsPage() {
           {t.settings.help}
         </LocaleLink>
 
-        <button
-          type="button"
-          onClick={() => setShowHelp(true)}
-          className="rounded-lg border border-[#5c6b52]/40 px-4 py-3 text-left text-[#2c3328]"
-        >
-          {t.settings.quickTips}
-        </button>
-
         <LocaleLink
           href="/privacy"
           locale={locale}
@@ -102,23 +93,6 @@ export default function SettingsPage() {
           {t.settings.privacy}
         </LocaleLink>
 
-        {showHelp && (
-          <div className="rounded-lg border border-[#5c6b52]/30 bg-[#f7f5ef] p-4 text-sm leading-relaxed text-[#2c3328]">
-            <p className="font-medium font-serif">Fangrush</p>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-[#5c6b52]">
-              {t.settings.helpBody.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-            <button
-              type="button"
-              className="mt-3 text-sm text-[#5c6b52] underline"
-              onClick={() => setShowHelp(false)}
-            >
-              {t.settings.close}
-            </button>
-          </div>
-        )}
       </main>
       <SiteFooter locale={locale} t={t} />
     </div>

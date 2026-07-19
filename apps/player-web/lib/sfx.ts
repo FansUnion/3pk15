@@ -161,7 +161,7 @@ function playBuffer(buf: AudioBuffer) {
   void audio.resume()
   const src = audio.createBufferSource()
   const g = audio.createGain()
-  g.gain.value = 0.7
+  g.gain.value = 0.85
   src.buffer = buf
   src.connect(g)
   g.connect(audio.destination)

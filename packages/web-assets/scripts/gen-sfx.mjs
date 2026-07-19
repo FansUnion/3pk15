@@ -168,17 +168,32 @@ function genUi(sr, kind) {
   return genTone(sr, duration, voices)
 }
 
+function normalizePeak(samples, targetDb) {
+  let peak = 0
+  for (const sample of samples) peak = Math.max(peak, Math.abs(sample))
+  if (peak === 0) return samples
+  const target = 10 ** (targetDb / 20)
+  const scale = target / peak
+  for (let i = 0; i < samples.length; i++) samples[i] *= scale
+  return samples
+}
+
+function emit(name, samples, targetDb) {
+  writeWav(path.join(outDir, `${name}.wav`), normalizePeak(samples, targetDb), sr)
+}
+
 const sr = 22050
 fs.mkdirSync(outDir, { recursive: true })
-writeWav(path.join(outDir, 'step.wav'), genStep(sr), sr)
-writeWav(path.join(outDir, 'capture.wav'), genCapture(sr), sr)
-writeWav(path.join(outDir, 'chain.wav'), genChain(sr), sr)
-writeWav(path.join(outDir, 'win.wav'), genWin(sr), sr)
-writeWav(path.join(outDir, 'lose.wav'), genLose(sr), sr)
-writeWav(path.join(outDir, 'sheep-step.wav'), genSheepStep(sr), sr)
-writeWav(path.join(outDir, 'threat.wav'), genThreat(sr), sr)
-writeWav(path.join(outDir, 'trapped.wav'), genTrapped(sr), sr)
+emit('step', genStep(sr), -3.5)
+emit('capture', genCapture(sr), -3)
+emit('chain', genChain(sr), -2.5)
+emit('win', genWin(sr), -4)
+emit('lose', genLose(sr), -4)
+emit('sheep-step', genSheepStep(sr), -5)
+emit('threat', genThreat(sr), -4)
+emit('trapped', genTrapped(sr), -4)
+const uiPeak = { select: -8, invalid: -7, ai: -10, draw: -5, unlock: -4, equip: -6 }
 for (const kind of ['select', 'invalid', 'ai', 'draw', 'unlock', 'equip']) {
-  writeWav(path.join(outDir, `${kind}.wav`), genUi(sr, kind), sr)
+  emit(kind, genUi(sr, kind), uiPeak[kind])
 }
 console.log('sfx ok →', outDir)

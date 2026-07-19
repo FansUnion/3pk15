@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Literata, Nunito_Sans } from 'next/font/google'
 import { getT } from '@/i18n/get-locale'
 import '../../../packages/web-shared/styles/globals.css'
+import { RecoveryNotice } from '@/components/RecoveryNotice'
 
 const display = Literata({ subsets: ['latin'], variable: '--font-display', display: 'swap' })
 const sans = Nunito_Sans({ subsets: ['latin'], variable: '--font-sans', display: 'swap' })
@@ -30,7 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { locale } = await getT()
   return (
     <html lang={locale === 'zh' ? 'zh-CN' : 'en'} className={`${display.variable} ${sans.variable}`}>
-      <body className="min-h-dvh font-sans antialiased">{children}</body>
+      <body className="min-h-dvh font-sans antialiased"><RecoveryNotice />{children}</body>
     </html>
   )
 }

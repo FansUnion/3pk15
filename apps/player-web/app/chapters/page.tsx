@@ -57,7 +57,7 @@ export default function ChaptersPage() {
             {t.nav.home}
           </LocaleLink>
           <h1 className="display-title text-3xl">{t.chapters.title}</h1>
-          <span className="text-xs text-[#7a8574]">{save.fragments.universal}</span>
+          <LocaleLink href="/skins" locale={locale} className="text-xs text-[#5c6b52] hover:underline">{locale === 'zh' ? `通用碎片 ${save.fragments.universal}` : `${save.fragments.universal} universal shards`}</LocaleLink>
         </header>
 
         <LocaleLink href="/how-to-play" locale={locale} className="status-chip min-h-11 justify-center text-sm text-[var(--muted)]">

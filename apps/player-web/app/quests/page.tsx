@@ -20,6 +20,14 @@ export default function QuestsPage() {
   }, [hydrate])
 
   const quests = refreshQuestPeriod(save.quests)
+  const ordered = (period: 'daily' | 'weekly') => QUEST_DEFS.filter((quest) => quest.period === period).sort((a, b) => {
+    const state = (quest: typeof a) => {
+      const bucket = quests[period]
+      if (bucket.claimed.includes(quest.id)) return 2
+      return (bucket.progress[quest.id] ?? 0) >= quest.target ? 0 : 1
+    }
+    return state(a) - state(b)
+  })
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -33,10 +41,11 @@ export default function QuestsPage() {
         </header>
 
         {msg && <p className="text-sm text-[#5c6b52]">{msg}</p>}
+        <p className="rounded-lg bg-[#eef1eb] px-4 py-3 text-sm leading-relaxed text-[#5c6b52]">{locale === 'zh' ? '游玩、通关和获得碎片会自动累计进度；达到目标后需要在这里手动领取奖励。' : 'Playing, clearing hunts, and earning shards update progress automatically. Claim completed rewards here.'}</p>
 
         <section className="flex flex-col gap-2">
           <h2 className="text-sm text-[#5c6b52]">{t.quests.daily}</h2>
-          {QUEST_DEFS.filter((q) => q.period === 'daily').map((q) => {
+          {ordered('daily').map((q) => {
             const progress = quests.daily.progress[q.id] ?? 0
             const claimed = quests.daily.claimed.includes(q.id)
             const done = progress >= q.target
@@ -67,7 +76,7 @@ export default function QuestsPage() {
 
         <section className="flex flex-col gap-2">
           <h2 className="text-sm text-[#5c6b52]">{t.quests.weekly}</h2>
-          {QUEST_DEFS.filter((q) => q.period === 'weekly').map((q) => {
+          {ordered('weekly').map((q) => {
             const progress = quests.weekly.progress[q.id] ?? 0
             const claimed = quests.weekly.claimed.includes(q.id)
             const done = progress >= q.target

@@ -8,6 +8,8 @@ export function SiteFooter({ locale, t }: { locale: SupportedLocale; t: MessageT
       <div className="mx-auto flex max-w-lg flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#5c6b52]">
         <LocaleLink href="/how-to-play" locale={locale} className="hover:underline">{t.nav.howToPlay}</LocaleLink>
         <LocaleLink href="/chapters" locale={locale} className="hover:underline">{t.nav.chapters}</LocaleLink>
+        <LocaleLink href="/skins" locale={locale} className="hover:underline">{t.nav.skins}</LocaleLink>
+        <LocaleLink href="/quests" locale={locale} className="hover:underline">{t.nav.quests}</LocaleLink>
         <LocaleLink href="/privacy" locale={locale} className="hover:underline">{t.nav.privacy}</LocaleLink>
         <LocaleLink href="/settings" locale={locale} className="hover:underline">{t.nav.settings}</LocaleLink>
         <LocaleSwitcher locale={locale} variant="footer" />

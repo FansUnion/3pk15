@@ -3,6 +3,7 @@ import { getT } from '@/i18n/get-locale'
 
 export default async function PrivacyPage() {
   const { locale, t } = await getT()
+  const telemetryEnabled = process.env.NEXT_PUBLIC_TELEMETRY === '1'
   return (
     <div className="flex min-h-dvh flex-col">
       <SiteHeader locale={locale} />
@@ -13,7 +14,7 @@ export default async function PrivacyPage() {
           <p>{t.privacy.p2}</p>
           <p>{t.privacy.p3}</p>
           <p>{t.privacy.p4}</p>
-          <p>
+          {telemetryEnabled ? <p>
             Analytics:{' '}
             <a
               href="https://policies.google.com/privacy"
@@ -23,7 +24,7 @@ export default async function PrivacyPage() {
             >
               Google Privacy Policy
             </a>
-          </p>
+          </p> : <p>{locale === 'zh' ? '当前部署未启用网站统计，不会发送页面浏览数据。' : 'Analytics is disabled in this deployment; page-view data is not sent.'}</p>}
         </div>
         <p className="mt-6 text-xs text-[#7a8574]">fangrush.com</p>
       </main>

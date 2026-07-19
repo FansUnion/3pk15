@@ -13,6 +13,8 @@ import {
   recordPlayStarted,
   recordGuideHint,
   recordGuideResult,
+  refreshQuestPeriod,
+  QUEST_DEFS,
   REPETITION_DRAW_COUNT,
   REPETITION_STRONG_WARNING_COUNT,
   REPETITION_WARNING_COUNT,
@@ -82,7 +84,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const gameplayStartedRef = useRef(false)
   const playCountedRef = useRef(false)
   const [adBusy, setAdBusy] = useState(false)
-  const [adError, setAdError] = useState(false)
+  const [adError, setAdError] = useState<string | null>(null)
   const [shareBusy, setShareBusy] = useState(false)
   const [shareStatus, setShareStatus] = useState<ShareOutcome | 'failed' | null>(null)
   const [guideOpen, setGuideOpen] = useState(false)
@@ -117,6 +119,11 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const nextWolfSkin = SKIN_CATALOG.find(
     (skin) => skin.kind === 'wolf_set' && skin.unlock.type === 'cost' && !isSkinUnlocked(save, skin),
   )
+  const questState = refreshQuestPeriod(save.quests)
+  const claimableQuests = QUEST_DEFS.filter((quest) => {
+    const bucket = questState[quest.period]
+    return !bucket.claimed.includes(quest.id) && (bucket.progress[quest.id] ?? 0) >= quest.target
+  }).length
 
   useEffect(() => {
     hydrate()
@@ -404,7 +411,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }
 
   async function watchDouble() {
-    setAdError(false)
+    setAdError(null)
     setAdBusy(true)
     const res = await getPlatform().ads.showRewarded('double_drop', {
       onStart: async () => {
@@ -415,7 +422,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     })
     setAdBusy(false)
     if (!res.ok) {
-      setAdError(true)
+      setAdError(res.reason)
       return
     }
     replace(activateDoubleDrop(useSaveStore.getState().save))
@@ -697,8 +704,8 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
                 <button type="button" onClick={reportCurrentGame} className="underline-offset-2 hover:underline">{p.reportGame}</button>
               </div>
               {adBusy && <p className="mt-2 text-center text-xs text-[var(--muted)]">{p.preparing}</p>}
-              {adError && <p role="status" className="mt-2 text-center text-xs text-[#8b2e22]">{p.adFailed}</p>}
-              {shareStatus && <p role="status" className="mt-2 text-center text-xs text-[var(--muted)]">{shareStatus === 'shared' ? p.shareShared : shareStatus === 'copied' ? p.shareCopied : shareStatus === 'downloaded' ? p.shareDownloaded : p.shareFailed}</p>}
+              {adError && <p role="status" className="mt-2 text-center text-xs text-[#8b2e22]">{adError === 'cancelled' ? (locale === 'zh' ? '你已取消观看，没有扣除或改动奖励。' : 'You cancelled the video. No reward was changed.') : adError === 'cooldown' ? (locale === 'zh' ? '奖励视频正在冷却，请稍后再试。' : 'The reward video is cooling down. Try later.') : adError === 'unfilled' || adError === 'unavailable' ? (locale === 'zh' ? '当前渠道暂时没有可用视频，基础奖励不受影响。' : 'No video is available on this channel. Your base reward is safe.') : p.adFailed}</p>}
+              {shareStatus && <p role="status" className="mt-2 text-center text-xs text-[var(--muted)]">{shareStatus === 'shared' ? p.shareShared : shareStatus === 'copied' ? p.shareCopied : shareStatus === 'downloaded' ? p.shareDownloaded : shareStatus === 'cancelled' ? (locale === 'zh' ? '已取消分享，没有重复弹出分享窗口。' : 'Sharing was cancelled; no second prompt was opened.') : p.shareFailed}</p>}
             </details>
           </div>
         </div>
@@ -743,12 +750,13 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
 
       {moreOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#2c3328]/45 p-4 sm:items-center">
-          <div role="dialog" aria-modal="true" aria-labelledby="hunt-more-title" className="w-full max-w-sm rounded-xl bg-[var(--panel)] p-5 shadow-lg">
+          <div role="dialog" aria-modal="true" aria-labelledby="hunt-more-title" className="max-h-[90dvh] w-full max-w-sm overflow-y-auto rounded-xl bg-[var(--panel)] p-5 shadow-lg">
             <div className="flex items-center justify-between gap-3">
               <h2 id="hunt-more-title" className="font-serif text-xl text-[var(--ink)]">{p.moreTitle}</h2>
               <button type="button" onClick={() => setMoreOpen(false)} className="quiet-action min-h-10 px-3 text-sm">{p.hintClose}</button>
             </div>
             <div className="mt-4 grid gap-2">
+              <p className="text-xs font-medium text-[var(--muted)]">{locale === 'zh' ? '本局' : 'This hunt'}</p>
               <button
                 type="button"
                 onClick={confirmReset}
@@ -761,6 +769,15 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               <button type="button" onClick={toggleMute} className="min-h-11 rounded-lg border border-[var(--line)] px-3 py-2 text-left text-sm text-[var(--ink)]" aria-pressed={muted}>
                 {muted ? p.unmute : p.mute}
               </button>
+              {!adminMode && <>
+                <p className="mt-2 text-xs font-medium text-[var(--muted)]">{locale === 'zh' ? '游戏进度' : 'Progress'}</p>
+                <LocaleLink href="/chapters" locale={locale} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--line)] px-3 py-2 text-sm text-[var(--ink)]">{t.nav.chapters}</LocaleLink>
+                <LocaleLink href="/skins" locale={locale} className="inline-flex min-h-11 items-center justify-between rounded-lg border border-[var(--line)] px-3 py-2 text-sm text-[var(--ink)]"><span>{t.nav.skins}</span><span className="text-xs text-[var(--muted)]">{locale === 'zh' ? `通用碎片 ${save.fragments.universal}` : `${save.fragments.universal} universal shards`}</span></LocaleLink>
+                <LocaleLink href="/quests" locale={locale} className="inline-flex min-h-11 items-center justify-between rounded-lg border border-[var(--line)] px-3 py-2 text-sm text-[var(--ink)]"><span>{t.nav.quests}</span>{claimableQuests > 0 ? <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-xs text-white">{locale === 'zh' ? `${claimableQuests} 项可领取` : `${claimableQuests} ready`}</span> : null}</LocaleLink>
+                <p className="mt-2 text-xs font-medium text-[var(--muted)]">{locale === 'zh' ? '设置与支持' : 'Settings & support'}</p>
+                <LocaleLink href="/settings" locale={locale} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--line)] px-3 py-2 text-sm text-[var(--ink)]">{t.nav.settings}</LocaleLink>
+                <LocaleLink href="/how-to-play" locale={locale} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--line)] px-3 py-2 text-sm text-[var(--ink)]">{t.nav.howToPlay}</LocaleLink>
+              </>}
               <button type="button" onClick={reportCurrentGame} className="min-h-11 rounded-lg border border-[var(--line)] px-3 py-2 text-left text-sm text-[var(--ink)]">{p.reportGame}</button>
               {!adminMode && <div className="rounded-lg border border-[var(--line)] px-2 py-1"><LocaleSwitcher locale={locale} /></div>}
               <LocaleLink href={adminMode ? '/admin/levels' : '/'} locale={locale} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--danger)]/35 px-3 py-2 text-sm text-[#8b2e22]">

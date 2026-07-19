@@ -42,6 +42,10 @@ export function loadSave(storage: IStorage = browserStorage): SaveGame {
     return migrate(JSON.parse(raw))
   } catch (e) {
     console.warn('save load failed, using default', e)
+    if (typeof window !== 'undefined') {
+      try { window.sessionStorage.setItem('fangrush:save-recovered', '1') } catch { /* optional */ }
+      window.dispatchEvent(new Event('fangrush:save-recovered'))
+    }
     return defaultSave()
   }
 }

@@ -61,17 +61,13 @@ export default async function HomePage() {
               className="hunter-breathe mt-7 w-full rounded-[1.4rem] border border-white/50 bg-white/20 shadow-[0_24px_50px_rgba(56,76,48,.18)]"
             />
             <div className="mt-7 flex flex-col gap-3">
-              <LocaleLink
-                href="/play/spring-01"
-                locale={locale}
-                className="primary-action"
-              >
-                {t.nav.play}
-              </LocaleLink>
               <HomeContinueLink
                 locale={locale}
                 labelTemplate={t.nav.continueNamed}
-                fallbackLabel={t.nav.continue}
+                nextTemplate={t.nav.nextNamed}
+                replayTemplate={t.nav.replayNamed}
+                fallbackLabel={t.nav.play}
+                startFirstLabel={t.nav.startFirst}
               />
             </div>
           </div>
@@ -106,19 +102,10 @@ export default async function HomePage() {
             </LocaleLink>
           </section>
 
-          <section className="paper-card flex flex-wrap gap-x-4 gap-y-2 p-4 text-sm text-[var(--muted)]">
-            <LocaleLink href="/skins" locale={locale} className="hover:underline">
-              {t.nav.skins}
-            </LocaleLink>
-            <LocaleLink href="/quests" locale={locale} className="hover:underline">
-              {t.nav.quests}
-            </LocaleLink>
-            <LocaleLink href="/settings" locale={locale} className="hover:underline">
-              {t.nav.settings}
-            </LocaleLink>
-            <LocaleLink href="/privacy" locale={locale} className="hover:underline">
-              {t.nav.privacy}
-            </LocaleLink>
+          <section className="grid gap-2 sm:grid-cols-3">
+            <LocaleLink href="/skins" locale={locale} className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-3"><span className="font-medium text-[var(--ink)]">{t.nav.skins}</span><span className="mt-1 block text-xs text-[var(--muted)]">{locale === 'zh' ? '兑换并装备狼群与棋盘' : 'Unlock and equip wolves and boards'}</span></LocaleLink>
+            <LocaleLink href="/quests" locale={locale} className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-3"><span className="font-medium text-[var(--ink)]">{t.nav.quests}</span><span className="mt-1 block text-xs text-[var(--muted)]">{locale === 'zh' ? '完成目标并领取通用碎片' : 'Complete goals and claim shards'}</span></LocaleLink>
+            <LocaleLink href="/settings" locale={locale} className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-3"><span className="font-medium text-[var(--ink)]">{t.nav.settings}</span><span className="mt-1 block text-xs text-[var(--muted)]">{locale === 'zh' ? '声音、玩法与隐私' : 'Sound, rules, and privacy'}</span></LocaleLink>
           </section>
 
           <p className="text-center text-xs text-[#7a8574]">{t.home.trust}</p>

@@ -41,6 +41,9 @@ export function HelpContent({ h, locale, compact = false }: { h: MessageTree['ho
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <RuleBoard kind="move" label={h.diagramMove} />
           <RuleBoard kind="capture" label={h.diagramCapture} />
+          <RuleBoard kind="chain" label={locale === 'zh' ? '连吃决策：红圈表示可以继续捕食；也可以结束连吃，保留当前站位。' : 'Chain decision: red rings continue the capture; you may stop to keep the current position.'} />
+          <RuleBoard kind="terrain" label={locale === 'zh' ? '羊只能横移或朝狼方前进；岩石不可落脚，也不能作为跳吃中点。' : 'Sheep move sideways or toward the wolves. Rocks are blocked and never serve as leap points.'} />
+          <RuleBoard kind="terminal" label={locale === 'zh' ? '三只狼全部无路才会失败；重复局面会先预警，第六次重复时结束挑战。' : 'You lose only when all three wolves have no moves. Repetition warns first and ends on the sixth occurrence.'} />
         </div>
       </section>
 
@@ -61,18 +64,30 @@ export function HelpContent({ h, locale, compact = false }: { h: MessageTree['ho
   )
 }
 
-function RuleBoard({ kind, label }: { kind: 'move' | 'capture'; label: string }) {
+function RuleBoard({ kind, label }: { kind: 'move' | 'capture' | 'chain' | 'terrain' | 'terminal'; label: string }) {
   const state = kind === 'move'
     ? makeState({
         pieces: [{ id: 'wolf-help', side: 'wolf', r: 4, c: 3 }],
         rocks: [{ r: 3, c: 5 }],
       })
-    : makeState({
+    : kind === 'capture' ? makeState({
         pieces: [
           { id: 'wolf-help', side: 'wolf', r: 4, c: 1 },
           { id: 'sheep-help', side: 'sheep', r: 4, c: 3 },
         ],
         rocks: [{ r: 2, c: 5 }],
+      }) : kind === 'chain' ? makeState({
+        pieces: [
+          { id: 'wolf-help', side: 'wolf', r: 4, c: 3 },
+          { id: 'sheep-help-1', side: 'sheep', r: 2, c: 3 },
+          { id: 'sheep-help-2', side: 'sheep', r: 4, c: 5 },
+        ],
+      }) : kind === 'terrain' ? makeState({
+        pieces: [{ id: 'wolf-help', side: 'wolf', r: 5, c: 3 }, { id: 'sheep-help', side: 'sheep', r: 3, c: 3 }],
+        rocks: [{ r: 3, c: 4 }, { r: 4, c: 3 }],
+      }) : makeState({
+        pieces: [{ id: 'wolf-help', side: 'wolf', r: 1, c: 1 }],
+        rocks: [{ r: 1, c: 2 }, { r: 2, c: 1 }],
       })
 
   return (
@@ -82,8 +97,8 @@ function RuleBoard({ kind, label }: { kind: 'move' | 'capture'; label: string })
           state={state}
           selectedWolfId="wolf-help"
           stepHighlights={kind === 'move' ? [{ r: 3, c: 3 }] : []}
-          jumpHighlights={kind === 'capture' ? [{ r: 4, c: 3 }] : []}
-          jumpThroughs={kind === 'capture' ? [{ r: 4, c: 2 }] : []}
+          jumpHighlights={kind === 'capture' ? [{ r: 4, c: 3 }] : kind === 'chain' ? [{ r: 2, c: 3 }, { r: 4, c: 5 }] : []}
+          jumpThroughs={kind === 'capture' ? [{ r: 4, c: 2 }] : kind === 'chain' ? [{ r: 3, c: 3 }, { r: 4, c: 4 }] : []}
           interactive={false}
           onSelectWolf={noop}
           onClickCell={noop}

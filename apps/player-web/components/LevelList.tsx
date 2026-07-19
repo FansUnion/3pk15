@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { getLevel, isLevelUnlocked, type ChapterId } from '@wolf-sheep/game-core'
+import { CHAPTER_LABEL, CHAPTER_LABEL_EN, CHAPTER_ORDER, getLevel, isLevelUnlocked, type ChapterId } from '@wolf-sheep/game-core'
 import { useSaveStore } from '@/lib/save-store'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { SiteFooter } from '@/components/SiteChrome'
@@ -62,6 +62,21 @@ export function LevelList({ chapterId, chapterLabel, chapterBlurb, levels }: {
             })}
           </ul>
         )}
+
+        <nav aria-label={locale === 'zh' ? '切换季节' : 'Switch season'} className="mt-2 border-t border-[var(--line)] pt-5">
+          <p className="mb-3 text-sm font-medium text-[var(--ink)]">{locale === 'zh' ? '四季猎场' : 'Seasons'}</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {CHAPTER_ORDER.map((id) => {
+              const current = id === chapterId
+              const unlocked = save.unlockedChapters.includes(id)
+              const label = locale === 'zh' ? CHAPTER_LABEL[id] : CHAPTER_LABEL_EN[id]
+              const className = `min-h-11 rounded-lg border px-3 py-2 text-center text-sm ${current ? 'border-[var(--accent)] bg-[var(--accent)] text-white' : unlocked ? 'border-[var(--line)] bg-[var(--panel)] text-[var(--ink)] hover:border-[var(--accent)]' : 'border-[var(--line)] bg-[#eef1eb] text-[#7a8574]'}`
+              if (current) return <span key={id} aria-current="page" className={className}>{label}</span>
+              if (unlocked) return <LocaleLink key={id} href={`/levels/${id}`} locale={locale} className={className}>{label}</LocaleLink>
+              return <span key={id} aria-disabled="true" className={className}>{label} · {t.chapters.locked}</span>
+            })}
+          </div>
+        </nav>
       </div>
       <SiteFooter locale={locale} t={t} />
     </div>

@@ -14,6 +14,7 @@ import { SiteFooter, SiteHeader } from '@/components/SiteChrome'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { fmt, formatRockCount } from '@/i18n/messages'
 import { getT } from '@/i18n/get-locale'
+import { HuntAccessGate } from '@/components/HuntAccessGate'
 
 export function generateStaticParams() {
   return LEVELS.map((l) => ({ levelId: l.id }))
@@ -54,13 +55,13 @@ export default async function HuntPage({
   return (
     <div className="flex min-h-dvh flex-col">
       <SiteHeader locale={locale} />
-      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-8">
+      <HuntAccessGate level={level}><main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-8">
         <header>
           <p className="text-xs text-[var(--muted)]">
             {fmt(t.hunt.seasonLine, { season, rocks: formatRockCount(level.rocks.length, locale, t) })}
           </p>
           <h1 className="mt-1 font-serif text-3xl text-[var(--ink)]">{name}</h1>
-        <p className="mt-1 text-sm text-[var(--muted)]">Fangrush</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">{locale === 'zh' ? `第 ${LEVELS.findIndex((item) => item.id === level.id) + 1}/24 关 · 难度 ${level.difficulty}/5` : `Hunt ${LEVELS.findIndex((item) => item.id === level.id) + 1}/24 · Difficulty ${level.difficulty}/5`}</p>
           <p className="mt-3 text-sm text-[var(--muted)]">
             {fmt(t.hunt.goalLine, { n: level.targetEaten ?? 8, target: level.expectedPlies?.target ?? 100 })}
           </p>
@@ -102,7 +103,7 @@ export default async function HuntPage({
             ) : null}
           </div>
         </nav>
-      </main>
+      </main></HuntAccessGate>
       <SiteFooter locale={locale} t={t} />
     </div>
   )

@@ -43,6 +43,13 @@ describe('skins', () => {
     expect(result.save.unlockedSkinIds).toContain('board-night')
     expect(unlockSkinWithCost(result.save, 'board-night').ok).toBe(false)
   })
+
+  it('offers one equal-cost premium board for every season', () => {
+    const premiumBoards = SKIN_CATALOG.filter((skin) => skin.kind === 'board' && skin.unlock.type === 'cost')
+    expect(premiumBoards).toHaveLength(4)
+    expect(new Set(premiumBoards.map((skin) => skin.kind === 'board' && skin.unlock.type === 'cost' ? skin.unlock.season : null))).toEqual(new Set(['spring', 'summer', 'autumn', 'winter']))
+    expect(premiumBoards.every((skin) => skin.kind === 'board' && skin.unlock.type === 'cost' && skin.unlock.amount === 30)).toBe(true)
+  })
 })
 
 describe('quests', () => {
