@@ -56,6 +56,14 @@ function boardPos(label) {
   return match ? { r: Number(match[1]), c: Number(match[2]) } : null
 }
 
+function safeRemove(path) {
+  try {
+    rmSync(path, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
+  } catch (error) {
+    console.warn(`Could not remove temporary capture path ${path}: ${error.code || error.message}`)
+  }
+}
+
 async function makeWolfAction(page) {
   const wolves = page.locator('circle[role="button"][aria-label^="Wolf at row"]')
   for (let index = 0; index < await wolves.count(); index++) {
@@ -90,6 +98,25 @@ async function makeWolfAction(page) {
     }
   }
   return 'none'
+}
+
+async function waitForWolfDecision(page, timeoutMs = 10000) {
+  const deadline = Date.now() + timeoutMs
+  while (Date.now() < deadline) {
+    if (await page.locator('circle[role="button"][aria-label^="Wolf at row"]').count()) return true
+    const body = await page.locator('body').innerText()
+    if (/Hunt complete|Challenge failed|Draw|Victory|Defeat/i.test(body)) return false
+    await page.waitForTimeout(100)
+  }
+  throw new Error('Timed out waiting for the next playable wolf turn')
+}
+
+async function boardSignature(page) {
+  const labels = await page.locator('[aria-label^="Wolf at row"], [aria-label^="Sheep at row"]').evaluateAll((nodes) =>
+    nodes.map((node) => node.getAttribute('aria-label')).filter(Boolean).sort(),
+  )
+  const text = await page.locator('body').innerText()
+  return `${labels.join('|')}::${/Captured (\d+)\//.exec(text)?.[1] || '0'}`
 }
 
 async function captureScreenshots(browser) {
@@ -129,19 +156,26 @@ async function captureScreenshots(browser) {
 }
 
 async function record(browser, name, viewport, levelId, seconds, outputPath) {
-  const dir = resolve(tempDir, name)
-  rmSync(dir, { recursive: true, force: true })
+  const dir = resolve(tempDir, `${name}-${Date.now()}`)
   mkdirSync(dir, { recursive: true })
   const context = await newContext(browser, { viewport, recordVideo: { dir, size: viewport } })
   const page = await context.newPage()
   const started = Date.now()
   const trimSeconds = 3
+  let actions = 0
   await openLevel(page, levelId)
   while (Date.now() - started < (seconds + trimSeconds) * 1000 - 500) {
+    const playable = await waitForWolfDecision(page)
+    if (!playable) break
+    const before = await boardSignature(page)
     const result = await makeWolfAction(page)
-    if (result === 'none') break
-    await page.waitForTimeout(180)
+    if (result === 'none') throw new Error(`No wolf action found while ${name} reported a playable wolf turn`)
+    const after = await boardSignature(page)
+    if (after === before) throw new Error(`Wolf action did not change the recorded position for ${name}`)
+    actions += 1
   }
+  const minimumActions = seconds <= 6 ? 2 : 5
+  if (actions < minimumActions) throw new Error(`${name} recorded only ${actions} actions; expected at least ${minimumActions}`)
   const remaining = (seconds + trimSeconds) * 1000 - (Date.now() - started)
   if (remaining > 0) await page.waitForTimeout(remaining)
   const video = page.video()
@@ -154,8 +188,8 @@ async function record(browser, name, viewport, levelId, seconds, outputPath) {
   ], { encoding: 'utf8' })
   if (result.status !== 0) throw new Error(`ffmpeg failed for ${name}: ${result.stderr}`)
   renameSync(tempMp4, outputPath)
-  rmSync(dir, { recursive: true, force: true })
-  return statSync(outputPath).size
+  safeRemove(dir)
+  return { bytes: statSync(outputPath).size, actions }
 }
 
 async function main() {
@@ -173,10 +207,10 @@ async function main() {
     files.push(['CrazyGames portrait', await record(browser, 'crazy-portrait', { width: 1080, height: 1620 }, 'autumn-04', 18, resolve(crazyDir, 'preview-portrait-a-1080x1620.mp4'))])
     files.push(['Poki animated', await record(browser, 'poki-square', { width: 1080, height: 1080 }, 'spring-03', 5, resolve(pokiDir, 'poki-animated-a-1080.mp4'))])
     if (!videosOnly) console.log(`capture screenshot: ${captured ? 'created' : 'not reached'}`)
-    for (const [label, bytes] of files) console.log(`${label}: ${(bytes / 1024 / 1024).toFixed(2)} MiB`)
+    for (const [label, result] of files) console.log(`${label}: ${(result.bytes / 1024 / 1024).toFixed(2)} MiB, ${result.actions} wolf actions`)
   } finally {
     await browser.close()
-    rmSync(tempDir, { recursive: true, force: true })
+    safeRemove(tempDir)
   }
 }
 

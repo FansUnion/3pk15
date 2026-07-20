@@ -13,7 +13,7 @@ meta:
   bilingual_digest: docs/商业成功/2个H5平台官网资料/Poki官方文档双语整理/
   source_capture: docs/商业成功/2个H5平台官网资料/原始材料-tmp/poki内容/
   checklist_entry: distribution/poki/README.md
-  early_access_form: docs/商业成功/上架事项/Poki早期准入申请/说明与填表口径.md
+  early_access_form: distribution/poki/early-access-form.md
   matrix_updated: 2026-07-18
   notes_zh: >
     本文件供 AI 与验收使用。政策以官网英文为准；分成与独家年限不以本文件为合同事实。
@@ -30,7 +30,6 @@ requirements:
     official_url: https://developers.poki.com/share
     last_verified: 2026-07-17
     evidence:
-      - docs/商业成功/上架事项/Poki早期准入申请/说明与填表口径.md
       - distribution/poki/early-access-form.md
     gap_zh: 填表口径已备；需开发者本人提交并等待邀请。
 
@@ -45,7 +44,7 @@ requirements:
     last_verified: 2026-07-17
     evidence:
       - docs/商业成功/2个H5平台官网资料/Poki官方文档双语整理/06-缩略图-商务协议与FAQ.md
-      - docs/商业成功/渠道发展路线.md
+      - distribution/poki/README.md
     gap_zh: 官网对独家年限有 5 年/7 年表述差异，待合同与现行页面核对；并行 CrazyGames 策略勿在签独家前锁定。
 
   - id: POKI-QUALITY-001
@@ -60,7 +59,7 @@ requirements:
     evidence:
       - docs/产品核心/01-核心产品定义.md
       - docs/任务/任务清单.md
-    gap_zh: 玩法与 24 关已定稿，但玩家验收与发布质量尚未完成（T-005/T-016）。
+    gap_zh: 玩法、24关自动门禁和生产构建已完成；仍需T-016真实玩家体验确认。
 
   - id: POKI-QUALITY-002
     category: quality
@@ -72,8 +71,8 @@ requirements:
     official_url: https://sdk.poki.com/working-with-ai.html
     last_verified: 2026-07-17
     evidence:
-      - docs/普通文档ing/美术等资源/01-品牌文案和游戏上架材料.md
-    gap_zh: 默认角色与缩略图成品尚未按平台规格定稿验收。
+      - distribution/common/materials-manifest.md
+    gap_zh: 默认角色和缩略图候选已生成并通过规格门禁；仍需用户确认视觉与素材权利。
 
   - id: POKI-TECH-001
     category: tech
@@ -128,7 +127,7 @@ requirements:
     evidence:
       - scripts/report-player-build.mjs
       - scripts/audit-web-artifact.mjs
-    gap_zh: Next 玩家部署口径为146个文件、约5.02MiB且无Admin/API；仍缺平台静态上传ZIP及其初始下载口径报告。
+    gap_zh: 玩家生产构建为172个文件、约5.29MiB且无Admin/API；仍缺平台静态上传ZIP及其初始下载口径报告。
 
   - id: POKI-TECH-005
     category: tech
@@ -177,9 +176,9 @@ requirements:
     requirement_zh: 初始化 PokiSDK；初始化失败时游戏仍须继续加载。
     level: required
     applicability: applicable
-    status: missing
+    status: ready
     official_url: https://sdk.poki.com/html5.html
-    last_verified: 2026-07-17
+    last_verified: 2026-07-20
     evidence:
       - apps/player-web/lib/platform.ts
     gap_zh: 无真实 Poki SDK 脚本与适配器。
@@ -343,12 +342,13 @@ requirements:
     requirement_zh: 全球发布需静态方形缩略图（满版、至少 628×628）与动画缩略图。
     level: required
     applicability: applicable
-    status: missing
+    status: ready
     official_url: https://sdk.poki.com/game-thumbnail.html
-    last_verified: 2026-07-17
+    last_verified: 2026-07-20
     evidence:
-      - docs/普通文档ing/美术等资源/01-品牌文案和游戏上架材料.md
-    gap_zh: 仅有创意指引与站点 og/icon，无平台交付物。
+      - distribution/poki/assets/poki-thumbnail-a-1080.png
+      - distribution/poki/assets/poki-animated-a-1080.mp4
+    gap_zh: 静态与动画候选已生成并通过尺寸、时长、帧率、音轨、体积和动态画面门禁；待用户确认并上传。
 
   - id: POKI-QA-001
     category: qa

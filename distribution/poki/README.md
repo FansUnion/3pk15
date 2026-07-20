@@ -3,19 +3,18 @@
 > 最近核对：2026-07-19。政策以 [Poki 官方文档](https://sdk.poki.com/) 英文原文为准。
 > 逐条状态与证据见 [`compliance.yaml`](./compliance.yaml)，不要在本文维护第二套长清单。
 
-## 资料分工
+## 当前资料
 
 | 资料 | 用途 |
 |------|------|
-| [中英双语整理稿](../../docs/商业成功/2个H5平台官网资料/Poki官方文档双语整理/00-索引与阅读边界.md) | 人读：要求含义、漏斗、商务与 FAQ |
 | [`compliance.yaml`](./compliance.yaml) | AI / 验收：要求 ID、状态、证据、缺口 |
-| [`early-access-form.md`](./early-access-form.md) | 跳转 → [`Poki早期准入申请/说明与填表口径.md`](../../docs/商业成功/上架事项/Poki早期准入申请/说明与填表口径.md) |
-| 原始抓取（只读） | [`docs/商业成功/2个H5平台官网资料/原始材料-tmp/poki内容/`](../../docs/商业成功/2个H5平台官网资料/原始材料-tmp/poki内容/) |
+| [`early-access-form.md`](./early-access-form.md) | 准入目的、字段口径、粘贴文案和提交检查 |
+| [`assets/`](./assets/README.md) | 静态与动画缩略图候选及源稿 |
 
 ## 当前阶段
 
-1. **准入**：按 [说明与填表口径](../../docs/商业成功/上架事项/Poki早期准入申请/说明与填表口径.md) 提交 [Request early access](https://developers.poki.com/share)。
-2. **理解规则**：阅读双语整理 01 → 04，对照 `compliance.yaml` 的 `missing/partial`。  
+1. **准入**：按 [早期准入申请](early-access-form.md) 提交 [Request early access](https://developers.poki.com/share)。
+2. **理解规则**：执行前核对官方要求，对照 `compliance.yaml` 的 `missing/partial`。
 3. **工程接入（T-017）**：真实 SDK、生命周期、广告、16:9 门户包、Inspector。  
 4. **素材**：`assets/` 已包含一套静态和动画候选，待用户审美确认；不表示 Web Fit 或全球发布已通过。
 
@@ -31,7 +30,7 @@
 ## 建议执行顺序
 
 1. 提交 early access（人）  
-2. 读 [`03-技术要求与外部请求`](../../docs/商业成功/2个H5平台官网资料/Poki官方文档双语整理/03-技术要求与外部请求.md) + [`04-HTML5-SDK与游戏事件`](../../docs/商业成功/2个H5平台官网资料/Poki官方文档双语整理/04-HTML5-SDK与游戏事件.md)
+2. 重新核对官方 Requirements、SDK 和 External Resources
 3. 按 `compliance.yaml` 中 `status: missing` 实现并补证据  
 4. 产出缩略图与上传包 → Inspector → 提审  
 

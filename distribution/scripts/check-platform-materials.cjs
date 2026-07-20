@@ -34,6 +34,23 @@ function pngSize(path) {
   return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) }
 }
 
+function motionScores(path) {
+  const result = spawnSync('ffmpeg', [
+    '-v', 'error', '-i', path, '-vf', 'fps=1,scale=64:64,format=gray', '-f', 'rawvideo', 'pipe:1',
+  ], { encoding: null, maxBuffer: 16 * MiB })
+  if (result.status !== 0) throw new Error(`ffmpeg motion scan failed for ${path}`)
+  const frameSize = 64 * 64
+  const scores = []
+  for (let offset = frameSize; offset + frameSize <= result.stdout.length; offset += frameSize) {
+    let difference = 0
+    for (let index = 0; index < frameSize; index++) {
+      difference += Math.abs(result.stdout[offset + index] - result.stdout[offset - frameSize + index])
+    }
+    scores.push(difference / frameSize)
+  }
+  return scores
+}
+
 for (const [relative, width, height, maxMiB] of pngs) {
   const path = resolve(root, relative)
   if (!existsSync(path)) {
@@ -71,6 +88,11 @@ for (const [relative, width, height, minSeconds, maxSeconds, minFps, maxMiB] of 
   if (fps < minFps) fail(`${relative} frame rate ${fps} below ${minFps}`)
   if (audio) fail(`${relative} must not contain audio`)
   if (size > maxMiB * MiB) fail(`${relative} exceeds ${maxMiB} MiB`)
+  const scores = motionScores(path)
+  const significant = scores.map((score, index) => ({ score, index })).filter(({ score }) => score >= 1)
+  const minimumChanges = maxSeconds <= 6 ? 2 : 4
+  if (significant.length < minimumChanges) fail(`${relative} has only ${significant.length} meaningful visual changes; expected at least ${minimumChanges}`)
+  if (!significant.some(({ index }) => index >= Math.floor(scores.length / 2))) fail(`${relative} becomes visually static in its second half`)
 }
 
 if (!process.exitCode) console.log(`check:platform-materials: PASS (${pngs.length} PNG, ${videos.length} MP4)`)

@@ -1,6 +1,6 @@
 # Fangrush × CrazyGames compliance matrix
 # Human digest: docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/
-# Decision digest: docs/商业成功/上架事项/门户上架要点/03-CrazyGames专属事项.md
+# Submission guide: distribution/crazygames/submission-guide.md
 # Policy SSOT: https://docs.crazygames.com/ (English official pages)
 # Status: missing | partial | ready | verified
 # Level: required | recommended | not_applicable
@@ -13,7 +13,7 @@ meta:
   engine_path: HTML5 / TypeScript / Next.js (custom board-game engine)
   official_home: https://docs.crazygames.com/
   bilingual_digest: docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/
-  essentials_digest: docs/商业成功/上架事项/门户上架要点/03-CrazyGames专属事项.md
+  essentials_digest: distribution/crazygames/submission-guide.md
   source_capture: docs/商业成功/2个H5平台官网资料/原始材料-tmp/crazygames/
   checklist_entry: distribution/crazygames/README.md
   matrix_updated: 2026-07-18
@@ -47,7 +47,7 @@ requirements:
     applicability: applicable
     status: missing
     official_url: https://docs.crazygames.com/
-    last_verified: 2026-07-18
+    last_verified: 2026-07-20
     evidence:
       - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/01-平台概览与双阶段发布.md
     gap_zh: 尚未进入 Basic Launch 实测。
@@ -63,7 +63,7 @@ requirements:
     official_url: https://docs.crazygames.com/
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/渠道发展路线.md
+      - distribution/crazygames/README.md
       - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/06-用户数据内购排行榜支付与FAQ.md
     gap_zh: 本地抓取部分 FAQ 无正文，待核官网。
 
@@ -106,7 +106,7 @@ requirements:
     official_url: https://docs.crazygames.com/requirements/intro
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/上架事项/门户上架要点/01-多平台通用质量事项.md
+      - distribution/crazygames/submission-guide.md
     gap_zh: 需按 CG iframe 尺寸清单做可读性抽检。
 
   - id: CG-GAMEPLAY-001
@@ -191,7 +191,7 @@ requirements:
     official_url: https://docs.crazygames.com/requirements/intro
     last_verified: 2026-07-18
     evidence:
-      - docs/商业成功/上架事项/门户上架要点/01-多平台通用质量事项.md
+      - distribution/crazygames/submission-guide.md
     gap_zh: 产品纪律已写；CG 包与 AdBlock 路径待工程验证。
 
   - id: CG-ADS-003
@@ -215,13 +215,18 @@ requirements:
     requirement_zh: 三封面 1920×1080 / 800×1200 / 800×800 风格一致；横竖无声预览 15–20s且 ≤50MB。
     level: required
     applicability: applicable
-    status: missing
+    status: ready
     official_url: https://docs.crazygames.com/requirements/intro
-    last_verified: 2026-07-18
+    last_verified: 2026-07-20
     evidence:
       - docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/03-游戏封面与素材.md
       - distribution/crazygames/README.md
-    gap_zh: 三类封面与双预览视频未定稿验收。
+      - distribution/crazygames/assets/cover-landscape-a-1920x1080.png
+      - distribution/crazygames/assets/cover-portrait-a-800x1200.png
+      - distribution/crazygames/assets/cover-square-a-800x800.png
+      - distribution/crazygames/assets/preview-landscape-a-1920x1080.mp4
+      - distribution/crazygames/assets/preview-portrait-a-1080x1620.mp4
+    gap_zh: 三类封面与双预览视频已通过规格和动态画面门禁；待用户确认视觉、权利并上传Portal。
 
   - id: CG-ACCOUNT-001
     category: account

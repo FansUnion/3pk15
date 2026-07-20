@@ -1,10 +1,8 @@
 # CrazyGames 发行清单
 
 > 最近核对：2026-07-19。执行时以 [Requirements](https://docs.crazygames.com/requirements/intro) 和 [HTML5 v3 SDK](https://docs.crazygames.com/sdk/intro#html5) 为准。
-> **Portal 提交填表：** [`docs/商业成功/上架事项/CrazyGames游戏提交申请/说明与填表口径.md`](../../docs/商业成功/上架事项/CrazyGames游戏提交申请/说明与填表口径.md)（[Submit](https://developer.crazygames.com/submit)）。
+> **Portal 提交填表：** [`submission-guide.md`](submission-guide.md)（[Submit](https://developer.crazygames.com/submit)）。
 > **合规矩阵：** [`compliance.yaml`](./compliance.yaml)（Basic/Full、状态与证据）。  
-> **细则双语整理：** [`docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/`](../../docs/商业成功/2个H5平台官网资料/CrazyGames官方文档双语整理/00-索引与阅读边界.md)
-> **决策向要点：** [`docs/商业成功/上架事项/门户上架要点/03-CrazyGames专属事项.md`](../../docs/商业成功/上架事项/门户上架要点/03-CrazyGames专属事项.md)
 
 ## 发布阶段
 
@@ -33,11 +31,11 @@
 - [x] 横版封面候选：1920x1080，16:9。
 - [x] 竖版封面候选：800x1200，2:3。
 - [x] 方形封面候选：800x800，1:1。
-- [x] 横版与竖版无声预览视频候选：各15至20秒，符合分辨率和50MB限制。
+- [x] 横版与竖版无声预览视频候选：各15至20秒，持续展示真实行动并通过静止画面门禁。
 - [x] 游戏名称、描述、玩法和操作说明候选。
 - [x] 三类封面视觉一致，无边框、商店Logo、虚假按钮或外部素材。
 - [ ] 用户确认最终候选、素材权利和对外品牌语气。
 
 ## 当前缺口
 
-v3 SDK适配器、生命周期、真实广告回调、平台静音、进度上报和Portal验证按当前边界暂不启动。三类封面与双预览视频已有候选，但尚未由用户确认或上传。
+v3 SDK适配器、生命周期、真实广告回调、平台静音、进度上报和Portal验证按当前边界暂不启动。三类封面与重新录制的双预览视频已有候选，但尚未由用户确认或上传。
