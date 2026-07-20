@@ -155,7 +155,7 @@ async function captureScreenshots(browser) {
   return captured
 }
 
-async function record(browser, name, viewport, levelId, seconds, outputPath) {
+async function record(browser, name, viewport, levelId, seconds, outputPath, outputSize = viewport) {
   const dir = resolve(tempDir, `${name}-${Date.now()}`)
   mkdirSync(dir, { recursive: true })
   const context = await newContext(browser, { viewport, recordVideo: { dir, size: viewport } })
@@ -182,9 +182,12 @@ async function record(browser, name, viewport, levelId, seconds, outputPath) {
   await context.close()
   const source = await video.path()
   const tempMp4 = `${outputPath}.tmp.mp4`
+  const scale = outputSize.width === viewport.width && outputSize.height === viewport.height
+    ? []
+    : ['-vf', `scale=${outputSize.width}:${outputSize.height}`]
   const result = spawnSync('ffmpeg', [
     '-y', '-ss', String(trimSeconds), '-i', source, '-t', String(seconds), '-an', '-r', '60',
-    '-c:v', 'libx264', '-preset', 'medium', '-crf', '22', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', tempMp4,
+    ...scale, '-c:v', 'libx264', '-preset', 'medium', '-crf', '22', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', tempMp4,
   ], { encoding: 'utf8' })
   if (result.status !== 0) throw new Error(`ffmpeg failed for ${name}: ${result.stderr}`)
   renameSync(tempMp4, outputPath)
@@ -203,7 +206,15 @@ async function main() {
       return
     }
     const files = []
-    files.push(['CrazyGames landscape', await record(browser, 'crazy-landscape', { width: 1920, height: 1080 }, 'summer-04', 18, resolve(crazyDir, 'preview-landscape-a-1920x1080.mp4'))])
+    files.push(['CrazyGames landscape', await record(
+      browser,
+      'crazy-landscape',
+      { width: 1280, height: 720 },
+      'summer-04',
+      18,
+      resolve(crazyDir, 'preview-landscape-a-1920x1080.mp4'),
+      { width: 1920, height: 1080 },
+    )])
     files.push(['CrazyGames portrait', await record(browser, 'crazy-portrait', { width: 1080, height: 1620 }, 'autumn-04', 18, resolve(crazyDir, 'preview-portrait-a-1080x1620.mp4'))])
     files.push(['Poki animated', await record(browser, 'poki-square', { width: 1080, height: 1080 }, 'spring-03', 5, resolve(pokiDir, 'poki-animated-a-1080.mp4'))])
     if (!videosOnly) console.log(`capture screenshot: ${captured ? 'created' : 'not reached'}`)
