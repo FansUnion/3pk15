@@ -100,7 +100,7 @@ function runGame(levelId: string, strategy: WolfStrategy, seed: number): GameRec
     if (legal.length === 0) break
     const action = state.toMove === 'wolf'
       ? chooseWolfAction(state, legal, rng, strategy)
-      : pickSheepAction(state, { difficulty: level.ai, profile: level.aiProfile, rng })
+      : pickSheepAction(state, { profile: level.aiProfile, rng })
     const beforeEaten = state.eatenSheep
     const result = applyAction(state, action)
     if (!result.ok) throw new Error(result.error)

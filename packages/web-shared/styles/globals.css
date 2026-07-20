@@ -120,6 +120,7 @@ body {
 @keyframes danger-pulse { 0%, 100% { opacity: .45; transform: scale(.94); } 50% { opacity: .9; transform: scale(1.06); } }
 @keyframes victory-pop { 0% { opacity: 0; transform: scale(.7) rotate(-5deg); } 70% { opacity: 1; transform: scale(1.04) rotate(1deg); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
 @keyframes impact-spark { 0% { opacity: 0; transform: scale(.2) rotate(0deg); } 35% { opacity: 1; } 100% { opacity: 0; transform: scale(1.2) rotate(45deg); } }
+@keyframes new-threat-flash { 0% { opacity: 0; transform: scale(.72); } 45% { opacity: .9; transform: scale(1.05); } 100% { opacity: 0; transform: scale(1.16); } }
 
 .juice-pulse {
   animation: juice-pulse 1.1s ease-in-out infinite;
@@ -146,6 +147,7 @@ body {
 .danger-ring { transform-box: fill-box; transform-origin: center; animation: danger-pulse .85s ease-in-out infinite; }
 .victory-pop { animation: victory-pop .42s cubic-bezier(.2,.8,.2,1) both; }
 .impact-spark { transform-box: fill-box; transform-origin: center; animation: impact-spark .34s ease-out both; }
+.new-threat-flash { transform-box: fill-box; transform-origin: center; animation: new-threat-flash .2s ease-out both; }
 
 @keyframes hunter-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.018); } }
 .hunter-breathe { animation: hunter-breathe 3.2s ease-in-out infinite; }
@@ -157,5 +159,5 @@ body {
   .piece-capture-fade {
     animation: none;
   }
-  .piece-idle, .danger-ring, .victory-pop, .impact-spark, .hunter-breathe { animation: none; }
+  .piece-idle, .danger-ring, .victory-pop, .impact-spark, .new-threat-flash, .hunter-breathe { animation: none; }
 }

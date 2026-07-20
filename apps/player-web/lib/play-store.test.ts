@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { BoardState } from '@wolf-sheep/game-core'
-import { newlyTrappedWolfIds } from './wolf-feedback'
+import { newlyTrappedWolfIds, threatenedSheepIds } from './wolf-feedback'
 
 function state(rocks: string[] = []): BoardState {
   return {
@@ -38,5 +38,18 @@ describe('newlyTrappedWolfIds', () => {
     const trapped = state(['1,2', '2,1'])
     expect(newlyTrappedWolfIds(trapped, mobile)).toEqual([])
     expect(newlyTrappedWolfIds(mobile, trapped)).toEqual(['wolf-1'])
+  })
+})
+
+describe('threatenedSheepIds', () => {
+  it('reports the target sheep beyond the required empty gap', () => {
+    const position = state()
+    position.pieces = [
+      { id: 'wolf-1', side: 'wolf', r: 3, c: 1 },
+      { id: 'wolf-2', side: 'wolf', r: 6, c: 5 },
+      { id: 'wolf-3', side: 'wolf', r: 6, c: 6 },
+      { id: 'sheep-1', side: 'sheep', r: 3, c: 3 },
+    ]
+    expect(threatenedSheepIds(position)).toEqual(['sheep-1'])
   })
 })

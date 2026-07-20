@@ -48,7 +48,7 @@ function chooseWolfAction(state: ReturnType<typeof createLevelInitialState>, act
   return candidates[Math.floor(rng.nextFloat() * candidates.length)]!.action
 }
 
-function runBalance(level: LevelConfig, sheepDifficulty: 'easy' | 'normal' | 'hard', wolfStrategy: string, games = 1): BalanceSummary {
+function runBalance(level: LevelConfig, sheepDifficulty: 'easy' | 'normal' | 'hard' | 'profile', wolfStrategy: string, games = 1): BalanceSummary {
   let wolfWins = 0
   let sheepWins = 0
   let draws = 0
@@ -64,7 +64,8 @@ function runBalance(level: LevelConfig, sheepDifficulty: 'easy' | 'normal' | 'ha
       const action = state.toMove === 'wolf'
         ? chooseWolfAction(state, actions, rng, wolfStrategy)
         : pickSheepAction(state, {
-          difficulty: sheepDifficulty,
+          difficulty: sheepDifficulty === 'profile' ? undefined : sheepDifficulty,
+          profile: sheepDifficulty === 'profile' ? level.aiProfile : undefined,
           rng,
           budgets: sheepDifficulty === 'hard' ? REPRODUCIBLE_HARD_BUDGETS : undefined,
         })
@@ -113,10 +114,9 @@ describe('spring balance smoke simulation', () => {
         const action = state.toMove === 'wolf'
           ? actions[Math.floor(rng.nextFloat() * actions.length)]!
           : pickSheepAction(state, {
-            difficulty: level.ai,
             profile: level.aiProfile,
             rng,
-            budgets: level.ai === 'hard' ? REPRODUCIBLE_HARD_BUDGETS : undefined,
+            budgets: REPRODUCIBLE_HARD_BUDGETS,
           })
         const result = applyAction(state, action)
         expect(result.ok).toBe(true)
@@ -134,7 +134,7 @@ describe('spring balance smoke simulation', () => {
   }, 30000)
 
   it('records a configured-AI baseline for all 24 mainline levels', () => {
-    const summaries = LEVELS.map((level) => runBalance(level, level.ai, 'mixed', 1))
+    const summaries = LEVELS.map((level) => runBalance(level, 'profile', 'mixed', 1))
     console.table(summaries.map((summary) => ({
       ...summary,
       terminalReasons: JSON.stringify(summary.terminalReasons),

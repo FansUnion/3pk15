@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = { title: '关卡模拟验收' }
 
 type Props = {
-  searchParams: Promise<{ level?: string; diff?: string; seed?: string; import?: string }>
+  searchParams: Promise<{ level?: string; profile?: string; seed?: string; import?: string }>
 }
 
 export default async function AdminAiPage({ searchParams }: Props) {
@@ -29,7 +29,7 @@ export default async function AdminAiPage({ searchParams }: Props) {
           <p className="mt-1 text-xs leading-relaxed text-[#5c6b52]">打开狼被困、重复、超步或与预期不符的棋谱，再决定检查地图、AI还是规则。</p>
         </div>
       </section>
-      <AiSimConsole initialLevel={sp.level} initialDiff={sp.diff} initialSeed={sp.seed} initialImport={sp.import} />
+      <AiSimConsole initialLevel={sp.level} initialProfile={sp.profile} initialSeed={sp.seed} initialImport={sp.import} />
     </main>
   )
 }

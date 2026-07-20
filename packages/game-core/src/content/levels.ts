@@ -1,4 +1,4 @@
-import type { AiProfile, Difficulty, OpeningLayout, Pos } from '../types'
+import type { AiProfile, OpeningLayout, Pos } from '../types'
 import { BOARD_MAX, BOARD_MIN } from '../types'
 import { inBounds, keyOf, ORTHO, posKey } from '../board'
 import {
@@ -10,6 +10,15 @@ import {
 import { LEVEL_STRATEGIES, type LevelStrategyProfile } from './strategies'
 
 export type ChapterId = 'spring' | 'summer' | 'autumn' | 'winter'
+export type LevelMapType = 'open' | 'sparse' | 'corridor' | 'split' | 'mixed'
+
+export const LEVEL_MAP_TYPE_LABEL_ZH: Record<LevelMapType, string> = {
+  open: '开阔地',
+  sparse: '稀疏岩石',
+  corridor: '通道与门',
+  split: '分区与双线',
+  mixed: '混合地形',
+}
 
 export type LevelConfig = {
   id: string
@@ -24,8 +33,7 @@ export type LevelConfig = {
   rocks: Pos[]
   /** Override either side's standard start while preserving a full legal opening. */
   opening?: OpeningLayout
-  ai: Difficulty
-  /** Player-journey behavior profile; `ai` remains the compatible base algorithm tier. */
+  /** Production sheep behavior profile; this is the single AI source for gameplay and simulation. */
   aiProfile: AiProfile
   /** Default is 8; special challenge levels may override this target. */
   targetEaten?: number
@@ -67,10 +75,10 @@ const LEVEL_PRODUCT_META: Record<string, LevelProductMeta> = {
   'spring-05': meta('双线表示左右都有接近羊群的路线。', '提供两个入口，训练主攻方向选择。', '选择主攻侧并保留另一狼支援。', '一侧施压，另一侧狼控制出口。', '羊群在两线间转移以分散狼群。', ['双路线']),
   'spring-06': meta('收束既是春季终关，也指把优势转成胜势。', '错层双石楔形综合短连吃、路线选择和安全退出。', '独立完成基础狩猎并解释停止时机。', '三狼分工后用短链稳定累计捕食。', '羊群借错层楔形切断接应并换线拖延。', ['季末']),
   'summer-01': meta('裂隙指封锁之间留下的突破缝隙。', '从教学盘进入真实防守压力，要求集中突破。', '识别封锁并制造首个吃口。', '选择一条压力线，不同时追逐两侧。', '羊群主动挡线并填补跳吃落点。', ['封锁']),
-  'summer-02': meta('横切指岩石横向分割中场路线。', '三石配合 Hard AI，训练耐心布置和接应。', '在高压下保持退路并打开中场。', '保留第二只狼，从侧面横切进入。', 'Hard 羊群会抱团、避吃并把狼推向死角。', ['Hard AI', '死角']),
+  'summer-02': meta('横切指岩石横向分割中场路线。', '三石配合战术防守画像，训练耐心布置和接应。', '在高压下保持退路并打开中场。', '保留第二只狼，从侧面横切进入。', '羊群会抱团、避吃并把狼推向死角。', ['高压防守', '死角']),
   'summer-03': meta('拉扯表示双方围绕非对称漏斗反复争夺。', '三石代表漏斗要求诱开、封口和收割三狼分工。', '执行诱开、封口和中路支援。', '一狼诱开，两狼控制出口与后续吃线。', '羊群利用漏斗封口并诱导狼进入窄区。', ['漏斗', '困狼']),
   'summer-04': meta('分流指羊群沿主线与侧翼分开。', '三石形成两条防守流向，训练压力分配。', '保持两线压力而不失去机动。', '主线逼退、侧翼截断，避免三狼挤在一侧。', '羊群分散换线，迫使狼错误调动。', ['分流']),
-  'summer-05': meta('反推表示羊群会反向压缩狼的空间。', 'Hard AI 与底线地形强化反制和退路管理。', '识别陷阱并保留第二出口。', '捕食前先确认另一条退路仍开放。', '羊群通过站位把狼推向边角。', ['Hard AI', '退路']),
+  'summer-05': meta('反推表示羊群会反向压缩狼的空间。', '战术防守画像与底线地形强化反制和退路管理。', '识别陷阱并保留第二出口。', '捕食前先确认另一条退路仍开放。', '羊群通过站位把狼推向边角。', ['高压防守', '退路']),
   'summer-06': meta('压线指三狼共同压迫并切换中场路线。', '三石错位压力线检验夏季协作能力。', '完成协作站位后进入决定性吃线。', '两狼压线，一狼保留换线和收割位置。', '羊群在两侧换防并拖延突破。', ['季末', '策略敏感']),
   'autumn-01': meta('碎岩表示两枚错层岩石共同形成斜门。', '用清晰斜门训练入口控制，不靠密岩制造难度。', '控制斜门并让第三狼沿可退出路线推进。', '两狼控住斜门两侧，一狼寻找可退出捕食线。', '羊群争夺斜门出口并切断三狼接应。', ['斜门', '控口']),
   'autumn-02': meta('通道指胜负围绕唯一主路线展开。', '用三枚错位岩石把压力集中到通道两端争夺。', '理解两狼控口、一狼兑现。', '控制两端后把一次跳吃扩展为连续收割。', '羊群争夺错位通道口并切断狼的接应。', ['主通道']),
@@ -78,8 +86,8 @@ const LEVEL_PRODUCT_META: Record<string, LevelProductMeta> = {
   'autumn-04': meta('双岛指三枚岩石把路线分成两个可切换区域。', '入口清晰但跨区方向变化，训练提前计算。', '进线前检查落点和出口。', '中狼选择跨区时机，边狼维持两端控制。', '羊群在双岛两侧切断后续接触。', ['双岛', '困狼']),
   'autumn-05': meta('窄门表示错层双石只留下短暂进攻窗口。', '用窗口时机考验换线判断，不靠密岩堵塞。', '识别窗口开启并及时切换主攻侧。', '两狼维持压力，一狼等待窗口兑现捕食。', '羊群在窗口开启前换防并拖延狼的切入。', ['时机窗口']),
   'autumn-06': meta('丰收终局是在三座路线岛间完成秋季体系。', '综合跨区选择、连吃收益和三狼机动。', '完成干净可控的长连吃。', '先占稳定岛区，再由第二狼接管出口。', '羊群分散到多个岛区，迫使狼换线。', ['季末', '三岛']),
-  'winter-01': meta('空寂表示没有岩石，空间关系完全暴露。', '移除地形支点，只考验三狼间距与覆盖。', '从地形解题过渡到纯站位对抗。', '保持三狼横向覆盖，等待羊群出现破口。', 'Hard 羊群在空盘抱团并主动合围。', ['空盘', 'Hard AI']),
-  'winter-02': meta('霜环表示羊群围绕单枚下沿雪岩分散回环。', '单锚石配合 Hard AI 形成可读的封锁压力。', '维持三狼通路并切断双翼回环。', '先稳住锚点覆盖，再从边线制造首吃。', '羊群围绕锚点分散并切断三狼接应。', ['单锚石', '高压']),
+  'winter-01': meta('空寂表示没有岩石，空间关系完全暴露。', '移除地形支点，只考验三狼间距与覆盖。', '从地形解题过渡到纯站位对抗。', '保持三狼横向覆盖，等待羊群出现破口。', '专家防守画像会在空盘抱团并主动合围。', ['空盘', '专家防守']),
+  'winter-02': meta('霜环表示羊群围绕单枚下沿雪岩分散回环。', '单锚石配合专家防守画像形成可读的封锁压力。', '维持三狼通路并切断双翼回环。', '先稳住锚点覆盖，再从边线制造首吃。', '羊群围绕锚点分散并切断三狼接应。', ['单锚石', '高压']),
   'winter-03': meta('绝境表示容错极低，需要连续精确计算。', '不靠岩石变化，以空盘站位精度构成挑战。', '识别一次可连续兑现的决定性机会。', '耐心扩大覆盖，避免无支援的单狼突入。', '羊群最大化合围和拖延，等待狼失位。', ['空盘', '高难']),
   'winter-04': meta('回环指羊群围绕单石反复换线诱导狼追逐。', '单石与分散羊阵扩大横向流动，考验整体覆盖。', '不追单羊，维持三狼控制区域。', '用宽覆盖限制羊群回环路线。', '羊群绕石循环并制造重复局面。', ['单石', '重复']),
   'winter-05': meta('合围线指先包围再撕出捕食路线。', '错位双雪柱与边线狼位训练建立首吃。', '建立合围后再投入进攻。', '边狼制造破口，中狼保持接应。', '羊群借双柱压缩边线并封锁孤立狼。', ['双雪柱', '策略敏感']),
@@ -115,13 +123,6 @@ export function createLevelInitialState(level: LevelConfig) {
   )
 }
 
-export const CHAPTER_AI: Record<ChapterId, Difficulty> = {
-  spring: 'normal',
-  summer: 'normal',
-  autumn: 'normal',
-  winter: 'hard',
-}
-
 export const AI_PROFILE_LABEL_ZH: Record<AiProfile, string> = {
   guided: '引导防守',
   foundation: '基础防守',
@@ -143,6 +144,16 @@ export function aiProfileForLevel(chapterId: ChapterId, indexInChapter: number):
   if (chapterId === 'summer') return 'tactical'
   if (chapterId === 'autumn') return 'strategic'
   return 'expert'
+}
+
+/** Product-facing terrain family used by Admin filtering; derived from the canonical level config. */
+export function levelMapType(level: LevelConfig): LevelMapType {
+  if (level.rocks.length === 0) return 'open'
+  if (level.rocks.length === 1) return 'sparse'
+  const tags = level.riskTags.join('|')
+  if (/分流|双岛|三岛|双线/.test(tags)) return 'split'
+  if (/通道|斜门|窄门|漏斗|双隙|双雪门|双雪柱/.test(tags)) return 'corridor'
+  return 'mixed'
 }
 
 export const CHAPTER_ORDER: ChapterId[] = ['spring', 'summer', 'autumn', 'winter']
@@ -211,15 +222,6 @@ const ROCK_COUNT_RANGE: Record<ChapterId, { min: number; max: number }> = {
 
 export function validateLevel(level: LevelConfig): string[] {
   const errors: string[] = []
-  const allowedAi: Record<ChapterId, Difficulty[]> = {
-    spring: ['easy', 'normal'],
-    summer: ['normal', 'hard'],
-    autumn: ['normal', 'hard'],
-    winter: ['hard'],
-  }
-  if (!allowedAi[level.chapterId].includes(level.ai)) {
-    errors.push(`ai ${level.ai} is not allowed for ${level.chapterId}`)
-  }
   const expectedProfile = aiProfileForLevel(level.chapterId, level.indexInChapter)
   if (level.aiProfile !== expectedProfile) {
     errors.push(`aiProfile ${level.aiProfile} does not match ${level.id} learning-curve profile ${expectedProfile}`)
@@ -302,8 +304,7 @@ export function validateLevel(level: LevelConfig): string[] {
 }
 
 function L(
-  partial: Omit<LevelConfig, 'ai' | 'aiProfile' | 'firstClearReward' | 'repeatDrop' | 'name' | 'strategy' | keyof LevelProductMeta> & {
-    ai?: Difficulty
+  partial: Omit<LevelConfig, 'aiProfile' | 'firstClearReward' | 'repeatDrop' | 'name' | 'strategy' | keyof LevelProductMeta> & {
     aiProfile?: AiProfile
     firstClearReward?: LevelConfig['firstClearReward']
     repeatDrop?: LevelConfig['repeatDrop']
@@ -332,7 +333,6 @@ function L(
     ...LEVEL_PRODUCT_META[partial.id]!,
     strategy: LEVEL_STRATEGIES[partial.id]!,
     name: partial.nameZh,
-    ai: partial.ai ?? CHAPTER_AI[partial.chapterId],
     aiProfile: partial.aiProfile ?? aiProfileForLevel(partial.chapterId, partial.indexInChapter),
     targetEaten: partial.targetEaten ?? 8,
     maxPlies: partial.maxPlies ?? 300,
@@ -342,7 +342,7 @@ function L(
     difficulty: partial.difficulty ?? Math.min(5, seasonDifficulty[partial.chapterId] + Math.max(0, partial.indexInChapter - 1)) as 1 | 2 | 3 | 4 | 5,
     firstClearReward: partial.firstClearReward ?? {
       universal: 10,
-      season: { [partial.chapterId]: 2 },
+      season: { [partial.chapterId]: 5 },
     },
     repeatDrop: partial.repeatDrop ?? {
       chance: 0.3,
@@ -370,7 +370,6 @@ export function levelConfigFingerprint(level: LevelConfig): string {
     id: level.id,
     rocks: [...level.rocks].sort((left, right) => left.r - right.r || left.c - right.c),
     opening: level.opening ?? null,
-    ai: level.ai,
     aiProfile: level.aiProfile,
     targetEaten: level.targetEaten ?? 8,
     maxPlies: level.maxPlies ?? 300,
@@ -433,7 +432,6 @@ export const LEVELS: LevelConfig[] = [
   }),
   L({
     id: 'spring-04', chapterId: 'spring', indexInChapter: 4,
-    ai: 'normal',
     nameZh: '春日 04 · 回风角', nameEn: 'Spring 04 · Turning Edge',
     blurbZh: '边缘岩石改变回路，学会先稳住位置再找吃口。',
     blurbEn: 'An edge rock bends the route. Hold position before opening the next gap.',
@@ -444,7 +442,6 @@ export const LEVELS: LevelConfig[] = [
   }),
   L({
     id: 'spring-05', chapterId: 'spring', indexInChapter: 5,
-    ai: 'normal',
     nameZh: '春日 05 · 双径抉择', nameEn: 'Spring 05 · Forked Trail',
     blurbZh: '两条路线都能接近羊群，选择先处理哪一侧。',
     blurbEn: 'Two lanes reach the flock. Choose which side to pressure first.',
@@ -455,7 +452,6 @@ export const LEVELS: LevelConfig[] = [
   }),
   L({
     id: 'spring-06', chapterId: 'spring', indexInChapter: 6,
-    ai: 'normal',
     nameZh: '春日 06 · 春猎收网', nameEn: 'Spring 06 · Closing Net',
     blurbZh: '春日终局，综合短连吃、路线选择和提前收束。',
     blurbEn: 'Spring finale: combine short chains, route choice, and clean exits.',
@@ -487,7 +483,6 @@ export const LEVELS: LevelConfig[] = [
     id: 'summer-02',
     chapterId: 'summer',
     indexInChapter: 2,
-    ai: 'hard',
     nameZh: '夏日 02 · 横断阵',
     nameEn: 'Summer 02 · Crosscut',
     blurbZh: '三石横切中场。耐心摆位，再隔空切入，别被羊群拖进死角。',
@@ -535,7 +530,6 @@ export const LEVELS: LevelConfig[] = [
   }),
   L({
     id: 'summer-05', chapterId: 'summer', indexInChapter: 5,
-    ai: 'hard',
     nameZh: '夏日 05 · 逆潮退路', nameEn: 'Summer 05 · Against the Tide',
     blurbZh: '羊群会把狼推向边角，提前保留第二条退路。',
     blurbEn: 'The flock pushes back toward the edge. Keep a second exit open.',
@@ -561,7 +555,6 @@ export const LEVELS: LevelConfig[] = [
     id: 'autumn-01',
     chapterId: 'autumn',
     indexInChapter: 1,
-    ai: 'normal',
     nameZh: '秋日 01 · 碎岩猎场',
     nameEn: 'Autumn 01 · Shattered Hunt',
     blurbZh: '两枚岩石留下一个清晰窄门。先控制入口，再让第三只狼穿过防线。',
@@ -574,7 +567,6 @@ export const LEVELS: LevelConfig[] = [
     id: 'autumn-02',
     chapterId: 'autumn',
     indexInChapter: 2,
-    ai: 'normal',
     nameZh: '秋日 02 · 一线长廊',
     nameEn: 'Autumn 02 · Long Corridor',
     blurbZh: '三枚错位岩石挤出一条主通道。控制两端，再把一次捕食扩展成连收。',
@@ -588,7 +580,6 @@ export const LEVELS: LevelConfig[] = [
     id: 'autumn-03',
     chapterId: 'autumn',
     indexInChapter: 3,
-    ai: 'normal',
     nameZh: '秋日 03 · 金穗连收',
     nameEn: 'Autumn 03 · Golden Chain',
     blurbZh: '开放十字让长连吃更醒目，也更危险。计算终点，必要时提前收手。',
@@ -607,7 +598,6 @@ export const LEVELS: LevelConfig[] = [
   }),
   L({
     id: 'autumn-04', chapterId: 'autumn', indexInChapter: 4,
-    ai: 'normal',
     nameZh: '秋日 04 · 双岛跃袭', nameEn: 'Autumn 04 · Twin Islands',
     blurbZh: '三枚岩石分出两座路线岛。跨区前，先判断下一次落点和出口。',
     blurbEn: 'Three rocks form two route islands. Read the next landing and exit before crossing.',
@@ -626,7 +616,6 @@ export const LEVELS: LevelConfig[] = [
   }),
   L({
     id: 'autumn-05', chapterId: 'autumn', indexInChapter: 5,
-    ai: 'normal',
     nameZh: '秋日 05 · 窄门守猎', nameEn: 'Autumn 05 · Narrow Gate',
     blurbZh: '两端都要保持通行，任何一只狼走错都会失去窗口。',
     blurbEn: 'Keep both ends open. One careless wolf can close the window.',
@@ -645,7 +634,6 @@ export const LEVELS: LevelConfig[] = [
   }),
   L({
     id: 'autumn-06', chapterId: 'autumn', indexInChapter: 6,
-    ai: 'normal',
     nameZh: '秋日 06 · 丰收收网', nameEn: 'Autumn 06 · Harvest Finale',
     blurbZh: '三座路线岛构成秋日终局。切换岛区，并把一次捕食扩展成完整连收。',
     blurbEn: 'Three route islands form the autumn finale. Switch zones and extend one capture into a full chain.',

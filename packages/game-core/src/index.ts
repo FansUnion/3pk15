@@ -1,10 +1,9 @@
-export type { ChapterId, LevelConfig } from './content/levels'
+export type { ChapterId, LevelConfig, LevelMapType } from './content/levels'
 export {
   adjacentLevels,
   AI_PROFILE_DESCRIPTION_ZH,
   AI_PROFILE_LABEL_ZH,
   aiProfileForLevel,
-  CHAPTER_AI,
   CHAPTER_BLURB_EN,
   CHAPTER_BLURB_ZH,
   CHAPTER_LABEL,
@@ -15,19 +14,19 @@ export {
   levelBlurb,
   levelConfigFingerprint,
   levelDisplayName,
+  levelMapType,
   levelTeachingPoint,
+  LEVEL_MAP_TYPE_LABEL_ZH,
   LEVELS,
   levelsForChapter,
   validateAllLevels,
   validateLevel,
 } from './content/levels'
 export {
-  activateDoubleDrop,
   applyClearToSave,
   defaultSave,
   grantUniversalFragments,
   isChapterUnlocked,
-  isDoubleDropActive,
   isLevelCleared,
   isLevelUnlocked,
   migrate,

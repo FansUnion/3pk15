@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getMockAdOutcome, MockAds, setMockAdOutcome } from './ads'
+import { getMockAdOutcome, MockAds, setMockAdOutcome, UnavailableAds } from './ads'
 
 describe('MockAds', () => {
   afterEach(() => {
@@ -10,7 +10,7 @@ describe('MockAds', () => {
   it('runs lifecycle and grants only after a successful display', async () => {
     process.env.NEXT_PUBLIC_MOCK_AD_OUTCOME = 'success'
     const events: string[] = []
-    const result = await new MockAds().showRewarded('double_drop', {
+    const result = await new MockAds().showRewarded('fragment_topup', {
       onStart: () => { events.push('start') },
       onFinish: () => { events.push('finish') },
     })
@@ -20,14 +20,14 @@ describe('MockAds', () => {
 
   it.each(['failed', 'unavailable', 'unfilled', 'cooldown'] as const)('does not grant on %s', async (outcome) => {
     process.env.NEXT_PUBLIC_MOCK_AD_OUTCOME = outcome
-    const result = await new MockAds().showRewarded('double_drop')
+    const result = await new MockAds().showRewarded('fragment_topup')
     expect(result).toEqual({ ok: false, reason: outcome })
   })
 
   it('finishes lifecycle when the viewer cancels', async () => {
     process.env.NEXT_PUBLIC_MOCK_AD_OUTCOME = 'cancelled'
     const finish = vi.fn()
-    const result = await new MockAds().showRewarded('double_drop', { onFinish: finish })
+    const result = await new MockAds().showRewarded('fragment_topup', { onFinish: finish })
     expect(result).toEqual({ ok: false, reason: 'cancelled' })
     expect(finish).toHaveBeenCalledOnce()
   })
@@ -35,7 +35,7 @@ describe('MockAds', () => {
   it('does not report a successful reward more than once per display', async () => {
     process.env.NEXT_PUBLIC_MOCK_AD_OUTCOME = 'success'
     const finish = vi.fn()
-    const result = await new MockAds().showRewarded('double_drop', { onFinish: finish })
+    const result = await new MockAds().showRewarded('fragment_topup', { onFinish: finish })
     expect(result).toEqual({ ok: true })
     expect(finish).toHaveBeenCalledOnce()
   })
@@ -51,5 +51,10 @@ describe('MockAds', () => {
     expect(getMockAdOutcome()).toBe('unfilled')
     expect(() => setMockAdOutcome('success')).not.toThrow()
     vi.unstubAllGlobals()
+  })
+
+  it('reports whether a rewarded placement is actually available', () => {
+    expect(new MockAds().isRewardedAvailable()).toBe(true)
+    expect(new UnavailableAds().isRewardedAvailable()).toBe(false)
   })
 })

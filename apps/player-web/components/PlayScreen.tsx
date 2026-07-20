@@ -2,11 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  activateDoubleDrop,
   adjacentLevels,
   applyClearToSave,
   createSeededRng,
-  isDoubleDropActive,
+  grantUniversalFragments,
   levelDisplayName,
   boardPositionKey,
   listWolfActionsAsIfTurn,
@@ -36,6 +35,7 @@ import { buildPlayerReproductionBundle, downloadPlayerReproductionBundle } from 
 import { usePlayStore } from '@/lib/play-store'
 import { useSaveStore } from '@/lib/save-store'
 import { playSfx, prepareSfx, resumeSfx, suspendSfx } from '@/lib/sfx'
+import { actionSoundFor } from '@/lib/sfx-policy'
 import {
   beginPlayAttempt,
   finishPlayAttempt,
@@ -85,6 +85,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const playCountedRef = useRef(false)
   const [adBusy, setAdBusy] = useState(false)
   const [adError, setAdError] = useState<string | null>(null)
+  const [adBonusGranted, setAdBonusGranted] = useState<number | null>(null)
   const [shareBusy, setShareBusy] = useState(false)
   const [shareStatus, setShareStatus] = useState<ShareOutcome | 'failed' | null>(null)
   const [guideOpen, setGuideOpen] = useState(false)
@@ -98,7 +99,6 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [interactionNotice, setInteractionNotice] = useState<string | null>(null)
   const [audioBlocked, setAudioBlocked] = useState(false)
-  const [, setTick] = useState(0)
   const prevEaten = useRef(0)
   const terminalSfxDone = useRef(false)
   const terminalReportedRef = useRef(false)
@@ -115,7 +115,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const locale = localeOverride ?? clientMessages.locale
   const t = localeOverride ? getMessages(localeOverride) : clientMessages.t
   const p = t.play
-  const rewardedAdsAvailable = process.env.NEXT_PUBLIC_ADS_PROVIDER !== 'none'
+  const rewardedAdsAvailable = getPlatform().ads.isRewardedAvailable?.() ?? false
   const nextWolfSkin = SKIN_CATALOG.find(
     (skin) => skin.kind === 'wolf_set' && skin.unlock.type === 'cost' && !isSkinUnlocked(save, skin),
   )
@@ -176,31 +176,25 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
 
   useEffect(() => {
     if (muted || !juice) return
-    const timers: number[] = []
     const play = async (kind: Parameters<typeof playSfx>[0]) => setAudioBlocked(await playSfx(kind) === 'blocked')
-    if (juice.kind === 'jump') void play(state.chain && state.chain.count >= 2 ? 'chain' : 'jump')
-    else void play(juice.side === 'sheep' ? 'sheepStep' : 'step')
-
     const newlyTrapped = juice.newlyTrappedWolfIds?.length ?? 0
+    void play(actionSoundFor({
+      kind: juice.kind,
+      side: juice.side,
+      chainCount: state.chain?.count ?? 0,
+      newlyTrappedWolfCount: newlyTrapped,
+    }))
     if (newlyTrapped > 0 && state.status === 'playing') {
       setInteractionNotice(p.wolfTrapped)
       if (noticeTimer.current) clearTimeout(noticeTimer.current)
       noticeTimer.current = setTimeout(() => setInteractionNotice(null), 2400)
-      timers.push(window.setTimeout(() => void play('trapped'), 120))
-    } else if (juice.newThreat) {
-      timers.push(window.setTimeout(() => void play('threat'), 120))
     }
-    return () => timers.forEach(window.clearTimeout)
   }, [juice, muted, state.chain, state.status, p.wolfTrapped])
 
   useEffect(() => {
     if (muted) void suspendSfx()
     else void resumeSfx()
   }, [muted])
-
-  useEffect(() => {
-    if (!muted && uiPhase === 'aiThinking') void playSfx('ai')
-  }, [muted, uiPhase])
 
   useEffect(() => {
     if (uiPhase !== 'terminal' || muted || terminalSfxDone.current) return
@@ -233,8 +227,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     prevEaten.current = 0
     setTerminalDetails(null)
     setLastGrant(null)
-    init(level.id, level.rocks, level.ai, level.aiProfile, level.targetEaten, level.maxPlies, level.opening, !adminMode)
-  }, [adminMode, level.id, level.ai, level.aiProfile, level.rocks, level.targetEaten, level.maxPlies, level.opening, init, setLastGrant])
+    setAdBonusGranted(null)
+    setAdError(null)
+    init(level.id, level.rocks, level.aiProfile, level.targetEaten, level.maxPlies, level.opening, !adminMode)
+  }, [adminMode, level.id, level.aiProfile, level.rocks, level.targetEaten, level.maxPlies, level.opening, init, setLastGrant])
 
   useEffect(() => {
     if (adminMode) {
@@ -347,12 +343,6 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     replace(recordGuideResult(useSaveStore.getState().save, level.id, state.status === 'won'))
   }, [adminMode, level.id, replace, state.status, uiPhase])
 
-  useEffect(() => {
-    if (!isDoubleDropActive(save)) return
-    const id = setInterval(() => setTick((n) => n + 1), 1000)
-    return () => clearInterval(id)
-  }, [save])
-
   const theme = useMemo(() => {
     const { wolfSet, board } = resolveSkin(save)
     const rockWarm =
@@ -372,7 +362,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const sheepLeft = state.pieces.filter((piece) => piece.side === 'sheep').length
   const interactive = uiPhase === 'playing' && state.toMove === 'wolf'
   const backHref = adminMode ? '/admin/levels' : `/levels/${level.chapterId}`
-  const doubleLeft = doubleDropLabel(save.buffs.doubleDropUntil)
+  const adBonusAmount = Math.max(3, lastGrant?.universal ?? 0)
   const thinking = uiPhase === 'aiThinking'
   const chainFlash = Boolean(state.chain && uiPhase === 'playing')
   const title = levelDisplayName(level, locale)
@@ -410,10 +400,10 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     completeGuide()
   }
 
-  async function watchDouble() {
+  async function watchRewardBonus() {
     setAdError(null)
     setAdBusy(true)
-    const res = await getPlatform().ads.showRewarded('double_drop', {
+    const res = await getPlatform().ads.showRewarded('fragment_topup', {
       onStart: async () => {
         getPlatform().gameplayStop()
         await suspendSfx()
@@ -425,7 +415,8 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       setAdError(res.reason)
       return
     }
-    replace(activateDoubleDrop(useSaveStore.getState().save))
+    replace(grantUniversalFragments(useSaveStore.getState().save, adBonusAmount))
+    setAdBonusGranted(adBonusAmount)
   }
 
   async function shareTerminalResult() {
@@ -472,6 +463,8 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     firstCapturePlyRef.current = null
     setTerminalDetails(null)
     setLastGrant(null)
+    setAdBonusGranted(null)
+    setAdError(null)
     reset()
     if (adminMode) onAdminAttempt?.()
     else replace(recordPlayStarted(useSaveStore.getState().save, level.id))
@@ -488,6 +481,8 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     firstCapturePlyRef.current = null
     setTerminalDetails(null)
     setLastGrant(null)
+    setAdBonusGranted(null)
+    setAdError(null)
     setTerminalOpen(true)
     reset()
     if (adminMode) onAdminAttempt?.()
@@ -553,7 +548,6 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   function reportCurrentGame() {
     downloadPlayerReproductionBundle(buildPlayerReproductionBundle({
       state,
-      difficulty: level.ai,
       aiProfile: level.aiProfile,
       initialAiSeed,
       nextAiSeed: aiSeed,
@@ -605,9 +599,6 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
           />
           {uiPhase === 'terminal' ? p.gameEnded : turnLabel(uiPhase, state, p)}
         </span>
-          {!adminMode && doubleLeft && (
-          <span className="w-full text-xs text-[var(--muted)]">{fmt(p.doubleLeft, { t: doubleLeft })}</span>
-        )}
       </div>
 
       {uiPhase === 'playing' && repetitionMessage && (
@@ -676,7 +667,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               </div>
             )}
 
-            <div className="mt-4">
+            <div className="mt-4 grid gap-2">
               {!adminMode && state.status === 'won' ? (
                 nextLevel ? (
                   <div className="rounded-lg border border-[var(--line)] bg-[var(--paper)] p-3 text-left">
@@ -690,6 +681,13 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               ) : (
                 <button type="button" onClick={restartAttempt} className="primary-action w-full justify-center">{p.again}</button>
               )}
+              {!adminMode && rewardedAdsAvailable && state.status === 'won' && adBonusGranted === null && (
+                <button type="button" disabled={adBusy} onClick={() => void watchRewardBonus()} className="primary-action w-full justify-center disabled:opacity-50">
+                  {adBusy ? p.preparing : `▶ ${fmt(p.rewardAd, { n: adBonusAmount })}`}
+                </button>
+              )}
+              {adBonusGranted !== null && <p role="status" className="text-center text-xs font-medium text-green-800">{fmt(p.rewardAdGranted, { n: adBonusGranted })}</p>}
+              {adError && <p role="status" className="text-center text-xs text-[#8b2e22]">{adError === 'cancelled' ? (locale === 'zh' ? '你已取消观看，没有扣除或改动奖励。' : 'You cancelled the video. No reward was changed.') : adError === 'cooldown' ? (locale === 'zh' ? '奖励视频正在冷却，请稍后再试。' : 'The reward video is cooling down. Try later.') : adError === 'unfilled' || adError === 'unavailable' ? (locale === 'zh' ? '当前渠道暂时没有可用视频，基础奖励不受影响。' : 'No video is available on this channel. Your base reward is safe.') : p.adFailed}</p>}
             </div>
 
             <details className="mt-3 border-t border-[var(--line)] pt-3 text-left">
@@ -700,12 +698,9 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               <div className="mt-3 flex flex-wrap justify-center gap-3 text-sm">
                 {state.status === 'won' && <button type="button" onClick={restartAttempt} className="underline-offset-2 hover:underline">{p.again}</button>}
                 <button type="button" disabled={shareBusy || adBusy} onClick={() => void shareTerminalResult()} className="underline-offset-2 hover:underline disabled:opacity-50">{shareBusy ? p.sharePreparing : p.share}</button>
-                {!adminMode && rewardedAdsAvailable && state.status === 'won' && !isDoubleDropActive(save) && <button type="button" disabled={adBusy} onClick={() => void watchDouble()} className="underline-offset-2 hover:underline disabled:opacity-50">{p.doubleAd}</button>}
                 <LocaleLink href={backHref} locale={locale} className="underline-offset-2 hover:underline">{p.levelList}</LocaleLink>
                 <button type="button" onClick={reportCurrentGame} className="underline-offset-2 hover:underline">{p.reportGame}</button>
               </div>
-              {adBusy && <p className="mt-2 text-center text-xs text-[var(--muted)]">{p.preparing}</p>}
-              {adError && <p role="status" className="mt-2 text-center text-xs text-[#8b2e22]">{adError === 'cancelled' ? (locale === 'zh' ? '你已取消观看，没有扣除或改动奖励。' : 'You cancelled the video. No reward was changed.') : adError === 'cooldown' ? (locale === 'zh' ? '奖励视频正在冷却，请稍后再试。' : 'The reward video is cooling down. Try later.') : adError === 'unfilled' || adError === 'unavailable' ? (locale === 'zh' ? '当前渠道暂时没有可用视频，基础奖励不受影响。' : 'No video is available on this channel. Your base reward is safe.') : p.adFailed}</p>}
               {shareStatus && <p role="status" className="mt-2 text-center text-xs text-[var(--muted)]">{shareStatus === 'shared' ? p.shareShared : shareStatus === 'copied' ? p.shareCopied : shareStatus === 'downloaded' ? p.shareDownloaded : shareStatus === 'cancelled' ? (locale === 'zh' ? '已取消分享，没有重复弹出分享窗口。' : 'Sharing was cancelled; no second prompt was opened.') : p.shareFailed}</p>}
             </details>
           </div>
@@ -893,19 +888,10 @@ function GrantLine({
   return (
     <p className="text-sm font-medium text-[var(--ink)]">
       {grant.firstClear ? labels.firstClear : labels.repeatClear}
-      {grant.doubled ? labels.doubled : ''}
       {sep}+{grant.universal}
       {seasonBits ? ` · ${seasonBits}` : ''}
     </p>
   )
-}
-
-function doubleDropLabel(until: number | null): string | null {
-  if (until == null || until <= Date.now()) return null
-  const sec = Math.ceil((until - Date.now()) / 1000)
-  const m = Math.floor(sec / 60)
-  const s = sec % 60
-  return `${m}:${String(s).padStart(2, '0')}`
 }
 
 function terminalReason(state: BoardState): 'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition' | 'unexpected' {

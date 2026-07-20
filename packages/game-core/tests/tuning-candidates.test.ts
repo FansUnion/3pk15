@@ -193,7 +193,7 @@ function runGame(level: LevelConfig, strategy: WolfStrategy, seed: number) {
     if (actions.length === 0) break
     const action = state.toMove === 'wolf'
       ? chooseWolfAction(state, actions, rng, strategy)
-      : pickSheepAction(state, { difficulty: level.ai, profile: level.aiProfile, rng, budgets: level.ai === 'hard' ? HARD_BUDGET : undefined })
+      : pickSheepAction(state, { profile: level.aiProfile, rng, budgets: HARD_BUDGET })
     const result = applyAction(state, action)
     if (!result.ok) throw new Error(result.error)
     state = result.state

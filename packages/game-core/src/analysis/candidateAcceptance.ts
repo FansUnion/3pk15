@@ -146,7 +146,6 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
     } else {
       const analyses = analyzeSheepActions(state)
       const decision = pickSheepActionWithMeta(state, {
-        difficulty: level.ai,
         profile: level.aiProfile,
         rng: sheepRandom,
         budgets: hardMaxNodes === undefined ? undefined : { maxNodes: hardMaxNodes },

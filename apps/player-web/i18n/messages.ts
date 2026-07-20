@@ -84,7 +84,6 @@ export type MessageTree = {
     turnWolf: string
     turnSheep: string
     chain: string
-    doubleLeft: string
     endChain: string
     endChainCount: string
     chainDecision: string
@@ -104,7 +103,8 @@ export type MessageTree = {
     drawAdvice: string
     preparing: string
     again: string
-    doubleAd: string
+    rewardAd: string
+    rewardAdGranted: string
     adFailed: string
     share: string
     sharePreparing: string
@@ -159,7 +159,6 @@ export type MessageTree = {
     noDrop: string
     firstClear: string
     repeatClear: string
-    doubled: string
     universal: string
     rewardBalance: string
     nextRewardTarget: string
@@ -346,7 +345,6 @@ export const en: MessageTree = {
     turnWolf: 'Wolf turn',
     turnSheep: 'Sheep turn',
     chain: 'Chain {n}/5',
-    doubleLeft: 'Double shard drops · {t} left',
     endChain: 'End chain',
     endChainCount: 'End chain · {n}/5 captured',
     chainDecision: 'Red rings continue this chain. End now to keep this position and let the sheep respond.',
@@ -366,7 +364,8 @@ export const en: MessageTree = {
     drawAdvice: 'Retry with a different approach line; repeated waiting will not open the flock.',
     preparing: 'Preparing…',
     again: 'Play again',
-    doubleAd: 'Watch ad · double shards 30 min',
+    rewardAd: 'Watch ad · get {n} universal shards now',
+    rewardAdGranted: 'Reward received: +{n} universal shards.',
     adFailed: 'The reward video is unavailable. Your clear is still safe.',
     share: 'Share result',
     sharePreparing: 'Preparing result card...',
@@ -428,7 +427,6 @@ export const en: MessageTree = {
     noDrop: 'No shards this clear',
     firstClear: 'First clear',
     repeatClear: 'Repeat clear',
-    doubled: '(doubled)',
     universal: 'Universal shards {n}',
     rewardBalance: 'Current balance: {n} universal shards',
     nextRewardTarget: 'Next skin: {name} · {cost} universal shards',
@@ -629,7 +627,6 @@ export const zh: MessageTree = {
     turnWolf: '狼回合',
     turnSheep: '羊回合',
     chain: '连吃 {n}/5',
-    doubleLeft: '碎片双倍 · 剩余 {t}',
     endChain: '结束连吃',
     endChainCount: '结束连吃 · 已连吃 {n}/5',
     chainDecision: '点红圈可继续连吃；现在收手会保留当前位置，并交给羊方行动。',
@@ -649,7 +646,8 @@ export const zh: MessageTree = {
     drawAdvice: '换一侧建立接触；原地往返和等待不会自动打开羊阵。',
     preparing: '准备中…',
     again: '再来一局',
-    doubleAd: '看广告 · 碎片双倍 30 分钟',
+    rewardAd: '看广告 · 立即获得 {n} 通用碎片',
+    rewardAdGranted: '奖励已到账：通用碎片 +{n}。',
     adFailed: '广告暂时不可用，本关进度和碎片不受影响。',
     share: '分享战绩',
     sharePreparing: '正在生成战绩卡片...',
@@ -710,7 +708,6 @@ export const zh: MessageTree = {
     noDrop: '本次无碎片掉落',
     firstClear: '首次通关',
     repeatClear: '重复通关',
-    doubled: '（双倍）',
     universal: '通用碎片 {n}',
     rewardBalance: '当前通用碎片：{n}',
     nextRewardTarget: '下一件皮肤：{name} · 需要 {cost} 通用碎片',

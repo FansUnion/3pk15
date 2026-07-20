@@ -32,6 +32,7 @@
       "@/lib/play-store": ["../player-web/lib/play-store.ts"],
       "@/lib/save-store": ["../player-web/lib/save-store.ts"],
       "@/lib/sfx": ["../player-web/lib/sfx.ts"],
+      "@/lib/sfx-policy": ["../player-web/lib/sfx-policy.ts"],
       "@/lib/share-result": ["../player-web/lib/share-result.ts"],
       "@/lib/storage": ["../player-web/lib/storage.ts"],
       "@/components/BoardSvg": ["../player-web/components/BoardSvg.tsx"],

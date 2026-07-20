@@ -26,8 +26,8 @@ export function parseLevelReviewsJson(text: string): LevelReviewMap | null {
   }
 }
 
-export function levelVersion(level: { id: string; rocks: unknown; opening?: unknown; ai: string; targetEaten?: number; maxPlies?: number }) {
-  const source = JSON.stringify([level.id, level.rocks, level.opening, level.ai, level.targetEaten, level.maxPlies])
+export function levelVersion(level: { id: string; rocks: unknown; opening?: unknown; aiProfile: string; targetEaten?: number; maxPlies?: number }) {
+  const source = JSON.stringify([level.id, level.rocks, level.opening, level.aiProfile, level.targetEaten, level.maxPlies])
   let hash = 2166136261
   for (let index = 0; index < source.length; index += 1) {
     hash ^= source.charCodeAt(index)

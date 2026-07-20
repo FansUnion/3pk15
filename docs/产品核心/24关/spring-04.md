@@ -12,7 +12,7 @@
 
 - AI 画像：`foundation`；画像含义与生产配置以[羊 AI 机制与制作人验收指南](../09-羊AI机制与制作人验收指南.md)为准。
 
-- 运行摘要：边线回旋；羊方 AI `normal`；`targetEaten=8`；`maxPlies=300`。
+- 运行摘要：边线回旋；`targetEaten=8`；`maxPlies=300`。
 
 ## 设计与策略
 

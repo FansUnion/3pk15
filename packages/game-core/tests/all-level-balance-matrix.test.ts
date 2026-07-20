@@ -45,7 +45,6 @@ function runGame(level: (typeof LEVELS)[number], strategy: WolfStrategy, seed: n
     const action = state.toMove === 'wolf'
       ? chooseDiagnosticWolfAction(state, actions, wolfRng, strategy)
       : pickSheepAction(state, {
-        difficulty: level.ai,
         profile: level.aiProfile,
         rng: sheepRng,
       })
@@ -89,7 +88,7 @@ matrixDescribe('all-level seeded balance matrix', () => {
         }
         summaries.push({
         level: level.id,
-        ai: level.ai,
+        aiProfile: level.aiProfile,
         strategy,
         games: games.length,
         wolfWins: games.filter((game) => game.winner === 'wolf').length,

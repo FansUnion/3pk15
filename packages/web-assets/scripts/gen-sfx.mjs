@@ -61,13 +61,14 @@ function genStep(sr) {
 }
 
 function genCapture(sr) {
-  const n = Math.floor(sr * 0.16)
+  const n = Math.floor(sr * 0.18)
   const out = new Float32Array(n)
   for (let i = 0; i < n; i++) {
     const t = i / sr
-    const whoosh = noise() * env(t, 0.012, 0.07) * (0.55 + 0.45 * Math.sin(2 * Math.PI * 9 * t))
-    const tick = woodBody(t, 320) * env(t, 0.004, 0.05)
-    out[i] = whoosh * 0.38 + tick * 0.55
+    const whoosh = noise() * env(t, 0.014, 0.08) * (0.65 + 0.35 * Math.sin(2 * Math.PI * 7 * t))
+    const tick = woodBody(t, 270) * env(t, 0.004, 0.055)
+    const release = Math.sin(2 * Math.PI * 520 * t) * env(t, 0.008, 0.06)
+    out[i] = whoosh * 0.28 + tick * 0.42 + release * 0.14
   }
   return out
 }
@@ -77,7 +78,7 @@ function genChain(sr) {
   const out = new Float32Array(n)
   for (let i = 0; i < n; i++) {
     const t = i / sr
-    const f = 360 + t * 780
+    const f = 340 + t * 520
     const tone = Math.sin(2 * Math.PI * f * t) * env(t, 0.004, 0.065)
     const whoosh = noise() * env(t, 0.01, 0.055) * 0.28
     const tap = woodBody(t, 240) * env(t, 0.002, 0.04) * 0.35
@@ -142,16 +143,17 @@ function genSheepStep(sr) {
 }
 
 function genThreat(sr) {
-  return genTone(sr, 0.32, [
-    { from: 610, to: 430, duration: 0.13, decay: 0.075, gain: 0.22, wave: 'saw' },
-    { at: 0.13, from: 570, to: 470, duration: 0.14, decay: 0.09, gain: 0.2, wave: 'triangle' },
+  const out = genTone(sr, 0.11, [
+    { from: 620, to: 690, duration: 0.08, decay: 0.045, gain: 0.11, wave: 'triangle' },
   ])
+  for (let i = 0; i < out.length; i++) out[i] += noise() * Math.exp(-(i / sr) * 38) * 0.025
+  return out
 }
 
 function genTrapped(sr) {
-  return genTone(sr, 0.28, [
-    { from: 190, to: 115, duration: 0.22, decay: 0.13, gain: 0.28, wave: 'triangle' },
-    { from: 95, to: 80, duration: 0.2, decay: 0.12, gain: 0.12, wave: 'sine' },
+  return genTone(sr, 0.19, [
+    { from: 210, to: 150, duration: 0.14, decay: 0.085, gain: 0.2, wave: 'triangle' },
+    { from: 120, to: 105, duration: 0.13, decay: 0.08, gain: 0.07, wave: 'sine' },
   ])
 }
 
@@ -185,13 +187,13 @@ function emit(name, samples, targetDb) {
 const sr = 22050
 fs.mkdirSync(outDir, { recursive: true })
 emit('step', genStep(sr), -3.5)
-emit('capture', genCapture(sr), -3)
-emit('chain', genChain(sr), -2.5)
+emit('capture', genCapture(sr), -5)
+emit('chain', genChain(sr), -4.5)
 emit('win', genWin(sr), -4)
 emit('lose', genLose(sr), -4)
 emit('sheep-step', genSheepStep(sr), -5)
-emit('threat', genThreat(sr), -4)
-emit('trapped', genTrapped(sr), -4)
+emit('threat', genThreat(sr), -12)
+emit('trapped', genTrapped(sr), -8)
 const uiPeak = { select: -8, invalid: -7, ai: -10, draw: -5, unlock: -4, equip: -6 }
 for (const kind of ['select', 'invalid', 'ai', 'draw', 'unlock', 'equip']) {
   emit(kind, genUi(sr, kind), uiPeak[kind])

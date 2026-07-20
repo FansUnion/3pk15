@@ -26,9 +26,6 @@ export type SaveGame = {
     failureStreak: Record<string, number>
   }
   settings: { muted: boolean }
-  buffs: {
-    doubleDropUntil: number | null
-  }
   quests: QuestState
   lastPlayedLevelId?: string
 }
@@ -37,7 +34,6 @@ export type DropGrant = {
   universal: number
   season: Partial<Record<ChapterId, number>>
   firstClear: boolean
-  doubled: boolean
 }
 
 export const SAVE_KEY = 'wolf-sheep-save-v1'
@@ -58,7 +54,6 @@ export function defaultSave(): SaveGame {
     },
     guide: { spring1Done: false, hintUsage: {}, failureStreak: {} },
     settings: { muted: false },
-    buffs: { doubleDropUntil: null },
     quests: emptyQuestState(),
   }
 }
@@ -138,12 +133,6 @@ export function migrate(raw: unknown): SaveGame {
     settings: {
       muted: Boolean((o.settings as SaveGame['settings'] | undefined)?.muted),
     },
-    buffs: {
-      doubleDropUntil:
-        typeof (o.buffs as SaveGame['buffs'] | undefined)?.doubleDropUntil === 'number'
-          ? (o.buffs as SaveGame['buffs']).doubleDropUntil
-          : null,
-    },
     quests: parseQuests(o.quests),
     lastPlayedLevelId:
       typeof o.lastPlayedLevelId === 'string' ? o.lastPlayedLevelId : undefined,
@@ -214,46 +203,37 @@ export function recomputeUnlockedChapters(save: SaveGame): ChapterId[] {
   return unlocked
 }
 
-export function isDoubleDropActive(save: SaveGame, now = Date.now()): boolean {
-  return save.buffs.doubleDropUntil != null && save.buffs.doubleDropUntil > now
-}
-
 export function rollClearReward(
   level: LevelConfig,
   save: SaveGame,
   rng: { nextFloat(): number },
-  now = Date.now(),
 ): DropGrant {
   const firstClear = !save.clearedLevels.includes(level.id)
-  const doubled = isDoubleDropActive(save, now)
-  const mult = doubled ? 2 : 1
 
   if (firstClear) {
     const season: Partial<Record<ChapterId, number>> = {}
     for (const [k, v] of Object.entries(level.firstClearReward.season ?? {})) {
-      season[k as ChapterId] = (v ?? 0) * mult
+      season[k as ChapterId] = v ?? 0
     }
     return {
-      universal: (level.firstClearReward.universal ?? 0) * mult,
+      universal: level.firstClearReward.universal ?? 0,
       season,
       firstClear: true,
-      doubled,
     }
   }
 
   const drop = level.repeatDrop
   if (!drop || rng.nextFloat() >= drop.chance) {
-    return { universal: 0, season: {}, firstClear: false, doubled }
+    return { universal: 0, season: {}, firstClear: false }
   }
   const season: Partial<Record<ChapterId, number>> = {}
   for (const [k, v] of Object.entries(drop.season ?? {})) {
-    season[k as ChapterId] = (v ?? 0) * mult
+    season[k as ChapterId] = v ?? 0
   }
   return {
-    universal: (drop.universal ?? 0) * mult,
+    universal: drop.universal ?? 0,
     season,
     firstClear: false,
-    doubled,
   }
 }
 
@@ -264,7 +244,7 @@ export function applyClearToSave(
 ): SaveGame {
   const alreadyCleared = save.clearedLevels.includes(level.id)
   const effectiveGrant: DropGrant = alreadyCleared && grant.firstClear
-    ? { universal: 0, season: {}, firstClear: false, doubled: grant.doubled }
+    ? { universal: 0, season: {}, firstClear: false }
     : grant
   const clearedLevels = alreadyCleared
     ? save.clearedLevels
@@ -311,13 +291,6 @@ export function recordPlayStarted(save: SaveGame, levelId?: string): SaveGame {
     ...save,
     ...(levelId ? { lastPlayedLevelId: levelId } : {}),
     quests: recordQuestMetric(save.quests, 'both', 'plays', 1),
-  }
-}
-
-export function activateDoubleDrop(save: SaveGame, durationMs = 30 * 60 * 1000, now = Date.now()): SaveGame {
-  return {
-    ...save,
-    buffs: { doubleDropUntil: now + durationMs },
   }
 }
 

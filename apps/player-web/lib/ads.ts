@@ -59,6 +59,10 @@ async function runMock(lifecycle?: AdLifecycle): Promise<AdResult> {
 }
 
 export class MockAds implements IAds {
+  isRewardedAvailable() {
+    return true
+  }
+
   showInterstitial(lifecycle?: AdLifecycle): Promise<AdResult> {
     return runMock(lifecycle)
   }
@@ -70,6 +74,10 @@ export class MockAds implements IAds {
 }
 
 export class UnavailableAds implements IAds {
+  isRewardedAvailable() {
+    return false
+  }
+
   async showInterstitial(): Promise<AdResult> {
     return { ok: false, reason: 'unavailable' }
   }

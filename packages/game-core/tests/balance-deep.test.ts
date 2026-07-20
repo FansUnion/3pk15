@@ -58,7 +58,7 @@ function runProfile(level: LevelConfig, strategy: WolfStrategy, games = 5): Prof
       if (actions.length === 0) break
       const action = state.toMove === 'wolf'
         ? chooseWolfAction(state, actions, rng, strategy)
-        : pickSheepAction(state, { difficulty: level.ai, profile: level.aiProfile, rng })
+        : pickSheepAction(state, { profile: level.aiProfile, rng })
       trace.push(`${action.type}:${action.pieceId}>${action.to.r},${action.to.c}`)
       const result = applyAction(state, action)
       if (!result.ok) throw new Error(result.error)

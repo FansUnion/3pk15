@@ -6,12 +6,11 @@ import {
   serialize,
   type AiProfile,
   type BoardState,
-  type Difficulty,
 } from '@wolf-sheep/game-core'
 import type { RecordedGameAction } from './active-game'
 import { getAudioDiagnostics } from './sfx'
 
-export const REPRODUCTION_SCHEMA = 2
+export const REPRODUCTION_SCHEMA = 3
 
 export type PlayerReproductionBundle = {
   kind: 'fangrush-player-reproduction'
@@ -19,7 +18,6 @@ export type PlayerReproductionBundle = {
   rulesVersion: 3
   exportedAt: string
   levelId: string
-  difficulty: Difficulty
   aiProfile: AiProfile
   aiAlgorithmVersion: typeof SHEEP_AI_ALGORITHM_VERSION
   initialAiSeed: number
@@ -33,7 +31,6 @@ export type PlayerReproductionBundle = {
 
 export function buildPlayerReproductionBundle(input: {
   state: BoardState
-  difficulty: Difficulty
   aiProfile: AiProfile
   initialAiSeed: number
   nextAiSeed: number
@@ -46,7 +43,6 @@ export function buildPlayerReproductionBundle(input: {
     rulesVersion: 3,
     exportedAt: new Date().toISOString(),
     levelId: input.state.levelId,
-    difficulty: input.difficulty,
     aiProfile: input.aiProfile,
     aiAlgorithmVersion: SHEEP_AI_ALGORITHM_VERSION,
     initialAiSeed: input.initialAiSeed,

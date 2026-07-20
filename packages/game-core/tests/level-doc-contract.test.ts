@@ -14,8 +14,8 @@ describe('level design card contract', () => {
 
       expect(card).toContain(`# ${level.id} · ${level.nameZh}`)
       expect(card).toContain(`- 前台中文文案：${level.blurbZh}`)
-      expect(card).toContain(`羊方 AI \`${level.ai}\``)
       expect(card).toContain(`AI 画像：\`${level.aiProfile}\``)
+      expect(card).not.toMatch(/羊方 AI `(?:easy|normal|hard)`/)
       expect(card).toContain(`\`targetEaten=${targetEaten}\``)
       expect(card).toContain(`\`maxPlies=${maxPlies}\``)
     })

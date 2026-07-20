@@ -218,7 +218,6 @@ describe('sheep AI behavior guardrails', () => {
     const level = LEVELS.find((item) => item.id === 'summer-02')!
     const state = { ...createLevelInitialState(level), toMove: 'sheep' as const }
     const hard = pickSheepActionWithMeta(state, {
-      difficulty: level.ai,
       profile: level.aiProfile,
       rng: createSeededRng(91),
       budgets: { maxNodes: 800 },

@@ -344,6 +344,13 @@ export function BoardSvg({
         )
       })}
 
+      {juice?.newThreatenedSheepIds?.map((id) => {
+        const sheep = state.pieces.find((piece) => piece.id === id && piece.side === 'sheep')
+        if (!sheep) return null
+        const { x, y } = xy(sheep.r, sheep.c)
+        return <circle key={`new-threat-${id}`} cx={x} cy={y} r={PIECE / 2 + 7} className="new-threat-flash" fill="none" stroke="#c44836" strokeWidth={4} pointerEvents="none" />
+      })}
+
       {jumpHighlights.map((p) => {
         const { x, y } = xy(p.r, p.c)
         return (

@@ -1,8 +1,7 @@
-import { AI_PROFILE_CONFIG, SHEEP_AI_ALGORITHM_VERSION, serialize, type AiProfile, type BoardState, type Difficulty } from '@wolf-sheep/game-core'
+import { AI_PROFILE_CONFIG, SHEEP_AI_ALGORITHM_VERSION, serialize, type AiProfile, type BoardState } from '@wolf-sheep/game-core'
 
 export function buildPlayerReproductionBundle(input: {
   state: BoardState
-  difficulty: Difficulty
   aiProfile: AiProfile
   initialAiSeed: number
   nextAiSeed: number
@@ -11,11 +10,10 @@ export function buildPlayerReproductionBundle(input: {
 }) {
   return {
     kind: 'fangrush-player-reproduction' as const,
-    schema: 2,
+    schema: 3,
     rulesVersion: 3,
     exportedAt: new Date().toISOString(),
     levelId: input.state.levelId,
-    difficulty: input.difficulty,
     aiProfile: input.aiProfile,
     aiAlgorithmVersion: SHEEP_AI_ALGORITHM_VERSION,
     initialAiSeed: input.initialAiSeed,

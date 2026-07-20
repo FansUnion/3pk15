@@ -29,7 +29,6 @@ import {
   type BoardState,
   type Action,
   type AiProfile,
-  type Difficulty,
   type DiagnosticWolfStrategy,
   type HardBudgets,
   type LevelConfig,
@@ -45,6 +44,11 @@ import { consumeCandidateHandoff } from '@/lib/candidate-handoff'
 type PlaceMode = 'cycle' | 'empty' | 'wolf' | 'sheep' | 'rock'
 
 const CYCLE: Array<'empty' | 'wolf' | 'sheep' | 'rock'> = ['empty', 'wolf', 'sheep', 'rock']
+const AI_PROFILES: AiProfile[] = ['guided', 'foundation', 'tactical', 'strategic', 'expert']
+
+function isAiProfile(value: unknown): value is AiProfile {
+  return typeof value === 'string' && AI_PROFILES.includes(value as AiProfile)
+}
 
 type BatchResult = {
   wolfWins: number
@@ -57,7 +61,6 @@ type BatchResult = {
   csv: string
   records: BatchGameRecord[]
   wolfStrategy: DiagnosticWolfStrategy
-  sheepDifficulty: Difficulty
   sheepProfile: AiProfile
 }
 
@@ -73,7 +76,6 @@ type BatchGameRecord = {
   eatenSheep: number
   firstCapturePly: number | null
   wolfStrategy: DiagnosticWolfStrategy
-  sheepDifficulty: Difficulty
   sheepProfile: AiProfile
 }
 
@@ -86,27 +88,20 @@ type ReplayData = {
 
 type Props = {
   initialLevel?: string
-  initialDiff?: string
+  initialProfile?: string
   initialSeed?: string
   initialImport?: string
 }
 
-export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialImport }: Props) {
+export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initialImport }: Props) {
   const [state, setState] = useState(() => {
     const level = initialLevel ? getLevel(initialLevel) : undefined
     if (level) return createLevelInitialState(level)
     return createInitialState('spring-01')
   })
-  const [difficulty, setDifficulty] = useState<Difficulty>(() => {
-    if (initialDiff === 'easy' || initialDiff === 'normal' || initialDiff === 'hard') {
-      return initialDiff
-    }
-    const level = initialLevel ? getLevel(initialLevel) : undefined
-    return level?.ai ?? 'easy'
-  })
   const [profile, setProfile] = useState<AiProfile>(() => {
     const level = initialLevel ? getLevel(initialLevel) : undefined
-    return level?.aiProfile ?? 'guided'
+    return isAiProfile(initialProfile) ? initialProfile : level?.aiProfile ?? 'guided'
   })
   const [seed, setSeed] = useState(() => {
     const parsed = Number(initialSeed)
@@ -121,10 +116,9 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
   const [batchLevelId, setBatchLevelId] = useState(
     initialLevel && getLevel(initialLevel) ? initialLevel : 'spring-01',
   )
-  const [batchDiff, setBatchDiff] = useState<Difficulty>(difficulty)
   const [batchProfile, setBatchProfile] = useState<AiProfile>(() => {
     const level = initialLevel ? getLevel(initialLevel) : undefined
-    return level?.aiProfile ?? 'guided'
+    return isAiProfile(initialProfile) ? initialProfile : level?.aiProfile ?? 'guided'
   })
   const [batchWolfStrategy, setBatchWolfStrategy] = useState<DiagnosticWolfStrategy>('mixed')
   const [batchResult, setBatchResult] = useState<BatchResult | null>(null)
@@ -187,28 +181,21 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     appliedUrl.current = true
     if (initialImport !== 'candidate-replay') setState(createLevelInitialState(level))
     setBatchLevelId(level.id)
-    const d =
-      initialDiff === 'easy' || initialDiff === 'normal' || initialDiff === 'hard'
-        ? initialDiff
-        : level.ai
-    setDifficulty(d)
-    setBatchDiff(d)
-    setProfile(level.aiProfile)
-    setMaxNodes(AI_PROFILE_CONFIG[level.aiProfile].budgets.maxNodes || 80)
-    setBatchProfile(level.aiProfile)
-    pushLog(`deep-link level=${level.id} diff=${d}`)
-  }, [initialLevel, initialDiff, initialImport, pushLog])
+    const nextProfile = isAiProfile(initialProfile) ? initialProfile : level.aiProfile
+    setProfile(nextProfile)
+    setMaxNodes(AI_PROFILE_CONFIG[nextProfile].budgets.maxNodes || 80)
+    setBatchProfile(nextProfile)
+    pushLog(`deep-link level=${level.id} profile=${nextProfile}`)
+  }, [initialLevel, initialProfile, initialImport, pushLog])
 
   function loadLevel(id: string) {
     const level = getLevel(id)
     if (!level) return
     setState(createLevelInitialState(level))
-    pushLog(`loaded level ${id} profile=${level.aiProfile} base=${level.ai}`)
-    setDifficulty(level.ai)
+    pushLog(`loaded level ${id} profile=${level.aiProfile}`)
     setProfile(level.aiProfile)
     setMaxNodes(AI_PROFILE_CONFIG[level.aiProfile].budgets.maxNodes || 80)
     setBatchLevelId(id)
-    setBatchDiff(level.ai)
     setBatchProfile(level.aiProfile)
   }
 
@@ -269,7 +256,6 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       }
       const rng = createSeededRng(seed)
       const { action, meta } = pickSheepActionWithMeta(s, {
-        difficulty,
         profile,
         rng,
         budgets: hardBudgets,
@@ -287,7 +273,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       setSeed((x) => x + 1)
       const ev = evaluate(res.state)
       pushLog(
-        `[sheep ${profile}/${difficulty}] ${JSON.stringify(action)} score=${ev.total.toFixed(1)}`,
+        `[sheep ${profile}] ${JSON.stringify(action)} score=${ev.total.toFixed(1)}`,
       )
     } catch (e) {
       pushLog(`AI error: ${e instanceof Error ? e.message : String(e)}`)
@@ -296,34 +282,11 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     }
   }
 
-  function compareProfileDecision() {
-    let s = state
-    if (s.toMove !== 'sheep') s = { ...s, toMove: 'sheep', chain: null, status: 'playing', terminalReason: null }
-    if (s.status !== 'playing') return
-    const immediate = pickSheepAction(s, { difficulty: 'normal', rng: createSeededRng(seed) })
-    const profiled = pickSheepActionWithMeta(s, {
-      difficulty,
-      profile,
-      rng: createSeededRng(seed),
-      budgets: hardBudgets,
-    })
-    const analyses = analyzeSheepActions(s)
-    const evidence = (action: Action) => analyses.find((candidate) => JSON.stringify(candidate.action) === JSON.stringify(action))
-    const oldEvidence = evidence(immediate)
-    const newEvidence = evidence(profiled.action)
-    setLastHardMeta(profiled.meta)
-    pushLog(
-      `[compare] immediate=${actionText(immediate)} chain=${oldEvidence?.maxCaptureChain ?? '-'} score=${oldEvidence?.score.toFixed(1) ?? '-'} | ${profile}=${actionText(profiled.action)} chain=${newEvidence?.maxCaptureChain ?? '-'} score=${newEvidence?.score.toFixed(1) ?? '-'} depth=${profiled.meta.completedDepth}`,
-    )
-  }
-
   function loadFixture(id: string) {
     const fx = AI_FIXTURES.find((f) => f.id === id)
     if (!fx) return
     const next = fx.build()
     setState(next)
-    setDifficulty(fx.suggestedDiff)
-    setBatchDiff(fx.suggestedDiff)
     if (fx.id === 'budget-starve') {
       setMaxNodes(1)
       setMaxMs(1)
@@ -365,7 +328,6 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
         try {
           const rng = createSeededRng(localSeed++)
           const { action, meta } = pickSheepActionWithMeta(s, {
-            difficulty,
             profile,
             rng,
             budgets: hardBudgets,
@@ -376,7 +338,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
           const res = applyAction(s, action)
           if (!res.ok) break
           s = res.state
-          pushLog(`[sheep ${profile}/${difficulty}] ${JSON.stringify(action)}`)
+          pushLog(`[sheep ${profile}] ${JSON.stringify(action)}`)
         } catch (e) {
           pushLog(`AI error: ${e instanceof Error ? e.message : String(e)}`)
           break
@@ -401,7 +363,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     setBatchProgress(0)
     setBatchResult(null)
     pushLog(
-      `batch start n=${n} level=${level.id} sheep=${batchProfile}/${batchDiff} wolf=${batchWolfStrategy}`,
+      `batch start n=${n} level=${level.id} sheep=${batchProfile} wolf=${batchWolfStrategy}`,
     )
 
     const t0 = performance.now()
@@ -419,14 +381,14 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
         break
       }
       const gameSeed = localSeed
-      const sim = simulateOneGame(level, batchDiff, batchProfile, batchWolfStrategy, gameSeed, 400, hardBudgets)
+      const sim = simulateOneGame(level, batchProfile, batchWolfStrategy, gameSeed, 400, hardBudgets)
       localSeed += 10007
       pliesSum += sim.plies
       if (sim.outcome === 'wolf_win') wolfWins++
       else if (sim.outcome === 'sheep_win') sheepWins++
       else timeout++
       lastSerialize = sim.serialized
-      records.push({ index: g + 1, levelId: level.id, seed: gameSeed, outcome: sim.outcome, reason: sim.reason, plies: sim.plies, eatenSheep: sim.eatenSheep, firstCapturePly: sim.firstCapturePly, wolfStrategy: batchWolfStrategy, sheepDifficulty: batchDiff, sheepProfile: batchProfile })
+      records.push({ index: g + 1, levelId: level.id, seed: gameSeed, outcome: sim.outcome, reason: sim.reason, plies: sim.plies, eatenSheep: sim.eatenSheep, firstCapturePly: sim.firstCapturePly, wolfStrategy: batchWolfStrategy, sheepProfile: batchProfile })
       if (g % 5 === 0 || g === n - 1) {
         setBatchProgress(g + 1)
         await new Promise((r) => setTimeout(r, 0))
@@ -438,7 +400,6 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     const avgPlies = games > 0 ? pliesSum / games : 0
     const csv = [
       level.id,
-      batchDiff,
       batchProfile,
       batchWolfStrategy,
       games,
@@ -459,10 +420,9 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       avgPlies,
       elapsedMs,
       lastSerialize,
-      csv: `level,diff,profile,wolfStrategy,games,wolfWins,sheepWins,timeout,wolfWinPct,avgPlies,ms,seedBase\n${csv}`,
+      csv: `level,profile,wolfStrategy,games,wolfWins,sheepWins,timeout,wolfWinPct,avgPlies,ms,seedBase\n${csv}`,
       records,
       wolfStrategy: batchWolfStrategy,
-      sheepDifficulty: batchDiff,
       sheepProfile: batchProfile,
     }
     setBatchResult(result)
@@ -476,7 +436,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
   function openReplay(record: BatchGameRecord) {
     const level = getLevel(record.levelId)
     if (!level) return
-    const sim = simulateOneGame(level, record.sheepDifficulty, record.sheepProfile, record.wolfStrategy, record.seed, 400, hardBudgets, true)
+    const sim = simulateOneGame(level, record.sheepProfile, record.wolfStrategy, record.seed, 400, hardBudgets, true)
     setReplay({ record, states: sim.states, actions: sim.actions, suspectIndices: [] })
     setReplayIndex(0)
     pushLog(`replay game=${record.index} seed=${record.seed} reason=${record.reason}`)
@@ -489,13 +449,12 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       schemaVersion: 1,
       levelId: level.id,
       level,
-      sheepDifficulty: record.sheepDifficulty,
       sheepProfile: record.sheepProfile,
       wolfStrategy: record.wolfStrategy,
       seed: record.seed,
       hardBudgets,
       result: record,
-      command: `level=${level.id} diff=${record.sheepDifficulty} profile=${record.sheepProfile} wolf=${record.wolfStrategy} seed=${record.seed} maxNodes=${hardBudgets.maxNodes} maxMs=${hardBudgets.maxMs}`,
+      command: `level=${level.id} profile=${record.sheepProfile} wolf=${record.wolfStrategy} seed=${record.seed} maxNodes=${hardBudgets.maxNodes} maxMs=${hardBudgets.maxMs}`,
     }
     downloadJson(payload, `repro-${level.id}-${record.seed}.json`)
   }
@@ -520,7 +479,6 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       const next = deserialize(reproduction?.board ?? data)
       setState(next)
       if (reproduction) {
-        if (reproduction.difficulty === 'easy' || reproduction.difficulty === 'normal' || reproduction.difficulty === 'hard') setDifficulty(reproduction.difficulty)
         if (['guided', 'foundation', 'tactical', 'strategic', 'expert'].includes(reproduction.aiProfile)) {
           setProfile(reproduction.aiProfile as AiProfile)
         }
@@ -568,18 +526,6 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
               ))}
             </select>
             <span className="text-xs leading-relaxed text-[#5c6b52]">{AI_PROFILE_DESCRIPTION_ZH[profile]}</span>
-          </label>
-          <label className="flex flex-col gap-1">
-            底层兼容档位
-            <select
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-              className="rounded border border-[#5c6b52]/40 bg-[#f7f5ef] px-2 py-1"
-            >
-              <option value="easy">简单</option>
-              <option value="normal">标准</option>
-              <option value="hard">困难</option>
-            </select>
           </label>
           <label className="flex flex-col gap-1">
             随机种子
@@ -713,14 +659,6 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
           >
             {busy ? '计算中…' : '让羊 AI 走一步'}
           </button>
-          <button
-            type="button"
-            disabled={busy}
-            className="rounded border border-[#5c6b52]/40 bg-white px-3 py-2 text-xs disabled:opacity-50"
-            onClick={compareProfileDecision}
-          >
-            与即时防守基线对比
-          </button>
           <div className="flex gap-2">
             <button
               type="button"
@@ -845,7 +783,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
         <p className="mt-1 text-xs text-[#5c6b52]">
           选择一个狼方基准与正式羊 AI 重复对局，用来发现过易、过难、拖延和异常棋谱。结果是自动模拟基准，不是玩家真实胜率。
           最多200局。可分享链接：
-          <code className="ml-1 rounded bg-[#dfe8d8] px-1">/admin/ai?level=spring-01&amp;diff=hard</code>
+          <code className="ml-1 rounded bg-[#dfe8d8] px-1">/admin/ai?level=spring-01&amp;profile=guided</code>
         </p>
         <div className="mt-3 flex flex-wrap items-end gap-3 text-sm">
           <label className="flex flex-col gap-1">
@@ -856,7 +794,6 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
                 setBatchLevelId(e.target.value)
                 const selected = getLevel(e.target.value)
                 if (selected) {
-                  setBatchDiff(selected.ai)
                   setBatchProfile(selected.aiProfile)
                   setMaxNodes(AI_PROFILE_CONFIG[selected.aiProfile].budgets.maxNodes || 80)
                 }
@@ -895,18 +832,6 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             >
               <option value="mixed">策略型狼（推荐）</option>
               <option value="random">随机狼（最低基准）</option>
-            </select>
-          </label>
-          <label className="flex flex-col gap-1">
-            底层兼容档位
-            <select
-              value={batchDiff}
-              onChange={(e) => setBatchDiff(e.target.value as Difficulty)}
-              className="rounded border border-[#5c6b52]/40 bg-white px-2 py-1"
-            >
-              <option value="easy">简单</option>
-              <option value="normal">标准</option>
-              <option value="hard">困难</option>
             </select>
           </label>
           <label className="flex flex-col gap-1">
@@ -949,7 +874,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
               <ResultMetric label="拖延或超步" value={String(batchResult.timeout)} />
             </div>
             <p className="text-xs text-[#5c6b52]">
-              当前基准：{wolfStrategyLabel(batchResult.wolfStrategy)} · 羊方：{difficultyLabel(batchResult.sheepDifficulty)} · 平均 {batchResult.avgPlies.toFixed(1)} 步 · 用时 {batchResult.elapsedMs}ms
+              当前基准：{wolfStrategyLabel(batchResult.wolfStrategy)} · 羊方：{AI_PROFILE_LABEL_ZH[batchResult.sheepProfile]} · 平均 {batchResult.avgPlies.toFixed(1)} 步 · 用时 {batchResult.elapsedMs}ms
             </p>
             <div className="rounded border border-[#5c6b52]/20 bg-white p-3">
               <p className="font-medium text-[#2c3328]">初步判断</p>
@@ -1048,10 +973,6 @@ function wolfStrategyLabel(strategy: DiagnosticWolfStrategy) {
   return strategy === 'mixed' ? '策略型狼（近似懂规则的玩家）' : '随机狼（最低能力基准）'
 }
 
-function difficultyLabel(difficulty: Difficulty) {
-  return difficulty === 'easy' ? '简单防守' : difficulty === 'normal' ? '标准防守' : '困难防守'
-}
-
 function terminalReasonLabel(reason: TerminalReason) {
   const labels: Record<TerminalReason, string> = {
     targetEaten: '狼达成目标',
@@ -1119,7 +1040,6 @@ function buildPlayerReportReplay(data: any): ReplayData | null {
       eatenSheep: current.eatenSheep,
       firstCapturePly: null,
       wolfStrategy: 'mixed',
-      sheepDifficulty: data.difficulty ?? level.ai,
       sheepProfile: data.aiProfile ?? level.aiProfile,
     },
     states,
@@ -1154,7 +1074,6 @@ function gameRate(n: number, total: number) {
 
 function simulateOneGame(
   level: LevelConfig,
-  difficulty: Difficulty,
   profile: AiProfile,
   wolfStrategy: DiagnosticWolfStrategy,
   seed: number,
@@ -1186,7 +1105,6 @@ function simulateOneGame(
       }
     } else {
       const action = pickSheepAction(s, {
-        difficulty,
         profile,
         rng: createSeededRng(localSeed++),
         budgets,

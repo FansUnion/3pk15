@@ -18,7 +18,7 @@ export default function PlatformLabPage() {
   async function test(kind: 'interstitial' | 'rewarded') {
     setBusy(true); setResult(null)
     const ads = getPlatform().ads
-    const next = kind === 'rewarded' ? await ads.showRewarded('double_drop') : await ads.showInterstitial()
+    const next = kind === 'rewarded' ? await ads.showRewarded('fragment_topup') : await ads.showInterstitial()
     setResult(next); setBusy(false)
   }
 

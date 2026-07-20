@@ -12,6 +12,7 @@ import {
   pickSheepAction,
   REPETITION_DRAW_COUNT,
   type Difficulty,
+  type AiProfile,
 } from '../src/index'
 
 type Outcome = { wolf: number; sheep: number; draw: number; reasons: Record<string, number> }
@@ -25,7 +26,7 @@ function reason(state: ReturnType<typeof createLevelInitialState>) {
   return 'unfinished'
 }
 
-function run(levelId: string, difficulty: Difficulty, strategy: 'random' | 'mixed', seed: number) {
+function run(levelId: string, difficulty: Difficulty, strategy: 'random' | 'mixed', seed: number, profile?: AiProfile) {
   const level = LEVELS.find((candidate) => candidate.id === levelId)!
   let state = createLevelInitialState(level)
   const wolfRng = createSeededRng(seed)
@@ -37,7 +38,7 @@ function run(levelId: string, difficulty: Difficulty, strategy: 'random' | 'mixe
     if (actions.length === 0) break
     const action = state.toMove === 'wolf'
       ? chooseDiagnosticWolfAction(state, actions, wolfRng, strategy)
-      : pickSheepAction(state, { difficulty, rng: sheepRng, budgets: difficulty === 'hard' ? { maxNodes: 80 } : undefined })
+      : pickSheepAction(state, { difficulty, profile, rng: sheepRng, budgets: difficulty === 'hard' || profile ? { maxNodes: 80 } : undefined })
     const eatenBefore = state.eatenSheep
     const result = applyAction(state, action)
     if (!result.ok) throw new Error(result.error)
@@ -89,7 +90,7 @@ describe('strong-risk level attribution', () => {
   it('keeps representative reproducible traces at configured difficulty', () => {
     const records = ['autumn-01', 'autumn-03', 'winter-02'].flatMap((levelId) => {
       const level = LEVELS.find((candidate) => candidate.id === levelId)!
-      return Array.from({ length: 10 }, (_, index) => run(levelId, level.ai, 'mixed', 20260717 + index))
+      return Array.from({ length: 10 }, (_, index) => run(levelId, 'normal', 'mixed', 20260717 + index, level.aiProfile))
     })
     const representatives = ['autumn-01', 'autumn-03', 'winter-02'].flatMap((levelId) => {
       const levelRecords = records.filter((record) => record.levelId === levelId)

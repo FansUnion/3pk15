@@ -30,12 +30,10 @@ describe('24-level production AI profile gate', () => {
     it(`${level.id} uses a legal, non-dominated and reproducible ${level.aiProfile} decision`, () => {
       const state = firstSheepDecision(level)
       const first = pickSheepActionWithMeta(state, {
-        difficulty: level.ai,
         profile: level.aiProfile,
         rng: createSeededRng(20260719),
       })
       const second = pickSheepActionWithMeta(state, {
-        difficulty: level.ai,
         profile: level.aiProfile,
         rng: createSeededRng(20260719),
       })

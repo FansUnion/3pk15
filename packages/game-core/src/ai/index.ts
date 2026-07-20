@@ -13,7 +13,8 @@ import type { Rng } from './rng'
 import { createSeededRng } from './rng'
 
 export type AiContext = {
-  difficulty: Difficulty
+  /** Legacy diagnostic algorithm. Production callers provide `profile` instead. */
+  difficulty?: Difficulty
   profile?: AiProfile
   rng: Rng
   budgets?: HardBudgets
@@ -31,7 +32,8 @@ export function pickSheepAction(state: BoardState, ctx: AiContext): Action {
     return pickProfiledSheepActionWithMeta(state, ctx.profile, ctx.rng, ctx.budgets).action
   }
 
-  switch (ctx.difficulty) {
+  const difficulty = ctx.difficulty ?? 'normal'
+  switch (difficulty) {
     case 'easy':
       return pickEasy(state, ctx.rng)
     case 'normal':
@@ -39,7 +41,7 @@ export function pickSheepAction(state: BoardState, ctx: AiContext): Action {
     case 'hard':
       return pickHard(state, ctx.rng, ctx.budgets)
     default: {
-      const _exhaustive: never = ctx.difficulty
+      const _exhaustive: never = difficulty
       return _exhaustive
     }
   }

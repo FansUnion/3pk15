@@ -134,10 +134,8 @@ function playFallback(kind: SfxKind) {
       beep(260, 120, 'sine', 0.014, 0.08)
       break
     case 'threat':
-      // A short wobbling two-part bleat, deliberately distinct from UI beeps.
-      beep(520, 105, 'sawtooth', 0.025)
-      beep(430, 125, 'triangle', 0.045, 0.07)
-      beep(490, 90, 'sawtooth', 0.02, 0.16)
+      beep(430, 55, 'triangle', 0.014)
+      beep(510, 70, 'sine', 0.012, 0.035)
       break
     case 'trapped':
       beep(180, 150, 'triangle', 0.045)

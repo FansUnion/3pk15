@@ -198,13 +198,39 @@ describe('save clear flow', () => {
     expect(recomputeUnlockedChapters(save)).toEqual(save.unlockedChapters)
   })
 
+  it('makes each seasonal board affordable at the end of its six-level season without ads', () => {
+    let save = defaultSave()
+    const rng = createSeededRng(20260720)
+    const expectedUniversal = [60, 120, 180, 240]
+
+    for (const [chapterIndex, chapter] of (['spring', 'summer', 'autumn', 'winter'] as const).entries()) {
+      for (const level of LEVELS.filter((candidate) => candidate.chapterId === chapter)) {
+        const grant = rollClearReward(level, save, rng)
+        expect(grant).toMatchObject({ universal: 10, season: { [chapter]: 5 }, firstClear: true })
+        save = applyClearToSave(save, level, grant)
+      }
+      expect(save.fragments.season[chapter]).toBe(30)
+      expect(save.fragments.universal).toBe(expectedUniversal[chapterIndex])
+    }
+  })
+
+  it('ignores the retired timed-double field while preserving an existing save', () => {
+    const migrated = migrate({
+      ...defaultSave(),
+      fragments: { universal: 47, season: { spring: 11, summer: 0, autumn: 0, winter: 0 } },
+      buffs: { doubleDropUntil: Date.now() + 60_000 },
+    })
+    expect(migrated.fragments.universal).toBe(47)
+    expect(migrated.fragments.season.spring).toBe(11)
+    expect(migrated).not.toHaveProperty('buffs')
+  })
+
   it('repeat clear may drop zero', () => {
     const level = LEVELS[0]!
     let save = applyClearToSave(defaultSave(), level, {
       universal: 10,
-      season: { spring: 2 },
+      season: { spring: 5 },
       firstClear: true,
-      doubled: false,
     })
     // force miss: rng always >= chance
     const grant = rollClearReward(level, save, { nextFloat: () => 0.99 })
@@ -216,9 +242,8 @@ describe('save clear flow', () => {
     const level = LEVELS[0]!
     const grant = {
       universal: 10,
-      season: { spring: 2 },
+      season: { spring: 5 },
       firstClear: true,
-      doubled: false,
     } as const
     const once = applyClearToSave(defaultSave(), level, grant)
     const twice = applyClearToSave(once, level, grant)

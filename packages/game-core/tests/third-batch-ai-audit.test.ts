@@ -25,7 +25,7 @@ describe('third-batch sheep decision audit', () => {
           const legal = listLegalActions(state)
           const action = state.toMove === 'wolf'
             ? chooseDiagnosticWolfAction(state, legal, wolfRng, 'mixed')
-            : pickSheepAction(state, { difficulty: level.ai, profile: level.aiProfile, rng: sheepRng })
+            : pickSheepAction(state, { profile: level.aiProfile, rng: sheepRng })
           if (state.toMove === 'sheep') {
             row.sheepTurns += 1
             const analyses = analyzeSheepActions(state)

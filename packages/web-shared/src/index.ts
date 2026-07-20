@@ -4,11 +4,12 @@ export type AdsProvider = 'none' | 'mock' | 'portal_sdk' | 'native'
 
 export type AdFailureReason = 'cancelled' | 'failed' | 'unavailable' | 'unfilled' | 'cooldown'
 export type AdResult = { ok: true } | { ok: false; reason: AdFailureReason }
-export type AdPlacement = 'fragment_topup' | 'double_drop'
+export type AdPlacement = 'fragment_topup'
 export type AdLifecycle = { onStart?: () => void | Promise<void>; onFinish?: () => void | Promise<void> }
 export interface AdsContract {
   showInterstitial(lifecycle?: AdLifecycle): Promise<AdResult>
   showRewarded(placement: AdPlacement, lifecycle?: AdLifecycle): Promise<AdResult>
+  isRewardedAvailable?(): boolean
   preload?(): void
 }
 

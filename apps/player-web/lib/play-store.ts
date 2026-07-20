@@ -6,17 +6,15 @@ import {
   endWolfTurn,
   listLegalActions,
   pickSheepAction,
-  listWolfActionsAsIfTurn,
   type Action,
   type AiProfile,
   type BoardState,
-  type Difficulty,
   type OpeningLayout,
   type Pos,
 } from '@wolf-sheep/game-core'
 import { clearActiveGame, loadActiveGame, saveActiveGame, type ActiveGameConfig, type RecordedGameAction } from '@/lib/active-game'
 import { consumeNextAiFailure } from '@/lib/ai-fault'
-import { newlyTrappedWolfIds } from './wolf-feedback'
+import { newlyTrappedWolfIds, threatenedSheepIds } from './wolf-feedback'
 
 /** 商业体验时序标准：docs/游戏创意/产品定位和商业成功/03 */
 export const FEEDBACK_MS = 200
@@ -37,7 +35,7 @@ export type JuiceFlash = {
   from: Pos
   to: Pos
   through?: Pos
-  newThreat?: boolean
+  newThreatenedSheepIds?: string[]
   newlyTrappedWolfIds?: string[]
 } | null
 
@@ -49,14 +47,13 @@ type PlayStore = {
   highlights: MoveHighlights
   uiPhase: UiPhase
   juice: JuiceFlash
-  difficulty: Difficulty
   aiProfile: AiProfile | null
   seed: number
   initialSeed: number
   actionHistory: RecordedGameAction[]
   resumed: boolean
   aiError: string | null
-  init: (levelId: string, rocks: Pos[], difficulty: Difficulty, aiProfile: AiProfile, targetEaten?: number, maxPlies?: number, opening?: OpeningLayout, resume?: boolean) => void
+  init: (levelId: string, rocks: Pos[], aiProfile: AiProfile, targetEaten?: number, maxPlies?: number, opening?: OpeningLayout, resume?: boolean) => void
   selectWolf: (wolfId: string | null) => void
   clickCell: (pos: Pos) => void
   endChain: () => void
@@ -117,15 +114,7 @@ function juiceFromAction(state: BoardState, action: Action): JuiceFlash {
   }
 }
 
-function threatenedSheepIds(state: BoardState) {
-  return new Set(listWolfActionsAsIfTurn(state)
-    .filter((action) => action.type === 'jump')
-    .flatMap((action) => state.pieces
-      .filter((piece) => piece.side === 'sheep' && piece.r === action.to.r && piece.c === action.to.c)
-      .map((piece) => piece.id)))
-}
-
-let levelMeta = { levelId: 'spring-01', rocks: [] as Pos[], difficulty: 'easy' as Difficulty, aiProfile: 'guided' as AiProfile, targetEaten: undefined as number | undefined, maxPlies: undefined as number | undefined, opening: undefined as OpeningLayout | undefined, resume: true }
+let levelMeta = { levelId: 'spring-01', rocks: [] as Pos[], aiProfile: 'guided' as AiProfile, targetEaten: undefined as number | undefined, maxPlies: undefined as number | undefined, opening: undefined as OpeningLayout | undefined, resume: true }
 let turnSeq = 0
 
 function activeConfig(): ActiveGameConfig {
@@ -144,7 +133,6 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
   highlights: EMPTY_HIGHLIGHTS,
   uiPhase: 'playing',
   juice: null,
-  difficulty: 'easy',
   aiProfile: 'guided',
   seed: 1,
   initialSeed: 1,
@@ -152,8 +140,8 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
   resumed: false,
   aiError: null,
 
-  init(levelId, rocks, difficulty, aiProfile, targetEaten, maxPlies, opening, resume = true) {
-    levelMeta = { levelId, rocks, difficulty, aiProfile, targetEaten, maxPlies, opening, resume }
+  init(levelId, rocks, aiProfile, targetEaten, maxPlies, opening, resume = true) {
+    levelMeta = { levelId, rocks, aiProfile, targetEaten, maxPlies, opening, resume }
     turnSeq += 1
     const config = activeConfig()
     const restored = resume ? loadActiveGame(config) : null
@@ -170,7 +158,6 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
       highlights: highlightsFor(state, selectedWolfId),
       uiPhase: state.status !== 'playing' ? 'terminal' : state.toMove === 'sheep' ? 'aiThinking' : 'playing',
       juice: null,
-      difficulty,
       aiProfile,
       seed,
       initialSeed,
@@ -217,8 +204,8 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     const next = result.state
     if (juice) juice.newlyTrappedWolfIds = newlyTrappedWolfIds(state, next)
     if (juice?.kind === 'step' && state.toMove === 'wolf') {
-      const before = threatenedSheepIds(state)
-      juice.newThreat = [...threatenedSheepIds(next)].some((id) => !before.has(id))
+      const before = new Set(threatenedSheepIds(state))
+      juice.newThreatenedSheepIds = threatenedSheepIds(next).filter((id) => !before.has(id))
     }
     const actionHistory = [...get().actionHistory, action]
     syncActiveGame(next, get().seed, get().initialSeed, actionHistory)
@@ -311,7 +298,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
   reset() {
     turnSeq += 1
     if (levelMeta.resume) clearActiveGame()
-    get().init(levelMeta.levelId, levelMeta.rocks, levelMeta.difficulty, levelMeta.aiProfile, levelMeta.targetEaten, levelMeta.maxPlies, levelMeta.opening, levelMeta.resume)
+    get().init(levelMeta.levelId, levelMeta.rocks, levelMeta.aiProfile, levelMeta.targetEaten, levelMeta.maxPlies, levelMeta.opening, levelMeta.resume)
   },
 
   retryAi() {
@@ -332,7 +319,7 @@ async function runAiTurn(
   set: (partial: Partial<PlayStore>) => void,
   seq: number,
 ) {
-  const { state, difficulty, aiProfile, seed } = get()
+  const { state, aiProfile, seed } = get()
   if (seq !== turnSeq) return
   if (state.status !== 'playing' || state.toMove !== 'sheep') {
     set({ uiPhase: state.status === 'playing' ? 'playing' : 'terminal', juice: null })
@@ -342,7 +329,6 @@ async function runAiTurn(
   try {
     if (consumeNextAiFailure()) throw new Error('Injected sheep AI failure')
     const action = pickSheepAction(state, {
-      difficulty,
       profile: aiProfile ?? undefined,
       rng: createSeededRng(seed + state.eatenSheep * 17 + state.pieces.length),
     })
