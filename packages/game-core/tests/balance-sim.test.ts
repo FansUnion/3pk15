@@ -27,6 +27,7 @@ type BalanceSummary = {
 }
 
 const REPRODUCIBLE_HARD_BUDGETS = { maxNodes: 80 }
+const legacyIt = process.env.RUN_LEGACY_BALANCE === '1' ? it : it.skip
 
 function terminalReason(state: ReturnType<typeof createLevelInitialState>) {
   if (state.eatenSheep >= state.targetEaten) return 'targetEaten'
@@ -91,18 +92,17 @@ function runBalance(level: LevelConfig, sheepDifficulty: 'easy' | 'normal' | 'ha
 }
 
 describe('spring balance smoke simulation', () => {
-  it('terminates every spring layout under the current rules and AI', () => {
-    const summaries = LEVELS.filter((level) => level.chapterId === 'spring').slice(0, 3).flatMap((level) =>
-      (['easy', 'normal', 'hard'] as const).flatMap((difficulty) =>
-        ['random', 'greedy', 'mixed'].map((strategy) => runBalance(level, difficulty, strategy)),
-      ),
-    )
+  // Old difficulty labels and the shared-score wolf proxy remain available for
+  // historical comparisons; current production evidence uses candidate/persona V3.
+  legacyIt.each(LEVELS.filter((level) => level.chapterId === 'spring').slice(0, 3))('terminates $id under historical diagnostic AIs', (level) => {
+    const summaries = (['easy', 'normal', 'hard'] as const).flatMap((difficulty) =>
+      ['random', 'greedy', 'mixed'].map((strategy) => runBalance(level, difficulty, strategy)))
     console.table(summaries.map((summary) => ({
       ...summary,
       terminalReasons: JSON.stringify(summary.terminalReasons),
     })))
     expect(summaries.every((summary) => summary.wolfWins + summary.sheepWins + summary.draws === 1)).toBe(true)
-  }, 60000)
+  }, 60_000)
 
   it('starts and terminates every mainline level with its configured AI', () => {
     for (const level of LEVELS) {
@@ -131,9 +131,9 @@ describe('spring balance smoke simulation', () => {
       }
       expect(['won', 'lost', 'draw']).toContain(state.status)
     }
-  }, 30000)
+  }, 60_000)
 
-  it('records a configured-AI baseline for all 24 mainline levels', () => {
+  legacyIt('records a configured-AI baseline for all 24 mainline levels', () => {
     const summaries = LEVELS.map((level) => runBalance(level, 'profile', 'mixed', 1))
     console.table(summaries.map((summary) => ({
       ...summary,

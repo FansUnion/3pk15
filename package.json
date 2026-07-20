@@ -19,6 +19,8 @@
     "test:ai-quality": "pnpm --filter @wolf-sheep/game-core test:ai-quality",
     "test:balance-matrix": "pnpm --filter @wolf-sheep/game-core balance:matrix",
     "test:candidate-acceptance": "pnpm --filter @wolf-sheep/game-core candidate:check",
+    "test:persona-matrix": "pnpm --filter @wolf-sheep/game-core persona:matrix",
+    "audit:player-report": "pnpm --filter @wolf-sheep/game-core report:audit",
     "test:web": "pnpm --filter @wolf-sheep/player-web test && pnpm --filter @wolf-sheep/admin test",
     "lint": "pnpm -r lint",
     "check:skins": "pnpm --filter @wolf-sheep/game-core check:skins",

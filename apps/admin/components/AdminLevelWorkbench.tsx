@@ -10,6 +10,7 @@ import {
   createLevelInitialState,
   getWolfStrategy,
   levelMapType,
+  learningStageForLevel,
   LEVEL_MAP_TYPE_LABEL_ZH,
   LEVELS,
   validateAllLevels,
@@ -232,7 +233,7 @@ export function AdminLevelWorkbench() {
           ['all', '全部难度'], ['1', '1/5'], ['2', '2/5'], ['3', '3/5'], ['4', '4/5'], ['5', '5/5'],
         ]} />
         <Filter label="候选门禁" value={verdict} onChange={(value) => setVerdict(value as VerdictFilter)} options={[
-          ['all', '全部状态'], ['pass', 'pass'], ['review', 'review'], ['reject', 'reject'], ['missing', '无门禁结果'],
+          ['all', '全部状态'], ['pass', '自动未发现风险'], ['review', '需要复核'], ['reject', '自动拒绝'], ['missing', '无门禁结果'],
         ]} />
         <Filter label="人工验收" value={reviewFilter} onChange={(value) => setReviewFilter(value as ReviewFilter)} options={[
           ['all', '全部状态'], ['incomplete', '证据未完整'], ['unreviewed', '尚未记录'], ['passed', '标记通过'], ['needs_changes', '待修订'],
@@ -343,6 +344,7 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
   const [replayIndex, setReplayIndex] = useState(0)
   const primaryStrategy = getWolfStrategy(level.strategy.primary)
   const secondaryStrategy = getWolfStrategy(level.strategy.secondary)
+  const learningStage = learningStageForLevel(level)
 
   useEffect(() => setReplayIndex(0), [replaySeed])
 
@@ -357,8 +359,10 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
         <div><dt className="text-[#7a8574]">玩家操作难度</dt><dd>{level.difficulty}/5</dd></div>
         <div><dt className="text-[#7a8574]">狼方胜利目标</dt><dd>累计捕获 {level.targetEaten ?? 8} 只羊</dd></div>
         <div><dt className="text-[#7a8574]">行动上限</dt><dd>{level.maxPlies ?? 300} 次单方行动</dd></div>
+        <div className="col-span-2"><dt className="text-[#7a8574]">学习阶段</dt><dd>{learningStage.labelZh} · {learningStage.mustShowZh}</dd></div>
       </dl>
       <p className="mt-2 text-xs leading-relaxed text-[#5c6b52]">{AI_PROFILE_DESCRIPTION_ZH[level.aiProfile]} 操作难度评价玩家找出并执行胜路的难度；AI 画像表示羊如何防守，两者不是同一个指标。</p>
+      <p className="mt-1 text-xs leading-relaxed text-[#5c6b52]">自动证据目标：{learningStage.automatedEvidenceZh}</p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         <Link href={`/admin/play/${level.id}`} className="bg-[#3d4a3a] px-3 py-2 text-[#f4f1ea]">Admin 试玩</Link>
@@ -371,6 +375,7 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
         <section className="mt-4 border-t border-[#5c6b52]/15 pt-4">
           <div className="flex items-center justify-between"><h3 className="text-xs font-medium text-[#7a8574]">自动代理检查</h3><VerdictBadge verdict={report.verdict} /></div>
           <p className="mt-2 text-xs leading-relaxed text-[#5c6b52]">较优狼策略代理：狼胜 {report.summaries.mixed.wolfWins} / 羊胜 {report.summaries.mixed.sheepWins} / 和局 {report.summaries.mixed.draws} · 95% 对局在 {report.summaries.mixed.p95Plies} 次行动内结束。</p>
+          <p className="mt-1 text-xs text-[#5c6b52]">固定猎手：平均最高捕食占比 {((report.summaries.mixed.averageDominantWolfShare ?? 0) * 100).toFixed(0)}% · 最长连续捕食 {report.summaries.mixed.maxSameHunterCaptureStreak ?? 0} 次。</p>
           <p className="mt-1 text-xs text-amber-900">这是固定种子自动排雷结果，不是玩家胜率，也不能代替人工试玩。</p>
           {report.findings.length === 0 ? <p className="mt-2 text-xs text-green-800">未命中自动风险规则。</p> : report.findings.map((finding) => (
             <div key={finding.code} className="mt-2 border border-amber-300 bg-amber-50 p-2 text-xs text-amber-950">
@@ -439,7 +444,8 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
 
 function VerdictBadge({ verdict }: { verdict: CandidateVerdict }) {
   const style = verdict === 'pass' ? 'bg-green-100 text-green-800' : verdict === 'review' ? 'bg-amber-100 text-amber-900' : 'bg-red-100 text-red-800'
-  return <span className={`${style} px-1.5 py-0.5 text-[11px]`}>{verdict}</span>
+  const label = verdict === 'pass' ? '自动未发现风险' : verdict === 'review' ? '需要复核' : '自动拒绝'
+  return <span className={`${style} px-1.5 py-0.5 text-[11px]`}>{label}</span>
 }
 
 function DetailText({ label, text }: { label: string; text: string }) {

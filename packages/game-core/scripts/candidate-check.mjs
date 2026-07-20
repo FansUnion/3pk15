@@ -1,19 +1,61 @@
-import { spawnSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
+import { existsSync, mkdirSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const cwd = fileURLToPath(new URL('../', import.meta.url))
+const outputPath = fileURLToPath(new URL('../../../docs/产品核心/验证记录/2026-07-20-ai-v3-候选验收.json', import.meta.url))
+const tempDir = join(tmpdir(), 'fangrush-candidate-v3')
+mkdirSync(tempDir, { recursive: true })
 
-for (const season of ['spring', 'summer', 'autumn', 'winter']) {
-  for (let index = 1; index <= 6; index += 1) {
-    const levelId = `${season}-${String(index).padStart(2, '0')}`
-  const result = spawnSync(
-    process.platform === 'win32' ? 'powershell.exe' : 'pnpm',
-    process.platform === 'win32'
-      ? ['-NoProfile', '-Command', `$env:RUN_CANDIDATE_ACCEPTANCE='1'; $env:CANDIDATE_LEVEL='${levelId}'; pnpm exec vitest run tests/candidate-acceptance.test.ts --reporter=verbose`]
-      : ['exec', 'vitest', 'run', 'tests/candidate-acceptance.test.ts', '--reporter=verbose'],
-    { cwd, env: { ...process.env, RUN_CANDIDATE_ACCEPTANCE: '1', CANDIDATE_LEVEL: levelId }, stdio: 'inherit' },
-  )
-  if (result.error) throw result.error
-  if (result.status !== 0) process.exit(result.status ?? 1)
+const seasons = process.env.CANDIDATE_ONLY_CHAPTER
+  ? [process.env.CANDIDATE_ONLY_CHAPTER]
+  : ['spring', 'summer', 'autumn', 'winter']
+const levels = seasons.flatMap((season) =>
+  Array.from({ length: 6 }, (_, index) => `${season}-${String(index + 1).padStart(2, '0')}`))
+const strategies = ['random', 'mixed', 'chain-aware']
+const seedChunks = [
+  Array.from({ length: 5 }, (_, index) => 20260717 + index),
+  Array.from({ length: 5 }, (_, index) => 20260722 + index),
+]
+
+function runVitest(env, label) {
+  return new Promise((resolve, reject) => {
+    const command = process.platform === 'win32' ? 'powershell.exe' : 'pnpm'
+    const args = process.platform === 'win32'
+      ? ['-NoProfile', '-Command', 'pnpm exec vitest run tests/candidate-acceptance.test.ts --reporter=dot']
+      : ['exec', 'vitest', 'run', 'tests/candidate-acceptance.test.ts', '--reporter=dot']
+    const child = spawn(command, args, { cwd, env: { ...process.env, ...env }, stdio: 'inherit' })
+    child.on('error', reject)
+    child.on('exit', (code) => code === 0 ? resolve() : reject(new Error(`${label} failed with ${code}`)))
+  })
+}
+
+let completed = false
+try {
+  const jobs = levels.flatMap((levelId) => strategies.flatMap((strategy) =>
+    seedChunks.map((seeds, chunk) => ({ levelId, strategy, seeds, chunk }))))
+  for (let index = 0; index < jobs.length; index += 4) {
+    await Promise.all(jobs.slice(index, index + 4).map(({ levelId, strategy, seeds, chunk }) => {
+      const reportPath = join(tempDir, `${levelId}-${strategy}-${chunk}.json`)
+      if (existsSync(reportPath)) return Promise.resolve()
+      return runVitest({
+        RUN_CANDIDATE_PARTIAL: '1',
+        CANDIDATE_LEVEL: levelId,
+        CANDIDATE_STRATEGY: strategy,
+        CANDIDATE_SEEDS: JSON.stringify(seeds),
+        CANDIDATE_REPORT_PATH: reportPath,
+      }, `${levelId}/${strategy}/${chunk}`)
+    }))
   }
+  await runVitest({
+    RUN_CANDIDATE_AGGREGATE: '1',
+    CANDIDATE_INPUT_DIR: tempDir,
+    CANDIDATE_OUTPUT_PATH: outputPath,
+    CANDIDATE_LEVELS: JSON.stringify(levels),
+  }, 'candidate aggregate')
+  completed = true
+} finally {
+  if (completed) rmSync(tempDir, { recursive: true, force: true })
 }

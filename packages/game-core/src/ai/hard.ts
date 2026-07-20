@@ -1,10 +1,10 @@
 import type { Action, AiProfile, BoardState } from '../types'
 import { applyAction, boardPositionKey, endWolfTurn, listLegalActions } from '../rules'
-import { analyzeSheepActions, evaluateScore, type SheepActionAnalysis } from './evaluate'
+import { analyzeSheepActions, evaluate, type SheepActionAnalysis } from './evaluate'
 import type { Rng } from './rng'
 import { pickIndex } from './rng'
 
-export const SHEEP_AI_ALGORITHM_VERSION = 'sheep-ai-v2'
+export const SHEEP_AI_ALGORITHM_VERSION = 'sheep-ai-v3'
 
 export type HardBudgets = {
   maxNodes: number
@@ -28,7 +28,7 @@ export const AI_PROFILE_CONFIG: Record<AiProfile, AiProfileConfig> = {
   foundation: { searchDepth: 0, candidateLimit: 6, scoreSlack: 8, selectionSlack: 4, sheepBranchLimit: 6, wolfBranchLimit: 10, budgets: { maxNodes: 0 } },
   tactical: { searchDepth: 1, candidateLimit: 12, scoreSlack: 30, selectionSlack: 18, sheepBranchLimit: 10, wolfBranchLimit: 12, budgets: { maxNodes: 340 } },
   strategic: { searchDepth: 2, candidateLimit: 8, scoreSlack: 18, selectionSlack: 3, sheepBranchLimit: 10, wolfBranchLimit: 14, budgets: { maxNodes: 700 } },
-  expert: { searchDepth: 2, candidateLimit: 10, scoreSlack: 24, selectionSlack: 0, sheepBranchLimit: 12, wolfBranchLimit: 16, budgets: { maxNodes: 1_800 } },
+  expert: { searchDepth: 3, candidateLimit: 8, scoreSlack: 18, selectionSlack: 0, sheepBranchLimit: 10, wolfBranchLimit: 14, budgets: { maxNodes: 4_000 } },
 }
 
 export type HardPickMeta = {
@@ -79,21 +79,41 @@ function actionKey(action: Action) {
   return JSON.stringify(action)
 }
 
-function safeAnalyses(state: BoardState): SheepActionAnalysis[] {
+function profileScore(state: BoardState, config: AiProfileConfig) {
+  const breakdown = evaluate(state)
+  if (config.searchDepth === 0) return breakdown.total
+  const expert = config.searchDepth >= 3
+  const strategic = config.searchDepth >= 2
+  return breakdown.total
+    - breakdown.persistentHunterRisk * (expert ? 12 : strategic ? 5 : 1.5)
+    - breakdown.terminalUrgency * (expert ? 3 : strategic ? 1.4 : 0.35)
+    + breakdown.targetPressure * (expert ? 4 : strategic ? 2 : 0.5)
+}
+
+function safeAnalyses(state: BoardState, config: AiProfileConfig): SheepActionAnalysis[] {
   const analyses = analyzeSheepActions(state)
   const safe = analyses.filter((analysis) => !analysis.dominated)
-  return safe.length > 0 ? safe : analyses
+  const baseline = safe.length > 0 ? safe : analyses
+  if (config.searchDepth < 2) return baseline
+
+  const minimumChain = Math.min(...baseline.map((analysis) => analysis.maxCaptureChain))
+  const noExtraExposure = baseline.filter((analysis) => analysis.maxCaptureChain === minimumChain)
+  if (noExtraExposure.length === 0) return baseline
+  return noExtraExposure
 }
 
 function orderedSheepCandidates(state: BoardState, config: AiProfileConfig) {
-  const analyses = safeAnalyses(state).sort((left, right) =>
+  const analyses = safeAnalyses(state, config).map((analysis) => {
+    const result = applyAction(state, analysis.action)
+    return { ...analysis, profiledScore: result.ok ? profileScore(result.state, config) : analysis.score }
+  }).sort((left, right) =>
     left.maxCaptureChain - right.maxCaptureChain
     || right.trappedWolves - left.trappedWolves
     || left.wolfMobility - right.wolfMobility
-    || right.score - left.score
+    || right.profiledScore - left.profiledScore
     || actionKey(left.action).localeCompare(actionKey(right.action)))
-  const bestScore = Math.max(...analyses.map((analysis) => analysis.score))
-  const withinSlack = analyses.filter((analysis) => analysis.score >= bestScore - config.scoreSlack)
+  const bestScore = Math.max(...analyses.map((analysis) => analysis.profiledScore))
+  const withinSlack = analyses.filter((analysis) => analysis.profiledScore >= bestScore - config.scoreSlack)
   return withinSlack.slice(0, config.candidateLimit)
 }
 
@@ -147,8 +167,8 @@ function completeWolfTurnOutcomes(state: BoardState, ctx: SearchContext): { stat
 }
 
 function searchValue(state: BoardState, depth: number, alpha: number, beta: number, ctx: SearchContext): { score: number; complete: boolean } {
-  if (state.status !== 'playing' || depth === 0) return { score: evaluateScore(state), complete: true }
-  if (isExhausted(ctx)) return { score: evaluateScore(state), complete: false }
+  if (state.status !== 'playing' || depth === 0) return { score: profileScore(state, ctx.config), complete: true }
+  if (isExhausted(ctx)) return { score: profileScore(state, ctx.config), complete: false }
 
   const cacheKey = `${boardPositionKey(state)}::${depth}`
   const cached = ctx.cache.get(cacheKey)
@@ -156,8 +176,8 @@ function searchValue(state: BoardState, depth: number, alpha: number, beta: numb
 
   if (state.toMove === 'wolf') {
     const outcomes = completeWolfTurnOutcomes(state, ctx)
-    if (outcomes.states.length === 0) return { score: evaluateScore(state), complete: outcomes.complete }
-    const ordered = outcomes.states.sort((left, right) => evaluateScore(left) - evaluateScore(right))
+    if (outcomes.states.length === 0) return { score: profileScore(state, ctx.config), complete: outcomes.complete }
+    const ordered = outcomes.states.sort((left, right) => profileScore(left, ctx.config) - profileScore(right, ctx.config))
     let best = Infinity
     let complete = outcomes.complete
     for (const outcome of ordered) {
@@ -178,7 +198,7 @@ function searchValue(state: BoardState, depth: number, alpha: number, beta: numb
   let best = -Infinity
   let complete = true
   for (const candidate of candidates) {
-    if (!consumeNode(ctx)) return { score: best === -Infinity ? evaluateScore(state) : best, complete: false }
+    if (!consumeNode(ctx)) return { score: best === -Infinity ? profileScore(state, ctx.config) : best, complete: false }
     const result = applyAction(state, candidate.action)
     if (!result.ok) continue
     const child = searchValue(result.state, depth - 1, alpha, beta, ctx)
@@ -187,7 +207,7 @@ function searchValue(state: BoardState, depth: number, alpha: number, beta: numb
     alpha = Math.max(alpha, best)
     if (beta <= alpha || isExhausted(ctx)) break
   }
-  if (best === -Infinity) best = evaluateScore(state)
+  if (best === -Infinity) best = profileScore(state, ctx.config)
   if (complete) ctx.cache.set(cacheKey, best)
   return { score: best, complete }
 }

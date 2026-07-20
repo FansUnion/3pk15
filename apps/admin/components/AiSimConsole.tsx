@@ -7,8 +7,11 @@ import {
   AI_PROFILE_CONFIG,
   AI_PROFILE_LABEL_ZH,
   analyzeSheepActions,
+  auditPlayerReport,
   boardPositionKey,
   chooseDiagnosticWolfAction,
+  choosePlayerPersonaAction,
+  createPlayerPersonaMemory,
   createLevelInitialState,
   createInitialState,
   createSeededRng,
@@ -23,9 +26,14 @@ import {
   OPENING_SHEEP,
   pickSheepAction,
   pickSheepActionWithMeta,
+  PLAYER_PERSONA_DESCRIPTION_ZH,
+  PLAYER_PERSONA_LABEL_ZH,
   posKey,
   REPETITION_DRAW_COUNT,
+  recordPlayerPersonaAction,
   serialize,
+  shouldContinueDiagnosticChain,
+  shouldContinuePlayerPersonaChain,
   type BoardState,
   type Action,
   type AiProfile,
@@ -33,6 +41,9 @@ import {
   type HardBudgets,
   type LevelConfig,
   type Piece,
+  type PlayerPersona,
+  type PlayerReportAudit,
+  type PlayerPersonaMemory,
   type Pos,
   type Side,
 } from '@wolf-sheep/game-core'
@@ -42,6 +53,7 @@ import { AI_FIXTURES } from './aiFixtures'
 import { consumeCandidateHandoff } from '@/lib/candidate-handoff'
 
 type PlaceMode = 'cycle' | 'empty' | 'wolf' | 'sheep' | 'rock'
+type WolfSimulationPolicy = DiagnosticWolfStrategy | PlayerPersona
 
 const CYCLE: Array<'empty' | 'wolf' | 'sheep' | 'rock'> = ['empty', 'wolf', 'sheep', 'rock']
 const AI_PROFILES: AiProfile[] = ['guided', 'foundation', 'tactical', 'strategic', 'expert']
@@ -60,7 +72,7 @@ type BatchResult = {
   lastSerialize: string | null
   csv: string
   records: BatchGameRecord[]
-  wolfStrategy: DiagnosticWolfStrategy
+  wolfStrategy: WolfSimulationPolicy
   sheepProfile: AiProfile
 }
 
@@ -75,7 +87,9 @@ type BatchGameRecord = {
   plies: number
   eatenSheep: number
   firstCapturePly: number | null
-  wolfStrategy: DiagnosticWolfStrategy
+  dominantWolfShare: number
+  sameHunterCaptureStreak: number
+  wolfStrategy: WolfSimulationPolicy
   sheepProfile: AiProfile
 }
 
@@ -84,6 +98,7 @@ type ReplayData = {
   states: string[]
   actions: string[]
   suspectIndices: number[]
+  audit?: PlayerReportAudit
 }
 
 type Props = {
@@ -120,7 +135,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
     const level = initialLevel ? getLevel(initialLevel) : undefined
     return isAiProfile(initialProfile) ? initialProfile : level?.aiProfile ?? 'guided'
   })
-  const [batchWolfStrategy, setBatchWolfStrategy] = useState<DiagnosticWolfStrategy>('mixed')
+  const [batchWolfStrategy, setBatchWolfStrategy] = useState<WolfSimulationPolicy>('regular')
   const [batchResult, setBatchResult] = useState<BatchResult | null>(null)
   const [batchProgress, setBatchProgress] = useState(0)
   const [reasonFilter, setReasonFilter] = useState<'all' | TerminalReason>('all')
@@ -388,7 +403,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
       else if (sim.outcome === 'sheep_win') sheepWins++
       else timeout++
       lastSerialize = sim.serialized
-      records.push({ index: g + 1, levelId: level.id, seed: gameSeed, outcome: sim.outcome, reason: sim.reason, plies: sim.plies, eatenSheep: sim.eatenSheep, firstCapturePly: sim.firstCapturePly, wolfStrategy: batchWolfStrategy, sheepProfile: batchProfile })
+      records.push({ index: g + 1, levelId: level.id, seed: gameSeed, outcome: sim.outcome, reason: sim.reason, plies: sim.plies, eatenSheep: sim.eatenSheep, firstCapturePly: sim.firstCapturePly, dominantWolfShare: sim.dominantWolfShare, sameHunterCaptureStreak: sim.sameHunterCaptureStreak, wolfStrategy: batchWolfStrategy, sheepProfile: batchProfile })
       if (g % 5 === 0 || g === n - 1) {
         setBatchProgress(g + 1)
         await new Promise((r) => setTimeout(r, 0))
@@ -758,6 +773,9 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
               <li>下一完整狼回合最多可吃 {breakdown.captureChainRisk.toFixed(0)}</li>
               <li>已经完全受困的狼 {breakdown.trappedWolves.toFixed(0)}</li>
               <li>最弱一只狼的合法行动 {breakdown.weakestWolfMobility.toFixed(0)}</li>
+              <li>固定猎手持续威胁 {breakdown.persistentHunterRisk.toFixed(0)}</li>
+              <li>临近8只的终局风险 {breakdown.terminalUrgency.toFixed(1)}</li>
+              <li>针对最弱狼的压力 {breakdown.targetPressure.toFixed(1)}</li>
               <li>当前局面重复次数 {breakdown.repetitionPressure.toFixed(0)}</li>
             </ul>
           </div>
@@ -824,15 +842,22 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            狼方基准
+            模拟玩家
             <select
               value={batchWolfStrategy}
-              onChange={(e) => setBatchWolfStrategy(e.target.value as DiagnosticWolfStrategy)}
+              onChange={(e) => setBatchWolfStrategy(e.target.value as WolfSimulationPolicy)}
               className="rounded border border-[#5c6b52]/40 bg-white px-2 py-1"
             >
-              <option value="mixed">策略型狼（推荐）</option>
-              <option value="random">随机狼（最低基准）</option>
+              <optgroup label="玩家水平画像">
+                {(Object.keys(PLAYER_PERSONA_LABEL_ZH) as PlayerPersona[]).map((persona) => <option key={persona} value={persona}>{PLAYER_PERSONA_LABEL_ZH[persona]}</option>)}
+              </optgroup>
+              <optgroup label="历史诊断基线">
+                <option value="mixed">旧策略基线</option>
+                <option value="chain-aware">旧连吃基线</option>
+                <option value="random">旧随机基线</option>
+              </optgroup>
             </select>
+            <span className="max-w-56 text-xs text-[#5c6b52]">{isPlayerPersona(batchWolfStrategy) ? PLAYER_PERSONA_DESCRIPTION_ZH[batchWolfStrategy] : '仅用于历史自动排雷，不代表某种玩家水平。'}</span>
           </label>
           <label className="flex flex-col gap-1">
             模拟局数
@@ -931,9 +956,9 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
             </div>
             <div className="max-h-72 overflow-auto border border-[#5c6b52]/20 bg-white">
               <table className="w-full text-left text-xs">
-                <thead className="sticky top-0 bg-[#eef2ea]"><tr><th className="p-2">局</th><th>种子</th><th>终局</th><th>总步数</th><th>首次捕食</th><th>操作</th></tr></thead>
+                <thead className="sticky top-0 bg-[#eef2ea]"><tr><th className="p-2">局</th><th>种子</th><th>终局</th><th>总步数</th><th>首次捕食</th><th>固定猎手</th><th>操作</th></tr></thead>
                 <tbody>{batchResult.records.filter((record) => reasonFilter === 'all' || record.reason === reasonFilter).map((record) => (
-                  <tr key={record.index} className="border-t border-[#5c6b52]/10"><td className="p-2">{record.index}</td><td>{record.seed}</td><td>{terminalReasonLabel(record.reason)}</td><td>{record.plies}</td><td>{record.firstCapturePly ?? '-'}</td><td className="space-x-2"><button type="button" onClick={() => openReplay(record)} className="underline">回放</button><button type="button" onClick={() => exportReproduction(record)} className="underline">导出复现包</button></td></tr>
+                  <tr key={record.index} className="border-t border-[#5c6b52]/10"><td className="p-2">{record.index}</td><td>{record.seed}</td><td>{terminalReasonLabel(record.reason)}</td><td>{record.plies}</td><td>{record.firstCapturePly ?? '-'}</td><td>{record.eatenSheep ? `${(record.dominantWolfShare * 100).toFixed(0)}% · 连${record.sameHunterCaptureStreak}` : '-'}</td><td className="space-x-2"><button type="button" onClick={() => openReplay(record)} className="underline">回放</button><button type="button" onClick={() => exportReproduction(record)} className="underline">导出复现包</button></td></tr>
                 ))}</tbody>
               </table>
             </div>
@@ -947,6 +972,12 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
           <div className="mt-4 grid items-start gap-4 md:grid-cols-[minmax(0,480px)_1fr]">
             <BoardSvg state={deserialize(JSON.parse(replay.states[replayIndex]!))} selectedWolfId={null} stepHighlights={[]} jumpHighlights={[]} jumpThroughs={[]} interactive={false} theme={themeForChapter(getLevel(replay.record.levelId)?.chapterId ?? 'spring')} onSelectWolf={() => undefined} onClickCell={() => undefined} />
             <div>
+              {replay.audit && <div className="mb-3 border border-[#5c6b52]/20 bg-white p-3 text-xs text-[#5c6b52]">
+                <p className="font-medium text-[#2c3328]">玩家问题自动归因</p>
+                <p className="mt-1">AI动作复现 {replay.audit.reproducibleTurns}/{replay.audit.sheepTurns} · 严格劣着 {replay.audit.dominatedTurns} · 有零暴露替代 {replay.audit.avoidableImmediateExposureTurns}</p>
+                <p className="mt-1">捕食归属 {Object.entries(replay.audit.capturesByWolf).map(([wolf, count]) => `${wolf} ${count}`).join(' · ') || '无'} · 最高集中度 {(replay.audit.dominantWolfShare * 100).toFixed(0)}% · 同一猎手连续 {replay.audit.sameHunterCaptureStreak} 次</p>
+                {replay.audit.decisions.some((decision) => decision.teacher) && <p className="mt-1">离线教师：{replay.audit.decisions.filter((decision) => decision.teacher).map((decision) => `第${decision.actionIndex}步 ${decision.teacher!.verdict}${decision.teacher!.regret === null ? '' : `（后悔值 ${decision.teacher!.regret.toFixed(1)}）`}`).join(' · ')}</p>}
+              </div>}
               <input aria-label="回放步骤" type="range" min={0} max={replay.states.length - 1} value={replayIndex} onChange={(event) => setReplayIndex(Number(event.target.value))} className="w-full" />
               <div className="mt-2 flex gap-2"><button type="button" disabled={replayIndex === 0} onClick={() => setReplayIndex((value) => Math.max(0, value - 1))} className="border px-3 py-2 disabled:opacity-40">上一步</button><button type="button" disabled={replayIndex >= replay.states.length - 1} onClick={() => setReplayIndex((value) => Math.min(replay.states.length - 1, value + 1))} className="border px-3 py-2 disabled:opacity-40">下一步</button></div>
               <button type="button" onClick={loadReplayForTakeover} className="mt-2 bg-[#3d4a3a] px-3 py-2 text-sm text-[#f4f1ea]">从此步人工接管</button>
@@ -969,8 +1000,15 @@ function ResultMetric({ label, value }: { label: string; value: string }) {
   )
 }
 
-function wolfStrategyLabel(strategy: DiagnosticWolfStrategy) {
-  return strategy === 'mixed' ? '策略型狼（近似懂规则的玩家）' : '随机狼（最低能力基准）'
+function isPlayerPersona(strategy: WolfSimulationPolicy): strategy is PlayerPersona {
+  return ['novice', 'regular', 'skilled', 'expert'].includes(strategy)
+}
+
+function wolfStrategyLabel(strategy: WolfSimulationPolicy) {
+  if (isPlayerPersona(strategy)) return PLAYER_PERSONA_LABEL_ZH[strategy]
+  if (strategy === 'mixed') return '旧策略基线'
+  if (strategy === 'chain-aware') return '旧连吃基线'
+  return '旧随机基线'
 }
 
 function terminalReasonLabel(reason: TerminalReason) {
@@ -1004,24 +1042,15 @@ function actionText(action: Action) {
 function buildPlayerReportReplay(data: any): ReplayData | null {
   const level = getLevel(data.levelId)
   if (!level || !Array.isArray(data.actions)) return null
+  const audit = auditPlayerReport(data, { teacher: true })
+  if (!audit.ok) return null
   let current = createLevelInitialState(level)
   const states = [JSON.stringify(serialize(current))]
   const actions: string[] = []
-  const suspectIndices: number[] = []
+  const suspectIndices = audit.decisions
+    .filter((decision) => decision.dominated || decision.avoidableImmediateExposure)
+    .map((decision) => decision.actionIndex - 1)
   for (const action of data.actions) {
-    if (current.status === 'playing' && current.toMove === 'sheep' && action?.type !== 'end-chain') {
-      const analyses = analyzeSheepActions(current)
-      const selected = analyses.find((candidate) => JSON.stringify(candidate.action) === JSON.stringify(action))
-      const safe = analyses.filter((candidate) => !candidate.dominated)
-      const minChain = Math.min(...(safe.length > 0 ? safe : analyses).map((candidate) => candidate.maxCaptureChain))
-      const saferChain = analyses.some((candidate) => !candidate.dominated
-        && candidate.maxCaptureChain < (selected?.maxCaptureChain ?? Infinity)
-        && candidate.trappedWolves >= (selected?.trappedWolves ?? 0)
-        && candidate.wolfMobility <= (selected?.wolfMobility ?? Infinity))
-      if (selected?.dominated || ((selected?.maxCaptureChain ?? 0) > minChain && saferChain)) {
-        suspectIndices.push(actions.length)
-      }
-    }
     const result = action?.type === 'end-chain' ? endWolfTurn(current) : applyAction(current, action as Action)
     if (!result.ok) return null
     current = result.state
@@ -1039,12 +1068,15 @@ function buildPlayerReportReplay(data: any): ReplayData | null {
       plies: current.plyCount,
       eatenSheep: current.eatenSheep,
       firstCapturePly: null,
+      dominantWolfShare: audit.dominantWolfShare,
+      sameHunterCaptureStreak: audit.sameHunterCaptureStreak,
       wolfStrategy: 'mixed',
       sheepProfile: data.aiProfile ?? level.aiProfile,
     },
     states,
     actions,
     suspectIndices,
+    audit,
   }
 }
 
@@ -1054,9 +1086,11 @@ function batchInterpretation(result: BatchResult) {
   const unexpected = result.records.filter((record) => record.reason === 'unexpected').length
   if (unexpected > 0) return `发现 ${unexpected} 局异常终局。先打开这些棋谱检查规则、状态恢复或模拟入口，不应继续做平衡结论。`
   if (gameRate(unresolved, result.games) >= 0.2) return `有 ${unresolved} 局拖到回合耗尽、重复或模拟上限，比例偏高。优先检查是否只有拖延、没有有效攻防进展。`
-  if (result.wolfStrategy === 'random' && wolfRate >= 0.8) return '随机走法也经常获胜，说明关卡可能过松，或当前羊 AI 防守压力不足。建议再用“策略型狼”运行，并复盘羊是否明显送子。'
+  if (result.wolfStrategy === 'random' && wolfRate >= 0.8) return '随机走法也经常获胜，说明关卡可能过松，或当前羊 AI 防守压力不足。建议再用普通或熟练玩家画像运行，并复盘羊是否明显送子。'
   if (result.wolfStrategy === 'mixed' && wolfRate >= 0.9 && result.sheepWins === 0) return '策略型狼几乎稳定获胜，存在关卡偏易或强制胜风险。请复盘最快胜局，确认获胜是否需要真实策略。'
   if (result.wolfStrategy === 'mixed' && wolfRate <= 0.2) return '策略型狼仍很难获胜，存在关卡偏难或获胜路径不清晰风险。请复盘狼方失败局和首次捕食时间。'
+  if (result.wolfStrategy === 'expert' && wolfRate <= 0.2) return '资深玩家画像仍很难建立胜路。先检查地图或开局是否过度封锁，再确认羊 AI 是否只会拖延。'
+  if (result.wolfStrategy === 'novice' && wolfRate >= 0.8) return '新手画像也能稳定获胜，当前关卡可能过松；春季前段之外应重点检查羊是否送子。'
   return '当前基准没有显示单一的极端风险。下一步应查看代表性胜负棋谱，并由人工试玩确认策略是否清楚、操作是否合理。'
 }
 
@@ -1075,16 +1109,19 @@ function gameRate(n: number, total: number) {
 function simulateOneGame(
   level: LevelConfig,
   profile: AiProfile,
-  wolfStrategy: DiagnosticWolfStrategy,
+  wolfStrategy: WolfSimulationPolicy,
   seed: number,
   maxSteps = 400,
   budgets?: HardBudgets,
   captureReplay = false,
-): { outcome: 'wolf_win' | 'sheep_win' | 'timeout'; reason: TerminalReason; plies: number; eatenSheep: number; firstCapturePly: number | null; serialized: string; states: string[]; actions: string[] } {
+): { outcome: 'wolf_win' | 'sheep_win' | 'timeout'; reason: TerminalReason; plies: number; eatenSheep: number; firstCapturePly: number | null; dominantWolfShare: number; sameHunterCaptureStreak: number; serialized: string; states: string[]; actions: string[] } {
   let s = createLevelInitialState(level)
   let localSeed = seed
   let plies = 0
   let firstCapturePly: number | null = null
+  const capturesByWolf: Record<string, number> = {}
+  const captureOrder: string[] = []
+  const personaMemory: PlayerPersonaMemory = createPlayerPersonaMemory()
   const states = captureReplay ? [JSON.stringify(serialize(s))] : []
   const actions: string[] = []
   while (s.status === 'playing' && plies < maxSteps) {
@@ -1094,14 +1131,23 @@ function simulateOneGame(
       const legal = listLegalActions(s)
       if (legal.length === 0) break
       const rng = createSeededRng(localSeed++)
-      const pick = chooseDiagnosticWolfAction(s, legal, rng, wolfStrategy)
+      const before = s
+      const pick = isPlayerPersona(wolfStrategy)
+        ? choosePlayerPersonaAction(s, legal, rng, wolfStrategy, personaMemory)
+        : chooseDiagnosticWolfAction(s, legal, rng, wolfStrategy)
       const res = applyAction(s, pick)
       if (!res.ok) break
       s = res.state
+      if (isPlayerPersona(wolfStrategy)) recordPlayerPersonaAction(before, pick, s, personaMemory)
       actions.push(`wolf:${JSON.stringify(pick)}`)
       if (s.chain) {
-        const end = endWolfTurn(s)
-        if (end.ok) s = end.state
+        const shouldContinue = isPlayerPersona(wolfStrategy)
+          ? shouldContinuePlayerPersonaChain(s, rng, wolfStrategy, personaMemory)
+          : wolfStrategy === 'chain-aware' && shouldContinueDiagnosticChain(s, rng)
+        if (!shouldContinue) {
+          const end = endWolfTurn(s)
+          if (end.ok) s = end.state
+        }
       }
     } else {
       const action = pickSheepAction(s, {
@@ -1114,18 +1160,36 @@ function simulateOneGame(
       s = res.state
       actions.push(`sheep:${JSON.stringify(action)}`)
     }
-    if (firstCapturePly === null && s.eatenSheep > beforeEaten) firstCapturePly = s.plyCount
+    if (s.eatenSheep > beforeEaten) {
+      firstCapturePly ??= s.plyCount
+      const lastAction = actions[actions.length - 1] ?? ''
+      const wolfId = /"pieceId":"([^"]+)"/.exec(lastAction)?.[1]
+      if (wolfId) {
+        capturesByWolf[wolfId] = (capturesByWolf[wolfId] ?? 0) + (s.eatenSheep - beforeEaten)
+        captureOrder.push(wolfId)
+      }
+    }
     if (captureReplay) states.push(JSON.stringify(serialize(s)))
   }
   let outcome: 'wolf_win' | 'sheep_win' | 'timeout' = 'timeout'
   if (s.status === 'won') outcome = 'wolf_win'
   else if (s.status === 'lost') outcome = 'sheep_win'
+  let previousWolf: string | null = null
+  let currentStreak = 0
+  let sameHunterCaptureStreak = 0
+  for (const wolfId of captureOrder) {
+    currentStreak = wolfId === previousWolf ? currentStreak + 1 : 1
+    sameHunterCaptureStreak = Math.max(sameHunterCaptureStreak, currentStreak)
+    previousWolf = wolfId
+  }
   return {
     outcome,
     reason: terminalReason(s, plies >= maxSteps),
     plies,
     eatenSheep: s.eatenSheep,
     firstCapturePly,
+    dominantWolfShare: s.eatenSheep > 0 ? Math.max(0, ...Object.values(capturesByWolf)) / s.eatenSheep : 0,
+    sameHunterCaptureStreak,
     serialized: JSON.stringify(serialize(s), null, 2),
     states,
     actions,

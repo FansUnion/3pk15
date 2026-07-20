@@ -1,5 +1,13 @@
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { assessLevelCandidate, LEVELS } from '../src/index'
+import {
+  assessLevelCandidate,
+  buildCandidateAcceptanceReport,
+  LEVELS,
+  type CandidateGameEvidence,
+  type CandidateWolfStrategy,
+} from '../src/index'
 
 describe('level candidate acceptance', () => {
   it('rejects a structurally invalid candidate without simulating it', () => {
@@ -25,15 +33,43 @@ describe('level candidate acceptance', () => {
   }, 15_000)
 })
 
-const productionDescribe = process.env.RUN_CANDIDATE_ACCEPTANCE === '1' ? describe : describe.skip
-const candidateChapter = process.env.CANDIDATE_CHAPTER
+// Slow proxy matrix. Each worker runs one wolf policy so Vitest can keep reporting
+// progress; the final verdict is rebuilt from all preserved games by core logic.
+const partialDescribe = process.env.RUN_CANDIDATE_PARTIAL === '1' ? describe : describe.skip
 const candidateLevel = process.env.CANDIDATE_LEVEL
-const productionLevels = LEVELS.filter((level) => (!candidateChapter || level.chapterId === candidateChapter)
-  && (!candidateLevel || level.id === candidateLevel))
+const candidateStrategy = process.env.CANDIDATE_STRATEGY as CandidateWolfStrategy | undefined
+const candidateReportPath = process.env.CANDIDATE_REPORT_PATH
+const candidateSeeds = JSON.parse(process.env.CANDIDATE_SEEDS ?? '[]') as number[]
 
-productionDescribe('production level candidate gate', () => {
-  it.each(productionLevels)('prints the current $id verdict and evidence triggers', (level) => {
-    const reports = [assessLevelCandidate(level)]
+partialDescribe('production level candidate evidence worker', () => {
+  it('writes one level and one strategy with full production AI budget', () => {
+    const level = LEVELS.find((entry) => entry.id === candidateLevel)
+    if (!level || !candidateStrategy || !candidateReportPath || candidateSeeds.length === 0) {
+      throw new Error('candidate worker environment is incomplete')
+    }
+    const report = assessLevelCandidate(level, { strategies: [candidateStrategy], seeds: candidateSeeds })
+    mkdirSync(dirname(candidateReportPath), { recursive: true })
+    writeFileSync(candidateReportPath, `${JSON.stringify(report.games, null, 2)}\n`, 'utf8')
+    expect(report.games).toHaveLength(candidateSeeds.length)
+    expect(report.structuralErrors).toEqual([])
+  }, 150_000)
+})
+
+const aggregateDescribe = process.env.RUN_CANDIDATE_AGGREGATE === '1' ? describe : describe.skip
+aggregateDescribe('production level candidate aggregate', () => {
+  it('rebuilds final verdicts from every strategy worker', () => {
+    const inputDir = process.env.CANDIDATE_INPUT_DIR
+    const outputPath = process.env.CANDIDATE_OUTPUT_PATH
+    const requestedLevels = JSON.parse(process.env.CANDIDATE_LEVELS ?? '[]') as string[]
+    if (!inputDir || !outputPath || requestedLevels.length === 0) throw new Error('candidate aggregate environment is incomplete')
+    const reports = requestedLevels.map((levelId) => {
+      const level = LEVELS.find((entry) => entry.id === levelId)
+      if (!level) throw new Error(`unknown level ${levelId}`)
+      const games = (['random', 'mixed', 'chain-aware'] as const).flatMap((strategy) =>
+        [0, 1].flatMap((chunk) =>
+          JSON.parse(readFileSync(join(inputDir, `${levelId}-${strategy}-${chunk}.json`), 'utf8')) as CandidateGameEvidence[]))
+      return buildCandidateAcceptanceReport(level, games, Array.from({ length: 10 }, (_, index) => 20260717 + index))
+    })
     console.table(reports.map((report) => ({
       level: report.levelId,
       verdict: report.verdict,
@@ -46,8 +82,17 @@ productionDescribe('production level candidate gate', () => {
       avoidableChain: report.summaries.mixed.avoidableChainExposure,
       degraded: report.summaries.mixed.degradedTurns,
       maxChain: report.summaries.mixed.maxCaptureChain,
+      hunterShare: report.summaries.mixed.averageDominantWolfShare.toFixed(2),
+      hunterStreak: report.summaries.mixed.maxSameHunterCaptureStreak,
     })))
-    expect(reports).toHaveLength(1)
-    expect(reports.every((report) => report.structuralErrors.length === 0)).toBe(true)
-  }, 150_000)
+    mkdirSync(dirname(outputPath), { recursive: true })
+    writeFileSync(outputPath, `${JSON.stringify({
+      generatedAt: new Date().toISOString(),
+      aiAlgorithmVersion: reports[0]?.aiAlgorithmVersion,
+      seeds: Array.from({ length: 10 }, (_, index) => 20260717 + index),
+      reports,
+    }, null, 2)}\n`, 'utf8')
+    expect(reports).toHaveLength(requestedLevels.length)
+    expect(reports.every((report) => report.games.length === 30)).toBe(true)
+  })
 })

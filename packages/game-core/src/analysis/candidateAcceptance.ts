@@ -15,6 +15,7 @@ import {
 import type { Action, BoardState } from '../types'
 
 export type CandidateWolfStrategy = DiagnosticWolfStrategy
+/** Automated risk-screening status. `pass` never means player or product approval. */
 export type CandidateVerdict = 'pass' | 'review' | 'reject'
 
 export type CandidateGameEvidence = {
@@ -25,6 +26,11 @@ export type CandidateGameEvidence = {
   plies: number
   eaten: number
   firstCapturePly: number | null
+  capturesByWolf: Record<string, number>
+  movesByWolf: Record<string, number>
+  dominantWolfShare: number
+  sameHunterCaptureStreak: number
+  closingCaptureSpan: number | null
   trace: string[]
   repetitionCycle?: {
     firstSeenPly: number
@@ -72,12 +78,15 @@ export type CandidateAcceptanceReport = {
     avoidableChainExposure: number
     degradedTurns: number
     maxCaptureChain: number
+    averageDominantWolfShare: number
+    maxSameHunterCaptureStreak: number
   }>
 }
 
 export type CandidateAcceptanceOptions = {
   seeds?: number[]
   hardMaxNodes?: number
+  strategies?: CandidateWolfStrategy[]
 }
 
 const DEFAULT_SEEDS = Array.from({ length: 10 }, (_, index) => 20260717 + index)
@@ -102,6 +111,10 @@ function terminalReason(state: BoardState): CandidateGameEvidence['reason'] {
   return 'unexpected'
 }
 
+/**
+ * Reproducible proxy match used to expose structural, tactical and long-tail risks.
+ * Diagnostic wolf policies are deliberately cheap and do not represent player skill tiers.
+ */
 function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, seed: number, hardMaxNodes?: number): CandidateGameEvidence {
   let state = createLevelInitialState(level)
   const wolfRandom = createSeededRng(seed)
@@ -109,6 +122,9 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
   const trace: string[] = []
   const seenPositions = new Map<string, { ply: number, traceIndex: number }[]>()
   let firstCapturePly: number | null = null
+  const capturesByWolf: Record<string, number> = {}
+  const movesByWolf: Record<string, number> = {}
+  const captureEvents: Array<{ wolfId: string; ply: number; total: number }> = []
   let repetitionCycle: CandidateGameEvidence['repetitionCycle']
   const sheepDecisionQuality: CandidateGameEvidence['sheepDecisionQuality'] = {
     turns: 0,
@@ -174,12 +190,21 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
       }
     }
     const eatenBefore = state.eatenSheep
+    const beforeMove = state
     const result = applyAction(state, action)
     if (!result.ok) throw new Error(result.error)
     state = result.state
+    if (beforeMove.toMove === 'wolf' && action.type !== 'pass') {
+      movesByWolf[action.pieceId] = (movesByWolf[action.pieceId] ?? 0) + 1
+    }
     trace.push(`${state.plyCount}:${actionLabel(action)}`)
     observePosition()
-    if (firstCapturePly === null && state.eatenSheep > eatenBefore) firstCapturePly = state.plyCount
+    if (state.eatenSheep > eatenBefore && action.type === 'jump') {
+      firstCapturePly ??= state.plyCount
+      const captured = state.eatenSheep - eatenBefore
+      capturesByWolf[action.pieceId] = (capturesByWolf[action.pieceId] ?? 0) + captured
+      captureEvents.push({ wolfId: action.pieceId, ply: state.plyCount, total: state.eatenSheep })
+    }
     if (state.status === 'playing' && state.chain && (strategy !== 'chain-aware' || !shouldContinueDiagnosticChain(state, wolfRandom))) {
       const ended = endWolfTurn(state)
       if (!ended.ok) throw new Error(ended.error)
@@ -189,6 +214,16 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
     }
   }
 
+  let previousWolf: string | null = null
+  let currentStreak = 0
+  let sameHunterCaptureStreak = 0
+  for (const capture of captureEvents) {
+    currentStreak = capture.wolfId === previousWolf ? currentStreak + 1 : 1
+    sameHunterCaptureStreak = Math.max(sameHunterCaptureStreak, currentStreak)
+    previousWolf = capture.wolfId
+  }
+  const fifth = captureEvents.find((capture) => capture.total >= 5)
+  const final = captureEvents.find((capture) => capture.total >= state.targetEaten)
   return {
     seed,
     strategy,
@@ -197,6 +232,11 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
     plies: state.plyCount,
     eaten: state.eatenSheep,
     firstCapturePly,
+    capturesByWolf,
+    movesByWolf,
+    dominantWolfShare: state.eatenSheep > 0 ? Math.max(0, ...Object.values(capturesByWolf)) / state.eatenSheep : 0,
+    sameHunterCaptureStreak,
+    closingCaptureSpan: fifth && final ? final.ply - fifth.ply : null,
     trace,
     repetitionCycle,
     finalSheepAdvantage: measureSheepAdvantage(state),
@@ -204,13 +244,16 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
   }
 }
 
-export function assessLevelCandidate(level: LevelConfig, options: CandidateAcceptanceOptions = {}): CandidateAcceptanceReport {
+/**
+ * Screens a level against the currently encoded red flags. Absence of findings only
+ * means no encoded rule fired; it does not prove balance, fun or expert AI quality.
+ */
+export function buildCandidateAcceptanceReport(
+  level: LevelConfig,
+  games: CandidateGameEvidence[],
+  seeds: number[],
+): CandidateAcceptanceReport {
   const structuralErrors = validateLevel(level)
-  const seeds = options.seeds ?? DEFAULT_SEEDS
-  const hardMaxNodes = options.hardMaxNodes
-  const games = structuralErrors.length === 0
-    ? (['random', 'mixed', 'chain-aware'] as const).flatMap((strategy) => seeds.map((seed) => runCandidateGame(level, strategy, seed, hardMaxNodes)))
-    : []
   const byStrategy = (strategy: CandidateWolfStrategy) => games.filter((game) => game.strategy === strategy)
   const summarize = (strategy: CandidateWolfStrategy) => {
     const selected = byStrategy(strategy)
@@ -226,6 +269,8 @@ export function assessLevelCandidate(level: LevelConfig, options: CandidateAccep
       avoidableChainExposure: selected.reduce((sum, game) => sum + game.sheepDecisionQuality.avoidableChainExposure, 0),
       degradedTurns: selected.reduce((sum, game) => sum + game.sheepDecisionQuality.degradedTurns, 0),
       maxCaptureChain: Math.max(0, ...selected.map((game) => game.sheepDecisionQuality.maxCaptureChain)),
+      averageDominantWolfShare: selected.reduce((sum, game) => sum + game.dominantWolfShare, 0) / Math.max(1, selected.length),
+      maxSameHunterCaptureStreak: Math.max(0, ...selected.map((game) => game.sameHunterCaptureStreak)),
     }
   }
   const summaries = { random: summarize('random'), mixed: summarize('mixed'), 'chain-aware': summarize('chain-aware') }
@@ -263,6 +308,12 @@ export function assessLevelCandidate(level: LevelConfig, options: CandidateAccep
     if (degradedGames.length > 0) {
       findings.push({ severity: 'review', code: 'AI_SEARCH_DEGRADED', message: 'production sheep AI did not complete its configured search depth', evidenceSeeds: [...new Set(degradedGames.map((game) => game.seed))] })
     }
+    const serialHunterGames = mixed.filter((game) => game.winner === 'wolf'
+      && game.dominantWolfShare >= 0.75
+      && game.sameHunterCaptureStreak >= 4)
+    if (serialHunterGames.length >= Math.max(2, Math.ceil(seeds.length * 0.2))) {
+      findings.push({ severity: 'review', code: 'SERIAL_HUNTER_RISK', message: 'one wolf repeatedly accounts for most captures; inspect whether the other wolves created real control or the sheep missed a reusable route', evidenceSeeds: serialHunterGames.map((game) => game.seed) })
+    }
     const unexpected = games.filter((game) => game.reason === 'unexpected')
     if (unexpected.length > 0) {
       findings.push({ severity: 'reject', code: 'UNEXPECTED_TERMINAL', message: 'simulation reached an unclassified terminal state', evidenceSeeds: unexpected.map((game) => game.seed) })
@@ -282,4 +333,14 @@ export function assessLevelCandidate(level: LevelConfig, options: CandidateAccep
     games,
     summaries,
   }
+}
+
+export function assessLevelCandidate(level: LevelConfig, options: CandidateAcceptanceOptions = {}): CandidateAcceptanceReport {
+  const seeds = options.seeds ?? DEFAULT_SEEDS
+  const structuralErrors = validateLevel(level)
+  const strategies = options.strategies ?? (['random', 'mixed', 'chain-aware'] as const)
+  const games = structuralErrors.length === 0
+    ? strategies.flatMap((strategy) => seeds.map((seed) => runCandidateGame(level, strategy, seed, options.hardMaxNodes)))
+    : []
+  return buildCandidateAcceptanceReport(level, games, seeds)
 }

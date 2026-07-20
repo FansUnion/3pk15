@@ -25,6 +25,11 @@ function firstSheepDecision(level: (typeof LEVELS)[number]) {
   return state
 }
 
+/**
+ * Fast configuration smoke gate: one deterministic first sheep decision per level.
+ * It proves profile wiring, legality and baseline search health, not midgame/endgame
+ * intelligence, player difficulty, level balance or product approval.
+ */
 describe('24-level production AI profile gate', () => {
   for (const level of LEVELS) {
     it(`${level.id} uses a legal, non-dominated and reproducible ${level.aiProfile} decision`, () => {
@@ -47,7 +52,8 @@ describe('24-level production AI profile gate', () => {
       expect(first.meta.nodes).toBeLessThanOrEqual(AI_PROFILE_CONFIG[level.aiProfile].budgets.maxNodes)
       expect(analysis?.dominated).toBe(false)
       if (AI_PROFILE_CONFIG[level.aiProfile].searchDepth > 0) {
-        expect(first.meta.completedDepth).toBeGreaterThanOrEqual(1)
+        expect(first.meta.completedDepth).toBe(AI_PROFILE_CONFIG[level.aiProfile].searchDepth)
+        expect(first.meta.degraded).toBe(false)
       }
     })
   }

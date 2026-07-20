@@ -114,9 +114,9 @@ export {
 } from './ai/index'
 export type { AiContext, AiProfileConfig, HardBudgets, HardPickMeta, Rng } from './ai/index'
 export { AI_PROFILE_CONFIG, pickHardWithMeta, pickProfiledSheepActionWithMeta, SHEEP_AI_ALGORITHM_VERSION } from './ai/index'
-export { analyzeSheepActions, evaluate, evaluateScore, maxCapturesInWolfTurn } from './ai/evaluate'
+export { analyzeSheepActions, evaluate, evaluateScore, maxCapturesInWolfTurn, persistentHunterRisk } from './ai/evaluate'
 export type { EvalBreakdown, SheepActionAnalysis } from './ai/evaluate'
-export { assessLevelCandidate } from './analysis/candidateAcceptance'
+export { assessLevelCandidate, buildCandidateAcceptanceReport } from './analysis/candidateAcceptance'
 export type {
   CandidateAcceptanceOptions,
   CandidateAcceptanceReport,
@@ -127,6 +127,25 @@ export type {
 } from './analysis/candidateAcceptance'
 export { chooseDiagnosticWolfAction, shouldContinueDiagnosticChain } from './analysis/diagnosticWolf'
 export type { DiagnosticWolfStrategy } from './analysis/diagnosticWolf'
+export {
+  choosePlayerPersonaAction,
+  countCurrentWolfThreats,
+  createPlayerPersonaMemory,
+  PLAYER_PERSONA_DESCRIPTION_ZH,
+  PLAYER_PERSONA_LABEL_ZH,
+  playerPersonaPositionScore,
+  recordPlayerPersonaAction,
+  shouldContinuePlayerPersonaChain,
+} from './analysis/playerPersona'
+export type { PlayerPersona, PlayerPersonaMemory } from './analysis/playerPersona'
+export { assessPersonaMatrix, simulatePersonaGame } from './analysis/personaSimulation'
+export type { PersonaGameEvidence, PersonaMatrixReport } from './analysis/personaSimulation'
+export { judgeSheepAction, teacherPositionScore } from './analysis/sheepTeacher'
+export type { TeacherActionScore, TeacherJudgement, TeacherOptions } from './analysis/sheepTeacher'
+export { auditPlayerReport } from './analysis/playerReportAudit'
+export type { AuditedSheepDecision, PlayerReportAudit, PlayerReportInput, ReportAction } from './analysis/playerReportAudit'
+export { LEARNING_STAGE_CONTRACTS, learningStageForLevel } from './content/learningCurve'
+export type { LearningStageContract, LearningStageId } from './content/learningCurve'
 export { analyzeLevelTopology, topologySignatureGroup } from './analysis/topology'
 export type { LevelTopology, RockGap } from './analysis/topology'
 export { measureSheepAdvantage } from './analysis/sheepAdvantage'

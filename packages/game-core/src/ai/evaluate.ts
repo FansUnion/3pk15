@@ -19,6 +19,9 @@ export type EvalBreakdown = {
   trappedWolves: number
   weakestWolfMobility: number
   repetitionPressure: number
+  persistentHunterRisk: number
+  terminalUrgency: number
+  targetPressure: number
 }
 
 const W = {
@@ -33,6 +36,9 @@ const W = {
   trappedWolves: 18,
   weakestWolfMobility: -1.2,
   repetitionPressure: -2,
+  persistentHunterRisk: 0,
+  terminalUrgency: 0,
+  targetPressure: 0,
 }
 
 function sheepPositions(state: BoardState) {
@@ -128,6 +134,32 @@ export function maxCapturesInWolfTurn(state: BoardState): number {
   }, 0)
 }
 
+/** Immediate jumps plus the best one-step setup for a single recurring hunter. */
+export function persistentHunterRisk(state: BoardState): number {
+  const wolves = state.pieces.filter((piece) => piece.side === 'wolf')
+  const actions = listWolfActionsAsIfTurn(state)
+  const sheep = new Set(state.pieces.filter((piece) => piece.side === 'sheep').map((piece) => posKey(piece.r, piece.c)))
+  const occupiedWithout = (wolfId: string) => new Set(state.pieces.filter((piece) => piece.id !== wolfId).map((piece) => posKey(piece.r, piece.c)))
+  return wolves.reduce((highest, wolf) => {
+    const direct = actions.filter((action) => action.type === 'jump' && action.pieceId === wolf.id).length
+    const occupied = occupiedWithout(wolf.id)
+    const setup = actions
+      .filter((action): action is Extract<Action, { type: 'step' }> => action.type === 'step' && action.pieceId === wolf.id)
+      .reduce((best, action) => {
+        let future = 0
+        for (const direction of ORTHO) {
+          const through = posKey(action.to.r + direction.r, action.to.c + direction.c)
+          const target = posKey(action.to.r + direction.r * 2, action.to.c + direction.c * 2)
+          if (!inBounds(action.to.r + direction.r * 2, action.to.c + direction.c * 2)) continue
+          if (state.rocks.has(through) || occupied.has(through)) continue
+          if (sheep.has(target)) future += 1
+        }
+        return Math.max(best, future)
+      }, 0)
+    return Math.max(highest, direct * 2 + setup)
+  }, 0)
+}
+
 export function evaluate(state: BoardState): EvalBreakdown {
   const sheepCount = sheepPositions(state).length
   const summary = getWolfLegalSummary(state)
@@ -145,6 +177,11 @@ export function evaluate(state: BoardState): EvalBreakdown {
     ? 0
     : Math.min(...summary.map((wolf) => wolf.steps + wolf.jumps))
   const repetitionPressure = state.repetitionCounts.get(boardPositionKey(state)) ?? 0
+  const persistentHunter = persistentHunterRisk(state)
+  const urgencyRatio = state.eatenSheep / Math.max(1, state.targetEaten)
+  const terminalUrgency = urgencyRatio * (wolfJumps * 8 + captureChainRisk * 12 + persistentHunter * 4)
+  const averageWolfMobility = summary.length === 0 ? 0 : wolfMoves / summary.length
+  const targetPressure = Math.max(0, averageWolfMobility - weakestWolfMobility)
 
   const total =
     W.material * material +
@@ -158,15 +195,18 @@ export function evaluate(state: BoardState): EvalBreakdown {
     + W.trappedWolves * trappedWolves
     + W.weakestWolfMobility * weakestWolfMobility
     + W.repetitionPressure * repetitionPressure
+    + W.persistentHunterRisk * persistentHunter
+    + W.terminalUrgency * terminalUrgency
+    + W.targetPressure * targetPressure
 
   if (state.status === 'won') {
-    return { total: -100_000 + state.plyCount, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility, captureChainRisk, trappedWolves, weakestWolfMobility, repetitionPressure }
+    return { total: -100_000 + state.plyCount, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility, captureChainRisk, trappedWolves, weakestWolfMobility, repetitionPressure, persistentHunterRisk: persistentHunter, terminalUrgency, targetPressure }
   }
   if (state.status === 'lost' || wolfMoves === 0) {
-    return { total: 100_000 - state.plyCount, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility, captureChainRisk, trappedWolves, weakestWolfMobility, repetitionPressure }
+    return { total: 100_000 - state.plyCount, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility, captureChainRisk, trappedWolves, weakestWolfMobility, repetitionPressure, persistentHunterRisk: persistentHunter, terminalUrgency, targetPressure }
   }
   if (state.status === 'draw') {
-    return { total: 2_000 - state.plyCount, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility, captureChainRisk, trappedWolves, weakestWolfMobility, repetitionPressure }
+    return { total: 2_000 - state.plyCount, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility, captureChainRisk, trappedWolves, weakestWolfMobility, repetitionPressure, persistentHunterRisk: persistentHunter, terminalUrgency, targetPressure }
   }
 
   return {
@@ -182,6 +222,9 @@ export function evaluate(state: BoardState): EvalBreakdown {
     trappedWolves,
     weakestWolfMobility,
     repetitionPressure,
+    persistentHunterRisk: persistentHunter,
+    terminalUrgency,
+    targetPressure,
   }
 }
 

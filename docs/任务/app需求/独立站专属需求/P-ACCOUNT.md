@@ -1,6 +1,9 @@
 # P-ACCOUNT · 账号与云存档（傻瓜式实施说明）
 
-> 本文件是账号与云存档的需求池附件；启动条件与当前状态以 [需求池](需求池.md) 为准。
+> **文档状态：历史实施草案/StartUpSense 代码地图。**  
+> 正式产品与安全要求以 [02-账号身份与云存档需求.md](../02-账号身份与云存档需求.md) 和 [07-Supabase数据库与自建服务端技术设计.md](../07-Supabase数据库与自建服务端技术设计.md) 为准。尤其禁止按 email 自动合并账号、禁止把长期刷新凭证放入 `localStorage`；Supabase 只作 PostgreSQL，不照搬本文的 service-role/PostgREST DAO；门户端按平台 provider 实现。
+
+> 本文件是账号与云存档的历史需求池附件；当前状态以 [需求池](../../需求池.md) 和同目录正式需求文档集为准。
 > **参考仓库（本机绝对路径）**：`C:\Users\fansu\git\StartUpSense`  
 > Fangrush 仓库：`C:\Users\fansu\git\3pk15`  
 > 下文凡写「SS:」= StartUpSense 里打开这个文件照着改；「FR:」= Fangrush 建议落到的路径。

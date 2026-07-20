@@ -69,6 +69,8 @@ function runGame(level: (typeof LEVELS)[number], strategy: WolfStrategy, seed: n
   }
 }
 
+// Historical two-policy baseline. It measures reproducible outcome drift only; random
+// and mixed are not novice/expert personas, and this matrix cannot establish balance.
 const matrixDescribe = process.env.RUN_BALANCE_MATRIX === '1' ? describe : describe.skip
 const requestedChapter = process.env.BALANCE_CHAPTER
 const requestedLevel = process.env.BALANCE_LEVEL

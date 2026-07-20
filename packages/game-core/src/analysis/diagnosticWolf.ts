@@ -3,13 +3,18 @@ import { evaluateScore } from '../ai/evaluate'
 import { applyAction, boardPositionKey, endWolfTurn, listLegalActions } from '../rules'
 import type { Action, BoardState } from '../types'
 
+/**
+ * Lightweight risk-screening policies, not novice/intermediate/expert player models.
+ * mixed and chain-aware reuse the sheep evaluator, so their results cannot expose
+ * every evaluator blind spot or be reported as human win rates.
+ */
 export type DiagnosticWolfStrategy = 'random' | 'mixed' | 'chain-aware'
 
 function entersRepeatedPosition(state: BoardState) {
   return (state.repetitionCounts.get(boardPositionKey(state)) ?? 0) >= 2
 }
 
-/** Player proxy used by candidate gates; mixed avoids reversible loops when another legal action exists. */
+/** Candidate-gate baseline; mixed avoids reversible loops when another legal action exists. */
 export function chooseDiagnosticWolfAction(
   state: BoardState,
   actions: Action[],

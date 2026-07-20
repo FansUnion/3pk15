@@ -10,6 +10,6 @@ describe('player reproduction bundle', () => {
     expect(bundle.board.terminalReason).toBe('repetition')
     expect(bundle.actions).toEqual([{ type: 'pass' }])
     expect(bundle.audio.muted).toBe(false)
-    expect(bundle).toMatchObject({ schema: 3, rulesVersion: 3, aiProfile: 'tactical', aiAlgorithmVersion: 'sheep-ai-v2' })
+    expect(bundle).toMatchObject({ schema: 3, rulesVersion: 3, aiProfile: 'tactical', aiAlgorithmVersion: 'sheep-ai-v3' })
   })
 })
