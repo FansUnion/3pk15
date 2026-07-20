@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="field" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef4df"/><stop offset="1" stop-color="#9abb78"/></linearGradient>
+    <pattern id="grass" width="72" height="72" patternUnits="userSpaceOnUse"><path d="M12 50l6-13 4 13M53 24l5-11 4 11" fill="none" stroke="#6f9959" stroke-width="3" opacity=".28"/></pattern>
+    <filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="15" flood-color="#172437" flood-opacity=".25"/></filter>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#field)"/><rect width="1920" height="1080" fill="url(#grass)"/>
+  <g stroke="#526c45" stroke-width="7" opacity=".45"><path d="M690 70v940M930 70v940M1170 70v940M1410 70v940M1650 70v940M1890 70v940"/><path d="M690 70h1200M690 258h1200M690 446h1200M690 634h1200M690 822h1200M690 1010h1200"/></g>
+  <text x="92" y="190" fill="#172437" font-family="Georgia, serif" font-size="142" font-weight="700">Fangrush</text>
+  <g filter="url(#shadow)">
+    <image href="../../../../packages/web-assets/public/skins/default/wolf.svg" x="88" y="348" width="530" height="530"/>
+    <image href="../../../../packages/web-assets/public/skins/default/sheep.svg" x="970" y="110" width="230" height="230"/>
+    <image href="../../../../packages/web-assets/public/skins/default/sheep.svg" x="1265" y="255" width="220" height="220"/>
+    <image href="../../../../packages/web-assets/public/skins/default/sheep.svg" x="1540" y="112" width="230" height="230"/>
+    <image href="../../../../packages/web-assets/public/skins/default/sheep.svg" x="1110" y="550" width="215" height="215"/>
+    <image href="../../../../packages/web-assets/public/skins/default/wolf.svg" x="1430" y="650" width="300" height="300"/>
+  </g>
+  <g fill="#6e665c" stroke="#3f3a34" stroke-width="7"><path d="M850 685l25-51 65-14 49 40-5 67-54 32-64-20z"/><path d="M1360 500l31-48 59 4 37 48-20 59-65 13-45-38z"/></g>
+  <path d="M560 745c190-120 336-164 520-136" fill="none" stroke="#c9a227" stroke-width="17" stroke-linecap="round" stroke-dasharray="2 35"/>
+</svg>

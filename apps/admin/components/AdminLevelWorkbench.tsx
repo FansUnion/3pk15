@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import {
+  AI_PROFILE_DESCRIPTION_ZH,
+  AI_PROFILE_LABEL_ZH,
   CHAPTER_LABEL,
   CHAPTER_ORDER,
   createLevelInitialState,
@@ -285,6 +287,7 @@ function LevelCard({ level, review, report, baselineVerdict, selected, onSelect 
         <div className="mx-auto mt-2 max-w-[180px] pointer-events-none"><BoardSvg state={state} selectedWolfId={null} stepHighlights={[]} jumpHighlights={[]} jumpThroughs={[]} interactive={false} onSelectWolf={() => undefined} onClickCell={() => undefined} theme={theme} /></div>
         <div className="mt-2 flex flex-wrap gap-1 text-[11px]">
           <span className="border border-[#5c6b52]/20 px-1.5 py-0.5">羊防守 {AI_LABEL[level.ai]}</span>
+          <span className="border border-[#5c6b52]/20 px-1.5 py-0.5">{AI_PROFILE_LABEL_ZH[level.aiProfile]}</span>
           <span className="border border-[#5c6b52]/20 px-1.5 py-0.5">岩石 {level.rocks.length}</span>
           {level.riskTags.slice(0, 2).map((tag) => <span key={tag} className="bg-amber-100 px-1.5 py-0.5 text-amber-900">{tag}</span>)}
           {review?.status === 'passed' && !stale && <span className="bg-green-100 px-1.5 py-0.5 text-green-800">试玩通过</span>}
@@ -326,12 +329,13 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
       <h2 className="mt-1 font-serif text-2xl text-[#2c3328]">{level.nameZh}</h2>
       <p className="mt-2 leading-relaxed text-[#5c6b52]">{level.blurbZh}</p>
       <dl className="mt-3 grid grid-cols-2 gap-2 border-y border-[#5c6b52]/15 py-3 text-xs">
-        <div><dt className="text-[#7a8574]">羊方防守强度</dt><dd>{AI_LABEL[level.ai]} ({level.ai})</dd></div>
+        <div><dt className="text-[#7a8574]">关卡 AI 画像</dt><dd>{AI_PROFILE_LABEL_ZH[level.aiProfile]} ({level.aiProfile})</dd></div>
+        <div><dt className="text-[#7a8574]">底层兼容档位</dt><dd>{AI_LABEL[level.ai]} ({level.ai})</dd></div>
         <div><dt className="text-[#7a8574]">玩家操作难度</dt><dd>{level.difficulty}/5</dd></div>
         <div><dt className="text-[#7a8574]">狼方胜利目标</dt><dd>累计捕获 {level.targetEaten ?? 8} 只羊</dd></div>
         <div><dt className="text-[#7a8574]">行动上限</dt><dd>{level.maxPlies ?? 300} 次单方行动</dd></div>
       </dl>
-      <p className="mt-2 text-xs leading-relaxed text-[#5c6b52]">操作难度评价玩家找出并执行获胜路线的难度；羊方防守强度表示线上 AI 档位。两者不是同一个指标。</p>
+      <p className="mt-2 text-xs leading-relaxed text-[#5c6b52]">{AI_PROFILE_DESCRIPTION_ZH[level.aiProfile]} 操作难度评价玩家找出并执行胜路的难度；AI画像表示羊如何防守；底层档位只为旧配置兼容。三者不是同一个指标。</p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         <Link href={`/admin/play/${level.id}`} className="bg-[#3d4a3a] px-3 py-2 text-[#f4f1ea]">Admin 试玩</Link>

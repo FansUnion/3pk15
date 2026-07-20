@@ -1,6 +1,6 @@
 # Poki 发行入口
 
-> 最近核对：2026-07-17。政策以 [Poki 官方文档](https://sdk.poki.com/) 英文原文为准。  
+> 最近核对：2026-07-19。政策以 [Poki 官方文档](https://sdk.poki.com/) 英文原文为准。
 > 逐条状态与证据见 [`compliance.yaml`](./compliance.yaml)，不要在本文维护第二套长清单。
 
 ## 资料分工
@@ -17,14 +17,14 @@
 1. **准入**：按 [说明与填表口径](../../docs/商业成功/上架事项/Poki早期准入申请/说明与填表口径.md) 提交 [Request early access](https://developers.poki.com/share)。
 2. **理解规则**：阅读双语整理 01 → 04，对照 `compliance.yaml` 的 `missing/partial`。  
 3. **工程接入（T-017）**：真实 SDK、生命周期、广告、16:9 门户包、Inspector。  
-4. **素材**：静态/动画缩略图进入本目录 `assets/`（尚未生产）。
+4. **素材**：`assets/` 已包含一套静态和动画候选，待用户审美确认；不表示 Web Fit 或全球发布已通过。
 
 ## 主要阻塞（来自 compliance.yaml）
 
 - 无真实 Poki SDK / 生命周期 / `commercialBreak` / `rewardedBreak`
 - 无平台 16:9 画布与防父页滚动
 - 已有独立玩家构建、包体统计和边界审计；仍无可直接上传的静态门户 ZIP
-- 无静态/动画缩略图交付物
+- 静态/动画缩略图已有候选，尚未由用户选定或上传
 - 无 Inspector 通过证据
 - 独家年限（5 年 / 7 年）待合同与官网核对
 

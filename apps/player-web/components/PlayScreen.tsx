@@ -233,8 +233,8 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     prevEaten.current = 0
     setTerminalDetails(null)
     setLastGrant(null)
-    init(level.id, level.rocks, level.ai, level.targetEaten, level.maxPlies, level.opening, !adminMode)
-  }, [adminMode, level.id, level.ai, level.rocks, level.targetEaten, level.maxPlies, level.opening, init, setLastGrant])
+    init(level.id, level.rocks, level.ai, level.aiProfile, level.targetEaten, level.maxPlies, level.opening, !adminMode)
+  }, [adminMode, level.id, level.ai, level.aiProfile, level.rocks, level.targetEaten, level.maxPlies, level.opening, init, setLastGrant])
 
   useEffect(() => {
     if (adminMode) {
@@ -554,6 +554,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
     downloadPlayerReproductionBundle(buildPlayerReproductionBundle({
       state,
       difficulty: level.ai,
+      aiProfile: level.aiProfile,
       initialAiSeed,
       nextAiSeed: aiSeed,
       actions: actionHistory,

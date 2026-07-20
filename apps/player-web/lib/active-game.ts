@@ -6,6 +6,7 @@ import {
   serialize,
   type BoardState,
   type Action,
+  type AiProfile,
   type OpeningLayout,
   type Pos,
   type SerializedBoard,
@@ -20,6 +21,7 @@ export type ActiveGameConfig = {
   targetEaten?: number
   maxPlies?: number
   opening?: OpeningLayout
+  aiProfile?: AiProfile
 }
 
 export type RecordedGameAction = Action | { type: 'end-chain' }
@@ -89,7 +91,7 @@ export function clearActiveGame(): void {
 
 export function activeGameSignature(config: ActiveGameConfig): string {
   const rocks = [...config.rocks].sort((a, b) => a.r - b.r || a.c - b.c)
-  return JSON.stringify([config.levelId, rocks, config.targetEaten ?? 8, config.maxPlies ?? 300, config.opening ?? null])
+  return JSON.stringify([config.levelId, rocks, config.targetEaten ?? 8, config.maxPlies ?? 300, config.opening ?? null, config.aiProfile ?? null])
 }
 
 function stableLegacySeed(state: BoardState) {

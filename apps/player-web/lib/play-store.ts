@@ -8,6 +8,7 @@ import {
   pickSheepAction,
   listWolfActionsAsIfTurn,
   type Action,
+  type AiProfile,
   type BoardState,
   type Difficulty,
   type OpeningLayout,
@@ -49,12 +50,13 @@ type PlayStore = {
   uiPhase: UiPhase
   juice: JuiceFlash
   difficulty: Difficulty
+  aiProfile: AiProfile | null
   seed: number
   initialSeed: number
   actionHistory: RecordedGameAction[]
   resumed: boolean
   aiError: string | null
-  init: (levelId: string, rocks: Pos[], difficulty: Difficulty, targetEaten?: number, maxPlies?: number, opening?: OpeningLayout, resume?: boolean) => void
+  init: (levelId: string, rocks: Pos[], difficulty: Difficulty, aiProfile: AiProfile, targetEaten?: number, maxPlies?: number, opening?: OpeningLayout, resume?: boolean) => void
   selectWolf: (wolfId: string | null) => void
   clickCell: (pos: Pos) => void
   endChain: () => void
@@ -123,11 +125,11 @@ function threatenedSheepIds(state: BoardState) {
       .map((piece) => piece.id)))
 }
 
-let levelMeta = { levelId: 'spring-01', rocks: [] as Pos[], difficulty: 'easy' as Difficulty, targetEaten: undefined as number | undefined, maxPlies: undefined as number | undefined, opening: undefined as OpeningLayout | undefined, resume: true }
+let levelMeta = { levelId: 'spring-01', rocks: [] as Pos[], difficulty: 'easy' as Difficulty, aiProfile: 'guided' as AiProfile, targetEaten: undefined as number | undefined, maxPlies: undefined as number | undefined, opening: undefined as OpeningLayout | undefined, resume: true }
 let turnSeq = 0
 
 function activeConfig(): ActiveGameConfig {
-  return { levelId: levelMeta.levelId, rocks: levelMeta.rocks, targetEaten: levelMeta.targetEaten, maxPlies: levelMeta.maxPlies, opening: levelMeta.opening }
+  return { levelId: levelMeta.levelId, rocks: levelMeta.rocks, targetEaten: levelMeta.targetEaten, maxPlies: levelMeta.maxPlies, opening: levelMeta.opening, aiProfile: levelMeta.aiProfile }
 }
 
 function syncActiveGame(state: BoardState, aiSeed: number, initialAiSeed: number, actions: RecordedGameAction[]) {
@@ -143,14 +145,15 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
   uiPhase: 'playing',
   juice: null,
   difficulty: 'easy',
+  aiProfile: 'guided',
   seed: 1,
   initialSeed: 1,
   actionHistory: [],
   resumed: false,
   aiError: null,
 
-  init(levelId, rocks, difficulty, targetEaten, maxPlies, opening, resume = true) {
-    levelMeta = { levelId, rocks, difficulty, targetEaten, maxPlies, opening, resume }
+  init(levelId, rocks, difficulty, aiProfile, targetEaten, maxPlies, opening, resume = true) {
+    levelMeta = { levelId, rocks, difficulty, aiProfile, targetEaten, maxPlies, opening, resume }
     turnSeq += 1
     const config = activeConfig()
     const restored = resume ? loadActiveGame(config) : null
@@ -168,6 +171,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
       uiPhase: state.status !== 'playing' ? 'terminal' : state.toMove === 'sheep' ? 'aiThinking' : 'playing',
       juice: null,
       difficulty,
+      aiProfile,
       seed,
       initialSeed,
       actionHistory,
@@ -307,7 +311,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
   reset() {
     turnSeq += 1
     if (levelMeta.resume) clearActiveGame()
-    get().init(levelMeta.levelId, levelMeta.rocks, levelMeta.difficulty, levelMeta.targetEaten, levelMeta.maxPlies, levelMeta.opening, levelMeta.resume)
+    get().init(levelMeta.levelId, levelMeta.rocks, levelMeta.difficulty, levelMeta.aiProfile, levelMeta.targetEaten, levelMeta.maxPlies, levelMeta.opening, levelMeta.resume)
   },
 
   retryAi() {
@@ -328,7 +332,7 @@ async function runAiTurn(
   set: (partial: Partial<PlayStore>) => void,
   seq: number,
 ) {
-  const { state, difficulty, seed } = get()
+  const { state, difficulty, aiProfile, seed } = get()
   if (seq !== turnSeq) return
   if (state.status !== 'playing' || state.toMove !== 'sheep') {
     set({ uiPhase: state.status === 'playing' ? 'playing' : 'terminal', juice: null })
@@ -339,6 +343,7 @@ async function runAiTurn(
     if (consumeNextAiFailure()) throw new Error('Injected sheep AI failure')
     const action = pickSheepAction(state, {
       difficulty,
+      profile: aiProfile ?? undefined,
       rng: createSeededRng(seed + state.eatenSheep * 17 + state.pieces.length),
     })
     const juice = juiceFromAction(state, action)

@@ -88,7 +88,7 @@ export default function AdminDocsPage() {
         <summary className="cursor-pointer font-medium text-[#2c3328]">开发者注（不进玩家页）</summary>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-[#5c6b52]">
           <li>坐标系：(行 1–6, 列 1–6)；交点制。</li>
-          <li>章节 AI：春 easy / 夏秋 normal / 冬 hard；章内关卡不换档。</li>
+          <li>生产 AI 画像：春 01/02 guided、春 03–06 foundation、夏 tactical、秋 strategic、冬 expert；easy/normal/hard 只作底层兼容。</li>
           <li>吃子几何：隔空吃「狼—空—羊」，与 game-core 规则一致。</li>
           <li>文案源：apps/player-web/i18n/messages.ts → howTo / home.faq</li>
         </ul>

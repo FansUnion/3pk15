@@ -79,8 +79,8 @@ const ITEMS: Item[] = [
   {
     id: 'ai-calibrate',
     group: '难度',
-    label: 'AI 台对春日 easy / 冬日 hard 跑过批量胜率；fixture 挡吃/合围看过',
-    href: '/admin/ai?level=spring-01&diff=easy',
+    label: 'AI 台按正式画像抽查春日 guided/foundation、夏 tactical、秋 strategic、冬 expert；看过动作结论、完整捕食链和降级原因',
+    href: '/admin/ai?level=spring-01&diff=normal',
     adminHref: '/admin/ai',
   },
   {

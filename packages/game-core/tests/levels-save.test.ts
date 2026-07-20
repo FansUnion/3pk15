@@ -6,6 +6,7 @@ import {
   defaultSave,
   LEVELS,
   levelTeachingPoint,
+  levelConfigFingerprint,
   isLevelUnlocked,
   migrate,
   recomputeUnlockedChapters,
@@ -28,6 +29,21 @@ describe('level table', () => {
     for (const ch of ['spring', 'summer', 'autumn', 'winter'] as const) {
       expect(LEVELS.filter((l) => l.chapterId === ch)).toHaveLength(6)
     }
+  })
+
+  it('binds all 24 levels to the five production AI profiles', () => {
+    expect(LEVELS.filter((level) => level.aiProfile === 'guided').map((level) => level.id)).toEqual(['spring-01', 'spring-02'])
+    expect(LEVELS.filter((level) => level.aiProfile === 'foundation').map((level) => level.id)).toEqual(['spring-03', 'spring-04', 'spring-05', 'spring-06'])
+    expect(LEVELS.filter((level) => level.aiProfile === 'tactical')).toHaveLength(6)
+    expect(LEVELS.filter((level) => level.aiProfile === 'strategic')).toHaveLength(6)
+    expect(LEVELS.filter((level) => level.aiProfile === 'expert')).toHaveLength(6)
+  })
+
+  it('gives every production level a stable unique configuration fingerprint', () => {
+    const first = LEVELS.map(levelConfigFingerprint)
+    const second = LEVELS.map(levelConfigFingerprint)
+    expect(first).toEqual(second)
+    expect(new Set(first)).toHaveLength(24)
   })
 
   it('every level has valid long-term design defaults', () => {

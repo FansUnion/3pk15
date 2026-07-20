@@ -26,7 +26,7 @@ ZH: 操控三狼，隔空连吃破阵，借岩石通关四季猎场。
 - Rocks block points; used for seasonal difficulty.
 
 ## Seasons
-Spring easy / Summer+Autumn normal / Winter hard. Autumn uses rocks for feel.
+Production sheep AI profiles follow the learning curve: Spring guided/foundation, Summer tactical, Autumn strategic, and Winter expert. Legacy easy/normal/hard values are implementation compatibility tiers, not the player-facing curve.
 Each level has a short unique blurb on its /hunt page.
 
 ## Progress

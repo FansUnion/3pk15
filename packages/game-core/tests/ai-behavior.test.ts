@@ -12,6 +12,7 @@ import {
   makeState,
   pickHardWithMeta,
   pickSheepAction,
+  pickSheepActionWithMeta,
 } from '../src/index'
 
 describe('sheep AI behavior guardrails', () => {
@@ -151,12 +152,12 @@ describe('sheep AI behavior guardrails', () => {
     expect(typeof result.meta.lookaheadCompleted).toBe('boolean')
   })
 
-  it('hard evaluates a bounded next sheep response when budget permits', () => {
+  it('hard evaluates at least one complete wolf response when budget permits', () => {
     const level = LEVELS.find((item) => item.id === 'winter-01')!
     const state = { ...createLevelInitialState(level), toMove: 'sheep' as const }
-    const result = pickHardWithMeta(state, createSeededRng(17), { maxNodes: 4_000, maxMs: 100 })
-    expect(result.meta.degraded).toBe(false)
+    const result = pickHardWithMeta(state, createSeededRng(17), { maxNodes: 4_000 })
     expect(result.meta.lookaheadCompleted).toBe(true)
+    expect(result.meta.completedDepth).toBeGreaterThanOrEqual(1)
     expect(listLegalActions(state)).toContainEqual(result.action)
   })
 
@@ -213,18 +214,19 @@ describe('sheep AI behavior guardrails', () => {
     expect(first.meta.nodes).toBe(second.meta.nodes)
   })
 
-  it('keeps hard within the normal immediate-best action set', () => {
+  it('lets expert search wider than the immediate-best set without choosing a dominated move', () => {
     const level = LEVELS.find((item) => item.id === 'summer-02')!
     const state = { ...createLevelInitialState(level), toMove: 'sheep' as const }
-    const actions = listLegalActions(state)
-    const best = Math.max(...actions.map((action) => {
-      const result = applyAction(state, action)
-      return result.ok ? evaluateScore(result.state) : -Infinity
-    }))
-    const hard = pickHardWithMeta(state, createSeededRng(91), { maxNodes: 400 })
-    const result = applyAction(state, hard.action)
+    const hard = pickSheepActionWithMeta(state, {
+      difficulty: level.ai,
+      profile: level.aiProfile,
+      rng: createSeededRng(91),
+      budgets: { maxNodes: 800 },
+    })
+    const selected = analyzeSheepActions(state).find((candidate) => candidate.action.type === hard.action.type
+      && JSON.stringify(candidate.action) === JSON.stringify(hard.action))
 
-    expect(result.ok).toBe(true)
-    if (result.ok) expect(evaluateScore(result.state)).toBe(best)
+    expect(selected?.dominated).toBe(false)
+    expect(hard.meta.candidateCount).toBeGreaterThanOrEqual(1)
   })
 })

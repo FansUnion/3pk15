@@ -26,19 +26,28 @@ describe('level candidate acceptance', () => {
 })
 
 const productionDescribe = process.env.RUN_CANDIDATE_ACCEPTANCE === '1' ? describe : describe.skip
+const candidateChapter = process.env.CANDIDATE_CHAPTER
+const candidateLevel = process.env.CANDIDATE_LEVEL
+const productionLevels = LEVELS.filter((level) => (!candidateChapter || level.chapterId === candidateChapter)
+  && (!candidateLevel || level.id === candidateLevel))
 
 productionDescribe('production level candidate gate', () => {
-  it.each(['spring', 'summer', 'autumn', 'winter'] as const)('prints the current %s verdicts and evidence triggers', (chapterId) => {
-    const reports = LEVELS.filter((level) => level.chapterId === chapterId).map((level) => assessLevelCandidate(level))
+  it.each(productionLevels)('prints the current $id verdict and evidence triggers', (level) => {
+    const reports = [assessLevelCandidate(level)]
     console.table(reports.map((report) => ({
       level: report.levelId,
       verdict: report.verdict,
       findings: report.findings.map((finding) => finding.code).join(','),
       random: `${report.summaries.random.wolfWins}/${report.summaries.random.sheepWins}/${report.summaries.random.draws}`,
       mixed: `${report.summaries.mixed.wolfWins}/${report.summaries.mixed.sheepWins}/${report.summaries.mixed.draws}`,
+      chainAware: `${report.summaries['chain-aware'].wolfWins}/${report.summaries['chain-aware'].sheepWins}/${report.summaries['chain-aware'].draws}`,
       p95: report.summaries.mixed.p95Plies,
+      dominated: report.summaries.mixed.chosenDominated,
+      avoidableChain: report.summaries.mixed.avoidableChainExposure,
+      degraded: report.summaries.mixed.degradedTurns,
+      maxChain: report.summaries.mixed.maxCaptureChain,
     })))
-    expect(reports).toHaveLength(6)
+    expect(reports).toHaveLength(1)
     expect(reports.every((report) => report.structuralErrors.length === 0)).toBe(true)
-  }, 60_000)
+  }, 150_000)
 })

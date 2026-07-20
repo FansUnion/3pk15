@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   applyAction,
+  AI_PROFILE_DESCRIPTION_ZH,
+  AI_PROFILE_CONFIG,
+  AI_PROFILE_LABEL_ZH,
   analyzeSheepActions,
   boardPositionKey,
   chooseDiagnosticWolfAction,
@@ -18,13 +21,14 @@ import {
   listWolfActionsAsIfTurn,
   makeState,
   OPENING_SHEEP,
-  pickHardWithMeta,
   pickSheepAction,
+  pickSheepActionWithMeta,
   posKey,
   REPETITION_DRAW_COUNT,
   serialize,
   type BoardState,
   type Action,
+  type AiProfile,
   type Difficulty,
   type DiagnosticWolfStrategy,
   type HardBudgets,
@@ -54,6 +58,7 @@ type BatchResult = {
   records: BatchGameRecord[]
   wolfStrategy: DiagnosticWolfStrategy
   sheepDifficulty: Difficulty
+  sheepProfile: AiProfile
 }
 
 type TerminalReason = 'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition' | 'stepLimit' | 'unexpected'
@@ -69,12 +74,14 @@ type BatchGameRecord = {
   firstCapturePly: number | null
   wolfStrategy: DiagnosticWolfStrategy
   sheepDifficulty: Difficulty
+  sheepProfile: AiProfile
 }
 
 type ReplayData = {
   record: BatchGameRecord
   states: string[]
   actions: string[]
+  suspectIndices: number[]
 }
 
 type Props = {
@@ -97,6 +104,10 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     const level = initialLevel ? getLevel(initialLevel) : undefined
     return level?.ai ?? 'easy'
   })
+  const [profile, setProfile] = useState<AiProfile>(() => {
+    const level = initialLevel ? getLevel(initialLevel) : undefined
+    return level?.aiProfile ?? 'guided'
+  })
   const [seed, setSeed] = useState(() => {
     const parsed = Number(initialSeed)
     return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : 42
@@ -111,6 +122,10 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     initialLevel && getLevel(initialLevel) ? initialLevel : 'spring-01',
   )
   const [batchDiff, setBatchDiff] = useState<Difficulty>(difficulty)
+  const [batchProfile, setBatchProfile] = useState<AiProfile>(() => {
+    const level = initialLevel ? getLevel(initialLevel) : undefined
+    return level?.aiProfile ?? 'guided'
+  })
   const [batchWolfStrategy, setBatchWolfStrategy] = useState<DiagnosticWolfStrategy>('mixed')
   const [batchResult, setBatchResult] = useState<BatchResult | null>(null)
   const [batchProgress, setBatchProgress] = useState(0)
@@ -119,13 +134,17 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
   const [replayIndex, setReplayIndex] = useState(0)
   const [takeover, setTakeover] = useState(false)
   const [selectedWolfId, setSelectedWolfId] = useState<string | null>(null)
-  const [maxNodes, setMaxNodes] = useState(80)
+  const [maxNodes, setMaxNodes] = useState(() => AI_PROFILE_CONFIG[profile].budgets.maxNodes || 80)
   const [maxMs, setMaxMs] = useState(0)
   const [lastHardMeta, setLastHardMeta] = useState<{
     degraded: boolean
     nodes: number
     elapsedMs: number
     lookaheadCompleted: boolean
+    profile: AiProfile
+    completedDepth: number
+    candidateCount: number
+    degradedReason: string
   } | null>(null)
   const stopRef = useRef(false)
   const appliedUrl = useRef(false)
@@ -174,6 +193,9 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
         : level.ai
     setDifficulty(d)
     setBatchDiff(d)
+    setProfile(level.aiProfile)
+    setMaxNodes(AI_PROFILE_CONFIG[level.aiProfile].budgets.maxNodes || 80)
+    setBatchProfile(level.aiProfile)
     pushLog(`deep-link level=${level.id} diff=${d}`)
   }, [initialLevel, initialDiff, initialImport, pushLog])
 
@@ -181,10 +203,13 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     const level = getLevel(id)
     if (!level) return
     setState(createLevelInitialState(level))
-    pushLog(`loaded level ${id} ai=${level.ai}`)
+    pushLog(`loaded level ${id} profile=${level.aiProfile} base=${level.ai}`)
     setDifficulty(level.ai)
+    setProfile(level.aiProfile)
+    setMaxNodes(AI_PROFILE_CONFIG[level.aiProfile].budgets.maxNodes || 80)
     setBatchLevelId(id)
     setBatchDiff(level.ai)
+    setBatchProfile(level.aiProfile)
   }
 
   function setTurn(toMove: Side, clearChain = true) {
@@ -243,18 +268,16 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
         return
       }
       const rng = createSeededRng(seed)
-      let action
-      if (difficulty === 'hard') {
-        const { action: a, meta } = pickHardWithMeta(s, rng, hardBudgets)
-        action = a
-        setLastHardMeta(meta)
-        pushLog(
-          `[hard] degraded=${meta.degraded} lookahead=${meta.lookaheadCompleted} nodes=${meta.nodes} ms=${meta.elapsedMs.toFixed(1)} budgets=${JSON.stringify(hardBudgets)}`,
-        )
-      } else {
-        setLastHardMeta(null)
-        action = pickSheepAction(s, { difficulty, rng, budgets: hardBudgets })
-      }
+      const { action, meta } = pickSheepActionWithMeta(s, {
+        difficulty,
+        profile,
+        rng,
+        budgets: hardBudgets,
+      })
+      setLastHardMeta(meta)
+      pushLog(
+        `[${profile}] degraded=${meta.degradedReason} depth=${meta.completedDepth} candidates=${meta.candidateCount} nodes=${meta.nodes} ms=${meta.elapsedMs.toFixed(1)} budgets=${JSON.stringify(hardBudgets)}`,
+      )
       const res = applyAction(s, action)
       if (!res.ok) {
         pushLog(`apply failed: ${res.error}`)
@@ -264,13 +287,34 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       setSeed((x) => x + 1)
       const ev = evaluate(res.state)
       pushLog(
-        `[sheep ${difficulty}] ${JSON.stringify(action)} score=${ev.total.toFixed(1)}`,
+        `[sheep ${profile}/${difficulty}] ${JSON.stringify(action)} score=${ev.total.toFixed(1)}`,
       )
     } catch (e) {
       pushLog(`AI error: ${e instanceof Error ? e.message : String(e)}`)
     } finally {
       setBusy(false)
     }
+  }
+
+  function compareProfileDecision() {
+    let s = state
+    if (s.toMove !== 'sheep') s = { ...s, toMove: 'sheep', chain: null, status: 'playing', terminalReason: null }
+    if (s.status !== 'playing') return
+    const immediate = pickSheepAction(s, { difficulty: 'normal', rng: createSeededRng(seed) })
+    const profiled = pickSheepActionWithMeta(s, {
+      difficulty,
+      profile,
+      rng: createSeededRng(seed),
+      budgets: hardBudgets,
+    })
+    const analyses = analyzeSheepActions(s)
+    const evidence = (action: Action) => analyses.find((candidate) => JSON.stringify(candidate.action) === JSON.stringify(action))
+    const oldEvidence = evidence(immediate)
+    const newEvidence = evidence(profiled.action)
+    setLastHardMeta(profiled.meta)
+    pushLog(
+      `[compare] immediate=${actionText(immediate)} chain=${oldEvidence?.maxCaptureChain ?? '-'} score=${oldEvidence?.score.toFixed(1) ?? '-'} | ${profile}=${actionText(profiled.action)} chain=${newEvidence?.maxCaptureChain ?? '-'} score=${newEvidence?.score.toFixed(1) ?? '-'} depth=${profiled.meta.completedDepth}`,
+    )
   }
 
   function loadFixture(id: string) {
@@ -320,24 +364,19 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       } else {
         try {
           const rng = createSeededRng(localSeed++)
-          let action
-          if (difficulty === 'hard') {
-            const { action: a, meta } = pickHardWithMeta(s, rng, hardBudgets)
-            action = a
-            if (meta.degraded) {
-              pushLog(`[hard degraded] nodes=${meta.nodes} ms=${meta.elapsedMs.toFixed(1)}`)
-            }
-          } else {
-            action = pickSheepAction(s, {
-              difficulty,
-              rng,
-              budgets: hardBudgets,
-            })
+          const { action, meta } = pickSheepActionWithMeta(s, {
+            difficulty,
+            profile,
+            rng,
+            budgets: hardBudgets,
+          })
+          if (meta.degraded) {
+            pushLog(`[${profile} degraded] reason=${meta.degradedReason} depth=${meta.completedDepth} nodes=${meta.nodes}`)
           }
           const res = applyAction(s, action)
           if (!res.ok) break
           s = res.state
-          pushLog(`[sheep ${difficulty}] ${JSON.stringify(action)}`)
+          pushLog(`[sheep ${profile}/${difficulty}] ${JSON.stringify(action)}`)
         } catch (e) {
           pushLog(`AI error: ${e instanceof Error ? e.message : String(e)}`)
           break
@@ -362,7 +401,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     setBatchProgress(0)
     setBatchResult(null)
     pushLog(
-      `batch start n=${n} level=${level.id} sheep=${batchDiff} wolf=${batchWolfStrategy}`,
+      `batch start n=${n} level=${level.id} sheep=${batchProfile}/${batchDiff} wolf=${batchWolfStrategy}`,
     )
 
     const t0 = performance.now()
@@ -380,14 +419,14 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
         break
       }
       const gameSeed = localSeed
-      const sim = simulateOneGame(level, batchDiff, batchWolfStrategy, gameSeed, 400, hardBudgets)
+      const sim = simulateOneGame(level, batchDiff, batchProfile, batchWolfStrategy, gameSeed, 400, hardBudgets)
       localSeed += 10007
       pliesSum += sim.plies
       if (sim.outcome === 'wolf_win') wolfWins++
       else if (sim.outcome === 'sheep_win') sheepWins++
       else timeout++
       lastSerialize = sim.serialized
-      records.push({ index: g + 1, levelId: level.id, seed: gameSeed, outcome: sim.outcome, reason: sim.reason, plies: sim.plies, eatenSheep: sim.eatenSheep, firstCapturePly: sim.firstCapturePly, wolfStrategy: batchWolfStrategy, sheepDifficulty: batchDiff })
+      records.push({ index: g + 1, levelId: level.id, seed: gameSeed, outcome: sim.outcome, reason: sim.reason, plies: sim.plies, eatenSheep: sim.eatenSheep, firstCapturePly: sim.firstCapturePly, wolfStrategy: batchWolfStrategy, sheepDifficulty: batchDiff, sheepProfile: batchProfile })
       if (g % 5 === 0 || g === n - 1) {
         setBatchProgress(g + 1)
         await new Promise((r) => setTimeout(r, 0))
@@ -400,6 +439,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
     const csv = [
       level.id,
       batchDiff,
+      batchProfile,
       batchWolfStrategy,
       games,
       wolfWins,
@@ -419,10 +459,11 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       avgPlies,
       elapsedMs,
       lastSerialize,
-      csv: `level,diff,wolfStrategy,games,wolfWins,sheepWins,timeout,wolfWinPct,avgPlies,ms,seedBase\n${csv}`,
+      csv: `level,diff,profile,wolfStrategy,games,wolfWins,sheepWins,timeout,wolfWinPct,avgPlies,ms,seedBase\n${csv}`,
       records,
       wolfStrategy: batchWolfStrategy,
       sheepDifficulty: batchDiff,
+      sheepProfile: batchProfile,
     }
     setBatchResult(result)
     setSeed(localSeed)
@@ -435,8 +476,8 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
   function openReplay(record: BatchGameRecord) {
     const level = getLevel(record.levelId)
     if (!level) return
-    const sim = simulateOneGame(level, record.sheepDifficulty, record.wolfStrategy, record.seed, 400, hardBudgets, true)
-    setReplay({ record, states: sim.states, actions: sim.actions })
+    const sim = simulateOneGame(level, record.sheepDifficulty, record.sheepProfile, record.wolfStrategy, record.seed, 400, hardBudgets, true)
+    setReplay({ record, states: sim.states, actions: sim.actions, suspectIndices: [] })
     setReplayIndex(0)
     pushLog(`replay game=${record.index} seed=${record.seed} reason=${record.reason}`)
   }
@@ -449,11 +490,12 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       levelId: level.id,
       level,
       sheepDifficulty: record.sheepDifficulty,
+      sheepProfile: record.sheepProfile,
       wolfStrategy: record.wolfStrategy,
       seed: record.seed,
       hardBudgets,
       result: record,
-      command: `level=${level.id} diff=${record.sheepDifficulty} wolf=${record.wolfStrategy} seed=${record.seed} maxNodes=${hardBudgets.maxNodes} maxMs=${hardBudgets.maxMs}`,
+      command: `level=${level.id} diff=${record.sheepDifficulty} profile=${record.sheepProfile} wolf=${record.wolfStrategy} seed=${record.seed} maxNodes=${hardBudgets.maxNodes} maxMs=${hardBudgets.maxMs}`,
     }
     downloadJson(payload, `repro-${level.id}-${record.seed}.json`)
   }
@@ -479,6 +521,9 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       setState(next)
       if (reproduction) {
         if (reproduction.difficulty === 'easy' || reproduction.difficulty === 'normal' || reproduction.difficulty === 'hard') setDifficulty(reproduction.difficulty)
+        if (['guided', 'foundation', 'tactical', 'strategic', 'expert'].includes(reproduction.aiProfile)) {
+          setProfile(reproduction.aiProfile as AiProfile)
+        }
         if (Number.isSafeInteger(reproduction.nextAiSeed)) setSeed(reproduction.nextAiSeed)
         if (Number.isSafeInteger(reproduction.hardBudget?.maxNodes)) setMaxNodes(reproduction.hardBudget.maxNodes)
         if (reproduction.hardBudget?.maxMs === null) setMaxMs(0)
@@ -487,6 +532,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
         if (importedReplay) {
           setReplay(importedReplay)
           setReplayIndex(importedReplay.states.length - 1)
+          pushLog(`report scan suspicious sheep actions=${importedReplay.suspectIndices.length}${importedReplay.suspectIndices.length > 0 ? ` steps=${importedReplay.suspectIndices.map((index) => index + 1).join(',')}` : ''}`)
         }
         pushLog(`imported player report level=${reproduction.levelId} actions=${reproduction.actions?.length ?? 0} seed=${reproduction.nextAiSeed} terminal=${next.terminalReason ?? '-'}`)
       } else {
@@ -507,7 +553,24 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
       <div className="mt-4 grid gap-4 lg:grid-cols-[240px_1fr_280px]">
         <aside className="flex flex-col gap-3 text-sm">
           <label className="flex flex-col gap-1">
-            羊方防守难度
+            关卡 AI 画像
+            <select
+              value={profile}
+              onChange={(event) => {
+                const next = event.target.value as AiProfile
+                setProfile(next)
+                setMaxNodes(AI_PROFILE_CONFIG[next].budgets.maxNodes || 80)
+              }}
+              className="rounded border border-[#5c6b52]/40 bg-[#f7f5ef] px-2 py-1"
+            >
+              {(Object.keys(AI_PROFILE_LABEL_ZH) as AiProfile[]).map((item) => (
+                <option key={item} value={item}>{AI_PROFILE_LABEL_ZH[item]}</option>
+              ))}
+            </select>
+            <span className="text-xs leading-relaxed text-[#5c6b52]">{AI_PROFILE_DESCRIPTION_ZH[profile]}</span>
+          </label>
+          <label className="flex flex-col gap-1">
+            底层兼容档位
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value as Difficulty)}
@@ -548,7 +611,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             </select>
           </label>
           <div className="rounded border border-[#5c6b52]/25 bg-[#f7f5ef] p-2 text-xs text-[#5c6b52]">
-            <p className="font-medium text-[#2c3328]">困难 AI 计算上限</p>
+            <p className="font-medium text-[#2c3328]">当前画像计算上限</p>
             <label className="mt-1 flex items-center gap-2">
               最多比较节点
               <input
@@ -573,11 +636,11 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
               <p
                 className={`mt-1 ${lastHardMeta.degraded ? 'text-amber-800' : 'text-green-800'}`}
               >
-                上次困难 AI：{lastHardMeta.degraded ? '预算不足，已用标准防守' : '完成候选比较'} · 节点
-                {lastHardMeta.nodes} · {lastHardMeta.elapsedMs.toFixed(1)}ms
+                上次 {AI_PROFILE_LABEL_ZH[lastHardMeta.profile]}：{lastHardMeta.degraded ? `未完成目标深度（${lastHardMeta.degradedReason}）` : '完成配置推演'} · 深度
+                {lastHardMeta.completedDepth} · 候选 {lastHardMeta.candidateCount} · 节点 {lastHardMeta.nodes} · {lastHardMeta.elapsedMs.toFixed(1)}ms
               </p>
             ) : (
-              <p className="mt-1 opacity-70">跑 hard 单步后显示降级观测</p>
+              <p className="mt-1 opacity-70">让羊走一步后显示深度、节点和降级原因</p>
             )}
           </div>
           <label className="flex flex-col gap-1">
@@ -649,6 +712,14 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             onClick={sheepStep}
           >
             {busy ? '计算中…' : '让羊 AI 走一步'}
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            className="rounded border border-[#5c6b52]/40 bg-white px-3 py-2 text-xs disabled:opacity-50"
+            onClick={compareProfileDecision}
+          >
+            与即时防守基线对比
           </button>
           <div className="flex gap-2">
             <button
@@ -746,6 +817,10 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
               <li>狼周围占位压力 {breakdown.surround.toFixed(0)}</li>
               <li>狼方直接捕食威胁 {Math.abs(breakdown.safety).toFixed(0)}</li>
               <li>羊方合法行动 {breakdown.sheepMobility.toFixed(0)}</li>
+              <li>下一完整狼回合最多可吃 {breakdown.captureChainRisk.toFixed(0)}</li>
+              <li>已经完全受困的狼 {breakdown.trappedWolves.toFixed(0)}</li>
+              <li>最弱一只狼的合法行动 {breakdown.weakestWolfMobility.toFixed(0)}</li>
+              <li>当前局面重复次数 {breakdown.repetitionPressure.toFixed(0)}</li>
             </ul>
           </div>
           {sheepCandidates.length > 0 && <div className="rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-3">
@@ -754,7 +829,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             <div className="mt-2 max-h-64 space-y-2 overflow-auto">
               {sheepCandidates.slice(0, 8).map((candidate, index) => <div key={`${candidate.action.type}-${index}`} className={`border p-2 text-xs ${candidate.dominated ? 'border-red-200 bg-red-50' : 'border-[#5c6b52]/15 bg-white'}`}>
                 <p className="font-medium">{sheepExplanation(candidate.explanation)} · {actionText(candidate.action)}</p>
-                <p className="mt-1 text-[#5c6b52]">直接捕食机会 {candidate.directCaptures} · 局面分 {candidate.score.toFixed(1)}{candidate.movedThreatenedSheep ? ' · 移动了受威胁羊' : ''}</p>
+                <p className="mt-1 text-[#5c6b52]">完整回合最多被吃 {candidate.maxCaptureChain} · 狼行动 {candidate.wolfMobility} · 困狼 {candidate.trappedWolves} · 局面分 {candidate.score.toFixed(1)}{candidate.movedThreatenedSheep ? ' · 移动了受威胁羊' : ''}</p>
               </div>)}
             </div>
           </div>}
@@ -777,13 +852,37 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             关卡
             <select
               value={batchLevelId}
-              onChange={(e) => setBatchLevelId(e.target.value)}
+              onChange={(e) => {
+                setBatchLevelId(e.target.value)
+                const selected = getLevel(e.target.value)
+                if (selected) {
+                  setBatchDiff(selected.ai)
+                  setBatchProfile(selected.aiProfile)
+                  setMaxNodes(AI_PROFILE_CONFIG[selected.aiProfile].budgets.maxNodes || 80)
+                }
+              }}
               className="rounded border border-[#5c6b52]/40 bg-white px-2 py-1"
             >
               {LEVELS.map((l) => (
                 <option key={l.id} value={l.id}>
                   {l.id}
                 </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1">
+            羊方 AI 画像
+            <select
+              value={batchProfile}
+              onChange={(event) => {
+                const next = event.target.value as AiProfile
+                setBatchProfile(next)
+                setMaxNodes(AI_PROFILE_CONFIG[next].budgets.maxNodes || 80)
+              }}
+              className="rounded border border-[#5c6b52]/40 bg-white px-2 py-1"
+            >
+              {(Object.keys(AI_PROFILE_LABEL_ZH) as AiProfile[]).map((item) => (
+                <option key={item} value={item}>{AI_PROFILE_LABEL_ZH[item]}</option>
               ))}
             </select>
           </label>
@@ -799,7 +898,7 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            羊方防守难度
+            底层兼容档位
             <select
               value={batchDiff}
               onChange={(e) => setBatchDiff(e.target.value as Difficulty)}
@@ -919,13 +1018,14 @@ export function AiSimConsole({ initialLevel, initialDiff, initialSeed, initialIm
 
       {replay && (
         <section className="order-3 border border-[#5c6b52]/25 bg-[#f7f5ef] p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-medium text-[#2c3328]">棋谱回放 · 第 {replay.record.index} 局</h2><p className="text-xs text-[#5c6b52]">种子 {replay.record.seed} · {terminalReasonLabel(replay.record.reason)} · 步骤 {replayIndex}/{replay.states.length - 1}</p></div><button type="button" onClick={() => setReplay(null)} className="text-sm underline">关闭回放</button></div>
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-medium text-[#2c3328]">棋谱回放 · 第 {replay.record.index} 局</h2><p className="text-xs text-[#5c6b52]">种子 {replay.record.seed} · {terminalReasonLabel(replay.record.reason)} · 步骤 {replayIndex}/{replay.states.length - 1} · 可疑羊步 {replay.suspectIndices.length}</p></div><button type="button" onClick={() => setReplay(null)} className="text-sm underline">关闭回放</button></div>
           <div className="mt-4 grid items-start gap-4 md:grid-cols-[minmax(0,480px)_1fr]">
             <BoardSvg state={deserialize(JSON.parse(replay.states[replayIndex]!))} selectedWolfId={null} stepHighlights={[]} jumpHighlights={[]} jumpThroughs={[]} interactive={false} theme={themeForChapter(getLevel(replay.record.levelId)?.chapterId ?? 'spring')} onSelectWolf={() => undefined} onClickCell={() => undefined} />
             <div>
               <input aria-label="回放步骤" type="range" min={0} max={replay.states.length - 1} value={replayIndex} onChange={(event) => setReplayIndex(Number(event.target.value))} className="w-full" />
               <div className="mt-2 flex gap-2"><button type="button" disabled={replayIndex === 0} onClick={() => setReplayIndex((value) => Math.max(0, value - 1))} className="border px-3 py-2 disabled:opacity-40">上一步</button><button type="button" disabled={replayIndex >= replay.states.length - 1} onClick={() => setReplayIndex((value) => Math.min(replay.states.length - 1, value + 1))} className="border px-3 py-2 disabled:opacity-40">下一步</button></div>
               <button type="button" onClick={loadReplayForTakeover} className="mt-2 bg-[#3d4a3a] px-3 py-2 text-sm text-[#f4f1ea]">从此步人工接管</button>
+              {replayIndex > 0 && replay.suspectIndices.includes(replayIndex - 1) && <p className="mt-3 border border-amber-300 bg-amber-50 p-2 text-sm text-amber-900">这一步存在更安全的完整捕食链替代，建议先检查候选证据再判断是 AI 还是地图问题。</p>}
               <p className="mt-3 break-all font-mono text-xs text-[#5c6b52]">{replayIndex === 0 ? '初始局面' : replay.actions[replayIndex - 1]}</p>
             </div>
           </div>
@@ -986,7 +1086,21 @@ function buildPlayerReportReplay(data: any): ReplayData | null {
   let current = createLevelInitialState(level)
   const states = [JSON.stringify(serialize(current))]
   const actions: string[] = []
+  const suspectIndices: number[] = []
   for (const action of data.actions) {
+    if (current.status === 'playing' && current.toMove === 'sheep' && action?.type !== 'end-chain') {
+      const analyses = analyzeSheepActions(current)
+      const selected = analyses.find((candidate) => JSON.stringify(candidate.action) === JSON.stringify(action))
+      const safe = analyses.filter((candidate) => !candidate.dominated)
+      const minChain = Math.min(...(safe.length > 0 ? safe : analyses).map((candidate) => candidate.maxCaptureChain))
+      const saferChain = analyses.some((candidate) => !candidate.dominated
+        && candidate.maxCaptureChain < (selected?.maxCaptureChain ?? Infinity)
+        && candidate.trappedWolves >= (selected?.trappedWolves ?? 0)
+        && candidate.wolfMobility <= (selected?.wolfMobility ?? Infinity))
+      if (selected?.dominated || ((selected?.maxCaptureChain ?? 0) > minChain && saferChain)) {
+        suspectIndices.push(actions.length)
+      }
+    }
     const result = action?.type === 'end-chain' ? endWolfTurn(current) : applyAction(current, action as Action)
     if (!result.ok) return null
     current = result.state
@@ -1006,9 +1120,11 @@ function buildPlayerReportReplay(data: any): ReplayData | null {
       firstCapturePly: null,
       wolfStrategy: 'mixed',
       sheepDifficulty: data.difficulty ?? level.ai,
+      sheepProfile: data.aiProfile ?? level.aiProfile,
     },
     states,
     actions,
+    suspectIndices,
   }
 }
 
@@ -1039,6 +1155,7 @@ function gameRate(n: number, total: number) {
 function simulateOneGame(
   level: LevelConfig,
   difficulty: Difficulty,
+  profile: AiProfile,
   wolfStrategy: DiagnosticWolfStrategy,
   seed: number,
   maxSteps = 400,
@@ -1070,6 +1187,7 @@ function simulateOneGame(
     } else {
       const action = pickSheepAction(s, {
         difficulty,
+        profile,
         rng: createSeededRng(localSeed++),
         budgets,
       })

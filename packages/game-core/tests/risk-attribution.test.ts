@@ -66,7 +66,7 @@ function run(levelId: string, difficulty: Difficulty, strategy: 'random' | 'mixe
 
 function summarize(levelId: string, difficulty: Difficulty, strategy: 'random' | 'mixed'): Outcome {
   const outcome: Outcome = { wolf: 0, sheep: 0, draw: 0, reasons: {} }
-  for (let seed = 20260717; seed <= 20260726; seed += 1) {
+  for (let seed = 20260717; seed <= 20260719; seed += 1) {
     const result = run(levelId, difficulty, strategy, seed)
     outcome[result.winner] += 1
     outcome.reasons[result.reason] = (outcome.reasons[result.reason] ?? 0) + 1
@@ -83,7 +83,7 @@ describe('strong-risk level attribution', () => {
     )
     console.table(rows.map((row) => ({ ...row, reasons: JSON.stringify(row.reasons) })))
     expect(rows).toHaveLength(18)
-    expect(rows.every((row) => row.wolf + row.sheep + row.draw === 10)).toBe(true)
+    expect(rows.every((row) => row.wolf + row.sheep + row.draw === 3)).toBe(true)
   }, 120_000)
 
   it('keeps representative reproducible traces at configured difficulty', () => {

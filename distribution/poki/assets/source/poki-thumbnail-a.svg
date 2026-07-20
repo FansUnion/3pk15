@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <defs>
+    <linearGradient id="field" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dcecc9"/>
+      <stop offset="1" stop-color="#91b96e"/>
+    </linearGradient>
+    <pattern id="grass" width="54" height="54" patternUnits="userSpaceOnUse">
+      <path d="M10 37l5-10 3 10M40 18l4-8 3 8" fill="none" stroke="#6e9d58" stroke-width="3" opacity=".3"/>
+      <circle cx="29" cy="42" r="3" fill="#b8d598" opacity=".7"/>
+    </pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="14" flood-color="#172437" flood-opacity=".25"/>
+    </filter>
+  </defs>
+  <rect width="1080" height="1080" fill="url(#field)"/>
+  <rect width="1080" height="1080" fill="url(#grass)"/>
+  <g stroke="#526c45" stroke-width="8" opacity=".58">
+    <path d="M90 90v900M270 90v900M450 90v900M630 90v900M810 90v900M990 90v900"/>
+    <path d="M90 90h900M90 270h900M90 450h900M90 630h900M90 810h900M90 990h900"/>
+  </g>
+  <g fill="#6e665c" stroke="#3f3a34" stroke-width="8" filter="url(#shadow)">
+    <path d="M530 668l28-54 65-13 48 41-5 66-54 31-63-20z"/>
+    <path d="M776 470l35-45 57 1 36 51-22 57-63 14-48-35z"/>
+  </g>
+  <g filter="url(#shadow)">
+    <image href="../../../../packages/web-assets/public/skins/default/wolf.svg" x="62" y="486" width="470" height="470"/>
+    <image href="../../../../packages/web-assets/public/skins/default/sheep.svg" x="575" y="112" width="210" height="210"/>
+    <image href="../../../../packages/web-assets/public/skins/default/sheep.svg" x="790" y="210" width="200" height="200"/>
+    <image href="../../../../packages/web-assets/public/skins/default/sheep.svg" x="590" y="332" width="190" height="190"/>
+  </g>
+  <path d="M475 674c92-98 156-122 282-141" fill="none" stroke="#c9a227" stroke-width="18" stroke-linecap="round" stroke-dasharray="2 36" opacity=".95"/>
+</svg>

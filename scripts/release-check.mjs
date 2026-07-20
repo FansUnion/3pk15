@@ -8,6 +8,7 @@ const playerTestArgs = ['--filter', '@wolf-sheep/player-web', 'test', '--', '--r
 if (process.env.GITHUB_ACTIONS === 'true') playerTestArgs.push('--reporter=github-actions')
 const playerTestFile = (file) => ['--filter', '@wolf-sheep/player-web', 'test', '--', file, '--reporter=verbose']
 const allGates = [
+  ['ai-quality', '24-level production AI quality', ['test:ai-quality']],
   ['core-tests', 'game-core tests', ['--filter', '@wolf-sheep/game-core', 'test']],
   ['core-types', 'game-core typecheck', ['--filter', '@wolf-sheep/game-core', 'lint']],
   ['player-tests', 'player tests', playerTestArgs],

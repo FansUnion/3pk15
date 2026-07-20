@@ -1,6 +1,9 @@
 export type { ChapterId, LevelConfig } from './content/levels'
 export {
   adjacentLevels,
+  AI_PROFILE_DESCRIPTION_ZH,
+  AI_PROFILE_LABEL_ZH,
+  aiProfileForLevel,
   CHAPTER_AI,
   CHAPTER_BLURB_EN,
   CHAPTER_BLURB_ZH,
@@ -10,6 +13,7 @@ export {
   createLevelInitialState,
   getLevel,
   levelBlurb,
+  levelConfigFingerprint,
   levelDisplayName,
   levelTeachingPoint,
   LEVELS,
@@ -63,6 +67,7 @@ export { getWolfStrategy, LEVEL_STRATEGIES, strategyName, WOLF_STRATEGIES } from
 export type { LevelStrategyProfile, WolfStrategy, WolfStrategyId } from './content/strategies'
 export type {
   Action,
+  AiProfile,
   ApplyResult,
   BoardState,
   ChainContext,
@@ -105,11 +110,12 @@ export type { SerializedBoard } from './serialize'
 export {
   createSeededRng,
   pickSheepAction,
+  pickSheepActionWithMeta,
   tierForChapter,
 } from './ai/index'
-export type { AiContext, HardBudgets, HardPickMeta, Rng } from './ai/index'
-export { pickHardWithMeta } from './ai/index'
-export { analyzeSheepActions, evaluate, evaluateScore } from './ai/evaluate'
+export type { AiContext, AiProfileConfig, HardBudgets, HardPickMeta, Rng } from './ai/index'
+export { AI_PROFILE_CONFIG, pickHardWithMeta, pickProfiledSheepActionWithMeta, SHEEP_AI_ALGORITHM_VERSION } from './ai/index'
+export { analyzeSheepActions, evaluate, evaluateScore, maxCapturesInWolfTurn } from './ai/evaluate'
 export type { EvalBreakdown, SheepActionAnalysis } from './ai/evaluate'
 export { assessLevelCandidate } from './analysis/candidateAcceptance'
 export type {

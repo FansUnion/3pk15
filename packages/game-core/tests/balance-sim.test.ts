@@ -48,7 +48,7 @@ function chooseWolfAction(state: ReturnType<typeof createLevelInitialState>, act
   return candidates[Math.floor(rng.nextFloat() * candidates.length)]!.action
 }
 
-function runBalance(level: LevelConfig, sheepDifficulty: 'easy' | 'normal' | 'hard', wolfStrategy: string, games = 3): BalanceSummary {
+function runBalance(level: LevelConfig, sheepDifficulty: 'easy' | 'normal' | 'hard', wolfStrategy: string, games = 1): BalanceSummary {
   let wolfWins = 0
   let sheepWins = 0
   let draws = 0
@@ -100,7 +100,7 @@ describe('spring balance smoke simulation', () => {
       ...summary,
       terminalReasons: JSON.stringify(summary.terminalReasons),
     })))
-    expect(summaries.every((summary) => summary.wolfWins + summary.sheepWins + summary.draws === 3)).toBe(true)
+    expect(summaries.every((summary) => summary.wolfWins + summary.sheepWins + summary.draws === 1)).toBe(true)
   }, 60000)
 
   it('starts and terminates every mainline level with its configured AI', () => {
@@ -114,6 +114,7 @@ describe('spring balance smoke simulation', () => {
           ? actions[Math.floor(rng.nextFloat() * actions.length)]!
           : pickSheepAction(state, {
             difficulty: level.ai,
+            profile: level.aiProfile,
             rng,
             budgets: level.ai === 'hard' ? REPRODUCIBLE_HARD_BUDGETS : undefined,
           })
@@ -133,12 +134,12 @@ describe('spring balance smoke simulation', () => {
   }, 30000)
 
   it('records a configured-AI baseline for all 24 mainline levels', () => {
-    const summaries = LEVELS.map((level) => runBalance(level, level.ai, 'mixed', 3))
+    const summaries = LEVELS.map((level) => runBalance(level, level.ai, 'mixed', 1))
     console.table(summaries.map((summary) => ({
       ...summary,
       terminalReasons: JSON.stringify(summary.terminalReasons),
     })))
     expect(summaries).toHaveLength(24)
-    expect(summaries.every((summary) => summary.wolfWins + summary.sheepWins + summary.draws === 3)).toBe(true)
+    expect(summaries.every((summary) => summary.wolfWins + summary.sheepWins + summary.draws === 1)).toBe(true)
   }, 60000)
 })

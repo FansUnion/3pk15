@@ -3,7 +3,7 @@ import { createLevelInitialState, LEVELS, serialize } from '@wolf-sheep/game-cor
 import { activeGameSignature, parseActiveGameSnapshot, type ActiveGameConfig } from './active-game'
 
 const level = LEVELS[0]!
-const config: ActiveGameConfig = { levelId: level.id, rocks: level.rocks, opening: level.opening, targetEaten: level.targetEaten, maxPlies: level.maxPlies }
+const config: ActiveGameConfig = { levelId: level.id, rocks: level.rocks, opening: level.opening, targetEaten: level.targetEaten, maxPlies: level.maxPlies, aiProfile: level.aiProfile }
 
 describe('active game recovery', () => {
   it('rejects corrupt and configuration-mismatched snapshots', () => {

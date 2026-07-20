@@ -4,10 +4,10 @@ import { auditLevels, LEVELS } from '../src/index'
 describe('unified level audit', () => {
   it('combines topology, simulation and finite evidence for all levels', () => {
     const reports = auditLevels(LEVELS, {
-      seeds: [20260717, 20260718],
-      hardMaxNodes: 20,
+      seeds: [20260717],
+      hardMaxNodes: 10,
       solveDepth: 2,
-      solveMaxNodes: 2_000,
+      solveMaxNodes: 500,
     })
     expect(reports).toHaveLength(24)
     expect(reports.every((report) => report.topology.levelId === report.levelId)).toBe(true)

@@ -14,8 +14,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "balance:deep": "node ./scripts/balance-deep.mjs",
+    "balance:matrix": "node ./scripts/balance-matrix.mjs",
     "candidate:check": "node ./scripts/candidate-check.mjs",
     "test": "vitest run",
+    "test:ai-quality": "vitest run tests/ai-profile-quality.test.ts",
     "test:watch": "vitest",
     "lint": "tsc -p tsconfig.json --noEmit",
     "check:skins": "node ./scripts/check-skins.mjs"

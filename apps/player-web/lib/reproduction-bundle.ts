@@ -1,21 +1,30 @@
 'use client'
 
-import { serialize, type BoardState, type Difficulty } from '@wolf-sheep/game-core'
+import {
+  AI_PROFILE_CONFIG,
+  SHEEP_AI_ALGORITHM_VERSION,
+  serialize,
+  type AiProfile,
+  type BoardState,
+  type Difficulty,
+} from '@wolf-sheep/game-core'
 import type { RecordedGameAction } from './active-game'
 import { getAudioDiagnostics } from './sfx'
 
-export const REPRODUCTION_SCHEMA = 1
+export const REPRODUCTION_SCHEMA = 2
 
 export type PlayerReproductionBundle = {
   kind: 'fangrush-player-reproduction'
   schema: number
-  rulesVersion: 2
+  rulesVersion: 3
   exportedAt: string
   levelId: string
   difficulty: Difficulty
+  aiProfile: AiProfile
+  aiAlgorithmVersion: typeof SHEEP_AI_ALGORITHM_VERSION
   initialAiSeed: number
   nextAiSeed: number
-  hardBudget: { maxNodes: 80; maxMs: null }
+  hardBudget: { maxNodes: number; maxMs: number | null }
   board: ReturnType<typeof serialize>
   actions: RecordedGameAction[]
   environment: { url: string; userAgent: string; language: string; viewport: string }
@@ -25,6 +34,7 @@ export type PlayerReproductionBundle = {
 export function buildPlayerReproductionBundle(input: {
   state: BoardState
   difficulty: Difficulty
+  aiProfile: AiProfile
   initialAiSeed: number
   nextAiSeed: number
   actions: RecordedGameAction[]
@@ -33,13 +43,15 @@ export function buildPlayerReproductionBundle(input: {
   return {
     kind: 'fangrush-player-reproduction',
     schema: REPRODUCTION_SCHEMA,
-    rulesVersion: 2,
+    rulesVersion: 3,
     exportedAt: new Date().toISOString(),
     levelId: input.state.levelId,
     difficulty: input.difficulty,
+    aiProfile: input.aiProfile,
+    aiAlgorithmVersion: SHEEP_AI_ALGORITHM_VERSION,
     initialAiSeed: input.initialAiSeed,
     nextAiSeed: input.nextAiSeed,
-    hardBudget: { maxNodes: 80, maxMs: null },
+    hardBudget: { maxNodes: AI_PROFILE_CONFIG[input.aiProfile].budgets.maxNodes, maxMs: null },
     board: serialize(input.state),
     actions: input.actions,
     environment: {

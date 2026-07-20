@@ -1,6 +1,6 @@
-import type { Action, BoardState } from '../types'
-import { applyAction, listLegalActions, getWolfLegalSummary, listWolfActionsAsIfTurn } from '../rules'
-import { posKey } from '../board'
+import { MAX_CHAIN, type Action, type BoardState } from '../types'
+import { applyAction, boardPositionKey, listLegalActions, getWolfLegalSummary, listWolfActionsAsIfTurn } from '../rules'
+import { inBounds, ORTHO, posKey } from '../board'
 
 /**
  * Higher is better for sheep (defender).
@@ -15,6 +15,10 @@ export type EvalBreakdown = {
   surround: number
   safety: number
   sheepMobility: number
+  captureChainRisk: number
+  trappedWolves: number
+  weakestWolfMobility: number
+  repetitionPressure: number
 }
 
 const W = {
@@ -25,6 +29,10 @@ const W = {
   surround: 2.5,
   safety: 5,
   sheepMobility: 0.6,
+  captureChainRisk: -7,
+  trappedWolves: 18,
+  weakestWolfMobility: -1.2,
+  repetitionPressure: -2,
 }
 
 function sheepPositions(state: BoardState) {
@@ -91,6 +99,35 @@ function sheepMobilityScore(state: BoardState): number {
     .filter((action) => action.type === 'step').length
 }
 
+/** Maximum sheep a wolf can capture during its next complete turn. */
+export function maxCapturesInWolfTurn(state: BoardState): number {
+  const sheep = new Set(state.pieces.filter((piece) => piece.side === 'sheep').map((piece) => posKey(piece.r, piece.c)))
+  const wolves = state.pieces.filter((piece) => piece.side === 'wolf')
+
+  function visit(r: number, c: number, remainingSheep: Set<string>, otherWolves: Set<string>, depth: number): number {
+    if (depth >= MAX_CHAIN) return 0
+    let best = 0
+    for (const direction of ORTHO) {
+      const through = posKey(r + direction.r, c + direction.c)
+      const targetR = r + direction.r * 2
+      const targetC = c + direction.c * 2
+      if (!inBounds(targetR, targetC)) continue
+      if (state.rocks.has(through) || otherWolves.has(through) || remainingSheep.has(through)) continue
+      const target = posKey(targetR, targetC)
+      if (!remainingSheep.has(target)) continue
+      const nextSheep = new Set(remainingSheep)
+      nextSheep.delete(target)
+      best = Math.max(best, 1 + visit(targetR, targetC, nextSheep, otherWolves, depth + 1))
+    }
+    return best
+  }
+
+  return wolves.reduce((best, wolf) => {
+    const otherWolves = new Set(wolves.filter((candidate) => candidate.id !== wolf.id).map((candidate) => posKey(candidate.r, candidate.c)))
+    return Math.max(best, visit(wolf.r, wolf.c, sheep, otherWolves, 0))
+  }, 0)
+}
+
 export function evaluate(state: BoardState): EvalBreakdown {
   const sheepCount = sheepPositions(state).length
   const summary = getWolfLegalSummary(state)
@@ -102,6 +139,12 @@ export function evaluate(state: BoardState): EvalBreakdown {
   const surround = surroundScore(state)
   const safety = safetyScore(wolfJumps)
   const sheepMobility = sheepMobilityScore(state)
+  const captureChainRisk = maxCapturesInWolfTurn(state)
+  const trappedWolves = summary.filter((wolf) => wolf.steps + wolf.jumps === 0).length
+  const weakestWolfMobility = summary.length === 0
+    ? 0
+    : Math.min(...summary.map((wolf) => wolf.steps + wolf.jumps))
+  const repetitionPressure = state.repetitionCounts.get(boardPositionKey(state)) ?? 0
 
   const total =
     W.material * material +
@@ -111,12 +154,19 @@ export function evaluate(state: BoardState): EvalBreakdown {
     W.surround * surround
     + W.safety * safety
     + W.sheepMobility * sheepMobility
+    + W.captureChainRisk * captureChainRisk
+    + W.trappedWolves * trappedWolves
+    + W.weakestWolfMobility * weakestWolfMobility
+    + W.repetitionPressure * repetitionPressure
 
   if (state.status === 'won') {
-    return { total: -10_000, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility }
+    return { total: -100_000 + state.plyCount, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility, captureChainRisk, trappedWolves, weakestWolfMobility, repetitionPressure }
   }
   if (state.status === 'lost' || wolfMoves === 0) {
-    return { total: 10_000, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility }
+    return { total: 100_000 - state.plyCount, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility, captureChainRisk, trappedWolves, weakestWolfMobility, repetitionPressure }
+  }
+  if (state.status === 'draw') {
+    return { total: 2_000 - state.plyCount, material, wolfMobility: wolfMoves, cluster, advance, surround, safety, sheepMobility, captureChainRisk, trappedWolves, weakestWolfMobility, repetitionPressure }
   }
 
   return {
@@ -128,6 +178,10 @@ export function evaluate(state: BoardState): EvalBreakdown {
     surround,
     safety,
     sheepMobility,
+    captureChainRisk,
+    trappedWolves,
+    weakestWolfMobility,
+    repetitionPressure,
   }
 }
 
@@ -139,6 +193,11 @@ export type SheepActionAnalysis = {
   action: Action
   score: number
   directCaptures: number
+  maxCaptureChain: number
+  wolfMobility: number
+  trappedWolves: number
+  weakestWolfMobility: number
+  repetitionPressure: number
   threatenedSheep: string[]
   movedThreatenedSheep: boolean
   dominated: boolean
@@ -151,10 +210,16 @@ export function analyzeSheepActions(state: BoardState): SheepActionAnalysis[] {
     const result = applyAction(state, action)
     if (!result.ok) return []
     const threatenedSheep = [...threatenedSheepIds(result.state)]
+    const wolfSummary = getWolfLegalSummary(result.state)
     return [{
       action,
       score: evaluateScore(result.state),
       directCaptures: listWolfActionsAsIfTurn(result.state).filter((candidate) => candidate.type === 'jump').length,
+      maxCaptureChain: maxCapturesInWolfTurn(result.state),
+      wolfMobility: wolfSummary.reduce((sum, wolf) => sum + wolf.steps + wolf.jumps, 0),
+      trappedWolves: wolfSummary.filter((wolf) => wolf.steps + wolf.jumps === 0).length,
+      weakestWolfMobility: wolfSummary.length === 0 ? 0 : Math.min(...wolfSummary.map((wolf) => wolf.steps + wolf.jumps)),
+      repetitionPressure: result.state.repetitionCounts.get(boardPositionKey(result.state)) ?? 0,
       threatenedSheep,
       movedThreatenedSheep: action.type !== 'pass' && beforeThreatened.has(action.pieceId),
     }]
@@ -162,15 +227,19 @@ export function analyzeSheepActions(state: BoardState): SheepActionAnalysis[] {
 
   return candidates.map((candidate) => {
     const dominated = candidates.some((other) => other !== candidate
-      && other.directCaptures < candidate.directCaptures
-      && other.score >= candidate.score)
+      && other.maxCaptureChain <= candidate.maxCaptureChain
+      && other.wolfMobility <= candidate.wolfMobility
+      && other.score >= candidate.score
+      && (other.maxCaptureChain < candidate.maxCaptureChain
+        || other.wolfMobility < candidate.wolfMobility
+        || other.score > candidate.score))
     const explanation: SheepActionAnalysis['explanation'] = candidate.action.type === 'pass'
       ? 'pass'
       : dominated
         ? 'blunder'
         : candidate.threatenedSheep.length === 0 && candidate.movedThreatenedSheep
           ? 'escape'
-          : candidate.directCaptures === 0
+          : candidate.maxCaptureChain === 0
             ? 'block'
             : candidate.score > Math.max(...candidates.filter((other) => other !== candidate).map((other) => other.score), -Infinity)
               ? 'sacrifice'

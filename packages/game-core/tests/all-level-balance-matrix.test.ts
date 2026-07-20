@@ -46,8 +46,8 @@ function runGame(level: (typeof LEVELS)[number], strategy: WolfStrategy, seed: n
       ? chooseDiagnosticWolfAction(state, actions, wolfRng, strategy)
       : pickSheepAction(state, {
         difficulty: level.ai,
+        profile: level.aiProfile,
         rng: sheepRng,
-        budgets: level.ai === 'hard' ? HARD_BUDGET : undefined,
       })
     const beforeEaten = state.eatenSheep
     const result = applyAction(state, action)
@@ -72,16 +72,22 @@ function runGame(level: (typeof LEVELS)[number], strategy: WolfStrategy, seed: n
 
 const matrixDescribe = process.env.RUN_BALANCE_MATRIX === '1' ? describe : describe.skip
 const requestedChapter = process.env.BALANCE_CHAPTER
-const matrixChapters = (['spring', 'summer', 'autumn', 'winter'] as const)
-  .filter((chapter) => !requestedChapter || chapter === requestedChapter)
+const requestedLevel = process.env.BALANCE_LEVEL
+const matrixLevels = LEVELS.filter((level) => (!requestedChapter || level.chapterId === requestedChapter)
+  && (!requestedLevel || level.id === requestedLevel))
 
 matrixDescribe('all-level seeded balance matrix', () => {
-  it.each(matrixChapters)(
-    'records a reproducible %s two-strategy matrix',
-    (chapterId) => {
-      const summaries = LEVELS.filter((level) => level.chapterId === chapterId).flatMap((level) => (['random', 'mixed'] as const).map((strategy) => {
-      const games = SEEDS.map((seed) => runGame(level, strategy, seed))
-      return {
+  it.each(matrixLevels)(
+    'records a reproducible $id two-strategy matrix',
+    async (level) => {
+      const summaries = []
+      for (const strategy of ['random', 'mixed'] as const) {
+        const games = []
+        for (const seed of SEEDS) {
+          games.push(runGame(level, strategy, seed))
+          await new Promise<void>((resolve) => setTimeout(resolve, 0))
+        }
+        summaries.push({
         level: level.id,
         ai: level.ai,
         strategy,
@@ -100,10 +106,10 @@ matrixDescribe('all-level seeded balance matrix', () => {
           counts[game.reason] = (counts[game.reason] ?? 0) + 1
           return counts
         }, {}),
+        })
       }
-      }))
       console.table(summaries.map((summary) => ({ ...summary, reasons: JSON.stringify(summary.reasons) })))
-      expect(summaries).toHaveLength(12)
+      expect(summaries).toHaveLength(2)
       expect(summaries.every((summary) => summary.wolfWins + summary.sheepWins + summary.draws === 10)).toBe(true)
       expect(summaries.every((summary) => summary.firstCapture >= 0)).toBe(true)
     },

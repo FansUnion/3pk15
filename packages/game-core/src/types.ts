@@ -1,5 +1,7 @@
 export type Side = 'wolf' | 'sheep'
 export type Difficulty = 'easy' | 'normal' | 'hard'
+/** Production-facing defensive behavior used by the 24-level learning curve. */
+export type AiProfile = 'guided' | 'foundation' | 'tactical' | 'strategic' | 'expert'
 export type GameStatus = 'playing' | 'won' | 'lost' | 'draw'
 export type TerminalReason = 'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition'
 

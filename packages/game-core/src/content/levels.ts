@@ -1,4 +1,4 @@
-import type { Difficulty, OpeningLayout, Pos } from '../types'
+import type { AiProfile, Difficulty, OpeningLayout, Pos } from '../types'
 import { BOARD_MAX, BOARD_MIN } from '../types'
 import { inBounds, keyOf, ORTHO, posKey } from '../board'
 import {
@@ -25,6 +25,8 @@ export type LevelConfig = {
   /** Override either side's standard start while preserving a full legal opening. */
   opening?: OpeningLayout
   ai: Difficulty
+  /** Player-journey behavior profile; `ai` remains the compatible base algorithm tier. */
+  aiProfile: AiProfile
   /** Default is 8; special challenge levels may override this target. */
   targetEaten?: number
   /** Maximum half-moves before a stalemate is declared. Default is 300. */
@@ -120,6 +122,29 @@ export const CHAPTER_AI: Record<ChapterId, Difficulty> = {
   winter: 'hard',
 }
 
+export const AI_PROFILE_LABEL_ZH: Record<AiProfile, string> = {
+  guided: '引导防守',
+  foundation: '基础防守',
+  tactical: '战术防守',
+  strategic: '战略防守',
+  expert: '专家防守',
+}
+
+export const AI_PROFILE_DESCRIPTION_ZH: Record<AiProfile, string> = {
+  guided: '不走严格劣着，在较宽的安全候选中保留教学宽容。',
+  foundation: '稳定避开直接送吃，并开始封堵一次捕食落点。',
+  tactical: '预判狼的完整行动和连续捕食，利用通道与岩石挡线。',
+  strategic: '在两轮攻防中针对孤狼、关键入口和合理牺牲形成计划。',
+  expert: '使用本期最深的受限推演，维持合围目标并把优势转成困狼。',
+}
+
+export function aiProfileForLevel(chapterId: ChapterId, indexInChapter: number): AiProfile {
+  if (chapterId === 'spring') return indexInChapter <= 2 ? 'guided' : 'foundation'
+  if (chapterId === 'summer') return 'tactical'
+  if (chapterId === 'autumn') return 'strategic'
+  return 'expert'
+}
+
 export const CHAPTER_ORDER: ChapterId[] = ['spring', 'summer', 'autumn', 'winter']
 
 export const CHAPTER_LABEL: Record<ChapterId, string> = {
@@ -194,6 +219,10 @@ export function validateLevel(level: LevelConfig): string[] {
   }
   if (!allowedAi[level.chapterId].includes(level.ai)) {
     errors.push(`ai ${level.ai} is not allowed for ${level.chapterId}`)
+  }
+  const expectedProfile = aiProfileForLevel(level.chapterId, level.indexInChapter)
+  if (level.aiProfile !== expectedProfile) {
+    errors.push(`aiProfile ${level.aiProfile} does not match ${level.id} learning-curve profile ${expectedProfile}`)
   }
   if (!level.strategy || level.strategy.primary === level.strategy.secondary) {
     errors.push('level must have distinct primary and secondary strategies')
@@ -273,8 +302,9 @@ export function validateLevel(level: LevelConfig): string[] {
 }
 
 function L(
-  partial: Omit<LevelConfig, 'ai' | 'firstClearReward' | 'repeatDrop' | 'name' | 'strategy' | keyof LevelProductMeta> & {
+  partial: Omit<LevelConfig, 'ai' | 'aiProfile' | 'firstClearReward' | 'repeatDrop' | 'name' | 'strategy' | keyof LevelProductMeta> & {
     ai?: Difficulty
+    aiProfile?: AiProfile
     firstClearReward?: LevelConfig['firstClearReward']
     repeatDrop?: LevelConfig['repeatDrop']
   },
@@ -303,6 +333,7 @@ function L(
     strategy: LEVEL_STRATEGIES[partial.id]!,
     name: partial.nameZh,
     ai: partial.ai ?? CHAPTER_AI[partial.chapterId],
+    aiProfile: partial.aiProfile ?? aiProfileForLevel(partial.chapterId, partial.indexInChapter),
     targetEaten: partial.targetEaten ?? 8,
     maxPlies: partial.maxPlies ?? 300,
     openingTemplate: partial.openingTemplate ?? `${partial.chapterId}-standard-${partial.indexInChapter}`,
@@ -331,6 +362,25 @@ export function levelBlurb(level: LevelConfig, locale: 'en' | 'zh'): string {
 export function levelTeachingPoint(level: LevelConfig, locale: 'en' | 'zh'): string {
   if (locale === 'zh') return level.teachingPoint ?? ''
   return LEVEL_TEACHING_EN[level.id] ?? level.teachingPoint ?? ''
+}
+
+/** Stable fingerprint for reproducing AI and balance evidence without copying the full config. */
+export function levelConfigFingerprint(level: LevelConfig): string {
+  const text = JSON.stringify({
+    id: level.id,
+    rocks: [...level.rocks].sort((left, right) => left.r - right.r || left.c - right.c),
+    opening: level.opening ?? null,
+    ai: level.ai,
+    aiProfile: level.aiProfile,
+    targetEaten: level.targetEaten ?? 8,
+    maxPlies: level.maxPlies ?? 300,
+  })
+  let hash = 2166136261
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index)
+    hash = Math.imul(hash, 16777619)
+  }
+  return `fnv1a-${(hash >>> 0).toString(16).padStart(8, '0')}`
 }
 
 /** Production level table. Rocks must be non-adjacent and outside the configured opening. */
