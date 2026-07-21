@@ -1,8 +1,12 @@
 import {
   applyAction,
+  createAiOpponentMemory,
   createLevelInitialState,
   endWolfTurn,
+  observeAiOpponentAction,
+  resolveAiIntent,
   type Action,
+  type AiOpponentMemory,
   type BoardState,
   type LevelConfig,
 } from '@wolf-sheep/game-core'
@@ -10,6 +14,7 @@ import {
 export type CandidateReplayFrame = {
   label: string
   state: BoardState
+  aiMemory: AiOpponentMemory
 }
 
 export type CandidateReplayResult =
@@ -18,7 +23,8 @@ export type CandidateReplayResult =
 
 export function buildCandidateReplay(level: LevelConfig, trace: string[]): CandidateReplayResult {
   let state = createLevelInitialState(level)
-  const frames: CandidateReplayFrame[] = [{ label: '初始局面', state }]
+  let aiMemory = createAiOpponentMemory()
+  const frames: CandidateReplayFrame[] = [{ label: '初始局面', state, aiMemory }]
 
   for (let index = 0; index < trace.length; index += 1) {
     const line = trace[index]!
@@ -28,16 +34,21 @@ export function buildCandidateReplay(level: LevelConfig, trace: string[]): Candi
       const result = endWolfTurn(state)
       if (!result.ok) return { ok: false, error: `步骤 ${index + 1} 无法结束连吃：${result.error}`, frames }
       state = result.state
-      frames.push({ label: line, state })
+      frames.push({ label: line, state, aiMemory })
       continue
     }
 
     const action = parseTraceAction(payload)
     if (!action) return { ok: false, error: `步骤 ${index + 1} 格式无法识别：${line}`, frames }
+    const before = state
+    if (before.toMove === 'sheep') {
+      aiMemory = resolveAiIntent(before, { style: level.aiStyle, intent: level.opponentIntent }, aiMemory).nextMemory
+    }
     const result = applyAction(state, action)
     if (!result.ok) return { ok: false, error: `步骤 ${index + 1} 与当前规则不一致：${result.error}`, frames }
     state = result.state
-    frames.push({ label: line, state })
+    if (before.toMove === 'wolf') aiMemory = observeAiOpponentAction(aiMemory, before, action, state)
+    frames.push({ label: line, state, aiMemory })
   }
 
   return { ok: true, frames }

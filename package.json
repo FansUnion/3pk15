@@ -41,6 +41,7 @@
     "check:runtime-routes": "node ./scripts/check-runtime-routes.mjs",
     "audit:production:player": "node ./scripts/check-production-player.mjs",
     "audit:production:player:strict": "node ./scripts/check-production-player.mjs --strict",
+    "audit:production:journey": "node ./scripts/check-production-journey.mjs",
     "check:player-boundaries": "node ./scripts/check-player-boundaries.mjs",
     "check:app-source-boundaries": "node ./scripts/check-app-source-boundaries.mjs",
     "release:check": "node ./scripts/release-check.mjs"

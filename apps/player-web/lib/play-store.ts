@@ -1,13 +1,16 @@
 import { create } from 'zustand'
 import {
   applyAction,
+  createAiOpponentMemory,
   createInitialState,
   createSeededRng,
   endWolfTurn,
   listLegalActions,
-  pickSheepAction,
+  observeAiOpponentAction,
+  pickSheepActionWithMeta,
   type Action,
   type AiProfile,
+  type AiOpponentMemory,
   type BoardState,
   type OpeningLayout,
   type Pos,
@@ -51,6 +54,7 @@ type PlayStore = {
   seed: number
   initialSeed: number
   actionHistory: RecordedGameAction[]
+  aiMemory: AiOpponentMemory
   resumed: boolean
   aiError: string | null
   init: (levelId: string, rocks: Pos[], aiProfile: AiProfile, targetEaten?: number, maxPlies?: number, opening?: OpeningLayout, resume?: boolean) => void
@@ -121,9 +125,9 @@ function activeConfig(): ActiveGameConfig {
   return { levelId: levelMeta.levelId, rocks: levelMeta.rocks, targetEaten: levelMeta.targetEaten, maxPlies: levelMeta.maxPlies, opening: levelMeta.opening, aiProfile: levelMeta.aiProfile }
 }
 
-function syncActiveGame(state: BoardState, aiSeed: number, initialAiSeed: number, actions: RecordedGameAction[]) {
+function syncActiveGame(state: BoardState, aiSeed: number, initialAiSeed: number, actions: RecordedGameAction[], aiMemory: AiOpponentMemory) {
   if (!levelMeta.resume) return
-  if (state.status === 'playing') saveActiveGame(activeConfig(), { board: state, aiSeed, initialAiSeed, actions })
+  if (state.status === 'playing') saveActiveGame(activeConfig(), { board: state, aiSeed, initialAiSeed, actions, aiMemory })
   else clearActiveGame()
 }
 
@@ -137,6 +141,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
   seed: 1,
   initialSeed: 1,
   actionHistory: [],
+  aiMemory: createAiOpponentMemory(),
   resumed: false,
   aiError: null,
 
@@ -149,7 +154,8 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     const initialSeed = restored?.initialAiSeed ?? Date.now() % 1_000_000
     const seed = restored?.aiSeed ?? initialSeed
     const actionHistory = restored?.actions ?? []
-    syncActiveGame(state, seed, initialSeed, actionHistory)
+    const aiMemory = restored?.aiMemory ?? createAiOpponentMemory()
+    syncActiveGame(state, seed, initialSeed, actionHistory, aiMemory)
     const selectedWolfId = state.chain?.wolfId ?? null
     const seq = turnSeq
     set({
@@ -162,6 +168,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
       seed,
       initialSeed,
       actionHistory,
+      aiMemory,
       resumed: Boolean(restored),
       aiError: null,
     })
@@ -208,7 +215,8 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
       juice.newThreatenedSheepIds = threatenedSheepIds(next).filter((id) => !before.has(id))
     }
     const actionHistory = [...get().actionHistory, action]
-    syncActiveGame(next, get().seed, get().initialSeed, actionHistory)
+    const aiMemory = observeAiOpponentAction(get().aiMemory, state, action, next)
+    syncActiveGame(next, get().seed, get().initialSeed, actionHistory, aiMemory)
     const seq = ++turnSeq
 
     void (async () => {
@@ -219,6 +227,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
         uiPhase: 'animating',
         juice,
         actionHistory,
+        aiMemory,
         aiError: null,
       })
 
@@ -266,7 +275,7 @@ export const usePlayStore = create<PlayStore>((set, get) => ({
     if (!result.ok) return
     const next = result.state
     const actionHistory = [...get().actionHistory, { type: 'end-chain' as const }]
-    syncActiveGame(next, get().seed, get().initialSeed, actionHistory)
+    syncActiveGame(next, get().seed, get().initialSeed, actionHistory, get().aiMemory)
     const seq = ++turnSeq
 
     void (async () => {
@@ -319,7 +328,7 @@ async function runAiTurn(
   set: (partial: Partial<PlayStore>) => void,
   seq: number,
 ) {
-  const { state, aiProfile, seed } = get()
+  const { state, aiProfile, seed, aiMemory } = get()
   if (seq !== turnSeq) return
   if (state.status !== 'playing' || state.toMove !== 'sheep') {
     set({ uiPhase: state.status === 'playing' ? 'playing' : 'terminal', juice: null })
@@ -328,10 +337,12 @@ async function runAiTurn(
 
   try {
     if (consumeNextAiFailure()) throw new Error('Injected sheep AI failure')
-    const action = pickSheepAction(state, {
-      profile: aiProfile ?? undefined,
+    const decision = pickSheepActionWithMeta(state, {
+      profile: aiProfile ?? 'guided',
       rng: createSeededRng(seed + state.eatenSheep * 17 + state.pieces.length),
+      memory: aiMemory,
     })
+    const action = decision.action
     const juice = juiceFromAction(state, action)
     const result = applyAction(state, action)
     if (!result.ok) {
@@ -342,7 +353,8 @@ async function runAiTurn(
     if (juice) juice.newlyTrappedWolfIds = newlyTrappedWolfIds(state, next)
     const actionHistory = [...get().actionHistory, action]
     const nextSeed = seed + 1
-    syncActiveGame(next, nextSeed, get().initialSeed, actionHistory)
+    const nextMemory = decision.meta.nextMemory
+    syncActiveGame(next, nextSeed, get().initialSeed, actionHistory, nextMemory)
     set({
       state: next,
       selectedWolfId: null,
@@ -351,6 +363,7 @@ async function runAiTurn(
       juice,
       seed: nextSeed,
       actionHistory,
+      aiMemory: nextMemory,
       aiError: null,
     })
     await delay(FEEDBACK_MS)

@@ -13,7 +13,9 @@ describe('unified level audit', () => {
     expect(reports.every((report) => report.topology.levelId === report.levelId)).toBe(true)
     expect(reports.every((report) => report.simulation.levelId === report.levelId)).toBe(true)
     expect(reports.every((report) => ['pass', 'review', 'reject'].includes(report.verdict))).toBe(true)
-  }, 60_000)
+  // V5 evaluates persistent intent and style evidence for all 24 levels. Keep
+  // this smoke audit below the production matrix budget, but allow slower CI.
+  }, 120_000)
 })
 
 const matrixDescribe = process.env.RUN_LEVEL_AUDIT_MATRIX === '1' ? describe : describe.skip

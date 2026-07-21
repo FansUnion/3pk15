@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-const personaPath = fileURLToPath(new URL('../../../docs/产品核心/验证记录/2026-07-20-ai-v3-玩家画像矩阵.json', import.meta.url))
-const candidatePath = fileURLToPath(new URL('../../../docs/产品核心/验证记录/2026-07-20-ai-v3-候选验收.json', import.meta.url))
+const personaPath = fileURLToPath(new URL('../../../docs/产品核心/验证记录/2026-07-20-ai-v5-主动对手矩阵.json', import.meta.url))
+const candidatePath = fileURLToPath(new URL('../../../docs/产品核心/验证记录/2026-07-20-ai-v5-候选验收.json', import.meta.url))
 const persona = JSON.parse(readFileSync(personaPath, 'utf8'))
 const candidate = JSON.parse(readFileSync(candidatePath, 'utf8'))
 const personas = ['novice', 'regular', 'skilled', 'expert']
@@ -20,6 +20,10 @@ console.log('quality', Object.fromEntries(personas.map((name) => [name, {
   dominated: persona.reports.reduce((sum, report) => sum + report.summaries[name].dominatedSheepTurns, 0),
   higherChainExposure: persona.reports.reduce((sum, report) => sum + report.summaries[name].higherChainExposureTurns, 0),
   degraded: persona.reports.reduce((sum, report) => sum + report.summaries[name].degradedSheepTurns, 0),
+  activePressure: persona.reports.reduce((sum, report) => sum + report.summaries[name].activePressureRate, 0) / persona.reports.length,
+  targetPersistence: persona.reports.reduce((sum, report) => sum + report.summaries[name].targetPersistenceRate, 0) / persona.reports.length,
+  noProgress: persona.reports.reduce((sum, report) => sum + report.summaries[name].noProgressRate, 0) / persona.reports.length,
+  styleAlignment: persona.reports.reduce((sum, report) => sum + report.summaries[name].styleAlignmentRate, 0) / persona.reports.length,
 }])))
 console.log('candidate', candidate.reports.reduce((counts, report) => {
   counts[report.verdict] = (counts[report.verdict] ?? 0) + 1

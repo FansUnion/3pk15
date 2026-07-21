@@ -1,4 +1,4 @@
-import type { AiProfile, OpeningLayout, Pos } from '../types'
+import type { AiIntentTarget, AiProfile, AiStyle, AiStyleProfile, OpeningLayout, OpponentIntent, Pos } from '../types'
 import { BOARD_MAX, BOARD_MIN } from '../types'
 import { inBounds, keyOf, ORTHO, posKey } from '../board'
 import {
@@ -35,6 +35,10 @@ export type LevelConfig = {
   opening?: OpeningLayout
   /** Production sheep behavior profile; this is the single AI source for gameplay and simulation. */
   aiProfile: AiProfile
+  /** Stable behavior tendency, independent from ability stage. */
+  aiStyle: AiStyleProfile
+  /** Level-specific plan and player counterplay, independent from style. */
+  opponentIntent: OpponentIntent
   /** Default is 8; special challenge levels may override this target. */
   targetEaten?: number
   /** Maximum half-moves before a stalemate is declared. Default is 300. */
@@ -60,6 +64,23 @@ export type LevelConfig = {
     universal?: number
     season?: Partial<Record<ChapterId, number>>
   }
+}
+
+export const AI_STYLE_LABEL_ZH: Record<AiStyle, string> = {
+  blockade: '封路',
+  encircle: '合围',
+  disperse: '分散诱导',
+  exchange: '战术交换',
+  'hunter-counter': '反固定猎手',
+}
+
+export const AI_INTENT_TARGET_LABEL_ZH: Record<AiIntentTarget, string> = {
+  approach: '狼群接近点',
+  'critical-route': '关键通道',
+  'capture-landing': '捕食落点',
+  'weakest-wolf': '低机动狼',
+  'support-link': '狼群接应线',
+  'active-hunter': '当前主猎手',
 }
 
 type LevelProductMeta = Pick<
@@ -105,6 +126,50 @@ function meta(
   return { nameMeaningZh, designConceptZh, playerGoalZh, wolfStrategyZh, sheepDefenseZh, riskTags, productionStatus: 'approved' }
 }
 
+type LevelAiContract = {
+  aiStyle: AiStyleProfile
+  opponentIntent: OpponentIntent
+}
+
+function aiContract(
+  primary: AiStyle,
+  secondary: AiStyle,
+  target: AiIntentTarget,
+  summaryZh: string,
+  counterplayZh: string,
+  focusCells: readonly Pos[],
+  retargetAfterPlies = 8,
+): LevelAiContract {
+  return { aiStyle: { primary, secondary }, opponentIntent: { target, summaryZh, counterplayZh, focusCells, retargetAfterPlies } }
+}
+
+const LEVEL_AI_CONTRACT: Record<string, LevelAiContract> = {
+  'spring-01': aiContract('blockade', 'disperse', 'approach', '保持基本队形并占住狼的接近点，同时保留首次捕食窗口。', '中狼建立接触，两翼保留支援。', [{ r: 4, c: 3 }, { r: 4, c: 4 }], 6),
+  'spring-02': aiContract('blockade', 'hunter-counter', 'critical-route', '借边石改变接触顺序和可用落点，迫使狼换线。', '识别被挡路线后从另一侧接近。', [{ r: 4, c: 3 }, { r: 4, c: 5 }], 6),
+  'spring-03': aiContract('blockade', 'disperse', 'capture-landing', '填补一个短链落点并从另一侧分散。', '先看连吃终点，再决定继续或收手。', [{ r: 5, c: 3 }, { r: 5, c: 4 }]),
+  'spring-04': aiContract('disperse', 'encircle', 'weakest-wolf', '诱导单狼靠近边线，再通过换位拉开三狼距离。', '稳住三狼间距后从侧面回切。', [{ r: 4, c: 1 }, { r: 4, c: 2 }]),
+  'spring-05': aiContract('disperse', 'blockade', 'support-link', '一侧诱导、另一侧转移，破坏两狼同时施压。', '两狼分压，一狼控制出口。', [{ r: 4, c: 2 }, { r: 4, c: 5 }]),
+  'spring-06': aiContract('encircle', 'blockade', 'support-link', '借错层楔形切断接应并惩罚单狼深入。', '明确三狼分工后再启动短链。', [{ r: 4, c: 3 }, { r: 5, c: 3 }]),
+  'summer-01': aiContract('blockade', 'disperse', 'critical-route', '封住一条突破线并诱导狼过度投入另一侧。', '集中两狼施压并及时换侧。', [{ r: 3, c: 5 }, { r: 4, c: 4 }]),
+  'summer-02': aiContract('encircle', 'blockade', 'weakest-wolf', '横向封路并把缺少接应的狼压向边角。', '保留第二只狼作为接应和横切。', [{ r: 4, c: 2 }, { r: 4, c: 3 }, { r: 4, c: 5 }]),
+  'summer-03': aiContract('encircle', 'blockade', 'weakest-wolf', '围住孤立狼、封住漏斗落点并切断支援。', '一狼诱开，两狼封口与收割。', [{ r: 4, c: 3 }, { r: 4, c: 4 }]),
+  'summer-04': aiContract('disperse', 'hunter-counter', 'support-link', '分成两组交替换线，迫使三狼错误调动。', '不要把三狼挤到一侧，轮换施压。', [{ r: 4, c: 3 }, { r: 4, c: 4 }]),
+  'summer-05': aiContract('encircle', 'blockade', 'weakest-wolf', '利用边线与岩石持续压缩一只深入的狼。', '捕食前确认第二出口和接应狼。', [{ r: 5, c: 2 }, { r: 5, c: 5 }]),
+  'summer-06': aiContract('hunter-counter', 'blockade', 'active-hunter', '在两条压力线间换防，拆除同一狼的重复吃线。', '整体压阵后及时切换主攻狼。', [{ r: 4, c: 2 }, { r: 5, c: 4 }]),
+  'autumn-01': aiContract('blockade', 'encircle', 'critical-route', '占住斜门出口并分离第三只狼。', '两狼控门，一狼沿可退出路线推进。', [{ r: 5, c: 4 }, { r: 5, c: 5 }]),
+  'autumn-02': aiContract('blockade', 'disperse', 'critical-route', '一端封锁、一端分散，破坏主通道双端控制。', '两狼守两端，第三狼等待窗口。', [{ r: 4, c: 3 }, { r: 5, c: 3 }, { r: 5, c: 5 }]),
+  'autumn-03': aiContract('exchange', 'disperse', 'capture-landing', '改变连吃落点，诱导狼为更多捕食失去退路。', '计算最终落点并在机动受损前收手。', [{ r: 4, c: 3 }, { r: 4, c: 4 }]),
+  'autumn-04': aiContract('disperse', 'blockade', 'support-link', '在双岛间切断接触并迫使狼过早选区。', '控制两端后再跨区。', [{ r: 4, c: 3 }, { r: 4, c: 5 }]),
+  'autumn-05': aiContract('blockade', 'exchange', 'critical-route', '在窗口形成前换防，关闭玩家忽略的一端。', '保持两端通行并等待强制机会。', [{ r: 4, c: 4 }, { r: 5, c: 3 }]),
+  'autumn-06': aiContract('disperse', 'hunter-counter', 'active-hunter', '分散到路线岛并持续切断连收路线。', '先稳住一区，再转移出口控制。', [{ r: 4, c: 2 }, { r: 4, c: 5 }]),
+  'winter-01': aiContract('encircle', 'disperse', 'weakest-wolf', '在开放盘选定低机动狼，连续压缩其出口。', '宽覆盖并轮换接触，不追单羊。', [{ r: 4, c: 3 }, { r: 4, c: 4 }]),
+  'winter-02': aiContract('disperse', 'encircle', 'support-link', '围绕锚石分散到两翼，切断深入狼的中央接应。', '稳住中心后从边线建立首吃。', [{ r: 5, c: 2 }, { r: 5, c: 3 }]),
+  'winter-03': aiContract('encircle', 'hunter-counter', 'weakest-wolf', '持续针对最弱狼并破坏三狼对齐。', '保持覆盖，等待薄弱侧再兑现。', [{ r: 4, c: 3 }, { r: 4, c: 4 }]),
+  'winter-04': aiContract('hunter-counter', 'disperse', 'active-hunter', '绕石诱导固定猎手追逐，同时收紧另一侧空间。', '主动更换进攻狼，维持全盘控制。', [{ r: 5, c: 3 }, { r: 5, c: 5 }]),
+  'winter-05': aiContract('hunter-counter', 'encircle', 'active-hunter', '借双柱拉散三狼，封堵固定猎手的重复通道。', '维持两翼线后由边狼突破。', [{ r: 4, c: 4 }, { r: 5, c: 5 }]),
+  'winter-06': aiContract('encircle', 'exchange', 'support-link', '双门换防，切断主猎手接应并主动完成困狼。', '每轮捕食后重建三狼分工和退路。', [{ r: 4, c: 2 }, { r: 5, c: 4 }]),
+}
+
 function openingPositions(level: LevelConfig) {
   return {
     wolves: level.opening?.wolves ?? DEFAULT_WOLF_OPENING,
@@ -124,11 +189,11 @@ export function createLevelInitialState(level: LevelConfig) {
 }
 
 export const AI_PROFILE_LABEL_ZH: Record<AiProfile, string> = {
-  guided: '引导防守',
-  foundation: '基础防守',
-  tactical: '战术防守',
-  strategic: '战略防守',
-  expert: '专家防守',
+  guided: '教学陪练',
+  foundation: '警觉羊群',
+  tactical: '协同羊群',
+  strategic: '谋略羊群',
+  expert: '老练羊群',
 }
 
 export const AI_PROFILE_DESCRIPTION_ZH: Record<AiProfile, string> = {
@@ -226,6 +291,12 @@ export function validateLevel(level: LevelConfig): string[] {
   if (level.aiProfile !== expectedProfile) {
     errors.push(`aiProfile ${level.aiProfile} does not match ${level.id} learning-curve profile ${expectedProfile}`)
   }
+  if (!level.aiStyle || level.aiStyle.primary === level.aiStyle.secondary) {
+    errors.push('level must have distinct primary and secondary AI styles')
+  }
+  if (!level.opponentIntent?.target || !level.opponentIntent.summaryZh.trim() || !level.opponentIntent.counterplayZh.trim()) {
+    errors.push('level must define a complete opponent intent and counterplay')
+  }
   if (!level.strategy || level.strategy.primary === level.strategy.secondary) {
     errors.push('level must have distinct primary and secondary strategies')
   }
@@ -275,6 +346,18 @@ export function validateLevel(level: LevelConfig): string[] {
     seen.add(k)
     if (openingKeys.has(k)) errors.push(`rock on opening piece ${k}`)
   }
+  const focusKeys = new Set<string>()
+  for (const p of level.opponentIntent.focusCells) {
+    if (!inBounds(p.r, p.c)) errors.push(`opponent focus out of bounds (${p.r},${p.c})`)
+    const key = keyOf(p)
+    if (focusKeys.has(key)) errors.push(`duplicate opponent focus ${key}`)
+    if (seen.has(key)) errors.push(`opponent focus cannot be a rock ${key}`)
+    focusKeys.add(key)
+  }
+  if (focusKeys.size < 2) errors.push('opponent intent must define at least two focus cells')
+  if (!Number.isInteger(level.opponentIntent.retargetAfterPlies) || level.opponentIntent.retargetAfterPlies < 2) {
+    errors.push('opponent retargetAfterPlies must be an integer of at least 2')
+  }
 
   const adj = new Set<string>()
   for (const a of level.rocks) {
@@ -304,7 +387,7 @@ export function validateLevel(level: LevelConfig): string[] {
 }
 
 function L(
-  partial: Omit<LevelConfig, 'aiProfile' | 'firstClearReward' | 'repeatDrop' | 'name' | 'strategy' | keyof LevelProductMeta> & {
+  partial: Omit<LevelConfig, 'aiProfile' | 'aiStyle' | 'opponentIntent' | 'firstClearReward' | 'repeatDrop' | 'name' | 'strategy' | keyof LevelProductMeta> & {
     aiProfile?: AiProfile
     firstClearReward?: LevelConfig['firstClearReward']
     repeatDrop?: LevelConfig['repeatDrop']
@@ -331,6 +414,7 @@ function L(
   return {
     ...partial,
     ...LEVEL_PRODUCT_META[partial.id]!,
+    ...LEVEL_AI_CONTRACT[partial.id]!,
     strategy: LEVEL_STRATEGIES[partial.id]!,
     name: partial.nameZh,
     aiProfile: partial.aiProfile ?? aiProfileForLevel(partial.chapterId, partial.indexInChapter),
@@ -371,6 +455,8 @@ export function levelConfigFingerprint(level: LevelConfig): string {
     rocks: [...level.rocks].sort((left, right) => left.r - right.r || left.c - right.c),
     opening: level.opening ?? null,
     aiProfile: level.aiProfile,
+    aiStyle: level.aiStyle,
+    opponentIntent: level.opponentIntent,
     targetEaten: level.targetEaten ?? 8,
     maxPlies: level.maxPlies ?? 300,
   })

@@ -39,6 +39,18 @@ describe('level table', () => {
     expect(LEVELS.filter((level) => level.aiProfile === 'expert')).toHaveLength(6)
   })
 
+  it('binds every level to a complete three-dimensional opponent contract', () => {
+    for (const level of LEVELS) {
+      expect(level.aiStyle.primary).not.toBe(level.aiStyle.secondary)
+      expect(level.opponentIntent.target).toBeTruthy()
+      expect(level.opponentIntent.summaryZh).toMatch(/[\u3400-\u9fff]/)
+      expect(level.opponentIntent.counterplayZh).toMatch(/[\u3400-\u9fff]/)
+    }
+    expect(new Set(LEVELS.map((level) => level.aiStyle.primary))).toEqual(new Set([
+      'blockade', 'encircle', 'disperse', 'exchange', 'hunter-counter',
+    ]))
+  })
+
   it('gives every production level a stable unique configuration fingerprint', () => {
     const first = LEVELS.map(levelConfigFingerprint)
     const second = LEVELS.map(levelConfigFingerprint)

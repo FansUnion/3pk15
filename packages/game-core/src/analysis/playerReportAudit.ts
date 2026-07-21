@@ -1,8 +1,8 @@
-import { createSeededRng, pickSheepActionWithMeta } from '../ai/index'
+import { createAiOpponentMemory, createSeededRng, observeAiOpponentAction, pickSheepActionWithMeta } from '../ai/index'
 import { analyzeSheepActions } from '../ai/evaluate'
 import { createLevelInitialState, getLevel, levelConfigFingerprint } from '../content/levels'
 import { applyAction, endWolfTurn, listLegalActions } from '../rules'
-import type { Action, AiProfile, BoardState } from '../types'
+import type { Action, AiOpponentMemory, AiProfile, AiTargetChangeReason, BoardState } from '../types'
 import { judgeSheepAction, type TeacherJudgement } from './sheepTeacher'
 
 export type ReportAction = Action | { type: 'end-chain' }
@@ -17,6 +17,7 @@ export type PlayerReportInput = {
   initialAiSeed?: number
   nextAiSeed?: number
   hardBudget?: { maxNodes?: number; maxMs?: number | null }
+  aiMemory?: AiOpponentMemory
   actions: ReportAction[]
 }
 
@@ -34,6 +35,9 @@ export type AuditedSheepDecision = {
   completedDepth: number
   degradedReason: string
   terminalUrgency: number
+  targetWolfId: string | null
+  targetChangeReason: AiTargetChangeReason
+  focusControlDelta: number
   teacher?: TeacherJudgement
 }
 
@@ -77,6 +81,7 @@ export function auditPlayerReport(input: PlayerReportInput, options: { teacher?:
   const profile = input.aiProfile ?? level.aiProfile
   let state = createLevelInitialState(level)
   let aiSeed = Number.isSafeInteger(input.initialAiSeed) ? input.initialAiSeed! : 0
+  let opponentMemory = createAiOpponentMemory()
   const decisions: AuditedSheepDecision[] = []
   const captures: PlayerReportAudit['captures'] = []
   const capturesByWolf: Record<string, number> = {}
@@ -101,7 +106,9 @@ export function auditPlayerReport(input: PlayerReportInput, options: { teacher?:
         profile,
         rng: createSeededRng(aiSeed + state.eatenSheep * 17 + state.pieces.length),
         budgets: sanitizedBudget(input),
+        memory: opponentMemory,
       })
+      opponentMemory = replayed.meta.nextMemory
       const avoidableImmediateExposure = selected.maxCaptureChain > minimumCaptureChain
       const decision: AuditedSheepDecision = {
         actionIndex: index + 1,
@@ -117,6 +124,9 @@ export function auditPlayerReport(input: PlayerReportInput, options: { teacher?:
         completedDepth: replayed.meta.completedDepth,
         degradedReason: replayed.meta.degradedReason,
         terminalUrgency: state.eatenSheep / Math.max(1, state.targetEaten),
+        targetWolfId: replayed.meta.targetWolfId,
+        targetChangeReason: replayed.meta.targetChangeReason,
+        focusControlDelta: replayed.meta.impact.focusControlDelta,
       }
       if (options.teacher && (selected.dominated || avoidableImmediateExposure)) {
         decision.teacher = judgeSheepAction(state, action)
@@ -126,9 +136,11 @@ export function auditPlayerReport(input: PlayerReportInput, options: { teacher?:
     }
 
     const beforeEaten = state.eatenSheep
+    const before = state
     const result = applyAction(state, action)
     if (!result.ok) return failed(`action ${index + 1}: ${result.error}`)
     state = result.state
+    if (before.toMove === 'wolf') opponentMemory = observeAiOpponentAction(opponentMemory, before, action, state)
     if (state.eatenSheep > beforeEaten && action.type === 'jump') {
       const amount = state.eatenSheep - beforeEaten
       capturesByWolf[action.pieceId] = (capturesByWolf[action.pieceId] ?? 0) + amount

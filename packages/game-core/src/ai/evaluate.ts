@@ -271,11 +271,13 @@ export function analyzeSheepActions(state: BoardState): SheepActionAnalysis[] {
   return candidates.map((candidate) => {
     const dominated = candidates.some((other) => other !== candidate
       && other.maxCaptureChain <= candidate.maxCaptureChain
+      && other.directCaptures <= candidate.directCaptures
       && other.wolfMobility <= candidate.wolfMobility
-      && other.score >= candidate.score
+      && other.trappedWolves >= candidate.trappedWolves
       && (other.maxCaptureChain < candidate.maxCaptureChain
+        || other.directCaptures < candidate.directCaptures
         || other.wolfMobility < candidate.wolfMobility
-        || other.score > candidate.score))
+        || other.trappedWolves > candidate.trappedWolves))
     const explanation: SheepActionAnalysis['explanation'] = candidate.action.type === 'pass'
       ? 'pass'
       : dominated

@@ -1,8 +1,10 @@
 export type { ChapterId, LevelConfig, LevelMapType } from './content/levels'
 export {
   adjacentLevels,
+  AI_INTENT_TARGET_LABEL_ZH,
   AI_PROFILE_DESCRIPTION_ZH,
   AI_PROFILE_LABEL_ZH,
+  AI_STYLE_LABEL_ZH,
   aiProfileForLevel,
   CHAPTER_BLURB_EN,
   CHAPTER_BLURB_ZH,
@@ -66,7 +68,13 @@ export { getWolfStrategy, LEVEL_STRATEGIES, strategyName, WOLF_STRATEGIES } from
 export type { LevelStrategyProfile, WolfStrategy, WolfStrategyId } from './content/strategies'
 export type {
   Action,
+  AiBehaviorProfile,
+  AiIntentTarget,
+  AiOpponentMemory,
   AiProfile,
+  AiStyle,
+  AiStyleProfile,
+  AiTargetChangeReason,
   ApplyResult,
   BoardState,
   ChainContext,
@@ -74,6 +82,7 @@ export type {
   GameStatus,
   JumpMove,
   OpeningLayout,
+  OpponentIntent,
   PassAction,
   Piece,
   Pos,
@@ -114,6 +123,8 @@ export {
 } from './ai/index'
 export type { AiContext, AiProfileConfig, HardBudgets, HardPickMeta, Rng } from './ai/index'
 export { AI_PROFILE_CONFIG, pickHardWithMeta, pickProfiledSheepActionWithMeta, SHEEP_AI_ALGORITHM_VERSION } from './ai/index'
+export { createAiOpponentMemory, normalizeAiOpponentMemory, observeAiOpponentAction } from './ai/index'
+export { resolveAiIntent } from './ai/intent'
 export { analyzeSheepActions, evaluate, evaluateScore, maxCapturesInWolfTurn, persistentHunterRisk } from './ai/evaluate'
 export type { EvalBreakdown, SheepActionAnalysis } from './ai/evaluate'
 export { assessLevelCandidate, buildCandidateAcceptanceReport } from './analysis/candidateAcceptance'
@@ -146,6 +157,12 @@ export { auditPlayerReport } from './analysis/playerReportAudit'
 export type { AuditedSheepDecision, PlayerReportAudit, PlayerReportInput, ReportAction } from './analysis/playerReportAudit'
 export { LEARNING_STAGE_CONTRACTS, learningStageForLevel } from './content/learningCurve'
 export type { LearningStageContract, LearningStageId } from './content/learningCurve'
+export { AI_COUNTEREXAMPLE_CONTRACTS, validateAiCounterexampleContracts } from './analysis/aiCounterexamples'
+export type { AiCounterexampleCategory, AiCounterexampleContract } from './analysis/aiCounterexamples'
+export { AI_PRIMARY_STYLES, compareAiStyles } from './analysis/styleDifferentiation'
+export type { StyleDecisionEvidence, StyleDifferentiationReport } from './analysis/styleDifferentiation'
+export { assessLearningCurve } from './analysis/learningCurveAcceptance'
+export type { LearningCurveAssessment, LearningCurveFinding } from './analysis/learningCurveAcceptance'
 export { analyzeLevelTopology, topologySignatureGroup } from './analysis/topology'
 export type { LevelTopology, RockGap } from './analysis/topology'
 export { measureSheepAdvantage } from './analysis/sheepAdvantage'

@@ -6,11 +6,13 @@ import {
   AI_PROFILE_DESCRIPTION_ZH,
   AI_PROFILE_CONFIG,
   AI_PROFILE_LABEL_ZH,
+  AI_STYLE_LABEL_ZH,
   analyzeSheepActions,
   auditPlayerReport,
   boardPositionKey,
   chooseDiagnosticWolfAction,
   choosePlayerPersonaAction,
+  createAiOpponentMemory,
   createPlayerPersonaMemory,
   createLevelInitialState,
   createInitialState,
@@ -23,8 +25,9 @@ import {
   listLegalActions,
   listWolfActionsAsIfTurn,
   makeState,
+  normalizeAiOpponentMemory,
   OPENING_SHEEP,
-  pickSheepAction,
+  observeAiOpponentAction,
   pickSheepActionWithMeta,
   PLAYER_PERSONA_DESCRIPTION_ZH,
   PLAYER_PERSONA_LABEL_ZH,
@@ -37,8 +40,11 @@ import {
   type BoardState,
   type Action,
   type AiProfile,
+  type AiOpponentMemory,
+  type AiTargetChangeReason,
   type DiagnosticWolfStrategy,
   type HardBudgets,
+  type HardPickMeta,
   type LevelConfig,
   type Piece,
   type PlayerPersona,
@@ -57,6 +63,15 @@ type WolfSimulationPolicy = DiagnosticWolfStrategy | PlayerPersona
 
 const CYCLE: Array<'empty' | 'wolf' | 'sheep' | 'rock'> = ['empty', 'wolf', 'sheep', 'rock']
 const AI_PROFILES: AiProfile[] = ['guided', 'foundation', 'tactical', 'strategic', 'expert']
+
+const TARGET_CHANGE_LABEL_ZH: Record<AiTargetChangeReason, string> = {
+  'initial-target': '建立本局第一个防守目标',
+  'target-retained': '继续限制同一只狼',
+  'target-trapped': '原目标已被困住，转向下一只狼',
+  'hunter-emerged': '另一只狼连续得分，改为优先反制',
+  'better-opportunity': '出现明显更容易封锁的目标',
+  'target-missing': '原目标已不在棋盘，重新选择',
+}
 
 function isAiProfile(value: unknown): value is AiProfile {
   return typeof value === 'string' && AI_PROFILES.includes(value as AiProfile)
@@ -97,6 +112,7 @@ type ReplayData = {
   record: BatchGameRecord
   states: string[]
   actions: string[]
+  memories: AiOpponentMemory[]
   suspectIndices: number[]
   audit?: PlayerReportAudit
 }
@@ -118,6 +134,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
     const level = initialLevel ? getLevel(initialLevel) : undefined
     return isAiProfile(initialProfile) ? initialProfile : level?.aiProfile ?? 'guided'
   })
+  const [opponentMemory, setOpponentMemory] = useState<AiOpponentMemory>(() => createAiOpponentMemory())
   const [seed, setSeed] = useState(() => {
     const parsed = Number(initialSeed)
     return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : 42
@@ -145,16 +162,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
   const [selectedWolfId, setSelectedWolfId] = useState<string | null>(null)
   const [maxNodes, setMaxNodes] = useState(() => AI_PROFILE_CONFIG[profile].budgets.maxNodes || 80)
   const [maxMs, setMaxMs] = useState(0)
-  const [lastHardMeta, setLastHardMeta] = useState<{
-    degraded: boolean
-    nodes: number
-    elapsedMs: number
-    lookaheadCompleted: boolean
-    profile: AiProfile
-    completedDepth: number
-    candidateCount: number
-    degradedReason: string
-  } | null>(null)
+  const [lastHardMeta, setLastHardMeta] = useState<HardPickMeta | null>(null)
   const stopRef = useRef(false)
   const appliedUrl = useRef(false)
 
@@ -182,10 +190,11 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
       pushLog('candidate replay handoff missing or invalid')
       return
     }
-    setState(imported)
+    setState(imported.state)
+    setOpponentMemory(imported.aiMemory)
     setTakeover(true)
-    setSelectedWolfId(imported.chain?.wolfId ?? null)
-    pushLog(`candidate replay takeover level=${imported.levelId} ply=${imported.plyCount}`)
+    setSelectedWolfId(imported.state.chain?.wolfId ?? null)
+    pushLog(`candidate replay takeover level=${imported.state.levelId} ply=${imported.state.plyCount}`)
   }, [initialImport, pushLog])
 
   useEffect(() => {
@@ -194,7 +203,10 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
     const level = getLevel(initialLevel)
     if (!level) return
     appliedUrl.current = true
-    if (initialImport !== 'candidate-replay') setState(createLevelInitialState(level))
+    if (initialImport !== 'candidate-replay') {
+      setState(createLevelInitialState(level))
+      setOpponentMemory(createAiOpponentMemory())
+    }
     setBatchLevelId(level.id)
     const nextProfile = isAiProfile(initialProfile) ? initialProfile : level.aiProfile
     setProfile(nextProfile)
@@ -207,6 +219,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
     const level = getLevel(id)
     if (!level) return
     setState(createLevelInitialState(level))
+    setOpponentMemory(createAiOpponentMemory())
     pushLog(`loaded level ${id} profile=${level.aiProfile}`)
     setProfile(level.aiProfile)
     setMaxNodes(AI_PROFILE_CONFIG[level.aiProfile].budgets.maxNodes || 80)
@@ -245,6 +258,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
     if (!action) return
     const result = applyAction(state, action)
     if (!result.ok) return
+    setOpponentMemory((memory) => observeAiOpponentAction(memory, state, action, result.state))
     setState(result.state)
     setSelectedWolfId(result.state.chain?.wolfId ?? null)
     pushLog(`[human wolf] ${JSON.stringify(action)}`)
@@ -253,6 +267,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
   function loadReplayForTakeover() {
     if (!replay) return
     setState(deserialize(JSON.parse(replay.states[replayIndex]!)))
+    setOpponentMemory(replay.memories[replayIndex] ?? createAiOpponentMemory())
     setTakeover(true)
     setSelectedWolfId(null)
     pushLog(`human takeover replay game=${replay.record.index} step=${replayIndex}`)
@@ -274,7 +289,9 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
         profile,
         rng,
         budgets: hardBudgets,
+        memory: opponentMemory,
       })
+      setOpponentMemory(meta.nextMemory)
       setLastHardMeta(meta)
       pushLog(
         `[${profile}] degraded=${meta.degradedReason} depth=${meta.completedDepth} candidates=${meta.candidateCount} nodes=${meta.nodes} ms=${meta.elapsedMs.toFixed(1)} budgets=${JSON.stringify(hardBudgets)}`,
@@ -302,6 +319,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
     if (!fx) return
     const next = fx.build()
     setState(next)
+    setOpponentMemory(createAiOpponentMemory())
     if (fx.id === 'budget-starve') {
       setMaxNodes(1)
       setMaxMs(1)
@@ -314,6 +332,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
     setBusy(true)
     let s = state
     let localSeed = seed
+    let localMemory = opponentMemory
     for (let i = 0; i < maxSteps; i++) {
       if (stopRef.current) {
         pushLog('auto-run stopped')
@@ -333,6 +352,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
         const pick = legal[Math.floor(rng.nextFloat() * legal.length)]!
         const res = applyAction(s, pick)
         if (!res.ok) break
+        localMemory = observeAiOpponentAction(localMemory, s, pick, res.state)
         s = res.state
         if (s.chain) {
           const end = endWolfTurn(s)
@@ -346,7 +366,9 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
             profile,
             rng,
             budgets: hardBudgets,
+            memory: localMemory,
           })
+          localMemory = meta.nextMemory
           if (meta.degraded) {
             pushLog(`[${profile} degraded] reason=${meta.degradedReason} depth=${meta.completedDepth} nodes=${meta.nodes}`)
           }
@@ -361,6 +383,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
       }
       setState(s)
       setSeed(localSeed)
+      setOpponentMemory(localMemory)
       await new Promise((r) => setTimeout(r, 30))
     }
     setBusy(false)
@@ -452,7 +475,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
     const level = getLevel(record.levelId)
     if (!level) return
     const sim = simulateOneGame(level, record.sheepProfile, record.wolfStrategy, record.seed, 400, hardBudgets, true)
-    setReplay({ record, states: sim.states, actions: sim.actions, suspectIndices: [] })
+    setReplay({ record, states: sim.states, actions: sim.actions, memories: sim.memories, suspectIndices: [] })
     setReplayIndex(0)
     pushLog(`replay game=${record.index} seed=${record.seed} reason=${record.reason}`)
   }
@@ -475,7 +498,7 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
   }
 
   function exportJson() {
-    const json = JSON.stringify(serialize(state), null, 2)
+    const json = JSON.stringify({ board: serialize(state), aiMemory: opponentMemory }, null, 2)
     void navigator.clipboard.writeText(json)
     pushLog('copied board JSON to clipboard')
     const blob = new Blob([json], { type: 'application/json' })
@@ -491,8 +514,9 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
     try {
       const data = JSON.parse(text)
       const reproduction = data?.kind === 'fangrush-player-reproduction' ? data : null
-      const next = deserialize(reproduction?.board ?? data)
+      const next = deserialize(reproduction?.board ?? data.board ?? data)
       setState(next)
+      setOpponentMemory(normalizeAiOpponentMemory(reproduction?.aiMemory ?? data.aiMemory))
       if (reproduction) {
         if (['guided', 'foundation', 'tactical', 'strategic', 'expert'].includes(reproduction.aiProfile)) {
           setProfile(reproduction.aiProfile as AiProfile)
@@ -594,12 +618,13 @@ export function AiSimConsole({ initialLevel, initialProfile, initialSeed, initia
               />
             </label>
             {lastHardMeta ? (
-              <p
-                className={`mt-1 ${lastHardMeta.degraded ? 'text-amber-800' : 'text-green-800'}`}
-              >
-                上次 {AI_PROFILE_LABEL_ZH[lastHardMeta.profile]}：{lastHardMeta.degraded ? `未完成目标深度（${lastHardMeta.degradedReason}）` : '完成配置推演'} · 深度
-                {lastHardMeta.completedDepth} · 候选 {lastHardMeta.candidateCount} · 节点 {lastHardMeta.nodes} · {lastHardMeta.elapsedMs.toFixed(1)}ms
-              </p>
+              <div className={`mt-1 ${lastHardMeta.degraded ? 'text-amber-800' : 'text-green-800'}`}>
+                <p>上次 {AI_PROFILE_LABEL_ZH[lastHardMeta.profile]}：{lastHardMeta.degraded ? `未完成目标深度（${lastHardMeta.degradedReason}）` : '完成配置推演'} · 深度 {lastHardMeta.completedDepth} · 候选 {lastHardMeta.candidateCount} · 节点 {lastHardMeta.nodes} · {lastHardMeta.elapsedMs.toFixed(1)}ms</p>
+                <p className="mt-1 text-[#2c3328]">计划：{AI_STYLE_LABEL_ZH[lastHardMeta.primaryStyle]} · 针对 {lastHardMeta.targetWolfId ?? '当前路线'} · {lastHardMeta.intentSummaryZh}</p>
+                <p className="mt-1 text-[#2c3328]">目标判断：{TARGET_CHANGE_LABEL_ZH[lastHardMeta.targetChangeReason]} · 已保持 {Math.max(0, state.plyCount - lastHardMeta.nextMemory.targetSincePly)} 次行动 · 该狼此前捕食 {lastHardMeta.targetWolfId ? lastHardMeta.nextMemory.capturesByWolf[lastHardMeta.targetWolfId] ?? 0 : 0} 只羊</p>
+                <p className="mt-1 text-[#5c6b52]">本步变化：目标狼机动 {lastHardMeta.impact.targetMobilityDelta >= 0 ? '-' : '+'}{Math.abs(lastHardMeta.impact.targetMobilityDelta)} · 总机动 {lastHardMeta.impact.totalMobilityDelta >= 0 ? '-' : '+'}{Math.abs(lastHardMeta.impact.totalMobilityDelta)} · {lastHardMeta.impact.activePressure ? '形成主动压力' : '暂未形成直接压力'}</p>
+                <p className="mt-1 text-[#5c6b52]">关键区域：{getLevel(state.levelId)?.opponentIntent.focusCells.map((cell) => `(${cell.r},${cell.c})`).join('、') || '自定义局面未配置'} · 本步控制 {lastHardMeta.impact.focusControlDelta > 0 ? `+${lastHardMeta.impact.focusControlDelta}` : lastHardMeta.impact.focusControlDelta} · {lastHardMeta.impact.noProgress ? '本步未形成可测进展，需结合后续行动复核' : '本步产生了可测的封锁、合围或地形进展'}</p>
+              </div>
             ) : (
               <p className="mt-1 opacity-70">让羊走一步后显示深度、节点和降级原因</p>
             )}
@@ -1045,17 +1070,32 @@ function buildPlayerReportReplay(data: any): ReplayData | null {
   const audit = auditPlayerReport(data, { teacher: true })
   if (!audit.ok) return null
   let current = createLevelInitialState(level)
+  let memory = createAiOpponentMemory()
+  let aiSeed = Number.isSafeInteger(data.initialAiSeed) ? data.initialAiSeed : 0
   const states = [JSON.stringify(serialize(current))]
+  const memories = [memory]
   const actions: string[] = []
   const suspectIndices = audit.decisions
     .filter((decision) => decision.dominated || decision.avoidableImmediateExposure)
     .map((decision) => decision.actionIndex - 1)
   for (const action of data.actions) {
+    const before = current
+    if (current.toMove === 'sheep' && action?.type !== 'end-chain') {
+      const decision = pickSheepActionWithMeta(current, {
+        profile: data.aiProfile ?? level.aiProfile,
+        rng: createSeededRng(aiSeed + current.eatenSheep * 17 + current.pieces.length),
+        memory,
+      })
+      memory = decision.meta.nextMemory
+      aiSeed += 1
+    }
     const result = action?.type === 'end-chain' ? endWolfTurn(current) : applyAction(current, action as Action)
     if (!result.ok) return null
     current = result.state
+    if (before.toMove === 'wolf' && action?.type !== 'end-chain') memory = observeAiOpponentAction(memory, before, action as Action, current)
     actions.push(JSON.stringify(action))
     states.push(JSON.stringify(serialize(current)))
+    memories.push(memory)
   }
   const reason = current.terminalReason ?? 'unexpected'
   return {
@@ -1075,6 +1115,7 @@ function buildPlayerReportReplay(data: any): ReplayData | null {
     },
     states,
     actions,
+    memories,
     suspectIndices,
     audit,
   }
@@ -1114,7 +1155,7 @@ function simulateOneGame(
   maxSteps = 400,
   budgets?: HardBudgets,
   captureReplay = false,
-): { outcome: 'wolf_win' | 'sheep_win' | 'timeout'; reason: TerminalReason; plies: number; eatenSheep: number; firstCapturePly: number | null; dominantWolfShare: number; sameHunterCaptureStreak: number; serialized: string; states: string[]; actions: string[] } {
+): { outcome: 'wolf_win' | 'sheep_win' | 'timeout'; reason: TerminalReason; plies: number; eatenSheep: number; firstCapturePly: number | null; dominantWolfShare: number; sameHunterCaptureStreak: number; serialized: string; states: string[]; actions: string[]; memories: AiOpponentMemory[] } {
   let s = createLevelInitialState(level)
   let localSeed = seed
   let plies = 0
@@ -1122,7 +1163,9 @@ function simulateOneGame(
   const capturesByWolf: Record<string, number> = {}
   const captureOrder: string[] = []
   const personaMemory: PlayerPersonaMemory = createPlayerPersonaMemory()
+  let opponentMemory = createAiOpponentMemory()
   const states = captureReplay ? [JSON.stringify(serialize(s))] : []
+  const memories = captureReplay ? [opponentMemory] : []
   const actions: string[] = []
   while (s.status === 'playing' && plies < maxSteps) {
     plies++
@@ -1137,6 +1180,7 @@ function simulateOneGame(
         : chooseDiagnosticWolfAction(s, legal, rng, wolfStrategy)
       const res = applyAction(s, pick)
       if (!res.ok) break
+      opponentMemory = observeAiOpponentAction(opponentMemory, before, pick, res.state)
       s = res.state
       if (isPlayerPersona(wolfStrategy)) recordPlayerPersonaAction(before, pick, s, personaMemory)
       actions.push(`wolf:${JSON.stringify(pick)}`)
@@ -1150,11 +1194,14 @@ function simulateOneGame(
         }
       }
     } else {
-      const action = pickSheepAction(s, {
+      const decision = pickSheepActionWithMeta(s, {
         profile,
         rng: createSeededRng(localSeed++),
         budgets,
+        memory: opponentMemory,
       })
+      opponentMemory = decision.meta.nextMemory
+      const action = decision.action
       const res = applyAction(s, action)
       if (!res.ok) break
       s = res.state
@@ -1169,7 +1216,10 @@ function simulateOneGame(
         captureOrder.push(wolfId)
       }
     }
-    if (captureReplay) states.push(JSON.stringify(serialize(s)))
+    if (captureReplay) {
+      states.push(JSON.stringify(serialize(s)))
+      memories.push(opponentMemory)
+    }
   }
   let outcome: 'wolf_win' | 'sheep_win' | 'timeout' = 'timeout'
   if (s.status === 'won') outcome = 'wolf_win'
@@ -1193,6 +1243,7 @@ function simulateOneGame(
     serialized: JSON.stringify(serialize(s), null, 2),
     states,
     actions,
+    memories,
   }
 }
 

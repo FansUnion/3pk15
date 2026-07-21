@@ -78,17 +78,34 @@ function scoreAction(
   const result = applyAction(state, action)
   if (!result.ok) return -Infinity
   const capture = result.state.eatenSheep - state.eatenSheep
+  const captureBonus = capture * (persona === 'expert' ? 180 : persona === 'skilled' ? 150 : 120)
   let score = playerPersonaPositionScore(result.state, memory, action.type === 'pass' ? undefined : action.pieceId)
-  score += capture * (persona === 'expert' ? 180 : persona === 'skilled' ? 150 : 120)
+  score += captureBonus
 
   if (persona === 'skilled' || persona === 'expert') {
     const sheepReplies = result.state.status === 'playing' && result.state.toMove === 'sheep'
       ? listLegalActions(result.state)
       : []
     if (sheepReplies.length > 0) {
-      const replyScores = sheepReplies.slice(0, persona === 'expert' ? 20 : 10).map((reply) => {
+      const orderedReplies = sheepReplies.map((reply) => {
         const replied = applyAction(result.state, reply)
-        return replied.ok ? playerPersonaPositionScore(replied.state, memory, action.type === 'pass' ? undefined : action.pieceId) : score
+        const staticScore = replied.ok ? playerPersonaPositionScore(replied.state, memory, action.type === 'pass' ? undefined : action.pieceId) : score
+        return { replied, staticScore }
+      }).sort((left, right) => left.staticScore - right.staticScore)
+      const replyScores = orderedReplies.slice(0, 8).map(({ replied, staticScore }) => {
+        if (!replied.ok || persona === 'skilled' || replied.state.status !== 'playing' || replied.state.toMove !== 'wolf') {
+          return staticScore + captureBonus
+        }
+        // Expert estimates the best immediate wolf answer after each strongest
+        // sheep reply. This remains independent from the production sheep score.
+        const wolfReplies = listLegalActions(replied.state).slice(0, 10)
+        return Math.max(staticScore, ...wolfReplies.map((wolfReply) => {
+          const answered = applyAction(replied.state, wolfReply)
+          if (!answered.ok) return -Infinity
+          const answerCapture = answered.state.eatenSheep - replied.state.eatenSheep
+          return playerPersonaPositionScore(answered.state, memory, wolfReply.type === 'pass' ? undefined : wolfReply.pieceId)
+            + answerCapture * 180
+        })) + captureBonus
       })
       score = Math.min(score, ...replyScores)
     }

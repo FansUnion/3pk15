@@ -1,4 +1,4 @@
-import { AI_PROFILE_CONFIG, SHEEP_AI_ALGORITHM_VERSION, serialize, type AiProfile, type BoardState } from '@wolf-sheep/game-core'
+import { AI_PROFILE_CONFIG, SHEEP_AI_ALGORITHM_VERSION, serialize, type AiOpponentMemory, type AiProfile, type BoardState } from '@wolf-sheep/game-core'
 
 export function buildPlayerReproductionBundle(input: {
   state: BoardState
@@ -6,11 +6,12 @@ export function buildPlayerReproductionBundle(input: {
   initialAiSeed: number
   nextAiSeed: number
   actions: unknown[]
+  aiMemory: AiOpponentMemory
   muted: boolean
 }) {
   return {
     kind: 'fangrush-player-reproduction' as const,
-    schema: 3,
+    schema: 4,
     rulesVersion: 3,
     exportedAt: new Date().toISOString(),
     levelId: input.state.levelId,
@@ -19,6 +20,7 @@ export function buildPlayerReproductionBundle(input: {
     initialAiSeed: input.initialAiSeed,
     nextAiSeed: input.nextAiSeed,
     hardBudget: { maxNodes: AI_PROFILE_CONFIG[input.aiProfile].budgets.maxNodes, maxMs: null },
+    aiMemory: input.aiMemory,
     board: serialize(input.state),
     actions: input.actions,
     environment: { url: location.href, userAgent: navigator.userAgent, language: navigator.language, viewport: `${window.innerWidth}x${window.innerHeight}@${window.devicePixelRatio}` },

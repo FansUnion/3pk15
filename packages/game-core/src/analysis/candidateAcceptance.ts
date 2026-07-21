@@ -1,7 +1,8 @@
-import { createSeededRng, pickSheepActionWithMeta } from '../ai/index'
+import { createAiOpponentMemory, createSeededRng, observeAiOpponentAction, pickSheepActionWithMeta } from '../ai/index'
 import { analyzeSheepActions } from '../ai/evaluate'
 import { chooseDiagnosticWolfAction, shouldContinueDiagnosticChain, type DiagnosticWolfStrategy } from './diagnosticWolf'
 import { measureSheepAdvantage, type SheepAdvantageMetrics } from './sheepAdvantage'
+import { judgeSheepAction } from './sheepTeacher'
 import { validateLevel, createLevelInitialState, levelConfigFingerprint, type LevelConfig } from '../content/levels'
 import { SHEEP_AI_ALGORITHM_VERSION } from '../ai/hard'
 import {
@@ -47,6 +48,19 @@ export type CandidateGameEvidence = {
     degradedTurns: number
     totalSearchNodes: number
     maxCompletedDepth: number
+    activePressureTurns: number
+    targetPersistentTurns: number
+    targetSwitches: number
+    trapProgressTurns: number
+    beneficialExchangeTurns: number
+    noProgressTurns: number
+    hunterCounterTurns: number
+    styleAlignedTurns: number
+    teacherAuditedTurns: number
+    teacherQuestionableTurns: number
+    teacherUnknownTurns: number
+    maxTeacherRegret: number
+    teacherFindings: string[]
     suspiciousActions: string[]
   }
 }
@@ -80,6 +94,17 @@ export type CandidateAcceptanceReport = {
     maxCaptureChain: number
     averageDominantWolfShare: number
     maxSameHunterCaptureStreak: number
+    activePressureRate: number
+    targetPersistenceRate: number
+    noProgressRate: number
+    styleAlignmentRate: number
+    beneficialExchangeTurns: number
+    trapProgressTurns: number
+    hunterCounterTurns: number
+    teacherAuditedTurns: number
+    teacherQuestionableTurns: number
+    teacherUnknownTurns: number
+    maxTeacherRegret: number
   }>
 }
 
@@ -117,6 +142,7 @@ function terminalReason(state: BoardState): CandidateGameEvidence['reason'] {
  */
 function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, seed: number, hardMaxNodes?: number): CandidateGameEvidence {
   let state = createLevelInitialState(level)
+  let opponentMemory = createAiOpponentMemory()
   const wolfRandom = createSeededRng(seed)
   const sheepRandom = createSeededRng(seed ^ 0x5f3759df)
   const trace: string[] = []
@@ -134,8 +160,22 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
     degradedTurns: 0,
     totalSearchNodes: 0,
     maxCompletedDepth: 0,
+    activePressureTurns: 0,
+    targetPersistentTurns: 0,
+    targetSwitches: 0,
+    trapProgressTurns: 0,
+    beneficialExchangeTurns: 0,
+    noProgressTurns: 0,
+    hunterCounterTurns: 0,
+    styleAlignedTurns: 0,
+    teacherAuditedTurns: 0,
+    teacherQuestionableTurns: 0,
+    teacherUnknownTurns: 0,
+    maxTeacherRegret: 0,
+    teacherFindings: [],
     suspiciousActions: [],
   }
+  let previousIntentTarget: string | null = null
 
   const observePosition = () => {
     const key = boardPositionKey(state)
@@ -165,7 +205,9 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
         profile: level.aiProfile,
         rng: sheepRandom,
         budgets: hardMaxNodes === undefined ? undefined : { maxNodes: hardMaxNodes },
+        memory: opponentMemory,
       })
+      opponentMemory = decision.meta.nextMemory
       action = decision.action
       const selected = analyses.find((candidate) => actionLabel(candidate.action) === actionLabel(action))
       const safe = analyses.filter((candidate) => !candidate.dominated)
@@ -178,6 +220,22 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
       sheepDecisionQuality.totalSearchNodes += decision.meta.nodes
       sheepDecisionQuality.maxCompletedDepth = Math.max(sheepDecisionQuality.maxCompletedDepth, decision.meta.completedDepth)
       if (decision.meta.degraded) sheepDecisionQuality.degradedTurns += 1
+      if (decision.meta.impact.activePressure) sheepDecisionQuality.activePressureTurns += 1
+      if (decision.meta.impact.trappedWolfDelta > 0) sheepDecisionQuality.trapProgressTurns += 1
+      if (decision.meta.impact.beneficialExchange) sheepDecisionQuality.beneficialExchangeTurns += 1
+      if (decision.meta.impact.noProgress) sheepDecisionQuality.noProgressTurns += 1
+      if (decision.meta.impact.styleAligned) sheepDecisionQuality.styleAlignedTurns += 1
+      if (decision.meta.primaryStyle === 'hunter-counter'
+        && (decision.meta.impact.hunterRiskDelta > 0 || decision.meta.impact.captureChainRiskDelta > 0)) {
+        sheepDecisionQuality.hunterCounterTurns += 1
+      }
+      const targetBeforeDecision: string | null = previousIntentTarget
+      if (targetBeforeDecision && decision.meta.targetWolfId === targetBeforeDecision) {
+        sheepDecisionQuality.targetPersistentTurns += 1
+      } else if (targetBeforeDecision && decision.meta.targetWolfId && decision.meta.targetWolfId !== targetBeforeDecision) {
+        sheepDecisionQuality.targetSwitches += 1
+      }
+      previousIntentTarget = decision.meta.targetWolfId
       if (selected) {
         sheepDecisionQuality.maxCaptureChain = Math.max(sheepDecisionQuality.maxCaptureChain, selected.maxCaptureChain)
         if (selected.dominated) sheepDecisionQuality.chosenDominated += 1
@@ -188,12 +246,35 @@ function runCandidateGame(level: LevelConfig, strategy: CandidateWolfStrategy, s
           )
         }
       }
+      const targetSwitchRisk = targetBeforeDecision !== null
+        && decision.meta.targetWolfId !== null
+        && decision.meta.targetWolfId !== targetBeforeDecision
+        && decision.meta.targetChangeReason === 'better-opportunity'
+      const lateNoProgressRisk = decision.meta.impact.noProgress && state.plyCount >= state.maxPlies / 2
+      const shouldAudit = hardMaxNodes === undefined
+        && sheepDecisionQuality.teacherAuditedTurns < 1
+        && Boolean(selected?.dominated || lowerChainAlternative || decision.meta.degraded || targetSwitchRisk || lateNoProgressRisk)
+      if (shouldAudit) {
+        // This bounded independent search audits suspicious production choices; it
+        // never runs in live play and is not treated as an infallible oracle.
+        const judgement = judgeSheepAction(state, action, { depth: 2, maxNodes: 8_000, regretTolerance: 12 })
+        sheepDecisionQuality.teacherAuditedTurns += 1
+        if (judgement.verdict === 'questionable') sheepDecisionQuality.teacherQuestionableTurns += 1
+        if (judgement.verdict === 'unknown') sheepDecisionQuality.teacherUnknownTurns += 1
+        sheepDecisionQuality.maxTeacherRegret = Math.max(sheepDecisionQuality.maxTeacherRegret, judgement.regret ?? 0)
+        if (judgement.verdict !== 'supported') {
+          sheepDecisionQuality.teacherFindings.push(
+            `ply=${state.plyCount + 1} verdict=${judgement.verdict} regret=${judgement.regret ?? 'unknown'} nodes=${judgement.nodes} action=${actionLabel(action)}`,
+          )
+        }
+      }
     }
     const eatenBefore = state.eatenSheep
     const beforeMove = state
     const result = applyAction(state, action)
     if (!result.ok) throw new Error(result.error)
     state = result.state
+    if (beforeMove.toMove === 'wolf') opponentMemory = observeAiOpponentAction(opponentMemory, beforeMove, action, state)
     if (beforeMove.toMove === 'wolf' && action.type !== 'pass') {
       movesByWolf[action.pieceId] = (movesByWolf[action.pieceId] ?? 0) + 1
     }
@@ -271,6 +352,17 @@ export function buildCandidateAcceptanceReport(
       maxCaptureChain: Math.max(0, ...selected.map((game) => game.sheepDecisionQuality.maxCaptureChain)),
       averageDominantWolfShare: selected.reduce((sum, game) => sum + game.dominantWolfShare, 0) / Math.max(1, selected.length),
       maxSameHunterCaptureStreak: Math.max(0, ...selected.map((game) => game.sameHunterCaptureStreak)),
+      activePressureRate: selected.reduce((sum, game) => sum + game.sheepDecisionQuality.activePressureTurns, 0) / Math.max(1, selected.reduce((sum, game) => sum + game.sheepDecisionQuality.turns, 0)),
+      targetPersistenceRate: selected.reduce((sum, game) => sum + game.sheepDecisionQuality.targetPersistentTurns, 0) / Math.max(1, selected.reduce((sum, game) => sum + Math.max(0, game.sheepDecisionQuality.turns - 1), 0)),
+      noProgressRate: selected.reduce((sum, game) => sum + game.sheepDecisionQuality.noProgressTurns, 0) / Math.max(1, selected.reduce((sum, game) => sum + game.sheepDecisionQuality.turns, 0)),
+      styleAlignmentRate: selected.reduce((sum, game) => sum + game.sheepDecisionQuality.styleAlignedTurns, 0) / Math.max(1, selected.reduce((sum, game) => sum + game.sheepDecisionQuality.turns, 0)),
+      beneficialExchangeTurns: selected.reduce((sum, game) => sum + game.sheepDecisionQuality.beneficialExchangeTurns, 0),
+      trapProgressTurns: selected.reduce((sum, game) => sum + game.sheepDecisionQuality.trapProgressTurns, 0),
+      hunterCounterTurns: selected.reduce((sum, game) => sum + game.sheepDecisionQuality.hunterCounterTurns, 0),
+      teacherAuditedTurns: selected.reduce((sum, game) => sum + (game.sheepDecisionQuality.teacherAuditedTurns ?? 0), 0),
+      teacherQuestionableTurns: selected.reduce((sum, game) => sum + (game.sheepDecisionQuality.teacherQuestionableTurns ?? 0), 0),
+      teacherUnknownTurns: selected.reduce((sum, game) => sum + (game.sheepDecisionQuality.teacherUnknownTurns ?? 0), 0),
+      maxTeacherRegret: Math.max(0, ...selected.map((game) => game.sheepDecisionQuality.maxTeacherRegret ?? 0)),
     }
   }
   const summaries = { random: summarize('random'), mixed: summarize('mixed'), 'chain-aware': summarize('chain-aware') }
@@ -287,7 +379,7 @@ export function buildCandidateAcceptanceReport(
     }
     const strongestCaptureCoverage = Math.max(summaries.mixed.firstCaptureCoverage, summaries['chain-aware'].firstCaptureCoverage)
     if (strongestCaptureCoverage < 0.5) {
-      findings.push({ severity: 'reject', code: 'FIRST_CAPTURE_BLOCKED', message: 'both planning wolf proxies fail to establish a capture in at least half of games', evidenceSeeds: evidence((game) => game.firstCapturePly === null) })
+      findings.push({ severity: 'review', code: 'FIRST_CAPTURE_BLOCKED', message: 'both diagnostic wolf proxies fail to establish a capture in at least half of games; stronger player personas must decide whether a real wolf route remains', evidenceSeeds: evidence((game) => game.firstCapturePly === null) })
     } else if (summaries.mixed.firstCaptureCoverage < 0.8) {
       findings.push({ severity: 'review', code: 'FIRST_CAPTURE_RISK', message: 'mixed wolf proxy establishes a capture in fewer than 80% of games; inspect the chain-aware route before changing the map', evidenceSeeds: evidence((game) => game.firstCapturePly === null) })
     }
@@ -308,11 +400,32 @@ export function buildCandidateAcceptanceReport(
     if (degradedGames.length > 0) {
       findings.push({ severity: 'review', code: 'AI_SEARCH_DEGRADED', message: 'production sheep AI did not complete its configured search depth', evidenceSeeds: [...new Set(degradedGames.map((game) => game.seed))] })
     }
+    const teacherQuestionableGames = games.filter((game) => (game.sheepDecisionQuality.teacherQuestionableTurns ?? 0) > 0)
+    const teacherAuditedGames = games.filter((game) => (game.sheepDecisionQuality.teacherAuditedTurns ?? 0) > 0)
+    const systematicTeacherDisagreement = teacherQuestionableGames.length >= Math.max(2, Math.ceil(teacherAuditedGames.length * 0.2))
+      && Math.max(0, ...teacherQuestionableGames.map((game) => game.sheepDecisionQuality.maxTeacherRegret ?? 0)) >= 24
+    if (systematicTeacherDisagreement) {
+      findings.push({
+        severity: 'review',
+        code: 'AI_TEACHER_REGRET',
+        message: 'independent bounded search repeatedly found a materially better sheep action across at least 20% of audited risk turns',
+        evidenceSeeds: [...new Set(teacherQuestionableGames.map((game) => game.seed))],
+      })
+    }
     const serialHunterGames = mixed.filter((game) => game.winner === 'wolf'
       && game.dominantWolfShare >= 0.75
       && game.sameHunterCaptureStreak >= 4)
     if (serialHunterGames.length >= Math.max(2, Math.ceil(seeds.length * 0.2))) {
       findings.push({ severity: 'review', code: 'SERIAL_HUNTER_RISK', message: 'one wolf repeatedly accounts for most captures; inspect whether the other wolves created real control or the sheep missed a reusable route', evidenceSeeds: serialHunterGames.map((game) => game.seed) })
+    }
+    if (summaries.mixed.noProgressRate >= 0.7) {
+      findings.push({ severity: 'review', code: 'AI_NO_PROGRESS_HIGH', message: 'at least 70% of sheep actions make no measured progress toward pressure, trapping or the configured style', evidenceSeeds: mixed.filter((game) => game.sheepDecisionQuality.noProgressTurns >= game.sheepDecisionQuality.turns * 0.7).map((game) => game.seed) })
+    }
+    if (level.aiProfile !== 'guided' && summaries.mixed.targetPersistenceRate < 0.35) {
+      findings.push({ severity: 'review', code: 'AI_INTENT_UNSTABLE', message: 'the configured target persists across fewer than 35% of consecutive sheep decisions', evidenceSeeds: mixed.filter((game) => game.sheepDecisionQuality.targetPersistentTurns < Math.max(1, game.sheepDecisionQuality.turns - 1) * 0.35).map((game) => game.seed) })
+    }
+    if (summaries.mixed.styleAlignmentRate < 0.15) {
+      findings.push({ severity: 'review', code: 'AI_STYLE_WEAK', message: 'fewer than 15% of sheep actions visibly advance the configured primary style', evidenceSeeds: mixed.filter((game) => game.sheepDecisionQuality.styleAlignedTurns < game.sheepDecisionQuality.turns * 0.15).map((game) => game.seed) })
     }
     const unexpected = games.filter((game) => game.reason === 'unexpected')
     if (unexpected.length > 0) {

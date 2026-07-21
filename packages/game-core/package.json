@@ -16,7 +16,7 @@
     "balance:deep": "node ./scripts/balance-deep.mjs",
     "balance:matrix": "node ./scripts/balance-matrix.mjs",
     "candidate:check": "node ./scripts/candidate-check.mjs",
-    "persona:matrix": "node ./scripts/persona-matrix-v3.mjs",
+    "persona:matrix": "node ./scripts/persona-matrix-v5.mjs",
     "report:audit": "node ./scripts/audit-player-report.mjs",
     "test": "vitest run",
     "test:ai-quality": "vitest run tests/ai-profile-quality.test.ts",

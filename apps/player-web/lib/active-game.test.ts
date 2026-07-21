@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createLevelInitialState, LEVELS, serialize } from '@wolf-sheep/game-core'
+import { createAiOpponentMemory, createLevelInitialState, LEVELS, serialize } from '@wolf-sheep/game-core'
 import { activeGameSignature, parseActiveGameSnapshot, type ActiveGameConfig } from './active-game'
 
 const level = LEVELS[0]!
@@ -29,8 +29,16 @@ describe('active game recovery', () => {
       initialAiSeed: 71,
       aiSeed: 73,
       actions: [{ type: 'step', pieceId: 'wolf-1', to: { r: 5, c: 1 } }],
+      aiMemory: { ...createAiOpponentMemory(), currentTargetWolfId: 'wolf-2', capturesByWolf: { 'wolf-2': 3 } },
     })
     expect(parseActiveGameSnapshot(raw, config)).toMatchObject({ initialAiSeed: 71, aiSeed: 73 })
     expect(parseActiveGameSnapshot(raw, config)?.actions).toHaveLength(1)
+    expect(parseActiveGameSnapshot(raw, config)?.aiMemory).toMatchObject({ currentTargetWolfId: 'wolf-2', capturesByWolf: { 'wolf-2': 3 } })
+  })
+
+  it('migrates a legacy snapshot to empty opponent memory', () => {
+    const state = createLevelInitialState(level)
+    const raw = JSON.stringify({ signature: activeGameSignature(config), board: serialize(state) })
+    expect(parseActiveGameSnapshot(raw, config)?.aiMemory).toEqual(createAiOpponentMemory())
   })
 })

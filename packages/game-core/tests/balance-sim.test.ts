@@ -93,7 +93,7 @@ function runBalance(level: LevelConfig, sheepDifficulty: 'easy' | 'normal' | 'ha
 
 describe('spring balance smoke simulation', () => {
   // Old difficulty labels and the shared-score wolf proxy remain available for
-  // historical comparisons; current production evidence uses candidate/persona V3.
+  // historical comparisons; current production evidence uses candidate/persona V4.
   legacyIt.each(LEVELS.filter((level) => level.chapterId === 'spring').slice(0, 3))('terminates $id under historical diagnostic AIs', (level) => {
     const summaries = (['easy', 'normal', 'hard'] as const).flatMap((difficulty) =>
       ['random', 'greedy', 'mixed'].map((strategy) => runBalance(level, difficulty, strategy)))

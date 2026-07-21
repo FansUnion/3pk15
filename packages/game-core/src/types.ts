@@ -1,7 +1,35 @@
 export type Side = 'wolf' | 'sheep'
 export type Difficulty = 'easy' | 'normal' | 'hard'
-/** Production-facing defensive behavior used by the 24-level learning curve. */
+/** Production-facing ability stage used by the 24-level learning curve. */
 export type AiProfile = 'guided' | 'foundation' | 'tactical' | 'strategic' | 'expert'
+export type AiStyle = 'blockade' | 'encircle' | 'disperse' | 'exchange' | 'hunter-counter'
+export type AiIntentTarget = 'approach' | 'critical-route' | 'capture-landing' | 'weakest-wolf' | 'support-link' | 'active-hunter'
+export type AiStyleProfile = {
+  primary: AiStyle
+  secondary: AiStyle
+}
+export type OpponentIntent = {
+  target: AiIntentTarget
+  summaryZh: string
+  counterplayZh: string
+  /** Board locations that make the level intent executable rather than display-only. */
+  focusCells: readonly Pos[]
+  /** Minimum plies before a merely better opportunity may replace a still-valid target. */
+  retargetAfterPlies: number
+}
+export type AiBehaviorProfile = {
+  style: AiStyleProfile
+  intent: OpponentIntent
+}
+export type AiTargetChangeReason = 'initial-target' | 'target-retained' | 'target-trapped' | 'hunter-emerged' | 'better-opportunity' | 'target-missing'
+export type AiOpponentMemory = {
+  currentTargetWolfId: string | null
+  targetSincePly: number
+  lastTargetChangeReason: AiTargetChangeReason
+  capturesByWolf: Record<string, number>
+  movesByWolf: Record<string, number>
+  lastWolfActionPly: number
+}
 export type GameStatus = 'playing' | 'won' | 'lost' | 'draw'
 export type TerminalReason = 'targetEaten' | 'wolvesTrapped' | 'maxPlies' | 'repetition'
 

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   AI_PROFILE_DESCRIPTION_ZH,
   AI_PROFILE_LABEL_ZH,
+  AI_STYLE_LABEL_ZH,
   CHAPTER_LABEL,
   CHAPTER_ORDER,
   createLevelInitialState,
@@ -16,6 +17,7 @@ import {
   validateAllLevels,
   WOLF_STRATEGIES,
   type AiProfile,
+  type AiStyle,
   type ChapterId,
   type LevelConfig,
   type LevelMapType,
@@ -43,6 +45,7 @@ import {
 
 type ChapterFilter = 'all' | ChapterId
 type AiFilter = 'all' | AiProfile
+type AiStyleFilter = 'all' | AiStyle
 type MapFilter = 'all' | LevelMapType
 type RockFilter = 'all' | '0' | '1' | '2' | '3' | '4+'
 type StrategyFilter = 'all' | WolfStrategyId
@@ -75,6 +78,7 @@ function hasHighRiskTag(level: LevelConfig) {
 export function AdminLevelWorkbench() {
   const [chapter, setChapter] = useState<ChapterFilter>('all')
   const [ai, setAi] = useState<AiFilter>('all')
+  const [aiStyle, setAiStyle] = useState<AiStyleFilter>('all')
   const [mapType, setMapType] = useState<MapFilter>('all')
   const [rockCount, setRockCount] = useState<RockFilter>('all')
   const [strategy, setStrategy] = useState<StrategyFilter>('all')
@@ -102,6 +106,7 @@ export function AdminLevelWorkbench() {
     const gate = effectiveVerdict(level.id, reports)
     return (chapter === 'all' || level.chapterId === chapter)
       && (ai === 'all' || level.aiProfile === ai)
+      && (aiStyle === 'all' || level.aiStyle.primary === aiStyle || level.aiStyle.secondary === aiStyle)
       && (mapType === 'all' || levelMapType(level) === mapType)
       && (rockCount === 'all' || (rockCount === '4+' ? level.rocks.length >= 4 : level.rocks.length === Number(rockCount)))
       && (strategy === 'all' || level.strategy.primary === strategy)
@@ -112,7 +117,7 @@ export function AdminLevelWorkbench() {
         || (reviewFilter === 'unreviewed' && (!reviews[level.id] || reviews[level.id]?.status === 'unreviewed'))
         || (reviewFilter === 'incomplete' && !reviewCompletion(reviews[level.id]).complete)
         || reviews[level.id]?.status === reviewFilter)
-  }).sort(playerOrderCompare), [ai, chapter, difficulty, mapType, reports, reviewFilter, reviews, riskOnly, rockCount, strategy, verdict])
+  }).sort(playerOrderCompare), [ai, aiStyle, chapter, difficulty, mapType, reports, reviewFilter, reviews, riskOnly, rockCount, strategy, verdict])
   const selected = filtered.find((level) => level.id === selectedId) ?? filtered[0]
   const passedCount = LEVELS.filter((level) => {
     const review = reviews[level.id]
@@ -220,6 +225,9 @@ export function AdminLevelWorkbench() {
         <Filter label="羊 AI" value={ai} onChange={(value) => setAi(value as AiFilter)} options={[
           ['all', '全部画像'], ...(Object.keys(AI_PROFILE_LABEL_ZH) as AiProfile[]).map((id) => [id, AI_PROFILE_LABEL_ZH[id]]),
         ]} />
+        <Filter label="羊方风格" value={aiStyle} onChange={(value) => setAiStyle(value as AiStyleFilter)} options={[
+          ['all', '全部风格'], ...(Object.keys(AI_STYLE_LABEL_ZH) as AiStyle[]).map((id) => [id, AI_STYLE_LABEL_ZH[id]]),
+        ]} />
         <Filter label="地形" value={mapType} onChange={(value) => setMapType(value as MapFilter)} options={[
           ['all', '全部地形'], ...(Object.keys(LEVEL_MAP_TYPE_LABEL_ZH) as LevelMapType[]).map((id) => [id, LEVEL_MAP_TYPE_LABEL_ZH[id]]),
         ]} />
@@ -242,7 +250,7 @@ export function AdminLevelWorkbench() {
           <input type="checkbox" checked={riskOnly} onChange={(event) => setRiskOnly(event.target.checked)} />
           只看高风险关
         </label>
-        <button type="button" onClick={() => { setChapter('all'); setAi('all'); setMapType('all'); setRockCount('all'); setStrategy('all'); setDifficulty('all'); setVerdict('all'); setReviewFilter('all'); setRiskOnly(false) }} className="h-10 px-3 text-[#3d4a3a] underline">
+        <button type="button" onClick={() => { setChapter('all'); setAi('all'); setAiStyle('all'); setMapType('all'); setRockCount('all'); setStrategy('all'); setDifficulty('all'); setVerdict('all'); setReviewFilter('all'); setRiskOnly(false) }} className="h-10 px-3 text-[#3d4a3a] underline">
           重置筛选
         </button>
         <span className="ml-auto text-[#5c6b52]">显示 {filtered.length}/24</span>
@@ -310,6 +318,7 @@ function LevelCard({ level, review, report, baselineVerdict, selected, onSelect 
         <div className="mx-auto mt-2 max-w-[180px] pointer-events-none"><BoardSvg state={state} selectedWolfId={null} stepHighlights={[]} jumpHighlights={[]} jumpThroughs={[]} interactive={false} onSelectWolf={() => undefined} onClickCell={() => undefined} theme={theme} /></div>
         <div className="mt-2 flex flex-wrap gap-1 text-[11px]">
           <span className="border border-[#5c6b52]/20 px-1.5 py-0.5">羊 AI {AI_PROFILE_LABEL_ZH[level.aiProfile]}</span>
+          <span className="border border-[#5c6b52]/20 px-1.5 py-0.5">{AI_STYLE_LABEL_ZH[level.aiStyle.primary]}</span>
           <span className="border border-[#5c6b52]/20 px-1.5 py-0.5">{LEVEL_MAP_TYPE_LABEL_ZH[levelMapType(level)]}</span>
           <span className="border border-[#5c6b52]/20 px-1.5 py-0.5">岩石 {level.rocks.length}</span>
           <span className="border border-[#5c6b52]/20 px-1.5 py-0.5">{getWolfStrategy(level.strategy.primary).nameZh}</span>
@@ -354,14 +363,18 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
       <h2 className="mt-1 font-serif text-2xl text-[#2c3328]">{level.nameZh}</h2>
       <p className="mt-2 leading-relaxed text-[#5c6b52]">{level.blurbZh}</p>
       <dl className="mt-3 grid grid-cols-2 gap-2 border-y border-[#5c6b52]/15 py-3 text-xs">
-        <div><dt className="text-[#7a8574]">关卡 AI 画像</dt><dd>{AI_PROFILE_LABEL_ZH[level.aiProfile]} ({level.aiProfile})</dd></div>
+        <div><dt className="text-[#7a8574]">对手能力阶段</dt><dd>{AI_PROFILE_LABEL_ZH[level.aiProfile]} ({level.aiProfile})</dd></div>
+        <div><dt className="text-[#7a8574]">行为风格</dt><dd>{AI_STYLE_LABEL_ZH[level.aiStyle.primary]} · 辅助 {AI_STYLE_LABEL_ZH[level.aiStyle.secondary]}</dd></div>
         <div><dt className="text-[#7a8574]">地形类型</dt><dd>{LEVEL_MAP_TYPE_LABEL_ZH[levelMapType(level)]} · 岩石 {level.rocks.length}</dd></div>
         <div><dt className="text-[#7a8574]">玩家操作难度</dt><dd>{level.difficulty}/5</dd></div>
         <div><dt className="text-[#7a8574]">狼方胜利目标</dt><dd>累计捕获 {level.targetEaten ?? 8} 只羊</dd></div>
         <div><dt className="text-[#7a8574]">行动上限</dt><dd>{level.maxPlies ?? 300} 次单方行动</dd></div>
         <div className="col-span-2"><dt className="text-[#7a8574]">学习阶段</dt><dd>{learningStage.labelZh} · {learningStage.mustShowZh}</dd></div>
+        <div className="col-span-2"><dt className="text-[#7a8574]">本关关键区域</dt><dd>{level.opponentIntent.focusCells.map((cell) => `(${cell.r},${cell.c})`).join('、')} · 至少保持目标 {level.opponentIntent.retargetAfterPlies} 次行动后才比较普通换目标机会</dd></div>
       </dl>
-      <p className="mt-2 text-xs leading-relaxed text-[#5c6b52]">{AI_PROFILE_DESCRIPTION_ZH[level.aiProfile]} 操作难度评价玩家找出并执行胜路的难度；AI 画像表示羊如何防守，两者不是同一个指标。</p>
+      <p className="mt-2 text-xs leading-relaxed text-[#5c6b52]">{AI_PROFILE_DESCRIPTION_ZH[level.aiProfile]} 操作难度评价玩家执行胜路的难度；能力阶段、行为风格和本关意图是三个不同指标。</p>
+      <p className="mt-1 text-xs leading-relaxed text-[#2c3328]"><strong>本关意图：</strong>{level.opponentIntent.summaryZh}</p>
+      <p className="mt-1 text-xs leading-relaxed text-[#5c6b52]"><strong>玩家反制：</strong>{level.opponentIntent.counterplayZh}</p>
       <p className="mt-1 text-xs leading-relaxed text-[#5c6b52]">自动证据目标：{learningStage.automatedEvidenceZh}</p>
 
       <div className="mt-3 flex flex-wrap gap-2">
@@ -376,6 +389,8 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
           <div className="flex items-center justify-between"><h3 className="text-xs font-medium text-[#7a8574]">自动代理检查</h3><VerdictBadge verdict={report.verdict} /></div>
           <p className="mt-2 text-xs leading-relaxed text-[#5c6b52]">较优狼策略代理：狼胜 {report.summaries.mixed.wolfWins} / 羊胜 {report.summaries.mixed.sheepWins} / 和局 {report.summaries.mixed.draws} · 95% 对局在 {report.summaries.mixed.p95Plies} 次行动内结束。</p>
           <p className="mt-1 text-xs text-[#5c6b52]">固定猎手：平均最高捕食占比 {((report.summaries.mixed.averageDominantWolfShare ?? 0) * 100).toFixed(0)}% · 最长连续捕食 {report.summaries.mixed.maxSameHunterCaptureStreak ?? 0} 次。</p>
+          <p className="mt-1 text-xs text-[#5c6b52]">主动对手：形成压力 {((report.summaries.mixed.activePressureRate ?? 0) * 100).toFixed(0)}% · 目标持续 {((report.summaries.mixed.targetPersistenceRate ?? 0) * 100).toFixed(0)}% · 无进展 {((report.summaries.mixed.noProgressRate ?? 0) * 100).toFixed(0)}% · 风格兑现 {((report.summaries.mixed.styleAlignmentRate ?? 0) * 100).toFixed(0)}%。</p>
+          <p className="mt-1 text-xs text-[#5c6b52]">独立教师抽检：检查 {report.summaries.mixed.teacherAuditedTurns ?? 0} 个风险行动 · 明显后悔 {report.summaries.mixed.teacherQuestionableTurns ?? 0} · 预算不足 {report.summaries.mixed.teacherUnknownTurns ?? 0} · 最大后悔值 {(report.summaries.mixed.maxTeacherRegret ?? 0).toFixed(1)}。</p>
           <p className="mt-1 text-xs text-amber-900">这是固定种子自动排雷结果，不是玩家胜率，也不能代替人工试玩。</p>
           {report.findings.length === 0 ? <p className="mt-2 text-xs text-green-800">未命中自动风险规则。</p> : report.findings.map((finding) => (
             <div key={finding.code} className="mt-2 border border-amber-300 bg-amber-50 p-2 text-xs text-amber-950">
@@ -406,7 +421,8 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
                 type="button"
                 disabled={replay.frames[Math.min(replayIndex, replay.frames.length - 1)]!.state.status !== 'playing'}
                 onClick={() => {
-                  saveCandidateHandoff(replay.frames[Math.min(replayIndex, replay.frames.length - 1)]!.state)
+                  const frame = replay.frames[Math.min(replayIndex, replay.frames.length - 1)]!
+                  saveCandidateHandoff(frame.state, frame.aiMemory)
                   window.location.assign(`/admin/ai?level=${encodeURIComponent(level.id)}&profile=${level.aiProfile}&seed=${replayGame.seed}&import=candidate-replay`)
                 }}
                 className="mt-2 w-full bg-[#3d4a3a] px-3 py-2 text-sm text-[#f4f1ea] disabled:opacity-40"
@@ -435,7 +451,8 @@ function LevelDetail({ level, report, baseline }: { level: LevelConfig; report?:
         <DetailText label="辅助策略" text={`${secondaryStrategy.nameZh}：${secondaryStrategy.summaryZh}`} />
         <DetailText label="盘面信号" text={primaryStrategy.signalZh} />
         <DetailText label="常见错误" text={primaryStrategy.mistakeZh} />
-        <DetailText label="羊方防守" text={level.sheepDefenseZh} />
+        <DetailText label="羊方主动计划" text={level.opponentIntent.summaryZh} />
+        <DetailText label="玩家反制" text={level.opponentIntent.counterplayZh} />
         <DetailText label="前台教学说明" text={level.teachingPoint ?? ''} />
       </details>
     </aside>

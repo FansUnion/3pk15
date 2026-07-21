@@ -1,4 +1,4 @@
-import { createSeededRng, pickSheepActionWithMeta } from '../ai/index'
+import { createAiOpponentMemory, createSeededRng, observeAiOpponentAction, pickSheepActionWithMeta } from '../ai/index'
 import { analyzeSheepActions } from '../ai/evaluate'
 import type { LevelConfig } from '../content/levels'
 import { createLevelInitialState } from '../content/levels'
@@ -30,11 +30,22 @@ export type PersonaGameEvidence = {
   dominatedSheepTurns: number
   higherChainExposureTurns: number
   degradedSheepTurns: number
+  activePressureTurns: number
+  targetPersistentTurns: number
+  targetSwitches: number
+  trapProgressTurns: number
+  beneficialExchangeTurns: number
+  noProgressTurns: number
+  hunterCounterTurns: number
+  styleAlignedTurns: number
   trace: string[]
 }
 
 export type PersonaMatrixReport = {
   levelId: string
+  aiProfile: LevelConfig['aiProfile']
+  aiStyle: LevelConfig['aiStyle']
+  opponentIntent: LevelConfig['opponentIntent']
   seeds: number[]
   games: PersonaGameEvidence[]
   summaries: Record<PlayerPersona, {
@@ -49,6 +60,13 @@ export type PersonaMatrixReport = {
     dominatedSheepTurns: number
     higherChainExposureTurns: number
     degradedSheepTurns: number
+    activePressureRate: number
+    targetPersistenceRate: number
+    noProgressRate: number
+    styleAlignmentRate: number
+    beneficialExchangeTurns: number
+    trapProgressTurns: number
+    hunterCounterTurns: number
   }>
 }
 
@@ -64,6 +82,7 @@ export function simulatePersonaGame(level: LevelConfig, persona: PlayerPersona, 
   const wolfRng = createSeededRng(seed)
   const sheepRng = createSeededRng(seed ^ 0x5f3759df)
   const memory = createPlayerPersonaMemory()
+  let opponentMemory = createAiOpponentMemory()
   const captures: Array<{ wolfId: string; ply: number; total: number }> = []
   const trace: string[] = []
   let firstCapturePly: number | null = null
@@ -71,6 +90,15 @@ export function simulatePersonaGame(level: LevelConfig, persona: PlayerPersona, 
   let dominatedSheepTurns = 0
   let higherChainExposureTurns = 0
   let degradedSheepTurns = 0
+  let activePressureTurns = 0
+  let targetPersistentTurns = 0
+  let targetSwitches = 0
+  let trapProgressTurns = 0
+  let beneficialExchangeTurns = 0
+  let noProgressTurns = 0
+  let hunterCounterTurns = 0
+  let styleAlignedTurns = 0
+  let previousIntentTarget: string | null = null
 
   while (state.status === 'playing') {
     const actions = listLegalActions(state)
@@ -81,7 +109,8 @@ export function simulatePersonaGame(level: LevelConfig, persona: PlayerPersona, 
       action = choosePlayerPersonaAction(state, actions, wolfRng, persona, memory)
     } else {
       const analyses = analyzeSheepActions(state)
-      const decision = pickSheepActionWithMeta(state, { profile: level.aiProfile, rng: sheepRng })
+      const decision = pickSheepActionWithMeta(state, { profile: level.aiProfile, rng: sheepRng, memory: opponentMemory })
+      opponentMemory = decision.meta.nextMemory
       action = decision.action
       const selected = analyses.find((candidate) => actionLabel(candidate.action) === actionLabel(action))
       const minimumChain = Math.min(...analyses.map((candidate) => candidate.maxCaptureChain))
@@ -91,12 +120,23 @@ export function simulatePersonaGame(level: LevelConfig, persona: PlayerPersona, 
       // immediate chain safety for trapping, mobility or a longer-term objective.
       if (selected && selected.maxCaptureChain > minimumChain) higherChainExposureTurns += 1
       if (decision.meta.degraded) degradedSheepTurns += 1
+      if (decision.meta.impact.activePressure) activePressureTurns += 1
+      if (decision.meta.impact.trappedWolfDelta > 0) trapProgressTurns += 1
+      if (decision.meta.impact.beneficialExchange) beneficialExchangeTurns += 1
+      if (decision.meta.impact.noProgress) noProgressTurns += 1
+      if (decision.meta.impact.styleAligned) styleAlignedTurns += 1
+      if (decision.meta.primaryStyle === 'hunter-counter'
+        && (decision.meta.impact.hunterRiskDelta > 0 || decision.meta.impact.captureChainRiskDelta > 0)) hunterCounterTurns += 1
+      if (previousIntentTarget && decision.meta.targetWolfId === previousIntentTarget) targetPersistentTurns += 1
+      else if (previousIntentTarget && decision.meta.targetWolfId && decision.meta.targetWolfId !== previousIntentTarget) targetSwitches += 1
+      previousIntentTarget = decision.meta.targetWolfId
     }
     const result = applyAction(state, action)
     if (!result.ok) throw new Error(result.error)
     state = result.state
     trace.push(`${state.plyCount}:${actionLabel(action)}`)
     if (before.toMove === 'wolf') {
+      opponentMemory = observeAiOpponentAction(opponentMemory, before, action, state)
       recordPlayerPersonaAction(before, action, state, memory)
       if (state.eatenSheep > before.eatenSheep && action.type !== 'pass') {
         captures.push({ wolfId: action.pieceId, ply: state.plyCount, total: state.eatenSheep })
@@ -142,6 +182,14 @@ export function simulatePersonaGame(level: LevelConfig, persona: PlayerPersona, 
     dominatedSheepTurns,
     higherChainExposureTurns,
     degradedSheepTurns,
+    activePressureTurns,
+    targetPersistentTurns,
+    targetSwitches,
+    trapProgressTurns,
+    beneficialExchangeTurns,
+    noProgressTurns,
+    hunterCounterTurns,
+    styleAlignedTurns,
     trace,
   }
 }
@@ -162,7 +210,14 @@ export function assessPersonaMatrix(level: LevelConfig, seeds = [20260720, 20260
       dominatedSheepTurns: selected.reduce((sum, game) => sum + game.dominatedSheepTurns, 0),
       higherChainExposureTurns: selected.reduce((sum, game) => sum + game.higherChainExposureTurns, 0),
       degradedSheepTurns: selected.reduce((sum, game) => sum + game.degradedSheepTurns, 0),
+      activePressureRate: selected.reduce((sum, game) => sum + game.activePressureTurns, 0) / Math.max(1, selected.reduce((sum, game) => sum + game.sheepTurns, 0)),
+      targetPersistenceRate: selected.reduce((sum, game) => sum + game.targetPersistentTurns, 0) / Math.max(1, selected.reduce((sum, game) => sum + Math.max(0, game.sheepTurns - 1), 0)),
+      noProgressRate: selected.reduce((sum, game) => sum + game.noProgressTurns, 0) / Math.max(1, selected.reduce((sum, game) => sum + game.sheepTurns, 0)),
+      styleAlignmentRate: selected.reduce((sum, game) => sum + game.styleAlignedTurns, 0) / Math.max(1, selected.reduce((sum, game) => sum + game.sheepTurns, 0)),
+      beneficialExchangeTurns: selected.reduce((sum, game) => sum + game.beneficialExchangeTurns, 0),
+      trapProgressTurns: selected.reduce((sum, game) => sum + game.trapProgressTurns, 0),
+      hunterCounterTurns: selected.reduce((sum, game) => sum + game.hunterCounterTurns, 0),
     }]
   })) as PersonaMatrixReport['summaries']
-  return { levelId: level.id, seeds, games, summaries }
+  return { levelId: level.id, aiProfile: level.aiProfile, aiStyle: level.aiStyle, opponentIntent: level.opponentIntent, seeds, games, summaries }
 }

@@ -1,5 +1,5 @@
-import type { Action, AiProfile, BoardState, Difficulty } from '../types'
-import type { ChapterId } from '../content/levels'
+import type { Action, AiBehaviorProfile, AiOpponentMemory, AiProfile, BoardState, Difficulty } from '../types'
+import { getLevel, type ChapterId } from '../content/levels'
 import { pickEasy } from './easy'
 import { pickNormal } from './normal'
 import {
@@ -16,6 +16,10 @@ export type AiContext = {
   /** Legacy diagnostic algorithm. Production callers provide `profile` instead. */
   difficulty?: Difficulty
   profile?: AiProfile
+  /** Overrides the level contract only for diagnostics. Production resolves it from state.levelId. */
+  behavior?: AiBehaviorProfile
+  /** Mutable caller-owned match memory. It is updated only after a sheep decision succeeds. */
+  memory?: AiOpponentMemory
   rng: Rng
   budgets?: HardBudgets
 }
@@ -29,7 +33,11 @@ export function pickSheepAction(state: BoardState, ctx: AiContext): Action {
   }
 
   if (ctx.profile) {
-    return pickProfiledSheepActionWithMeta(state, ctx.profile, ctx.rng, ctx.budgets).action
+    const level = getLevel(state.levelId)
+    const behavior = ctx.behavior ?? (level ? { style: level.aiStyle, intent: level.opponentIntent } : undefined)
+    const result = pickProfiledSheepActionWithMeta(state, ctx.profile, ctx.rng, ctx.budgets, behavior, ctx.memory)
+    if (ctx.memory) Object.assign(ctx.memory, result.meta.nextMemory)
+    return result.action
   }
 
   const difficulty = ctx.difficulty ?? 'normal'
@@ -53,7 +61,9 @@ export function pickSheepActionWithMeta(
 ): { action: Action; meta: HardPickMeta } {
   if (state.status !== 'playing') throw new Error('pickSheepActionWithMeta: game not playing')
   if (state.toMove !== 'sheep') throw new Error('pickSheepActionWithMeta: not sheep turn')
-  return pickProfiledSheepActionWithMeta(state, ctx.profile, ctx.rng, ctx.budgets)
+  const level = getLevel(state.levelId)
+  const behavior = ctx.behavior ?? (level ? { style: level.aiStyle, intent: level.opponentIntent } : undefined)
+  return pickProfiledSheepActionWithMeta(state, ctx.profile, ctx.rng, ctx.budgets, behavior, ctx.memory)
 }
 
 export type { ChapterId }
@@ -78,5 +88,6 @@ export {
   pickProfiledSheepActionWithMeta,
 } from './hard'
 export { createSeededRng, pickEasy, pickNormal }
+export { createAiOpponentMemory, normalizeAiOpponentMemory, observeAiOpponentAction } from './memory'
 export type { Rng } from './rng'
 export type { AiProfileConfig, HardBudgets, HardPickMeta } from './hard'

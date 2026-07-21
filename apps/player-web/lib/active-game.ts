@@ -2,11 +2,14 @@
 
 import {
   assertInvariants,
+  createAiOpponentMemory,
   deserialize,
+  normalizeAiOpponentMemory,
   serialize,
   type BoardState,
   type Action,
   type AiProfile,
+  type AiOpponentMemory,
   type OpeningLayout,
   type Pos,
   type SerializedBoard,
@@ -31,6 +34,7 @@ export type ActiveGameSession = {
   initialAiSeed: number
   aiSeed: number
   actions: RecordedGameAction[]
+  aiMemory: AiOpponentMemory
 }
 
 export function loadActiveGame(config: ActiveGameConfig): ActiveGameSession | null {
@@ -48,7 +52,7 @@ export function loadActiveGame(config: ActiveGameConfig): ActiveGameSession | nu
 
 export function parseActiveGameSnapshot(raw: string | null, config: ActiveGameConfig): ActiveGameSession | null {
   try {
-    const parsed = JSON.parse(raw ?? 'null') as { signature?: string; board?: SerializedBoard; initialAiSeed?: number; aiSeed?: number; actions?: RecordedGameAction[] } | null
+    const parsed = JSON.parse(raw ?? 'null') as { signature?: string; board?: SerializedBoard; initialAiSeed?: number; aiSeed?: number; actions?: RecordedGameAction[]; aiMemory?: AiOpponentMemory } | null
     if (!parsed?.board || parsed.signature !== activeGameSignature(config)) return null
     const state = deserialize(parsed.board)
     assertInvariants(state)
@@ -59,6 +63,7 @@ export function parseActiveGameSnapshot(raw: string | null, config: ActiveGameCo
       initialAiSeed: Number.isSafeInteger(parsed.initialAiSeed) ? parsed.initialAiSeed! : fallbackSeed,
       aiSeed: Number.isSafeInteger(parsed.aiSeed) ? parsed.aiSeed! : fallbackSeed,
       actions: Array.isArray(parsed.actions) ? parsed.actions : [],
+      aiMemory: parsed.aiMemory ? normalizeAiOpponentMemory(parsed.aiMemory) : createAiOpponentMemory(),
     }
   } catch {
     return null
@@ -74,6 +79,7 @@ export function saveActiveGame(config: ActiveGameConfig, session: ActiveGameSess
       initialAiSeed: session.initialAiSeed,
       aiSeed: session.aiSeed,
       actions: session.actions,
+      aiMemory: session.aiMemory,
     }))
   } catch {
     // A failed activity snapshot must never interrupt the match.

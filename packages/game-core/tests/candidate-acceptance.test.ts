@@ -30,7 +30,9 @@ describe('level candidate acceptance', () => {
     expect(first.games.every((game) => game.finalSheepAdvantage.wolfMoveCount >= 0)).toBe(true)
     expect(first.summaries.random.wolfWins + first.summaries.random.sheepWins + first.summaries.random.draws).toBe(2)
     expect(first.summaries['chain-aware'].wolfWins + first.summaries['chain-aware'].sheepWins + first.summaries['chain-aware'].draws).toBe(2)
-  }, 15_000)
+  // This deliberately runs the same six games twice to prove byte-for-byte
+  // reproducibility; V5 intent analysis can exceed 15s on loaded CI workers.
+  }, 60_000)
 })
 
 // Slow proxy matrix. Each worker runs one wolf policy so Vitest can keep reporting
@@ -65,8 +67,9 @@ aggregateDescribe('production level candidate aggregate', () => {
     const reports = requestedLevels.map((levelId) => {
       const level = LEVELS.find((entry) => entry.id === levelId)
       if (!level) throw new Error(`unknown level ${levelId}`)
+      const chunks = levelId.startsWith('winter-') ? ['w0', 'w1', 'w2', 'w3', 'w4'] : ['0', '1']
       const games = (['random', 'mixed', 'chain-aware'] as const).flatMap((strategy) =>
-        [0, 1].flatMap((chunk) =>
+        chunks.flatMap((chunk) =>
           JSON.parse(readFileSync(join(inputDir, `${levelId}-${strategy}-${chunk}.json`), 'utf8')) as CandidateGameEvidence[]))
       return buildCandidateAcceptanceReport(level, games, Array.from({ length: 10 }, (_, index) => 20260717 + index))
     })
@@ -93,6 +96,23 @@ aggregateDescribe('production level candidate aggregate', () => {
       reports,
     }, null, 2)}\n`, 'utf8')
     expect(reports).toHaveLength(requestedLevels.length)
+    expect(reports.every((report) => report.games.length === 30)).toBe(true)
+  })
+})
+
+const rebuildDescribe = process.env.RUN_CANDIDATE_REBUILD === '1' ? describe : describe.skip
+rebuildDescribe('production candidate evidence rebuild', () => {
+  it('rebuilds verdicts from preserved game evidence without rerunning matches', () => {
+    const path = process.env.CANDIDATE_REBUILD_PATH
+    if (!path) throw new Error('CANDIDATE_REBUILD_PATH is required')
+    const evidence = JSON.parse(readFileSync(path, 'utf8')) as { seeds: number[]; reports: Array<{ levelId: string; games: CandidateGameEvidence[] }>; [key: string]: unknown }
+    const reports = evidence.reports.map((previous) => {
+      const level = LEVELS.find((entry) => entry.id === previous.levelId)
+      if (!level) throw new Error(`unknown level ${previous.levelId}`)
+      return buildCandidateAcceptanceReport(level, previous.games, evidence.seeds)
+    })
+    writeFileSync(path, `${JSON.stringify({ ...evidence, reports }, null, 2)}\n`, 'utf8')
+    expect(reports).toHaveLength(24)
     expect(reports.every((report) => report.games.length === 30)).toBe(true)
   })
 })

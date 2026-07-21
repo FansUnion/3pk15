@@ -72,6 +72,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const aiSeed = usePlayStore((s) => s.seed)
   const initialAiSeed = usePlayStore((s) => s.initialSeed)
   const actionHistory = usePlayStore((s) => s.actionHistory)
+  const aiMemory = usePlayStore((s) => s.aiMemory)
 
   const save = useSaveStore((s) => s.save)
   const hydrated = useSaveStore((s) => s.hydrated)
@@ -552,6 +553,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       initialAiSeed,
       nextAiSeed: aiSeed,
       actions: actionHistory,
+      aiMemory,
       muted,
     }))
     setMoreOpen(false)

@@ -5,12 +5,13 @@ import {
   SHEEP_AI_ALGORITHM_VERSION,
   serialize,
   type AiProfile,
+  type AiOpponentMemory,
   type BoardState,
 } from '@wolf-sheep/game-core'
 import type { RecordedGameAction } from './active-game'
 import { getAudioDiagnostics } from './sfx'
 
-export const REPRODUCTION_SCHEMA = 3
+export const REPRODUCTION_SCHEMA = 4
 
 export type PlayerReproductionBundle = {
   kind: 'fangrush-player-reproduction'
@@ -23,6 +24,7 @@ export type PlayerReproductionBundle = {
   initialAiSeed: number
   nextAiSeed: number
   hardBudget: { maxNodes: number; maxMs: number | null }
+  aiMemory: AiOpponentMemory
   board: ReturnType<typeof serialize>
   actions: RecordedGameAction[]
   environment: { url: string; userAgent: string; language: string; viewport: string }
@@ -35,6 +37,7 @@ export function buildPlayerReproductionBundle(input: {
   initialAiSeed: number
   nextAiSeed: number
   actions: RecordedGameAction[]
+  aiMemory: AiOpponentMemory
   muted: boolean
 }): PlayerReproductionBundle {
   return {
@@ -48,6 +51,7 @@ export function buildPlayerReproductionBundle(input: {
     initialAiSeed: input.initialAiSeed,
     nextAiSeed: input.nextAiSeed,
     hardBudget: { maxNodes: AI_PROFILE_CONFIG[input.aiProfile].budgets.maxNodes, maxMs: null },
+    aiMemory: input.aiMemory,
     board: serialize(input.state),
     actions: input.actions,
     environment: {

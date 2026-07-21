@@ -76,7 +76,7 @@ function summarize(levelId: string, difficulty: Difficulty, strategy: 'random' |
 }
 
 // Historical easy/normal/hard attribution is retained for investigations, but it is
-// not a production V3 gate. Run with RUN_LEGACY_BALANCE=1 when comparing old baselines.
+// not a production V4 gate. Run with RUN_LEGACY_BALANCE=1 when comparing old baselines.
 const legacyDescribe = process.env.RUN_LEGACY_BALANCE === '1' ? describe : describe.skip
 legacyDescribe('strong-risk level attribution', () => {
   it.each(['autumn-01', 'autumn-03', 'winter-02'])('compares $level risk across sheep difficulty and wolf strategy', (levelId) => {
