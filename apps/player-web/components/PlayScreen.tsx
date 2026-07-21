@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {
   adjacentLevels,
   applyClearToSave,
+  claimableQuestCount,
   createSeededRng,
   grantUniversalFragments,
   levelDisplayName,
@@ -15,8 +16,6 @@ import {
   recordGuideHint,
   recordGuideResult,
   rewardedFragmentAmount,
-  refreshQuestPeriod,
-  QUEST_DEFS,
   REPETITION_DRAW_COUNT,
   REPETITION_STRONG_WARNING_COUNT,
   REPETITION_WARNING_COUNT,
@@ -118,11 +117,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const p = t.play
   const rewardedAdsAvailable = getPlatform().ads.isRewardedAvailable?.() ?? false
   const nextWolfSkin = nextUniversalSkinTarget(save)
-  const questState = refreshQuestPeriod(save.quests)
-  const claimableQuests = QUEST_DEFS.filter((quest) => {
-    const bucket = questState[quest.period]
-    return !bucket.claimed.includes(quest.id) && (bucket.progress[quest.id] ?? 0) >= quest.target
-  }).length
+  const claimableQuests = claimableQuestCount(save)
 
   useEffect(() => {
     hydrate()
@@ -417,7 +412,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       setAdError(res.reason)
       return
     }
-    replace(grantUniversalFragments(useSaveStore.getState().save, adBonusAmount))
+    replace(grantUniversalFragments(useSaveStore.getState().save, adBonusAmount, 'ad'))
     setAdBonusGranted(adBonusAmount)
   }
 
@@ -669,6 +664,12 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               <div className="mt-4 rounded-lg border border-[var(--line)] bg-[var(--paper)] px-3 py-3 text-left">
                 <GrantLine grant={lastGrant} labels={p} locale={locale} />
               </div>
+            )}
+
+            {!adminMode && claimableQuests > 0 && (
+              <LocaleLink href="/quests" locale={locale} className="mt-3 block rounded-lg border border-[var(--line)] bg-[#eef1eb] px-3 py-2 text-sm font-medium text-[#40513c]">
+                {fmt(p.questReady, { n: claimableQuests })} →
+              </LocaleLink>
             )}
 
             <div className="mt-4 grid gap-2">

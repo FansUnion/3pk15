@@ -2,9 +2,12 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import {
   CHAPTER_LABEL,
+  currentQuestRewardBudget,
   LEVELS,
+  questWeeklyMaximum,
   QUEST_DEFS,
   SKIN_CATALOG,
+  simulateEconomyScenario,
   simulateFirstClearEconomy,
   type ChapterId,
   type SkinCatalogItem,
@@ -24,6 +27,11 @@ export default function AdminEconomyPage() {
     (s) => s.unlock.type === 'cost',
   ).map((s) => estimateSkin(s, avgFirst, dailyQuestU))
   const paths = (['none', 'half', 'all'] as const).map(simulateFirstClearEconomy)
+  const currentQuestBudget = currentQuestRewardBudget()
+  const scenarios = (['casual', 'regular', 'active'] as const).flatMap((activity) =>
+    (['none', 'half', 'all'] as const).map((ads) => simulateEconomyScenario({ days: 28, activity, ads })))
+  const budgetComparison = (['current', 'middle', 'legacy'] as const).map((questBudget) =>
+    simulateEconomyScenario({ days: 28, activity: 'regular', ads: 'half', questBudget }))
 
   return (
     <main className="mx-auto max-w-4xl">
@@ -60,6 +68,48 @@ export default function AdminEconomyPage() {
         <p className="mt-3 border-t border-[#5c6b52]/15 pt-3 text-xs leading-relaxed text-[#7a8574]">
           这里是规则和配置的静态估算：它能说明碎片是否有兑换目标、目标距离和奖励来源，不能证明玩家一定愿意收藏或观看广告。商业化结论需要真实试玩数据。
         </p>
+      </section>
+
+      <section className="mt-6 rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
+        <h2 className="font-medium text-[#2c3328]">28天假设玩家经济模型</h2>
+        <p className="mt-2 leading-relaxed text-[#5c6b52]">
+          这是参数模型，不是真实玩家统计。当前没有生产玩家数据源，因此这里不能代表DAU、留存、真实观看率或收入。它只用于提前发现任务奖励过高、皮肤过早耗尽和广告失去目标。
+        </p>
+        <p className="mt-2 text-xs leading-relaxed text-[#7a8574]">
+          当前任务满额周预算 {questWeeklyMaximum(currentQuestBudget)}：每日对局 {currentQuestBudget.dailyPlay}、每日通关 {currentQuestBudget.dailyClear}、每周通关 {currentQuestBudget.weeklyClear}、每周对局碎片 {currentQuestBudget.weeklyGameplayFragments}。广告碎片不计入任务进度。
+        </p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[920px] text-left text-xs">
+            <thead><tr className="border-b border-[#5c6b52]/30 text-[#5c6b52]"><th className="py-2 pr-3">假设玩家</th><th className="py-2 pr-3">广告选择</th><th className="py-2 pr-3">通关</th><th className="py-2 pr-3">关卡碎片</th><th className="py-2 pr-3">任务碎片</th><th className="py-2 pr-3">广告碎片</th><th className="py-2 pr-3">已完成收藏</th><th className="py-2">下一目标</th></tr></thead>
+            <tbody>{scenarios.map((scenario) => <tr key={`${scenario.activity}-${scenario.ads}`} className="border-b border-[#5c6b52]/15 align-top">
+              <td className="py-2 pr-3 font-medium">{scenario.activity === 'casual' ? '休闲模型' : scenario.activity === 'regular' ? '规律模型' : '活跃模型'}</td>
+              <td className="py-2 pr-3">{scenario.ads === 'none' ? '不看' : scenario.ads === 'half' ? '约一半' : '每次可用都看'}</td>
+              <td className="py-2 pr-3">{scenario.clears}</td>
+              <td className="py-2 pr-3">{scenario.earned.gameplay}</td>
+              <td className="py-2 pr-3">{scenario.earned.quests}</td>
+              <td className="py-2 pr-3">{scenario.earned.ads}</td>
+              <td className="py-2 pr-3">{scenario.unlocks.length ? scenario.unlocks.map((unlock) => unlock.skinId).join('、') : '无'}</td>
+              <td className="py-2">{scenario.nextTarget ? `${scenario.nextTarget.nameZh} 还差 ${scenario.nextTargetRemaining}` : `三档完成 · 余 ${scenario.balance}`}</td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
+        <h2 className="font-medium text-[#2c3328]">任务预算风险对比</h2>
+        <p className="mt-2 leading-relaxed text-[#5c6b52]">统一使用“规律玩家、28天、约一半首通广告”，只改变任务奖励。旧81/周用于说明风险，不是推荐恢复值。</p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[700px] text-left text-sm">
+            <thead><tr className="border-b border-[#5c6b52]/30 text-[#5c6b52]"><th className="py-2 pr-3">任务预算</th><th className="py-2 pr-3">任务获得</th><th className="py-2 pr-3">总获得</th><th className="py-2 pr-3">完成收藏</th><th className="py-2">结果</th></tr></thead>
+            <tbody>{budgetComparison.map((scenario) => <tr key={scenario.questBudget} className="border-b border-[#5c6b52]/15">
+              <td className="py-2 pr-3 font-medium">{scenario.questBudget === 'current' ? '当前40/周' : scenario.questBudget === 'middle' ? '中间55/周' : '旧81/周'}</td>
+              <td className="py-2 pr-3">{scenario.earned.quests}</td>
+              <td className="py-2 pr-3">{scenario.earned.total}</td>
+              <td className="py-2 pr-3">{scenario.unlocks.length}/3</td>
+              <td className="py-2">{scenario.nextTarget ? `${scenario.nextTarget.nameZh}还差${scenario.nextTargetRemaining}` : `目标耗尽，余额${scenario.balance}`}</td>
+            </tr>)}</tbody>
+          </table>
+        </div>
       </section>
 
       <section className="mt-6 rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">

@@ -2,6 +2,7 @@ import { SiteFooter, SiteHeader } from '@/components/SiteChrome'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { HomeContinueLink } from '@/components/HomeContinueLink'
 import { HomeSeasonGrid } from '@/components/HomeSeasonGrid'
+import { HomeQuestLink } from '@/components/HomeQuestLink'
 import { getT } from '@/i18n/get-locale'
 
 export default async function HomePage() {
@@ -104,7 +105,7 @@ export default async function HomePage() {
 
           <section className="grid gap-2 sm:grid-cols-3">
             <LocaleLink href="/skins" locale={locale} className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-3"><span className="font-medium text-[var(--ink)]">{t.nav.skins}</span><span className="mt-1 block text-xs text-[var(--muted)]">{locale === 'zh' ? '兑换并装备狼群与棋盘' : 'Unlock and equip wolves and boards'}</span></LocaleLink>
-            <LocaleLink href="/quests" locale={locale} className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-3"><span className="font-medium text-[var(--ink)]">{t.nav.quests}</span><span className="mt-1 block text-xs text-[var(--muted)]">{locale === 'zh' ? '完成目标并领取通用碎片' : 'Complete goals and claim shards'}</span></LocaleLink>
+            <HomeQuestLink locale={locale} label={t.nav.quests} description={locale === 'zh' ? '完成目标并领取通用碎片' : 'Complete goals and claim shards'} />
             <LocaleLink href="/settings" locale={locale} className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-3"><span className="font-medium text-[var(--ink)]">{t.nav.settings}</span><span className="mt-1 block text-xs text-[var(--muted)]">{locale === 'zh' ? '声音、玩法与隐私' : 'Sound, rules, and privacy'}</span></LocaleLink>
           </section>
 

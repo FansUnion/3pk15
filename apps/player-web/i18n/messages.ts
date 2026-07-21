@@ -107,6 +107,7 @@ export type MessageTree = {
     rewardAdTarget: string
     rewardAdUnlock: string
     rewardAdGranted: string
+    questReady: string
     adFailed: string
     share: string
     sharePreparing: string
@@ -212,8 +213,9 @@ export type MessageTree = {
     seasonBalances: string; seasonBalance: string
   }
   quests: {
-    title: string; claim: string; claimed: string; empty: string; daily: string; weekly: string
-    reward: string; claimSuccess: string; balance: string; error: string
+    title: string; claim: string; claimAll: string; claimed: string; empty: string; daily: string; weekly: string
+    reward: string; claimSuccess: string; claimAllSuccess: string; balance: string; error: string; intro: string
+    targetRemaining: string; targetReady: string; allCollected: string
   }
   common: { back: string; loading: string }
   locale: { switchLabel: string }
@@ -370,6 +372,7 @@ export const en: MessageTree = {
     rewardAdTarget: 'Watch ad +{n} · {remaining} left for {name}',
     rewardAdUnlock: 'Watch ad +{n} · unlock {name}',
     rewardAdGranted: 'Reward received: +{n} universal shards.',
+    questReady: '{n} quest rewards ready to claim',
     adFailed: 'The reward video is unavailable. Your clear is still safe.',
     share: 'Share result',
     sharePreparing: 'Preparing result card...',
@@ -500,14 +503,20 @@ export const en: MessageTree = {
   quests: {
     title: 'Quests',
     claim: 'Claim',
+    claimAll: 'Claim all',
     claimed: 'Claimed',
     empty: 'No quests yet.',
     daily: 'Daily',
     weekly: 'Weekly',
     reward: '+{n} universal shards',
     claimSuccess: 'Claimed +{n} universal shards',
+    claimAllSuccess: 'Claimed {count} rewards · +{n} universal shards',
     balance: '{n} universal shards',
     error: 'Quest status changed. Refresh and try again.',
+    intro: 'Quests track automatically. Claim completed rewards here; completed rewards are protected when the day or week changes.',
+    targetRemaining: '{name}: {n} more shards needed',
+    targetReady: '{name} is ready to unlock',
+    allCollected: 'All current character themes are collected.',
   },
   common: { back: 'Back', loading: '…' },
   locale: { switchLabel: 'Language' },
@@ -654,6 +663,7 @@ export const zh: MessageTree = {
     rewardAdTarget: '看视频 +{n} · 距离{name}还差 {remaining}',
     rewardAdUnlock: '看视频 +{n} · 可解锁{name}',
     rewardAdGranted: '奖励已到账：通用碎片 +{n}。',
+    questReady: '有 {n} 项任务奖励可领取',
     adFailed: '广告暂时不可用，本关进度和碎片不受影响。',
     share: '分享战绩',
     sharePreparing: '正在生成战绩卡片...',
@@ -783,14 +793,20 @@ export const zh: MessageTree = {
   quests: {
     title: '任务',
     claim: '领取',
+    claimAll: '全部领取',
     claimed: '已领',
     empty: '暂无任务',
     daily: '每日',
     weekly: '每周',
     reward: '+{n} 通用碎片',
     claimSuccess: '领取 +{n} 通用碎片',
+    claimAllSuccess: '已领取 {count} 项奖励 · 通用碎片 +{n}',
     balance: '通用碎片 {n}',
     error: '任务状态已更新，请刷新后重试。',
+    intro: '任务无需接取，正常游玩会自动累计。已完成奖励可在这里领取；跨日或跨周时，完成但未领取的奖励会自动保留。',
+    targetRemaining: '距离{name}还差 {n} 通用碎片',
+    targetReady: '碎片已足够兑换{name}',
+    allCollected: '当前角色主题已经全部收集。',
   },
   common: { back: '返回', loading: '…' },
   locale: { switchLabel: '语言' },

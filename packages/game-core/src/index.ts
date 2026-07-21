@@ -39,8 +39,10 @@ export {
   rollClearReward,
   SAVE_KEY,
 } from './content/save'
-export type { DropGrant, SaveGame } from './content/save'
+export type { DropGrant, SaveGame, UniversalFragmentSource } from './content/save'
 export {
+  claimAllQuests,
+  claimableQuestCount,
   claimQuest,
   dailyKey,
   emptyQuestState,
@@ -48,6 +50,7 @@ export {
   questDisplayTitle,
   recordQuestMetric,
   refreshQuestPeriod,
+  settleQuestPeriods,
   weeklyKey,
 } from './content/quests'
 export type { QuestBucket, QuestDef, QuestState } from './content/quests'
@@ -67,11 +70,15 @@ export {
 export type { BoardSkin, SkinCatalogItem, WolfSetSkin } from './content/skins'
 export {
   nextUniversalSkinTarget,
+  currentQuestRewardBudget,
+  questWeeklyMaximum,
   rewardedFragmentAmount,
+  simulateEconomyScenario,
   simulateFirstClearEconomy,
+  QUEST_REWARD_BUDGETS,
   universalSkinTargets,
 } from './content/economy'
-export type { AdEngagement, EconomyPath, UniversalTarget } from './content/economy'
+export type { ActivityProfile, AdEngagement, EconomyPath, EconomyScenario, QuestRewardBudget, UniversalTarget } from './content/economy'
 export { getWolfStrategy, LEVEL_STRATEGIES, strategyName, WOLF_STRATEGIES } from './content/strategies'
 export type { LevelStrategyProfile, WolfStrategy, WolfStrategyId } from './content/strategies'
 export type {

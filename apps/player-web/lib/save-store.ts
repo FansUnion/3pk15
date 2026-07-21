@@ -1,7 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
-import { defaultSave, type DropGrant, type SaveGame } from '@wolf-sheep/game-core'
+import { defaultSave, settleQuestPeriods, type DropGrant, type SaveGame } from '@wolf-sheep/game-core'
 import { loadSave, persistSave } from '@/lib/storage'
 
 type SaveStore = {
@@ -19,11 +19,14 @@ export const useSaveStore = create<SaveStore>((set) => ({
   hydrated: false,
   lastGrant: null,
   hydrate() {
-    set({ save: loadSave(), hydrated: true })
-  },
-  replace(save) {
+    const save = settleQuestPeriods(loadSave()).save
     persistSave(save)
     set({ save, hydrated: true })
+  },
+  replace(save) {
+    const next = settleQuestPeriods(save).save
+    persistSave(next)
+    set({ save: next, hydrated: true })
   },
   setLastGrant(g) {
     set({ lastGrant: g })

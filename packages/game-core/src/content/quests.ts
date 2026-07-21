@@ -7,7 +7,7 @@ export type QuestDef = {
   titleEn: string
   titleZh: string
   target: number
-  metric: 'plays' | 'clears' | 'fragments_earned'
+  metric: 'plays' | 'clears' | 'gameplay_fragments_earned'
   rewardUniversal: number
 }
 
@@ -20,7 +20,7 @@ export const QUEST_DEFS: QuestDef[] = [
     titleZh: '今日对局 1 次',
     target: 1,
     metric: 'plays',
-    rewardUniversal: 3,
+    rewardUniversal: 2,
   },
   {
     id: 'daily-clear-1',
@@ -30,7 +30,7 @@ export const QUEST_DEFS: QuestDef[] = [
     titleZh: '今日通关 1 关',
     target: 1,
     metric: 'clears',
-    rewardUniversal: 5,
+    rewardUniversal: 2,
   },
   {
     id: 'weekly-clear-3',
@@ -40,17 +40,17 @@ export const QUEST_DEFS: QuestDef[] = [
     titleZh: '本周通关 3 关',
     target: 3,
     metric: 'clears',
-    rewardUniversal: 15,
+    rewardUniversal: 8,
   },
   {
     id: 'weekly-frag-20',
     period: 'weekly',
-    title: '本周获得 20 通用碎片',
-    titleEn: 'Earn 20 universal shards this week',
-    titleZh: '本周获得 20 通用碎片',
+    title: '本周通过对局获得 20 通用碎片',
+    titleEn: 'Earn 20 shards from hunts this week',
+    titleZh: '本周通过对局获得 20 通用碎片',
     target: 20,
-    metric: 'fragments_earned',
-    rewardUniversal: 10,
+    metric: 'gameplay_fragments_earned',
+    rewardUniversal: 4,
   },
 ]
 
@@ -67,6 +67,7 @@ export type QuestBucket = {
 export type QuestState = {
   daily: QuestBucket
   weekly: QuestBucket
+  pendingUniversal: number
 }
 
 export function dailyKey(d = new Date()): string {
@@ -96,21 +97,52 @@ export function emptyQuestState(now = new Date()): QuestState {
   return {
     daily: { key: dailyKey(now), progress: {}, claimed: [] },
     weekly: { key: weeklyKey(now), progress: {}, claimed: [] },
+    pendingUniversal: 0,
   }
+}
+
+function completedUnclaimedReward(bucket: QuestBucket, period: QuestDef['period']): number {
+  return QUEST_DEFS
+    .filter((quest) => quest.period === period
+      && !bucket.claimed.includes(quest.id)
+      && (bucket.progress[quest.id] ?? 0) >= quest.target)
+    .reduce((total, quest) => total + quest.rewardUniversal, 0)
 }
 
 export function refreshQuestPeriod(state: QuestState, now = new Date()): QuestState {
   const dKey = dailyKey(now)
   const wKey = weeklyKey(now)
+  let pendingUniversal = Math.max(0, state.pendingUniversal ?? 0)
+  let daily = state.daily
+  let weekly = state.weekly
+
+  if (!daily.key || dKey > daily.key) {
+    pendingUniversal += completedUnclaimedReward(daily, 'daily')
+    daily = { key: dKey, progress: {}, claimed: [] }
+  }
+  if (!weekly.key || wKey > weekly.key) {
+    pendingUniversal += completedUnclaimedReward(weekly, 'weekly')
+    weekly = { key: wKey, progress: {}, claimed: [] }
+  }
+
+  return { daily, weekly, pendingUniversal }
+}
+
+export function settleQuestPeriods(
+  save: SaveGame,
+  now = new Date(),
+): { save: SaveGame; protectedUniversal: number } {
+  const quests = refreshQuestPeriod(save.quests, now)
+  const protectedUniversal = quests.pendingUniversal
   return {
-    daily:
-      state.daily.key === dKey
-        ? state.daily
-        : { key: dKey, progress: {}, claimed: [] },
-    weekly:
-      state.weekly.key === wKey
-        ? state.weekly
-        : { key: wKey, progress: {}, claimed: [] },
+    protectedUniversal,
+    save: {
+      ...save,
+      fragments: protectedUniversal > 0
+        ? { ...save.fragments, universal: save.fragments.universal + protectedUniversal }
+        : save.fragments,
+      quests: protectedUniversal > 0 ? { ...quests, pendingUniversal: 0 } : quests,
+    },
   }
 }
 
@@ -139,33 +171,77 @@ export function recordQuestMetric(
   return q
 }
 
+export function claimableQuestCount(save: SaveGame, now = new Date()): number {
+  const settled = settleQuestPeriods(save, now).save
+  return QUEST_DEFS.filter((quest) => {
+    const bucket = settled.quests[quest.period]
+    return !bucket.claimed.includes(quest.id) && (bucket.progress[quest.id] ?? 0) >= quest.target
+  }).length
+}
+
 export function claimQuest(
   save: SaveGame,
   questId: string,
   now = new Date(),
-): { ok: true; save: SaveGame } | { ok: false; error: string } {
+): { ok: true; save: SaveGame; rewardUniversal: number } | { ok: false; error: string } {
   const def = QUEST_DEFS.find((q) => q.id === questId)
   if (!def) return { ok: false, error: 'unknown quest' }
-  const quests = refreshQuestPeriod(save.quests, now)
-  const bucket = def.period === 'daily' ? quests.daily : quests.weekly
+  const settled = settleQuestPeriods(save, now).save
+  const bucket = settled.quests[def.period]
   if (bucket.claimed.includes(questId)) return { ok: false, error: 'already claimed' }
   const progress = bucket.progress[questId] ?? 0
   if (progress < def.target) return { ok: false, error: 'incomplete' }
 
   const nextBucket = { ...bucket, claimed: [...bucket.claimed, questId] }
-  const nextQuests: QuestState = {
-    ...quests,
-    [def.period]: nextBucket,
+  return {
+    ok: true,
+    rewardUniversal: def.rewardUniversal,
+    save: {
+      ...settled,
+      quests: { ...settled.quests, [def.period]: nextBucket },
+      fragments: {
+        ...settled.fragments,
+        universal: settled.fragments.universal + def.rewardUniversal,
+      },
+    },
+  }
+}
+
+export function claimAllQuests(
+  save: SaveGame,
+  now = new Date(),
+): { ok: true; save: SaveGame; claimedCount: number; rewardUniversal: number } | { ok: false; error: string } {
+  const settled = settleQuestPeriods(save, now).save
+  const claimable = QUEST_DEFS.filter((quest) => {
+    const bucket = settled.quests[quest.period]
+    return !bucket.claimed.includes(quest.id) && (bucket.progress[quest.id] ?? 0) >= quest.target
+  })
+  if (claimable.length === 0) return { ok: false, error: 'nothing claimable' }
+
+  const claimedByPeriod = {
+    daily: new Set(settled.quests.daily.claimed),
+    weekly: new Set(settled.quests.weekly.claimed),
+  }
+  let rewardUniversal = 0
+  for (const quest of claimable) {
+    claimedByPeriod[quest.period].add(quest.id)
+    rewardUniversal += quest.rewardUniversal
   }
 
   return {
     ok: true,
+    claimedCount: claimable.length,
+    rewardUniversal,
     save: {
-      ...save,
-      quests: nextQuests,
+      ...settled,
+      quests: {
+        ...settled.quests,
+        daily: { ...settled.quests.daily, claimed: [...claimedByPeriod.daily] },
+        weekly: { ...settled.quests.weekly, claimed: [...claimedByPeriod.weekly] },
+      },
       fragments: {
-        ...save.fragments,
-        universal: save.fragments.universal + def.rewardUniversal,
+        ...settled.fragments,
+        universal: settled.fragments.universal + rewardUniversal,
       },
     },
   }

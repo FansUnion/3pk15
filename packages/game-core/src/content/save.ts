@@ -3,7 +3,7 @@ import { CHAPTER_ORDER, levelsForChapter } from './levels'
 import {
   emptyQuestState,
   recordQuestMetric,
-  refreshQuestPeriod,
+  settleQuestPeriods,
   type QuestState,
 } from './quests'
 
@@ -37,6 +37,8 @@ export type DropGrant = {
   season: Partial<Record<ChapterId, number>>
   firstClear: boolean
 }
+
+export type UniversalFragmentSource = 'gameplay' | 'ad' | 'quest' | 'compensation'
 
 export const SAVE_KEY = 'wolf-sheep-save-v1'
 
@@ -82,7 +84,7 @@ function safeAmount(value: unknown, fallback = 0) {
 function parseQuests(raw: unknown): QuestState {
   if (!raw || typeof raw !== 'object') return emptyQuestState()
   const o = raw as QuestState
-  return refreshQuestPeriod({
+  return {
     daily: {
       key: typeof o.daily?.key === 'string' ? o.daily.key : '',
       progress: o.daily?.progress && typeof o.daily.progress === 'object' ? o.daily.progress : {},
@@ -95,7 +97,8 @@ function parseQuests(raw: unknown): QuestState {
         ? o.weekly.claimed.filter((x) => typeof x === 'string')
         : [],
     },
-  })
+    pendingUniversal: safeAmount(o.pendingUniversal),
+  }
 }
 
 export function migrate(raw: unknown): SaveGame {
@@ -126,7 +129,7 @@ export function migrate(raw: unknown): SaveGame {
     ? rawEquipped.boardMode
     : boardId === 'board-default' ? 'seasonal' : 'fixed'
 
-  return {
+  const migrated: SaveGame = {
     schemaVersion: 2,
     clearedLevels: Array.isArray(o.clearedLevels)
       ? o.clearedLevels.filter((x): x is string => typeof x === 'string')
@@ -166,6 +169,7 @@ export function migrate(raw: unknown): SaveGame {
     lastPlayedLevelId:
       typeof o.lastPlayedLevelId === 'string' ? o.lastPlayedLevelId : undefined,
   }
+  return settleQuestPeriods(migrated).save
 }
 
 function parseNonNegativeRecord(raw: unknown): Record<string, number> {
@@ -271,32 +275,33 @@ export function applyClearToSave(
   level: LevelConfig,
   grant: DropGrant,
 ): SaveGame {
-  const alreadyCleared = save.clearedLevels.includes(level.id)
+  const settled = settleQuestPeriods(save).save
+  const alreadyCleared = settled.clearedLevels.includes(level.id)
   const effectiveGrant: DropGrant = alreadyCleared && grant.firstClear
     ? { universal: 0, season: {}, firstClear: false }
     : grant
   const clearedLevels = alreadyCleared
-    ? save.clearedLevels
-    : [...save.clearedLevels, level.id]
+    ? settled.clearedLevels
+    : [...settled.clearedLevels, level.id]
 
-  const season = { ...save.fragments.season }
+  const season = { ...settled.fragments.season }
   for (const [k, v] of Object.entries(effectiveGrant.season)) {
     const id = k as ChapterId
     season[id] = (season[id] ?? 0) + (v ?? 0)
   }
 
   let quests = alreadyCleared && grant.firstClear
-    ? save.quests
-    : recordQuestMetric(save.quests, 'both', 'clears', 1)
+    ? settled.quests
+    : recordQuestMetric(settled.quests, 'both', 'clears', 1)
   if (effectiveGrant.universal > 0) {
-    quests = recordQuestMetric(quests, 'both', 'fragments_earned', effectiveGrant.universal)
+    quests = recordQuestMetric(quests, 'both', 'gameplay_fragments_earned', effectiveGrant.universal)
   }
 
   const next: SaveGame = {
-    ...save,
+    ...settled,
     clearedLevels,
     fragments: {
-      universal: save.fragments.universal + effectiveGrant.universal,
+      universal: settled.fragments.universal + effectiveGrant.universal,
       season,
     },
     lastPlayedLevelId: level.id,
@@ -316,24 +321,30 @@ export function applyClearToSave(
 }
 
 export function recordPlayStarted(save: SaveGame, levelId?: string): SaveGame {
+  const settled = settleQuestPeriods(save).save
   return {
-    ...save,
+    ...settled,
     ...(levelId ? { lastPlayedLevelId: levelId } : {}),
-    quests: recordQuestMetric(save.quests, 'both', 'plays', 1),
+    quests: recordQuestMetric(settled.quests, 'both', 'plays', 1),
   }
 }
 
-export function grantUniversalFragments(save: SaveGame, amount: number): SaveGame {
-  let quests = save.quests
-  if (amount > 0) {
-    quests = recordQuestMetric(quests, 'both', 'fragments_earned', amount)
+export function grantUniversalFragments(
+  save: SaveGame,
+  amount: number,
+  source: UniversalFragmentSource = 'compensation',
+): SaveGame {
+  const settled = settleQuestPeriods(save).save
+  let quests = settled.quests
+  if (amount > 0 && source === 'gameplay') {
+    quests = recordQuestMetric(quests, 'both', 'gameplay_fragments_earned', amount)
   }
   return {
-    ...save,
+    ...settled,
     quests,
     fragments: {
-      ...save.fragments,
-      universal: save.fragments.universal + amount,
+      ...settled.fragments,
+      universal: settled.fragments.universal + amount,
     },
   }
 }
