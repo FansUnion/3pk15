@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { CHAPTER_LABEL, CHAPTER_LABEL_EN, CHAPTER_ORDER, equipSkin, isSkinUnlocked, skinDisplayName, SKIN_CATALOG, unlockSkinWithCost, type SaveGame, type SkinCatalogItem } from '@wolf-sheep/game-core'
+import { CHAPTER_LABEL, CHAPTER_LABEL_EN, CHAPTER_ORDER, equipSkin, isSkinUnlocked, setBoardMode, skinDisplayName, SKIN_CATALOG, unlockSkinWithCost, type SaveGame, type SkinCatalogItem } from '@wolf-sheep/game-core'
 import { SkinPreview } from '@/components/SkinPreview'
 import { LocaleLink } from '@/components/LocaleSwitcher'
 import { SiteFooter } from '@/components/SiteChrome'
@@ -40,6 +40,10 @@ export default function SkinsPage() {
     }
   }
 
+  function chooseBoardMode(mode: 'seasonal' | 'fixed') {
+    replace(setBoardMode(save, mode))
+  }
+
   return (
     <div className="flex min-h-dvh flex-col">
       <main className="page-shell flex flex-1 flex-col gap-6 py-8">
@@ -59,6 +63,23 @@ export default function SkinsPage() {
             </div>
           </div>
         </header>
+
+        <section className="paper-card p-4">
+          <h2 className="font-serif text-lg text-[var(--ink)]">{locale === 'zh' ? '棋盘使用方式' : 'Board behavior'}</h2>
+          <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">
+            {locale === 'zh'
+              ? '跟随季节会让春、夏、秋、冬关卡自动使用对应棋盘；固定棋盘会在所有关卡使用同一款。'
+              : 'Seasonal mode matches Spring, Summer, Autumn, and Winter hunts. Fixed mode uses one board everywhere.'}
+          </p>
+          <div className="mt-3 grid grid-cols-2 rounded-lg border border-[var(--line)] p-1" role="group" aria-label={locale === 'zh' ? '棋盘使用方式' : 'Board behavior'}>
+            <button type="button" onClick={() => chooseBoardMode('seasonal')} aria-pressed={save.equipped.boardMode === 'seasonal'} className={`min-h-11 rounded-md px-3 text-sm ${save.equipped.boardMode === 'seasonal' ? 'bg-[var(--accent)] text-white' : 'text-[var(--ink)]'}`}>
+              {locale === 'zh' ? '跟随季节' : 'Follow season'}
+            </button>
+            <button type="button" onClick={() => chooseBoardMode('fixed')} aria-pressed={save.equipped.boardMode === 'fixed'} className={`min-h-11 rounded-md px-3 text-sm ${save.equipped.boardMode === 'fixed' ? 'bg-[var(--accent)] text-white' : 'text-[var(--ink)]'}`}>
+              {locale === 'zh' ? '固定棋盘' : 'Fixed board'}
+            </button>
+          </div>
+        </section>
 
         <SkinPreview save={save} previewLabel={t.skins.preview} activeLabel={t.skins.previewActive} previewSkinId={previewSkinId} />
         <LocaleLink href={`/play/${save.lastPlayedLevelId ?? 'spring-01'}`} locale={locale} className="primary-action w-full justify-center">
@@ -80,7 +101,9 @@ export default function SkinsPage() {
         <SkinSection title={t.skins.boards}>
           {SKIN_CATALOG.filter((skin) => skin.kind === 'board').map((skin) => {
             const unlocked = isSkinUnlocked(save, skin)
-            const equipped = save.equipped.boardId === skin.id
+            const equipped = save.equipped.boardMode === 'fixed'
+              ? save.equipped.boardId === skin.id
+              : Object.values(save.equipped.seasonalBoardIds).includes(skin.id)
             return <SkinCard key={skin.id} skin={skin} name={skinDisplayName(skin, locale)} unlocked={unlocked} equipped={equipped} previewing={previewSkinId === skin.id} unlockText={skinUnlockText(skin, locale, t.skins)} progressText={skinProgressText(save, skin, t.skins)} purchasable={skin.unlock.type === 'cost'} onPreview={() => setPreviewSkinId(skin.id)} onEquip={() => equip(skin.id)} onUnlock={() => unlock(skin.id)} labels={t.skins} />
           })}
         </SkinSection>

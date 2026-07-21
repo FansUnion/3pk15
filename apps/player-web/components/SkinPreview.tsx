@@ -8,7 +8,7 @@ export function SkinPreview({ save, previewLabel, activeLabel, previewSkinId }: 
   const previewSave = preview?.kind === 'wolf_set'
     ? { ...save, equipped: { ...save.equipped, wolfSetId: preview.id } }
     : preview?.kind === 'board'
-      ? { ...save, equipped: { ...save.equipped, boardId: preview.id } }
+      ? { ...save, equipped: { ...save.equipped, boardId: preview.id, boardMode: 'fixed' as const } }
       : save
   const skin = resolveSkin(previewSave)
   return (

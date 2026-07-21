@@ -5,6 +5,7 @@ import {
   LEVELS,
   QUEST_DEFS,
   SKIN_CATALOG,
+  simulateFirstClearEconomy,
   type ChapterId,
   type SkinCatalogItem,
 } from '@wolf-sheep/game-core'
@@ -22,6 +23,7 @@ export default function AdminEconomyPage() {
   const estimates = SKIN_CATALOG.filter(
     (s) => s.unlock.type === 'cost',
   ).map((s) => estimateSkin(s, avgFirst, dailyQuestU))
+  const paths = (['none', 'half', 'all'] as const).map(simulateFirstClearEconomy)
 
   return (
     <main className="mx-auto max-w-4xl">
@@ -57,6 +59,28 @@ export default function AdminEconomyPage() {
         </p>
         <p className="mt-3 border-t border-[#5c6b52]/15 pt-3 text-xs leading-relaxed text-[#7a8574]">
           这里是规则和配置的静态估算：它能说明碎片是否有兑换目标、目标距离和奖励来源，不能证明玩家一定愿意收藏或观看广告。商业化结论需要真实试玩数据。
+        </p>
+      </section>
+
+      <section className="mt-6 rounded-lg border border-[#5c6b52]/25 bg-[#f7f5ef] p-4 text-sm">
+        <h2 className="font-medium text-[#2c3328]">24关商业路径对比</h2>
+        <p className="mt-2 leading-relaxed text-[#5c6b52]">
+          这不是收入预测。它回答玩家不看、看一半、每次首通都看时，三档收藏分别在哪一关可达；广告只增加通用碎片，不改变关卡和季节棋盘奖励。
+        </p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[680px] text-left text-sm">
+            <thead><tr className="border-b border-[#5c6b52]/30 text-[#5c6b52]"><th className="py-2 pr-3">观看方式</th><th className="py-2 pr-3">广告</th><th className="py-2 pr-3">总获得</th><th className="py-2 pr-3">解锁节点</th><th className="py-2">下一目标</th></tr></thead>
+            <tbody>{paths.map((path) => <tr key={path.mode} className="border-b border-[#5c6b52]/15 align-top">
+              <td className="py-2 pr-3 font-medium">{path.mode === 'none' ? '不看广告' : path.mode === 'half' ? '约一半首通观看' : '每次首通观看'}</td>
+              <td className="py-2 pr-3">{path.adsCompleted} 次</td>
+              <td className="py-2 pr-3">{path.earnedUniversal} 通用</td>
+              <td className="py-2 pr-3">{path.unlocks.length ? path.unlocks.map((unlock) => `${unlock.skinId} @ ${unlock.levelId}`).join('；') : '无'}</td>
+              <td className="py-2">{path.nextTarget ? `${path.nextTarget.nameZh} 还差 ${path.nextTargetRemaining}` : '三档完成'}</td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-[#7a8574]">
+          当前目标梯度为80 / 160 / 240。若皮肤质量不足，不通过提价伪造价值；先修资源，再决定是否进入生产目录。
         </p>
       </section>
 

@@ -104,6 +104,8 @@ export type MessageTree = {
     preparing: string
     again: string
     rewardAd: string
+    rewardAdTarget: string
+    rewardAdUnlock: string
     rewardAdGranted: string
     adFailed: string
     share: string
@@ -365,6 +367,8 @@ export const en: MessageTree = {
     preparing: 'Preparing…',
     again: 'Play again',
     rewardAd: 'Watch ad · get {n} universal shards now',
+    rewardAdTarget: 'Watch ad +{n} · {remaining} left for {name}',
+    rewardAdUnlock: 'Watch ad +{n} · unlock {name}',
     rewardAdGranted: 'Reward received: +{n} universal shards.',
     adFailed: 'The reward video is unavailable. Your clear is still safe.',
     share: 'Share result',
@@ -647,6 +651,8 @@ export const zh: MessageTree = {
     preparing: '准备中…',
     again: '再来一局',
     rewardAd: '看广告 · 立即获得 {n} 通用碎片',
+    rewardAdTarget: '看视频 +{n} · 距离{name}还差 {remaining}',
+    rewardAdUnlock: '看视频 +{n} · 可解锁{name}',
     rewardAdGranted: '奖励已到账：通用碎片 +{n}。',
     adFailed: '广告暂时不可用，本关进度和碎片不受影响。',
     share: '分享战绩',

@@ -4,6 +4,10 @@ import {
   defaultSave,
   equipSkin,
   recordPlayStarted,
+  nextUniversalSkinTarget,
+  resolveSkin,
+  setBoardMode,
+  simulateFirstClearEconomy,
   SKIN_CATALOG,
   QUEST_DEFS,
   unlockSkinWithCost,
@@ -17,7 +21,7 @@ describe('skins', () => {
 
   it('unlock frost with enough fragments', () => {
     let save = defaultSave()
-    save = { ...save, fragments: { ...save.fragments, universal: 50 } }
+    save = { ...save, fragments: { ...save.fragments, universal: 80 } }
     const r = unlockSkinWithCost(save, 'wolf-frost')
     expect(r.ok).toBe(true)
     if (!r.ok) return
@@ -29,6 +33,40 @@ describe('skins', () => {
 
   it('has complete localized catalog names', () => {
     expect(SKIN_CATALOG.every((skin) => skin.nameEn && skin.nameZh)).toBe(true)
+  })
+
+  it('keeps a three-step 80/160/240 universal collection ladder', () => {
+    expect(SKIN_CATALOG
+      .filter((skin) => skin.kind === 'wolf_set' && skin.unlock.type === 'cost')
+      .map((skin) => skin.kind === 'wolf_set' && skin.unlock.type === 'cost' ? skin.unlock.universal : 0)
+      .sort((a, b) => a - b)).toEqual([80, 160, 240])
+  })
+
+  it('stops offering rewarded fragments after every universal target is owned', () => {
+    const save = defaultSave()
+    expect(nextUniversalSkinTarget(save)?.id).toBe('wolf-frost')
+    const complete = {
+      ...save,
+      unlockedSkinIds: [...save.unlockedSkinIds, 'wolf-frost', 'wolf-night', 'wolf-aurora'],
+    }
+    expect(nextUniversalSkinTarget(complete)).toBeNull()
+  })
+
+  it('makes ads accelerate rather than block the first-clear collection path', () => {
+    const none = simulateFirstClearEconomy('none')
+    const half = simulateFirstClearEconomy('half')
+    const all = simulateFirstClearEconomy('all')
+
+    expect(none).toMatchObject({ earnedUniversal: 240, adsCompleted: 0 })
+    expect(none.unlocks.map((unlock) => [unlock.skinId, unlock.clearNumber])).toEqual([
+      ['wolf-frost', 8], ['wolf-night', 24],
+    ])
+    expect(half).toMatchObject({ earnedUniversal: 360, adsCompleted: 12 })
+    expect(half.unlocks.map((unlock) => unlock.skinId)).toEqual(['wolf-frost', 'wolf-night'])
+    expect(all).toMatchObject({ earnedUniversal: 480, spentUniversal: 480, balance: 0, adsCompleted: 24 })
+    expect(all.unlocks.map((unlock) => [unlock.skinId, unlock.clearNumber])).toEqual([
+      ['wolf-frost', 4], ['wolf-night', 12], ['wolf-aurora', 24],
+    ])
   })
 
   it('unlocks a board with season fragments exactly once', () => {
@@ -49,6 +87,36 @@ describe('skins', () => {
     expect(premiumBoards).toHaveLength(4)
     expect(new Set(premiumBoards.map((skin) => skin.kind === 'board' && skin.unlock.type === 'cost' ? skin.unlock.season : null))).toEqual(new Set(['spring', 'summer', 'autumn', 'winter']))
     expect(premiumBoards.every((skin) => skin.kind === 'board' && skin.unlock.type === 'cost' && skin.unlock.amount === 30)).toBe(true)
+  })
+
+  it('follows the level season by default and keeps per-season choices', () => {
+    let save = defaultSave()
+    expect(resolveSkin(save, 'spring').board.id).toBe('board-spring')
+    expect(resolveSkin(save, 'winter').board.id).toBe('board-winter')
+
+    save = {
+      ...save,
+      fragments: { ...save.fragments, season: { ...save.fragments.season, winter: 30 } },
+    }
+    const unlocked = unlockSkinWithCost(save, 'board-night')
+    expect(unlocked.ok).toBe(true)
+    if (!unlocked.ok) return
+    const equipped = equipSkin(unlocked.save, 'board-night')
+    expect(equipped.ok).toBe(true)
+    if (!equipped.ok) return
+    expect(resolveSkin(equipped.save, 'winter').board.id).toBe('board-night')
+    expect(resolveSkin(equipped.save, 'spring').board.id).toBe('board-spring')
+
+    const fixed = setBoardMode({ ...equipped.save, equipped: { ...equipped.save.equipped, boardId: 'board-night' } }, 'fixed')
+    expect(resolveSkin(fixed, 'spring').board.id).toBe('board-night')
+  })
+
+  it('switches to fixed mode when equipping a season-neutral board', () => {
+    const equipped = equipSkin(defaultSave(), 'board-default')
+    expect(equipped.ok).toBe(true)
+    if (!equipped.ok) return
+    expect(equipped.save.equipped.boardMode).toBe('fixed')
+    expect(resolveSkin(equipped.save, 'winter').board.id).toBe('board-default')
   })
 })
 

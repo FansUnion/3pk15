@@ -58,12 +58,20 @@ export {
   getWolfSet,
   isSkinUnlocked,
   resolveSkin,
+  setBoardMode,
   skinDisplayName,
   SKIN_CATALOG,
   unlockSkinWithCost,
   validateSkinCatalog,
 } from './content/skins'
 export type { BoardSkin, SkinCatalogItem, WolfSetSkin } from './content/skins'
+export {
+  nextUniversalSkinTarget,
+  rewardedFragmentAmount,
+  simulateFirstClearEconomy,
+  universalSkinTargets,
+} from './content/economy'
+export type { AdEngagement, EconomyPath, UniversalTarget } from './content/economy'
 export { getWolfStrategy, LEVEL_STRATEGIES, strategyName, WOLF_STRATEGIES } from './content/strategies'
 export type { LevelStrategyProfile, WolfStrategy, WolfStrategyId } from './content/strategies'
 export type {

@@ -55,7 +55,7 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     name: '霜狼',
     nameEn: 'Frost Wolves',
     nameZh: '霜狼',
-    unlock: { type: 'cost', universal: 50 },
+    unlock: { type: 'cost', universal: 80 },
     assets: {
       wolf: '/skins/frost/wolf.svg',
       sheep: '/skins/frost/sheep.svg',
@@ -69,13 +69,27 @@ export const SKIN_CATALOG: SkinCatalogItem[] = [
     name: 'Night Watch',
     nameEn: 'Night Watch',
     nameZh: '夜巡狼群',
-    unlock: { type: 'cost', universal: 80 },
+    unlock: { type: 'cost', universal: 160 },
     assets: {
       wolf: '/skins/night/wolf.svg',
       sheep: '/skins/night/sheep.svg',
     },
     wolfFill: '#26364c',
     sheepFill: '#dce8f0',
+  },
+  {
+    id: 'wolf-aurora',
+    kind: 'wolf_set',
+    name: '极光盟誓',
+    nameEn: 'Aurora Pact',
+    nameZh: '极光盟誓',
+    unlock: { type: 'cost', universal: 240 },
+    assets: {
+      wolf: '/skins/aurora/wolf.svg',
+      sheep: '/skins/aurora/sheep.svg',
+    },
+    wolfFill: '#174b57',
+    sheepFill: '#f3eef8',
   },
   {
     id: 'board-default',
@@ -178,15 +192,27 @@ export function getBoardSkin(id: string): BoardSkin | undefined {
   return s?.kind === 'board' ? s : undefined
 }
 
-export function resolveSkin(save: SaveGame): {
+export function resolveSkin(save: SaveGame, chapterId?: ChapterId): {
   wolfSet: WolfSetSkin
   board: BoardSkin
 } {
   const wolf =
     getWolfSet(save.equipped.wolfSetId) ?? getWolfSet('wolf-default')!
-  const board =
-    getBoardSkin(save.equipped.boardId) ?? getBoardSkin('board-default')!
+  const boardId = save.equipped.boardMode === 'seasonal' && chapterId
+    ? save.equipped.seasonalBoardIds[chapterId] ?? `board-${chapterId}`
+    : save.equipped.boardId
+  const board = getBoardSkin(boardId) ?? getBoardSkin(`board-${chapterId}`) ?? getBoardSkin('board-default')!
   return { wolfSet: wolf, board }
+}
+
+export function setBoardMode(save: SaveGame, mode: 'seasonal' | 'fixed'): SaveGame {
+  return { ...save, equipped: { ...save.equipped, boardMode: mode } }
+}
+
+function boardChapter(skin: BoardSkin): ChapterId | null {
+  if (skin.unlock.type === 'chapter') return skin.unlock.chapterId
+  if (skin.unlock.type === 'cost') return skin.unlock.season
+  return null
 }
 
 export function isSkinUnlocked(save: SaveGame, skin: SkinCatalogItem): boolean {
@@ -256,6 +282,28 @@ export function equipSkin(
   if (!isSkinUnlocked(save, skin)) return { ok: false, error: 'locked' }
   if (skin.kind === 'wolf_set') {
     return { ok: true, save: { ...save, equipped: { ...save.equipped, wolfSetId: skin.id } } }
+  }
+  if (save.equipped.boardMode === 'seasonal') {
+    const chapter = boardChapter(skin)
+    if (chapter) {
+      return {
+        ok: true,
+        save: {
+          ...save,
+          equipped: {
+            ...save.equipped,
+            seasonalBoardIds: { ...save.equipped.seasonalBoardIds, [chapter]: skin.id },
+          },
+        },
+      }
+    }
+    return {
+      ok: true,
+      save: {
+        ...save,
+        equipped: { ...save.equipped, boardId: skin.id, boardMode: 'fixed' },
+      },
+    }
   }
   return { ok: true, save: { ...save, equipped: { ...save.equipped, boardId: skin.id } } }
 }

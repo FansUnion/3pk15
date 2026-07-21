@@ -1,17 +1,20 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
 import {
   adjacentLevels,
   applyClearToSave,
   createSeededRng,
   grantUniversalFragments,
   levelDisplayName,
+  nextUniversalSkinTarget,
   boardPositionKey,
   listWolfActionsAsIfTurn,
   recordPlayStarted,
   recordGuideHint,
   recordGuideResult,
+  rewardedFragmentAmount,
   refreshQuestPeriod,
   QUEST_DEFS,
   REPETITION_DRAW_COUNT,
@@ -19,9 +22,6 @@ import {
   REPETITION_WARNING_COUNT,
   resolveSkin,
   rollClearReward,
-  isSkinUnlocked,
-  skinDisplayName,
-  SKIN_CATALOG,
   type DropGrant,
   type BoardState,
   type LevelConfig,
@@ -117,9 +117,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   const t = localeOverride ? getMessages(localeOverride) : clientMessages.t
   const p = t.play
   const rewardedAdsAvailable = getPlatform().ads.isRewardedAvailable?.() ?? false
-  const nextWolfSkin = SKIN_CATALOG.find(
-    (skin) => skin.kind === 'wolf_set' && skin.unlock.type === 'cost' && !isSkinUnlocked(save, skin),
-  )
+  const nextWolfSkin = nextUniversalSkinTarget(save)
   const questState = refreshQuestPeriod(save.quests)
   const claimableQuests = QUEST_DEFS.filter((quest) => {
     const bucket = questState[quest.period]
@@ -345,7 +343,7 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   }, [adminMode, level.id, replace, state.status, uiPhase])
 
   const theme = useMemo(() => {
-    const { wolfSet, board } = resolveSkin(save)
+    const { wolfSet, board } = resolveSkin(save, level.chapterId)
     const rockWarm =
       board.id === 'board-autumn' ? 0.55 : board.id === 'board-winter' ? -0.45 : board.id === 'board-summer' ? 0.25 : 0
     return {
@@ -358,12 +356,15 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       boardBgSrc: board.assets.boardBg,
       rockWarm,
     }
-  }, [save])
+  }, [level.chapterId, save])
 
   const sheepLeft = state.pieces.filter((piece) => piece.side === 'sheep').length
   const interactive = uiPhase === 'playing' && state.toMove === 'wolf'
   const backHref = adminMode ? '/admin/levels' : `/levels/${level.chapterId}`
-  const adBonusAmount = Math.max(3, lastGrant?.universal ?? 0)
+  const adBonusAmount = rewardedFragmentAmount(lastGrant)
+  const adRemainingAfter = nextWolfSkin
+    ? Math.max(0, nextWolfSkin.cost - save.fragments.universal - adBonusAmount)
+    : 0
   const thinking = uiPhase === 'aiThinking'
   const chainFlash = Boolean(state.chain && uiPhase === 'playing')
   const title = levelDisplayName(level, locale)
@@ -570,15 +571,16 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
   return (
     <div className="mx-auto flex min-h-dvh max-w-lg flex-col gap-3 px-4 pb-4 pt-5">
       <header className="flex items-center justify-between gap-3">
-        <LocaleLink
+        <ScopedLink
+          adminMode={adminMode}
           href={backHref}
           locale={locale}
           className="quiet-action min-h-11 px-3 text-sm text-[var(--muted)]"
         >
           ← {p.back}
-        </LocaleLink>
+        </ScopedLink>
         <h1 className="font-serif text-lg tracking-wide text-[var(--ink)]">{title}</h1>
-        <span className="w-10" />
+        <button type="button" onClick={() => setMoreOpen(true)} aria-label={p.more} title={p.more} className="quiet-action grid h-11 w-11 place-items-center px-0 text-xl text-[var(--ink)]">⋯</button>
       </header>
 
       <div
@@ -683,9 +685,15 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               ) : (
                 <button type="button" onClick={restartAttempt} className="primary-action w-full justify-center">{p.again}</button>
               )}
-              {!adminMode && rewardedAdsAvailable && state.status === 'won' && adBonusGranted === null && (
+              {!adminMode && rewardedAdsAvailable && nextWolfSkin && state.status === 'won' && adBonusGranted === null && (
                 <button type="button" disabled={adBusy} onClick={() => void watchRewardBonus()} className="primary-action w-full justify-center disabled:opacity-50">
-                  {adBusy ? p.preparing : `▶ ${fmt(p.rewardAd, { n: adBonusAmount })}`}
+                  {adBusy
+                    ? p.preparing
+                    : `▶ ${fmt(adRemainingAfter === 0 ? p.rewardAdUnlock : p.rewardAdTarget, {
+                        n: adBonusAmount,
+                        name: locale === 'zh' ? nextWolfSkin.nameZh : nextWolfSkin.nameEn,
+                        remaining: adRemainingAfter,
+                      })}`}
                 </button>
               )}
               {adBonusGranted !== null && <p role="status" className="text-center text-xs font-medium text-green-800">{fmt(p.rewardAdGranted, { n: adBonusGranted })}</p>}
@@ -696,11 +704,11 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
               <summary className="cursor-pointer text-center text-sm text-[var(--muted)]">{p.resultDetails}</summary>
               {terminalDetails && <p className="mt-3 text-xs tabular-nums text-[var(--muted)]">{fmt(p.resultMetrics, { attempt: terminalDetails.attemptNumber, plies: state.plyCount, eaten: state.eatenSheep, capture: terminalDetails.firstCapturePly === null ? p.noCaptures : fmt(p.firstCaptureAt, { n: terminalDetails.firstCapturePly }), time: formatDuration(terminalDetails.durationMs), reason: terminalReasonLabel(terminalReason(state), p) })}</p>}
               {!adminMode && state.status === 'won' && <p className="mt-2 text-xs text-[var(--muted)]">{fmt(p.rewardBalance, { n: save.fragments.universal })}</p>}
-              {!adminMode && state.status === 'won' && nextWolfSkin?.kind === 'wolf_set' && nextWolfSkin.unlock.type === 'cost' && <p className="mt-1 text-xs text-[var(--muted)]">{fmt(p.nextRewardTarget, { name: skinDisplayName(nextWolfSkin, locale), cost: nextWolfSkin.unlock.universal })}</p>}
+              {!adminMode && state.status === 'won' && nextWolfSkin && <p className="mt-1 text-xs text-[var(--muted)]">{fmt(p.nextRewardTarget, { name: locale === 'zh' ? nextWolfSkin.nameZh : nextWolfSkin.nameEn, cost: nextWolfSkin.cost })}</p>}
               <div className="mt-3 flex flex-wrap justify-center gap-3 text-sm">
                 {state.status === 'won' && <button type="button" onClick={restartAttempt} className="underline-offset-2 hover:underline">{p.again}</button>}
                 <button type="button" disabled={shareBusy || adBusy} onClick={() => void shareTerminalResult()} className="underline-offset-2 hover:underline disabled:opacity-50">{shareBusy ? p.sharePreparing : p.share}</button>
-                <LocaleLink href={backHref} locale={locale} className="underline-offset-2 hover:underline">{p.levelList}</LocaleLink>
+                <ScopedLink adminMode={adminMode} href={backHref} locale={locale} className="underline-offset-2 hover:underline">{p.levelList}</ScopedLink>
                 <button type="button" onClick={reportCurrentGame} className="underline-offset-2 hover:underline">{p.reportGame}</button>
               </div>
               {shareStatus && <p role="status" className="mt-2 text-center text-xs text-[var(--muted)]">{shareStatus === 'shared' ? p.shareShared : shareStatus === 'copied' ? p.shareCopied : shareStatus === 'downloaded' ? p.shareDownloaded : shareStatus === 'cancelled' ? (locale === 'zh' ? '已取消分享，没有重复弹出分享窗口。' : 'Sharing was cancelled; no second prompt was opened.') : p.shareFailed}</p>}
@@ -734,16 +742,8 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
         </div>
       )}
 
-      {uiPhase !== 'terminal' && <footer className="mt-auto grid grid-cols-3 items-center rounded-xl border border-[var(--line)] bg-[var(--paper)]/90 p-1 shadow-sm">
-        <button type="button" onClick={openHint} className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm">{p.hint}</button>
-        <button
-          type="button"
-          onClick={() => setHelpOpen(true)}
-          className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm"
-        >
-          {p.help}
-        </button>
-        <button type="button" onClick={() => setMoreOpen(true)} className="min-h-11 px-1 py-2 text-xs text-[var(--ink)] sm:text-sm">{p.more}</button>
+      {uiPhase !== 'terminal' && <footer className="mt-auto flex justify-center">
+        <button type="button" onClick={openHint} className="quiet-action min-h-11 min-w-28 justify-center px-4 text-sm">{p.hint}</button>
       </footer>}
 
       {moreOpen && (
@@ -774,13 +774,14 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
                 <LocaleLink href="/quests" locale={locale} className="inline-flex min-h-11 items-center justify-between rounded-lg border border-[var(--line)] px-3 py-2 text-sm text-[var(--ink)]"><span>{t.nav.quests}</span>{claimableQuests > 0 ? <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-xs text-white">{locale === 'zh' ? `${claimableQuests} 项可领取` : `${claimableQuests} ready`}</span> : null}</LocaleLink>
                 <p className="mt-2 text-xs font-medium text-[var(--muted)]">{locale === 'zh' ? '设置与支持' : 'Settings & support'}</p>
                 <LocaleLink href="/settings" locale={locale} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--line)] px-3 py-2 text-sm text-[var(--ink)]">{t.nav.settings}</LocaleLink>
+                <button type="button" onClick={() => { setMoreOpen(false); setHelpOpen(true) }} className="min-h-11 rounded-lg border border-[var(--line)] px-3 py-2 text-left text-sm text-[var(--ink)]">{p.help}</button>
                 <LocaleLink href="/how-to-play" locale={locale} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--line)] px-3 py-2 text-sm text-[var(--ink)]">{t.nav.howToPlay}</LocaleLink>
               </>}
               <button type="button" onClick={reportCurrentGame} className="min-h-11 rounded-lg border border-[var(--line)] px-3 py-2 text-left text-sm text-[var(--ink)]">{p.reportGame}</button>
               {!adminMode && <div className="rounded-lg border border-[var(--line)] px-2 py-1"><LocaleSwitcher locale={locale} /></div>}
-              <LocaleLink href={adminMode ? '/admin/levels' : '/'} locale={locale} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--danger)]/35 px-3 py-2 text-sm text-[#8b2e22]">
+              <ScopedLink adminMode={adminMode} href={adminMode ? '/admin/levels' : '/'} locale={locale} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--danger)]/35 px-3 py-2 text-sm text-[#8b2e22]">
                 {p.exit}
-              </LocaleLink>
+              </ScopedLink>
             </div>
           </div>
         </div>
@@ -850,6 +851,12 @@ export function PlayScreen({ level, adminMode = false, onAdminAttempt, onAdminTe
       )}
     </div>
   )
+}
+
+function ScopedLink({ adminMode, href, locale, className, children }: { adminMode: boolean; href: string; locale: 'en' | 'zh'; className?: string; children: React.ReactNode }) {
+  return adminMode
+    ? <Link href={href} className={className}>{children}</Link>
+    : <LocaleLink href={href} locale={locale} className={className}>{children}</LocaleLink>
 }
 
 function turnLabel(

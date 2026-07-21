@@ -237,6 +237,25 @@ describe('save clear flow', () => {
     expect(migrated).not.toHaveProperty('buffs')
   })
 
+  it('migrates legacy board choices without overriding an intentional skin', () => {
+    const untouched = migrate({
+      ...defaultSave(),
+      schemaVersion: 1,
+      equipped: { wolfSetId: 'wolf-default', boardId: 'board-default' },
+    })
+    expect(untouched.schemaVersion).toBe(2)
+    expect(untouched.equipped.boardMode).toBe('seasonal')
+    expect(untouched.equipped.seasonalBoardIds.winter).toBe('board-winter')
+
+    const intentional = migrate({
+      ...defaultSave(),
+      schemaVersion: 1,
+      equipped: { wolfSetId: 'wolf-frost', boardId: 'board-night' },
+    })
+    expect(intentional.equipped.boardMode).toBe('fixed')
+    expect(intentional.equipped.boardId).toBe('board-night')
+  })
+
   it('repeat clear may drop zero', () => {
     const level = LEVELS[0]!
     let save = applyClearToSave(defaultSave(), level, {

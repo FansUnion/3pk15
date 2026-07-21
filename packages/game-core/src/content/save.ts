@@ -8,7 +8,7 @@ import {
 } from './quests'
 
 export type SaveGame = {
-  schemaVersion: 1
+  schemaVersion: 2
   clearedLevels: string[]
   unlockedChapters: ChapterId[]
   fragments: {
@@ -19,6 +19,8 @@ export type SaveGame = {
   equipped: {
     wolfSetId: string
     boardId: string
+    boardMode: 'seasonal' | 'fixed'
+    seasonalBoardIds: Record<ChapterId, string>
   }
   guide: {
     spring1Done: boolean
@@ -38,9 +40,18 @@ export type DropGrant = {
 
 export const SAVE_KEY = 'wolf-sheep-save-v1'
 
+function defaultSeasonalBoards(): Record<ChapterId, string> {
+  return {
+    spring: 'board-spring',
+    summer: 'board-summer',
+    autumn: 'board-autumn',
+    winter: 'board-winter',
+  }
+}
+
 export function defaultSave(): SaveGame {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     clearedLevels: [],
     unlockedChapters: ['spring'],
     fragments: {
@@ -51,6 +62,8 @@ export function defaultSave(): SaveGame {
     equipped: {
       wolfSetId: 'wolf-default',
       boardId: 'board-default',
+      boardMode: 'seasonal',
+      seasonalBoardIds: defaultSeasonalBoards(),
     },
     guide: { spring1Done: false, hintUsage: {}, failureStreak: {} },
     settings: { muted: false },
@@ -88,7 +101,7 @@ function parseQuests(raw: unknown): QuestState {
 export function migrate(raw: unknown): SaveGame {
   if (!raw || typeof raw !== 'object') return defaultSave()
   const o = raw as Record<string, unknown>
-  if (o.schemaVersion !== 1) return defaultSave()
+  if (o.schemaVersion !== 1 && o.schemaVersion !== 2) return defaultSave()
 
   const base = defaultSave()
   const fragments = o.fragments && typeof o.fragments === 'object' ? (o.fragments as Record<string, unknown>) : {}
@@ -96,8 +109,25 @@ export function migrate(raw: unknown): SaveGame {
   const unlockedChapters = Array.isArray(o.unlockedChapters)
     ? (o.unlockedChapters.filter((x) => CHAPTER_ORDER.includes(x as ChapterId)) as ChapterId[])
     : []
+  const rawEquipped = o.equipped && typeof o.equipped === 'object'
+    ? o.equipped as Partial<SaveGame['equipped']>
+    : {}
+  const boardId = typeof rawEquipped.boardId === 'string' ? rawEquipped.boardId : base.equipped.boardId
+  const rawSeasonalBoards: Partial<Record<ChapterId, string>> =
+    rawEquipped.seasonalBoardIds && typeof rawEquipped.seasonalBoardIds === 'object'
+      ? rawEquipped.seasonalBoardIds
+      : {}
+  const seasonalBoardIds = defaultSeasonalBoards()
+  for (const chapter of CHAPTER_ORDER) {
+    const candidate = rawSeasonalBoards[chapter]
+    if (typeof candidate === 'string') seasonalBoardIds[chapter] = candidate
+  }
+  const boardMode = rawEquipped.boardMode === 'seasonal' || rawEquipped.boardMode === 'fixed'
+    ? rawEquipped.boardMode
+    : boardId === 'board-default' ? 'seasonal' : 'fixed'
+
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     clearedLevels: Array.isArray(o.clearedLevels)
       ? o.clearedLevels.filter((x): x is string => typeof x === 'string')
       : [],
@@ -117,13 +147,12 @@ export function migrate(raw: unknown): SaveGame {
       : base.unlockedSkinIds,
     equipped: {
       wolfSetId:
-        typeof (o.equipped as SaveGame['equipped'] | undefined)?.wolfSetId === 'string'
-          ? (o.equipped as SaveGame['equipped']).wolfSetId
+        typeof rawEquipped.wolfSetId === 'string'
+          ? rawEquipped.wolfSetId
           : base.equipped.wolfSetId,
-      boardId:
-        typeof (o.equipped as SaveGame['equipped'] | undefined)?.boardId === 'string'
-          ? (o.equipped as SaveGame['equipped']).boardId
-          : base.equipped.boardId,
+      boardId,
+      boardMode,
+      seasonalBoardIds,
     },
     guide: {
       spring1Done: Boolean((o.guide as SaveGame['guide'] | undefined)?.spring1Done),
